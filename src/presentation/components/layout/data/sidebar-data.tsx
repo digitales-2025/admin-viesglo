@@ -1,12 +1,15 @@
 import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-  HelpCircle,
+  Banknote,
+  BriefcaseBusiness,
+  Building,
+  Files,
+  GraduationCap,
+  Hospital,
+  KeyRound,
+  Layers,
   LayoutDashboard,
-  Settings2,
-  ShieldCheck,
-  UserCircle2,
+  SquareActivity,
+  UsersRound,
 } from "lucide-react";
 
 import { type SidebarData } from "./types";
@@ -17,26 +20,9 @@ export const sidebarData: SidebarData = {
     email: "satnaingdev@gmail.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Shadcn Admin",
-      logo: Command,
-      plan: "Vite + ShadcnUI",
-    },
-    {
-      name: "Acme Inc",
-      logo: GalleryVerticalEnd,
-      plan: "Enterprise",
-    },
-    {
-      name: "Acme Corp.",
-      logo: AudioWaveform,
-      plan: "Startup",
-    },
-  ],
   navGroups: [
     {
-      title: "General",
+      title: "Inicio",
       items: [
         {
           title: "Dashboard",
@@ -46,54 +32,77 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: "Pages",
+      title: "Gestión Operativa",
       items: [
         {
-          title: "Auth",
-          icon: ShieldCheck,
-          items: [
-            {
-              title: "Sign In",
-              url: "/sign-in",
-            },
-            {
-              title: "Sign In (2 Col)",
-              url: "/sign-in-2",
-            },
-            {
-              title: "Sign Up",
-              url: "/sign-up",
-            },
-            {
-              title: "Forgot Password",
-              url: "/forgot-password",
-            },
-            {
-              title: "OTP",
-              url: "/otp",
-            },
-          ],
+          title: "Seguimiento",
+          icon: Layers,
+          url: "/tracking",
+        },
+        {
+          title: "Salud Ocupacional",
+          icon: SquareActivity,
+          url: "/occupational-health",
         },
       ],
     },
     {
-      title: "Other",
+      title: "Gestión Administrativa",
       items: [
         {
-          title: "Settings",
-          icon: Settings2,
-          items: [
-            {
-              title: "Profile",
-              url: "/settings",
-              icon: UserCircle2,
-            },
-          ],
+          title: "Clínicas",
+          icon: Hospital,
+          url: "/clinics",
         },
         {
-          title: "Help Center",
-          url: "/help-center",
-          icon: HelpCircle,
+          title: "Clientes",
+          icon: Building,
+          url: "/clients",
+        },
+        {
+          title: "Servicios",
+          icon: BriefcaseBusiness,
+          url: "/clients",
+        },
+      ],
+    },
+    {
+      title: "Gestión Comercial",
+      items: [
+        {
+          title: "Cotizaciones",
+          icon: Files,
+          url: "/quotes",
+        },
+        {
+          title: "Pagos",
+          icon: Banknote,
+          url: "/payments",
+        },
+      ],
+    },
+    {
+      title: "Gestión de Capacitaciones",
+      items: [
+        {
+          title: "Certificados",
+          icon: GraduationCap,
+          url: "/certificates",
+        },
+      ],
+    },
+    {
+      title: "Gestión de Usuarios",
+      items: [
+        {
+          title: "Usuarios",
+          icon: UsersRound,
+          url: "/users",
+        },
+        {
+          title: "Roles y permisos",
+          icon: KeyRound,
+          url: "/roles",
         },
       ],
     },

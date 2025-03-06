@@ -26,6 +26,7 @@ import {
   SidebarMenuSubItem,
   useSidebar,
 } from "@/presentation/components/ui/sidebar";
+import { cn } from "@/shared/lib/utils";
 import { NavCollapsible, NavItem, NavLink, type NavGroup } from "./data/types";
 
 const NavBadge = ({ children }: { children: ReactNode }) => (
@@ -46,8 +47,8 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={checkIsActive(href, item)} tooltip={item.title}>
         <Link href={item.url} onClick={() => setOpenMobile(false)}>
-          {item.icon && <item.icon />}
-          <span>{item.title}</span>
+          {item.icon && <item.icon className={cn(checkIsActive(href, item) ? "text-yellow-500" : "")} />}
+          <span className={cn(checkIsActive(href, item) ? "font-semibold" : "")}>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>
       </SidebarMenuButton>
