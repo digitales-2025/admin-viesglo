@@ -1,7 +1,9 @@
+import { DataTable } from "@/presentation/components/data-table/DataTable";
 import AdminLayout from "@/presentation/components/layout/AdminLayout";
 import { Header } from "@/presentation/components/layout/Header";
 import { ProfileDropdown } from "@/presentation/components/layout/ProfileDropdown";
 import { Search } from "@/presentation/components/layout/Search";
+import Shell from "@/presentation/components/layout/Shell";
 import { ThemeSwitch } from "@/presentation/components/layout/ThemeSwitch";
 import { TopNav } from "@/presentation/components/layout/TopNav";
 
@@ -44,6 +46,10 @@ export default function Home() {
           <ProfileDropdown />
         </div>
       </Header>
+      {/* ===== Main Content ===== */}
+      <Shell>
+        <DataTable columns={[]} data={[]} />
+      </Shell>
     </AdminLayout>
   );
 }
