@@ -3,6 +3,7 @@
 import React from "react";
 import { useRouter } from "next/navigation";
 import { ArrowBigRightDash, Laptop, Moon, Sun } from "lucide-react";
+import { useTheme } from "next-themes";
 
 import {
   CommandDialog,
@@ -14,7 +15,6 @@ import {
   CommandSeparator,
 } from "@/presentation/components/ui/command";
 import { useSearch } from "@/shared/context/search-context";
-import { useTheme } from "@/shared/context/theme-context";
 import { sidebarData } from "../layout/data/sidebar-data";
 import { ScrollArea } from "./scroll-area";
 
