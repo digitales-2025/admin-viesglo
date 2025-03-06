@@ -1,3 +1,4 @@
+/* eslint-disable import/no-anonymous-default-export */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -10,7 +11,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
   baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
   allConfig: js.configs.all,
 });
 
@@ -41,17 +41,12 @@ export default [
       ],
     },
   },
-  ...compat
-    .extends("plugin:@typescript-eslint/recommended", "prettier")
-    .map((config) => ({
-      ...config,
-      files: ["**/*.+(ts|tsx)"],
-    })),
+  ...compat.extends("plugin:@typescript-eslint/recommended", "prettier").map((config) => ({
+    ...config,
+    files: ["**/*.+(ts|tsx)"],
+  })),
   {
     files: ["**/*.+(ts|tsx)"],
-    plugins: {
-      "@typescript-eslint": typescriptEslintEslintPlugin,
-    },
     languageOptions: {
       parser: tsParser,
     },
