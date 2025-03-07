@@ -57,6 +57,7 @@ export default [
       "@typescript-eslint/no-use-before-define": [1],
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-var-requires": "off",
+      "@typescript-eslint/no-use-before-define": "off",
     },
   },
 ];
