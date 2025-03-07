@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/presentation/components/ui/avatar";
-import { Button } from "@/presentation/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/presentation/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 
 export function ProfileDropdown() {
   return (

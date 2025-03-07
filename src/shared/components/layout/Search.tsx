@@ -2,7 +2,7 @@
 
 import { Search as SearchIcon } from "lucide-react";
 
-import { Button } from "@/presentation/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import { useSearch } from "@/shared/context/search-context";
 import { cn } from "@/shared/lib/utils";
 

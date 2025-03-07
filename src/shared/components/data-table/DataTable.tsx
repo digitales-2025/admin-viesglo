@@ -16,9 +16,9 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
-import { DataTablePagination } from "@/presentation/components/data-table/DataTablePagination";
-import { DataTableToolbar } from "@/presentation/components/data-table/DataTableToolbar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/presentation/components/ui/table";
+import { DataTablePagination } from "@/shared/components/data-table/DataTablePagination";
+import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
-import { Badge } from "@/presentation/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/presentation/components/ui/collapsible";
+import { Badge } from "@/shared/components/ui/badge";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/presentation/components/ui/dropdown-menu";
+} from "@/shared/components/ui/dropdown-menu";
 import {
   SidebarGroup,
   SidebarGroupLabel,
@@ -25,7 +25,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/presentation/components/ui/sidebar";
+} from "@/shared/components/ui/sidebar";
 import { cn } from "@/shared/lib/utils";
 import { NavCollapsible, NavItem, NavLink, type NavGroup } from "./data/types";
 
