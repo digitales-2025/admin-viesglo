@@ -13,7 +13,7 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/presentation/components/ui/command";
+} from "@/shared/components/ui/command";
 import { useSearch } from "@/shared/context/search-context";
 import { sidebarData } from "../layout/data/sidebar-data";
 import { ScrollArea } from "./scroll-area";

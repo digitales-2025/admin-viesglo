@@ -1,11 +1,9 @@
-import { DataTable } from "@/presentation/components/data-table/DataTable";
-import AdminLayout from "@/presentation/components/layout/AdminLayout";
-import { Header } from "@/presentation/components/layout/Header";
-import { ProfileDropdown } from "@/presentation/components/layout/ProfileDropdown";
-import { Search } from "@/presentation/components/layout/Search";
-import Shell from "@/presentation/components/layout/Shell";
-import { ThemeSwitch } from "@/presentation/components/layout/ThemeSwitch";
-import { TopNav } from "@/presentation/components/layout/TopNav";
+import AdminLayout from "@/shared/components/layout/AdminLayout";
+import { Header } from "@/shared/components/layout/Header";
+import { ProfileDropdown } from "@/shared/components/layout/ProfileDropdown";
+import { Search } from "@/shared/components/layout/Search";
+import { ThemeSwitch } from "@/shared/components/layout/ThemeSwitch";
+import { TopNav } from "@/shared/components/layout/TopNav";
 
 const topNav = [
   {
@@ -46,10 +44,6 @@ export default function Home() {
           <ProfileDropdown />
         </div>
       </Header>
-      {/* ===== Main Content ===== */}
-      <Shell>
-        <DataTable columns={[]} data={[]} />
-      </Shell>
     </AdminLayout>
   );
 }

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { CommandMenu } from "@/presentation/components/ui/command-menu";
+import { CommandMenu } from "@/shared/components/ui/command-menu";
 
 interface SearchContextType {
   open: boolean;
