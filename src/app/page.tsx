@@ -1,3 +1,4 @@
+import { AuthGuard } from "@/shared/components/auth/AuthGuard";
 import AdminLayout from "@/shared/components/layout/AdminLayout";
 import { Header } from "@/shared/components/layout/Header";
 import { ProfileDropdown } from "@/shared/components/layout/ProfileDropdown";
@@ -35,14 +36,15 @@ const topNav = [
 export default function Home() {
   return (
     <AdminLayout>
-      {/* ===== Top Heading ===== */}
       <Header>
-        <TopNav links={topNav} />
-        <div className="ml-auto flex items-center space-x-4">
-          <Search />
-          <ThemeSwitch />
-          <ProfileDropdown />
-        </div>
+        <AuthGuard>
+          <TopNav links={topNav} />
+          <div className="ml-auto flex items-center space-x-4">
+            <Search />
+            <ThemeSwitch />
+            <ProfileDropdown />
+          </div>
+        </AuthGuard>
       </Header>
     </AdminLayout>
   );

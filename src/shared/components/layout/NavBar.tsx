@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react";
 
-import { useCurrentUser, useLogout } from "@/lib/queries/auth";
+import { useCurrentUser, useLogout } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {

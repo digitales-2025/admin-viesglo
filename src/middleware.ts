@@ -19,7 +19,6 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const accessToken = request.cookies.get("access_token");
   const refreshToken = request.cookies.get("refresh_token");
-
   // Consideramos autenticado si tiene access token O refresh token
   // El refresh token puede usarse para obtener un nuevo access token
   const isAuthenticated = !!accessToken || !!refreshToken;

@@ -7,12 +7,27 @@ interface RequestOptions extends RequestInit {
 
 export async function httpClient<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { params, skipRefreshToken = false, ...config } = options;
-  console.log("🚀 ~ params:", params);
-
-  // Construir URL - simplificado
+  // Construir URL preservando la ruta base API
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
-  const fullUrl = url.startsWith("http") ? new URL(url) : new URL(url, baseUrl);
+  let fullUrl: URL;
 
+  if (url.startsWith("http")) {
+    // URL absoluta
+    fullUrl = new URL(url);
+  } else {
+    // Para URLs relativas
+    const base = new URL(baseUrl);
+
+    // Normalizamos las rutas
+    const basePath =
+      base.pathname === "/" ? "" : base.pathname.endsWith("/") ? base.pathname.slice(0, -1) : base.pathname;
+    const urlPath = url.startsWith("/") ? url : `/${url}`;
+
+    // Combinamos las rutas
+    base.pathname = `${basePath}${urlPath}`;
+
+    fullUrl = base;
+  }
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
@@ -37,14 +52,10 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
   try {
     // Realizar la solicitud
     let response = await fetch(fullUrl.toString(), requestConfig);
-    console.log("🚀 ~ response:", response);
-
     // Si el token expiró (401) y no estamos en una solicitud de refresh token
     if (isTokenExpiredError(response.status) && !skipRefreshToken) {
       // Intentar refrescar el token
       const refreshSuccess = await refreshAccessToken();
-      console.log("🚀 ~ refreshSuccess:", refreshSuccess);
-
       if (refreshSuccess) {
         // Reintentar la solicitud original con el nuevo token
         response = await fetch(fullUrl.toString(), requestConfig);

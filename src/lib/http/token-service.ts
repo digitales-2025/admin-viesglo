@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+
 // Estado para almacenar información del token
 let refreshPromise: Promise<boolean> | null = null;
 
@@ -9,29 +11,51 @@ const pendingRequests: Array<() => void> = [];
  * @returns Promise con el resultado del refresh
  */
 export async function refreshAccessToken(): Promise<boolean> {
-  console.log("🚀 ~ refreshAccessToken ~ refreshAccessToken:", refreshAccessToken);
+  console.log("🔄 Iniciando refresh token");
+  const cookieStore = await cookies();
+  const refreshToken = cookieStore.get("refresh_token");
+  console.log("🚀 ~ refreshAccessToken ~ refreshToken:", refreshToken);
+
   if (refreshPromise) {
+    console.log("⏳ Refresh ya en progreso, esperando...");
     return refreshPromise;
   }
 
   refreshPromise = (async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
-        method: "POST",
-        credentials: "include", // Importante para cookies
-      });
-
-      if (!response.ok) {
-        throw new Error("No se pudo refrescar el token");
+      // Verificar que tenemos la URL base
+      if (!process.env.NEXT_PUBLIC_API_URL) {
+        console.error("❌ URL base no definida en variables de entorno");
+        return false;
       }
 
-      // Resolver todas las solicitudes pendientes
+      const refreshUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`;
+      console.log("📡 Enviando solicitud a:", refreshUrl);
+
+      const response = await fetch(refreshUrl, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ refreshToken: refreshToken?.value }),
+      });
+
+      console.log("📨 Respuesta del servidor:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => "No error details");
+        console.error(`❌ Error en refresh: ${response.status} - ${errorText}`);
+        throw new Error(`Refresh falló con status: ${response.status}`);
+      }
+
+      console.log("✅ Refresh exitoso");
       pendingRequests.forEach((resolve) => resolve());
       pendingRequests.length = 0;
 
       return true;
     } catch (error) {
-      console.error("Error al refrescar token:", error);
+      console.error("❌ Error detallado:", error);
       return false;
     } finally {
       refreshPromise = null;

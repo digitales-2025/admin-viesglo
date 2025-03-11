@@ -2,7 +2,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import type { Credentials } from "../_actions/auth";
-import { logout, refreshToken } from "../_actions/auth";
+import { currentUser, logout } from "../_actions/auth";
 
 // Claves de consulta
 export const AUTH_KEYS = {
@@ -18,10 +18,11 @@ export function useCurrentUser() {
     queryKey: AUTH_KEYS.user(),
     // Puedes crear un Server Action para esto
     queryFn: async () => {
-      // Este es un ejemplo, deberías crear un Server Action para getCurrentUser
-      const response = await fetch("/api/auth/me");
-      if (!response.ok) return null;
-      return response.json();
+      const result = await currentUser();
+      if (!result.success) {
+        throw new Error(result.error || "Error al obtener el usuario");
+      }
+      return result.user;
     },
     retry: false,
     throwOnError: false,
@@ -55,25 +56,6 @@ export function useLogin() {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_KEYS.user(), data.user);
-    },
-  });
-}
-
-// Hook para refrescar el token - usando Server Action
-export function useRefreshToken() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async () => {
-      const result = await refreshToken();
-      if (!result.success) {
-        throw new Error(result.error || "Token refresh failed");
-      }
-      return result;
-    },
-    onSuccess: () => {
-      // No necesitamos manejar el token aquí, ya que se gestiona en cookies
-      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user() });
     },
   });
 }

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useCurrentUser } from "@/lib/queries/auth";
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 
 interface AuthGuardProps {
   children: React.ReactNode;

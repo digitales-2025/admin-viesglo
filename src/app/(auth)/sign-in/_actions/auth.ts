@@ -46,26 +46,7 @@ export async function login(credentials: Credentials) {
     };
   }
 }
-// Añade esta nueva server action
-export async function refreshToken() {
-  try {
-    const cookieStore = await cookies();
 
-    const refreshToken = cookieStore.get("refresh_token")?.value;
-
-    if (!refreshToken) {
-      throw new Error("No hay token de actualización");
-    }
-    await http.post(ENDPOINTS.REFRESH, { refreshToken });
-
-    return { success: true };
-  } catch (error: any) {
-    return {
-      success: false,
-      error: error.message || "Error al refrescar el token",
-    };
-  }
-}
 // Action para logout
 export async function logout() {
   try {
@@ -93,5 +74,16 @@ export async function logout() {
   } catch (error: any) {
     console.error("Error al cerrar sesión", error);
     return { success: false, error: "Error al cerrar sesión" };
+  }
+}
+
+// Action para obtener el usuario actual
+export async function currentUser() {
+  try {
+    const result = await http.get(ENDPOINTS.ME);
+    console.log("🚀 ~ currentUser ~ result:", result);
+    return { success: true, user: result.user };
+  } catch (error: any) {
+    return { success: false, error: error.message || "Error al obtener usuario" };
   }
 }
