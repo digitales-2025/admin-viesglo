@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
@@ -36,8 +37,12 @@ export async function login(credentials: Credentials) {
     const result = await http.post(ENDPOINTS.LOGIN, loginData);
     console.log("🚀 ~ login ~ result:", result);
 
-    // Return success para que el cliente sepa que fue exitoso
-    // No hacemos redirect aquí para permitir que el cliente maneje la transición
+    // Guardamos el token en las cookies
+    const cookieStore = await cookies();
+
+    cookieStore.set("access_token", result.accessToken);
+    cookieStore.set("refresh_token", result.refreshToken);
+
     return {
       success: true,
       user: result.user,
