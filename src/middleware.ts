@@ -17,21 +17,25 @@ const isPublicPath = (path: string) => {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // Verificar si el usuario está autenticado comprobando la cookie de sesión
+  const authCookie = request.cookies.get("access_token"); // Ajustar al nombre real
+  // El nombre de la cookie debe coincidir con la usada por tu API
+  if (!authCookie) {
+    // Redirigir a login si no hay cookie de autenticación
+    const url = new URL("/sign-in", request.url);
+    // Guardar la URL original para redirigir después del login
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
+  } else if (pathname === "/sign-in") {
+    // Si el usuario ya está autenticado y está en la página de login
+    // Redirigir al callbackUrl si existe, o a la raíz
+    const callbackUrl = request.nextUrl.searchParams.get("callbackUrl") || "/";
+    return NextResponse.redirect(new URL(callbackUrl, request.url));
+  }
 
   // No aplicar middleware a rutas públicas o estáticas
   if (isPublicPath(pathname)) {
     return NextResponse.next();
-  }
-
-  // Verificar si el usuario está autenticado comprobando la cookie de sesión
-  // El nombre de la cookie debe coincidir con la usada por tu API
-  const authCookie = request.cookies.get("access_token"); // Ajustar al nombre real
-  if (!authCookie) {
-    // Redirigir a login si no hay cookie de autenticación
-    const url = new URL("/sign-in", request.url);
-    // Opcional: guardar la URL original para redirigir después del login
-    url.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();

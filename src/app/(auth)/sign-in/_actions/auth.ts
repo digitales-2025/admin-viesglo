@@ -58,8 +58,10 @@ export async function logout() {
   try {
     await http.post(ENDPOINTS.LOGOUT);
 
-    // El backend se encarga de eliminar la cookie HttpOnly
-    // No es necesario manipular las cookies desde el cliente
+    // Limpiar cookies
+    const cookieStore = await cookies();
+    cookieStore.delete("access_token");
+    cookieStore.delete("refresh_token");
 
     // Redirigir al login
     redirect("/sign-in");
