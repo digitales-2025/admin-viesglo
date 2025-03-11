@@ -1,65 +1,42 @@
-import { ENDPOINTS } from "./endpoints";
-
 // Estado para almacenar información del token
-let refreshPromise: Promise<string> | null = null;
+let refreshPromise: Promise<boolean> | null = null;
 
-/**
- * Construye una URL correctamente manteniendo la ruta base
- * Duplicamos esta lógica para evitar importaciones circulares
- */
-function buildFullUrl(path: string): string {
-  const baseUrl = process.env.API_URL || "";
-
-  if (path.startsWith("/")) {
-    const baseUrlObj = new URL(baseUrl);
-    const basePath = baseUrlObj.pathname.endsWith("/") ? baseUrlObj.pathname.slice(0, -1) : baseUrlObj.pathname;
-
-    return `${baseUrlObj.origin}${basePath}${path}`;
-  }
-  return new URL(path, baseUrl).toString();
-}
+// Cola de solicitudes pendientes
+const pendingRequests: Array<() => void> = [];
 
 /**
  * Realiza el refresh del token usando el endpoint de refresh
- * @returns Promise con el nuevo accessToken
+ * @returns Promise con el resultado del refresh
  */
-export async function refreshAccessToken(): Promise<string> {
-  // Si ya hay un refresh en proceso, retornamos la misma promesa
-  // para evitar múltiples solicitudes simultáneas
+export async function refreshAccessToken(): Promise<boolean> {
+  console.log("🚀 ~ refreshAccessToken ~ refreshAccessToken:", refreshAccessToken);
   if (refreshPromise) {
     return refreshPromise;
   }
 
-  // Crear una nueva promesa para el proceso de refresh
-  refreshPromise = new Promise<string>(async (resolve, reject) => {
+  refreshPromise = (async () => {
     try {
-      // Construimos la URL completa
-      const refreshUrl = buildFullUrl(ENDPOINTS.REFRESH);
-
-      // Usamos fetch directamente para evitar circular imports
-      const response = await fetch(refreshUrl, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
         method: "POST",
-        credentials: "include", // Importante para enviar las cookies
-        headers: {
-          "Content-Type": "application/json",
-        },
+        credentials: "include", // Importante para cookies
       });
 
       if (!response.ok) {
         throw new Error("No se pudo refrescar el token");
       }
 
-      const data = await response.json();
+      // Resolver todas las solicitudes pendientes
+      pendingRequests.forEach((resolve) => resolve());
+      pendingRequests.length = 0;
 
-      // Resolvemos con el nuevo token
-      resolve(data.accessToken);
+      return true;
     } catch (error) {
-      reject(error);
+      console.error("Error al refrescar token:", error);
+      return false;
     } finally {
-      // Limpiamos la promesa de refresh cuando termina
       refreshPromise = null;
     }
-  });
+  })();
 
   return refreshPromise;
 }
@@ -69,4 +46,18 @@ export async function refreshAccessToken(): Promise<string> {
  */
 export function isTokenExpiredError(status: number): boolean {
   return status === 401;
+}
+
+/**
+ * Registra una solicitud pendiente para ejecutar después del refresh
+ * @returns Promise que se resuelve cuando el token se ha refrescado
+ */
+export function waitForTokenRefresh(): Promise<void> {
+  return new Promise((resolve) => {
+    if (refreshPromise) {
+      pendingRequests.push(resolve);
+    } else {
+      resolve();
+    }
+  });
 }

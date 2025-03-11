@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
@@ -13,8 +12,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/shared/components/ui/input";
 import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 import { PasswordInput } from "@/shared/components/ui/password-input";
+import { useToast } from "@/shared/hooks/use-toast";
 import { cn } from "@/shared/lib/utils";
-import { login } from "../_actions/auth";
+import { useLogin } from "../_hooks/useAuth";
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>;
 
@@ -26,9 +26,10 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function LoginForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const { mutate: login, isPending: isLoading } = useLogin();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
+  const { success, error } = useToast();
 
   // Para manejar timeout de carga
   const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -51,58 +52,23 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(data: FormValues) {
-    // Limpiar cualquier timeout anterior
-    if (loadingTimeout) {
-      clearTimeout(loadingTimeout);
-    }
+    login(data, {
+      onSuccess: () => {
+        setIsRedirecting(true);
+        success("Inicio de sesión exitoso! Redirigiendo...");
 
-    setIsLoading(true);
+        // Guarda la referencia del timeout
+        const timeoutId = setTimeout(() => {
+          router.push("/");
+        }, 1500);
 
-    // Establecer timeout para evitar carga infinita
-    const timeout = setTimeout(() => {
-      setIsLoading(false);
-      toast.error("La solicitud está tardando demasiado. Por favor, inténtalo de nuevo.");
-    }, 15000); // 15 segundos máximo
-
-    setLoadingTimeout(timeout);
-
-    try {
-      // Enviar solicitud de login
-      const result = await login(data);
-
-      // Verificar resultado
-      if (result && !result.success) {
-        // Mostrar error si login falló
-        toast.error(result.error || "Error al iniciar sesión");
-        setIsLoading(false);
-        return;
-      }
-
-      // Si llegamos aquí y no recibimos respuesta con error, asumimos éxito
-      setIsRedirecting(true);
-      toast.success("Inicio de sesión exitoso! Redirigiendo...");
-
-      // Simulamos una redirección manual tras 1.5 segundos (tiempo para mostrar toast)
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
-    } catch (error: any) {
-      console.error("Error durante el inicio de sesión:", error);
-      toast.error(error.message || "Ha ocurrido un error durante el inicio de sesión");
-    } finally {
-      // Limpiar timeout
-      if (loadingTimeout) {
-        clearTimeout(loadingTimeout);
-        setLoadingTimeout(null);
-      }
-
-      // No reseteamos isLoading si estamos redirigiendo
-      if (!isRedirecting) {
-        setIsLoading(false);
-      }
-    }
+        setLoadingTimeout(timeoutId);
+      },
+      onError: (err: Error) => {
+        error(err.message || "Error al iniciar sesión");
+      },
+    });
   }
-
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       {/* Componente de transición para indicar redirección */}

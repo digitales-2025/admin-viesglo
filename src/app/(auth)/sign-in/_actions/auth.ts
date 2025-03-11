@@ -14,7 +14,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "Contraseña requerida"),
 });
 
-type Credentials = components["schemas"]["SignInDto"];
+export type Credentials = components["schemas"]["SignInDto"];
 
 // Action para login
 export async function login(credentials: Credentials) {
@@ -35,12 +35,6 @@ export async function login(credentials: Credentials) {
 
     // Realizar petición al API
     const result = await http.post(ENDPOINTS.LOGIN, loginData);
-    // Guardamos el token en las cookies
-    const cookieStore = await cookies();
-
-    cookieStore.set("access_token", result.accessToken);
-    cookieStore.set("refresh_token", result.refreshToken);
-
     return {
       success: true,
       user: result.user,
@@ -52,13 +46,44 @@ export async function login(credentials: Credentials) {
     };
   }
 }
+// Añade esta nueva server action
+export async function refreshToken() {
+  try {
+    const cookieStore = await cookies();
 
+    const refreshToken = cookieStore.get("refresh_token")?.value;
+
+    if (!refreshToken) {
+      throw new Error("No hay token de actualización");
+    }
+    await http.post(ENDPOINTS.REFRESH, { refreshToken });
+
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Error al refrescar el token",
+    };
+  }
+}
 // Action para logout
 export async function logout() {
   try {
-    await http.post(ENDPOINTS.LOGOUT);
+    try {
+      // Intentar cerrar sesión en el backend
+      const result = await http.post(ENDPOINTS.LOGOUT);
 
-    // Limpiar cookies
+      // Si fue exitoso, perfecto
+      if (result.success) {
+        console.log("Logout exitoso en backend");
+      }
+    } catch (error) {
+      // Si hay error en el logout en el servidor, lo registramos pero continuamos
+      // No queremos que un error del servidor impida al usuario cerrar sesión localmente
+      console.error("Error en logout del servidor:", error);
+    }
+
+    // En cualquier caso, siempre limpiar cookies locales
     const cookieStore = await cookies();
     cookieStore.delete("access_token");
     cookieStore.delete("refresh_token");

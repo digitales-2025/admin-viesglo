@@ -5,9 +5,18 @@ type ToastType = "success" | "error" | "info" | "warning";
 interface ToastOptions {
   duration?: number;
   id?: string;
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "top-center" | "bottom-center";
+  className?: string;
+  style?: React.CSSProperties;
+  icon?: React.ReactNode;
+  closeButton?: boolean;
+  actionButtonStyle?: React.CSSProperties;
+  actionButtonClassName?: string;
+  dismissible?: boolean;
   action?: {
     label: string;
     onClick: () => void;
+    className?: string;
   };
 }
 

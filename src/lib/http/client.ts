@@ -1,4 +1,4 @@
-import { isTokenExpiredError, refreshAccessToken } from "./token-service";
+import { isTokenExpiredError, refreshAccessToken, waitForTokenRefresh } from "./token-service";
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -7,22 +7,11 @@ interface RequestOptions extends RequestInit {
 
 export async function httpClient<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { params, skipRefreshToken = false, ...config } = options;
+  console.log("🚀 ~ params:", params);
 
-  // Construir URL correctamente manteniendo la ruta base
-  const baseUrl = process.env.API_URL || "";
-
-  // Asegurarse de combinar correctamente las rutas
-  let fullUrl: URL;
-  if (url.startsWith("/")) {
-    // Si url empieza con /, asegurarse de que se mantiene la ruta base
-    const baseUrlObj = new URL(baseUrl);
-    const basePath = baseUrlObj.pathname.endsWith("/") ? baseUrlObj.pathname.slice(0, -1) : baseUrlObj.pathname;
-
-    fullUrl = new URL(`${baseUrlObj.origin}${basePath}${url}`);
-  } else {
-    // URL relativa normal
-    fullUrl = new URL(url, baseUrl);
-  }
+  // Construir URL - simplificado
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+  const fullUrl = url.startsWith("http") ? new URL(url) : new URL(url, baseUrl);
 
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -31,6 +20,9 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
       }
     });
   }
+
+  // Si hay un refresh en progreso, esperar a que termine
+  await waitForTokenRefresh();
 
   // Configuración base
   const requestConfig: RequestInit = {
@@ -45,25 +37,22 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
   try {
     // Realizar la solicitud
     let response = await fetch(fullUrl.toString(), requestConfig);
+    console.log("🚀 ~ response:", response);
 
     // Si el token expiró (401) y no estamos en una solicitud de refresh token
-    if (isTokenExpiredError(response.status) && !skipRefreshToken && url !== "/auth/refresh") {
-      try {
-        // Intentar refrescar el token
-        await refreshAccessToken();
+    if (isTokenExpiredError(response.status) && !skipRefreshToken) {
+      // Intentar refrescar el token
+      const refreshSuccess = await refreshAccessToken();
+      console.log("🚀 ~ refreshSuccess:", refreshSuccess);
 
+      if (refreshSuccess) {
         // Reintentar la solicitud original con el nuevo token
         response = await fetch(fullUrl.toString(), requestConfig);
-      } catch (refreshError) {
-        // Si el refresh falla, consideramos que la sesión expiró
-        console.error("Error refreshing token:", refreshError);
-
-        // No se pudo refrescar el token, la sesión probablemente expiró
+      } else {
+        // Redirigir a login si el refresh falló (solo en navegador)
         if (typeof window !== "undefined") {
-          // Solo redirigir en el cliente
-          window.location.href = "/auth/sign-in";
+          window.location.href = "/sign-in"; // Corregido a la ruta correcta
         }
-
         throw new Error("La sesión ha expirado");
       }
     }
