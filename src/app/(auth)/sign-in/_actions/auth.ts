@@ -35,8 +35,6 @@ export async function login(credentials: Credentials) {
 
     // Realizar petición al API
     const result = await http.post(ENDPOINTS.LOGIN, loginData);
-    console.log("🚀 ~ login ~ result:", result);
-
     // Guardamos el token en las cookies
     const cookieStore = await cookies();
 

@@ -26,8 +26,6 @@ export async function middleware(request: NextRequest) {
   // Verificar si el usuario está autenticado comprobando la cookie de sesión
   // El nombre de la cookie debe coincidir con la usada por tu API
   const authCookie = request.cookies.get("access_token"); // Ajustar al nombre real
-  console.log("🚀 ~ middleware ~ authCookie:", authCookie);
-
   if (!authCookie) {
     // Redirigir a login si no hay cookie de autenticación
     const url = new URL("/sign-in", request.url);
