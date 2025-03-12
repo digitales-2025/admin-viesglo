@@ -1,5 +1,8 @@
 "use client";
 
+import { Trash } from "lucide-react";
+
+import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { RolesMutateDrawer } from "./RolesMutateDrawer";
 
@@ -20,8 +23,32 @@ export default function RolesDialogs() {
         currentRow={isOpenForModule(MODULE, "edit") ? data : undefined}
       />
 
-      {/* Aquí se pueden agregar más diálogos según sea necesario */}
-      {/* Por ejemplo, diálogo de confirmación para eliminar, diálogo para ver detalles, etc. */}
+      {/* Diálogo para eliminar rol */}
+      <ConfirmDialog
+        key="task-delete"
+        destructive
+        open={isOpenForModule(MODULE, "delete")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        handleConfirm={() => {
+          console.log("delete");
+        }}
+        className="max-w-md"
+        title={
+          <div className="flex items-center gap-2">
+            <Trash className="h-4 w-4 text-rose-500" />
+            Eliminar rol <strong className=" uppercase ">{data?.name}</strong>
+          </div>
+        }
+        desc={
+          <>
+            Estás a punto de eliminar el rol <strong>{data?.name}</strong>. <br />
+            Esta acción no se puede deshacer.
+          </>
+        }
+        confirmText="Eliminar"
+      />
     </>
   );
 }
