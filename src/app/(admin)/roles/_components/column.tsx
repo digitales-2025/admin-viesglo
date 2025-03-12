@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Role } from "../_types/roles";
+import { RolesTableActions } from "./RolesTableActions";
 
 export const columnsRoles: ColumnDef<Role>[] = [
   {
@@ -45,24 +46,9 @@ export const columnsRoles: ColumnDef<Role>[] = [
   },
   {
     id: "actions",
-    cell: ({}) => {
-      // Usamos los hooks directamente en el componente celda
-      /*return (
-        <DataTableRowActions
-          row={row}
-          showEdit={true}
-          showDelete={true}
-          onEdit={handleEditRole}
-          onDelete={handleDeleteRole}
-          actions={[
-            {
-              label: "Ver detalles",
-              onClick: handleViewDetails,
-              shortcut: "⌘V",
-            },
-          ]}
-        />
-      );*/
+    cell: ({ row }) => {
+      const item = row.original;
+      return <RolesTableActions row={item} />;
     },
   },
 ];
