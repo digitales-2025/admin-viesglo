@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { Skeleton } from "../ui/skeleton";
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -21,7 +22,11 @@ export function AuthGuard({ children, fallback }: AuthGuardProps) {
   }, [user, isLoading, error, router]);
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center">Cargando...</div>;
+    return (
+      <div className="flex h-screen w-full items-center justify-end">
+        <Skeleton className="size-8 rounded-full" />
+      </div>
+    );
   }
 
   if (!user) {
