@@ -67,29 +67,43 @@ export async function login(credentials: Credentials) {
 // Action para logout
 export async function logout() {
   try {
+    // Determinar si estamos en el servidor
+    const isServer = typeof window === "undefined";
+    console.log(`🔄 Ejecutando logout en el ${isServer ? "servidor" : "cliente"}`);
+
+    // Obtener la URL completa
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const url = `${baseUrl}${ENDPOINTS.LOGOUT}`;
+
     try {
       // Intentar cerrar sesión en el backend
-      const result = await http.post(ENDPOINTS.LOGOUT);
+      console.log("📡 Enviando petición de logout al backend");
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Para que funcione desde el cliente
+      });
 
-      // Si fue exitoso, perfecto
-      if (result.success) {
-        console.log("Logout exitoso en backend");
+      if (response.ok) {
+        console.log("✅ Logout exitoso en backend");
+      } else {
+        console.warn(`⚠️ El backend respondió con estado ${response.status}`);
       }
     } catch (error) {
       // Si hay error en el logout en el servidor, lo registramos pero continuamos
-      // No queremos que un error del servidor impida al usuario cerrar sesión localmente
-      console.error("Error en logout del servidor:", error);
+      console.error("❌ Error en logout del servidor:", error);
     }
 
-    // En cualquier caso, siempre limpiar cookies locales
-    const cookieStore = await cookies();
-    cookieStore.delete("access_token");
-    cookieStore.delete("refresh_token");
+    // No intentamos manipular cookies desde el servidor
+    // El backend ya se encarga de invalidar las cookies
 
     // Redirigir al login
+    console.log("🔀 Redirigiendo a login...");
     redirect("/sign-in");
   } catch (error: any) {
-    console.error("Error al cerrar sesión", error);
+    console.error("❌ Error al cerrar sesión", error);
     return { success: false, error: "Error al cerrar sesión" };
   }
 }
@@ -97,10 +111,123 @@ export async function logout() {
 // Action para obtener el usuario actual
 export async function currentUser() {
   try {
-    const result = await http.get(ENDPOINTS.ME);
-    console.log("🚀 ~ currentUser ~ result:", result);
-    return { success: true, user: result };
+    // Determinar si estamos en el servidor o cliente
+    const isServer = typeof window === "undefined";
+    console.log(`📡 Ejecutando currentUser en el ${isServer ? "servidor" : "cliente"}`);
+
+    // En el cliente, simplemente usamos http.get que ya maneja las cookies correctamente
+    if (!isServer) {
+      const result = await http.get(ENDPOINTS.ME);
+      console.log("✅ /me exitoso en cliente:", result);
+      return { success: true, user: result };
+    }
+
+    // En el servidor, necesitamos un enfoque más directo
+    console.log("🔍 Ejecutando en servidor, obteniendo cookies explícitamente");
+
+    // Obtener cookies de la solicitud (manejando caso de Promise)
+    const cookieStore = await Promise.resolve(cookies());
+
+    // Obtener tokens de autenticación
+    const accessToken = cookieStore.get("access_token");
+    const refreshToken = cookieStore.get("refresh_token");
+
+    console.log("🔑 Tokens:", {
+      hasAccessToken: !!accessToken,
+      hasRefreshToken: !!refreshToken,
+    });
+
+    // Construir el header Cookie para enviar al backend
+    let cookieHeader = "";
+    if (accessToken || refreshToken) {
+      const parts = [];
+      if (accessToken) parts.push(`access_token=${accessToken.value}`);
+      if (refreshToken) parts.push(`refresh_token=${refreshToken.value}`);
+      cookieHeader = parts.join("; ");
+    }
+
+    // Si no hay cookies, retornar error
+    if (!cookieHeader) {
+      console.warn("⚠️ No hay cookies de autenticación disponibles");
+      return {
+        success: false,
+        error: "No hay cookies de autenticación",
+      };
+    }
+
+    // Hacer la petición directamente con fetch
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const response = await fetch(`${baseUrl}${ENDPOINTS.ME}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Cookie: cookieHeader,
+      },
+      credentials: "include",
+    });
+
+    // Procesar la respuesta
+    if (!response.ok) {
+      const status = response.status;
+      console.error(`❌ Error HTTP ${status} en /me con cookies manuales`);
+
+      // Si es error de autenticación y tenemos refresh token, intentar refresh
+      if (status === 401 && refreshToken) {
+        console.log("🔄 Intentando refresh token en servidor");
+
+        // Intentar hacer refresh
+        const refreshResponse = await fetch(`${baseUrl}${ENDPOINTS.REFRESH}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Cookie: `refresh_token=${refreshToken.value}`,
+          },
+          credentials: "include",
+        });
+
+        // Si el refresh fue exitoso, obtener nuevo token y reintentar
+        if (refreshResponse.ok) {
+          const refreshData = await refreshResponse.json();
+          console.log("✅ Refresh en servidor exitoso, reintentando /me");
+
+          // Actualizar header con nuevo access token
+          const newCookieHeader = `access_token=${refreshData.accessToken}; refresh_token=${refreshToken.value}`;
+
+          // Reintentar la petición original
+          const retryResponse = await fetch(`${baseUrl}${ENDPOINTS.ME}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Cookie: newCookieHeader,
+            },
+            credentials: "include",
+          });
+
+          if (retryResponse.ok) {
+            const userData = await retryResponse.json();
+            return { success: true, user: userData };
+          }
+        }
+      }
+
+      // Si no se pudo resolver, retornar error
+      return {
+        success: false,
+        error: "Error de autenticación en el servidor",
+        status: status,
+      };
+    }
+
+    // Procesar respuesta exitosa
+    const userData = await response.json();
+    console.log("✅ /me exitoso en servidor con cookies manuales");
+    return { success: true, user: userData };
   } catch (error: any) {
-    return { success: false, error: error.message || "Error al obtener usuario" };
+    console.error("❌ Error en currentUser:", error);
+    return {
+      success: false,
+      error: error.message || "Error al obtener usuario",
+      status: error.status,
+    };
   }
 }
