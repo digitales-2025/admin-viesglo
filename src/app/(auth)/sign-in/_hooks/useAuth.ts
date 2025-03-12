@@ -90,13 +90,13 @@ export function useLogout() {
  * NOTA: Para operaciones normales que no son de autenticación directa,
  * usamos httpClient que ya tiene integrado el manejo de refresh token
  */
-export function useCurrentUser() {
+export function useCurrentUser<T>() {
   return useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       // Usamos httpClient que ya tiene la lógica de refresh token integrada
       // y funciona correctamente desde el cliente
-      return await http.get(ENDPOINTS.ME);
+      return await http.get<T>(ENDPOINTS.ME);
     },
     retry: false, // No reintentamos automáticamente para evitar bucles
   });

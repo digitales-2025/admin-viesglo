@@ -53,8 +53,6 @@ export async function login(credentials: Credentials) {
       body: JSON.stringify(loginData),
       credentials: "include", // CRÍTICO: Para recibir cookies HTTP-only
     });
-    console.log("🚀 ~ login ~ response:", response);
-
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || "Error en inicio de sesión");

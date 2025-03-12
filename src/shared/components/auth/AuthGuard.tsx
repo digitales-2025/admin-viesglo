@@ -12,7 +12,6 @@ interface AuthGuardProps {
 
 export function AuthGuard({ children, fallback }: AuthGuardProps) {
   const { data: user, isLoading, error } = useCurrentUser();
-  console.log("🚀 ~ AuthGuard ~ user:", user);
   const router = useRouter();
 
   useEffect(() => {
