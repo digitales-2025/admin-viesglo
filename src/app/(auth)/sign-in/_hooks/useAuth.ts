@@ -16,7 +16,6 @@ export const AUTH_KEYS = {
 export function useCurrentUser() {
   return useQuery({
     queryKey: AUTH_KEYS.user(),
-    // Puedes crear un Server Action para esto
     queryFn: async () => {
       const result = await currentUser();
       if (!result.success) {
@@ -24,8 +23,8 @@ export function useCurrentUser() {
       }
       return result.user;
     },
-    retry: false,
     throwOnError: false,
+    placeholderData: null,
     staleTime: 5 * 60 * 1000,
   });
 }

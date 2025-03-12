@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+
 import { isTokenExpiredError, refreshAccessToken, waitForTokenRefresh } from "./token-service";
 
 interface RequestOptions extends RequestInit {
@@ -5,6 +7,9 @@ interface RequestOptions extends RequestInit {
   skipRefreshToken?: boolean; // Opción para evitar intentos de refresh en ciertas solicitudes
 }
 
+/**
+ * Cliente HTTP unificado para cliente y servidor
+ */
 export async function httpClient<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { params, skipRefreshToken = false, ...config } = options;
   // Construir URL preservando la ruta base API
@@ -37,7 +42,10 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
   }
 
   // Si hay un refresh en progreso, esperar a que termine
-  await waitForTokenRefresh();
+  if (typeof window !== "undefined") {
+    // Solo esperar tokens en el cliente
+    await waitForTokenRefresh();
+  }
 
   // Configuración base
   const requestConfig: RequestInit = {
@@ -49,11 +57,42 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
     credentials: "include", // Para cookies HttpOnly
   };
 
+  // Si estamos en el servidor, intentamos obtener y adjuntar las cookies
+  if (typeof window === "undefined") {
+    try {
+      const cookieStore = await cookies();
+      const accessToken = cookieStore.get("access_token");
+      const refreshToken = cookieStore.get("refresh_token");
+
+      if (accessToken || refreshToken) {
+        // Necesitamos crear un nuevo objeto de headers para no modificar el anterior
+        const newHeaders = new Headers(requestConfig.headers);
+
+        // Construir el header Cookie
+        const cookieHeader = [];
+        if (accessToken) cookieHeader.push(`access_token=${accessToken.value}`);
+        if (refreshToken) cookieHeader.push(`refresh_token=${refreshToken.value}`);
+
+        if (cookieHeader.length > 0) {
+          newHeaders.append("Cookie", cookieHeader.join("; "));
+        }
+
+        // Reemplazar los headers en la configuración
+        requestConfig.headers = Object.fromEntries(newHeaders.entries());
+      }
+    } catch (error) {
+      console.warn("No se pudieron obtener cookies del servidor:", error);
+      // Continuar sin cookies en el header
+    }
+  }
+
   try {
     // Realizar la solicitud
     let response = await fetch(fullUrl.toString(), requestConfig);
+
     // Si el token expiró (401) y no estamos en una solicitud de refresh token
-    if (isTokenExpiredError(response.status) && !skipRefreshToken) {
+    // y estamos en el cliente (el refresh solo funciona bien en el cliente)
+    if (isTokenExpiredError(response.status) && !skipRefreshToken && typeof window !== "undefined") {
       // Intentar refrescar el token
       const refreshSuccess = await refreshAccessToken();
       if (refreshSuccess) {

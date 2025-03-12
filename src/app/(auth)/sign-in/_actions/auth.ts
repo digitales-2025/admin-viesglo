@@ -34,7 +34,24 @@ export async function login(credentials: Credentials) {
     };
 
     // Realizar petición al API
-    const result = await http.post(ENDPOINTS.LOGIN, loginData);
+    // Use direct fetch for login to avoid token refresh mechanism
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+    const response = await fetch(`${baseUrl}${ENDPOINTS.LOGIN}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginData),
+      credentials: "include", // For HttpOnly cookies
+    });
+    console.log("🚀 ~ login ~ response:", response);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || "Error en inicio de sesión");
+    }
+
+    const result = await response.json();
     return {
       success: true,
       user: result.user,
@@ -82,7 +99,7 @@ export async function currentUser() {
   try {
     const result = await http.get(ENDPOINTS.ME);
     console.log("🚀 ~ currentUser ~ result:", result);
-    return { success: true, user: result.user };
+    return { success: true, user: result };
   } catch (error: any) {
     return { success: false, error: error.message || "Error al obtener usuario" };
   }
