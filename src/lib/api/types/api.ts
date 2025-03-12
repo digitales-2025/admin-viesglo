@@ -20,42 +20,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/users": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los usuarios */
-    get: operations["UsersController_findAll_v1"];
-    put?: never;
-    /** Crear un nuevo usuario */
-    post: operations["UsersController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un usuario por su ID */
-    get: operations["UsersController_findById_v1"];
-    /** Actualizar un usuario existente */
-    put: operations["UsersController_update_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/api/v1/auth/login": {
     parameters: {
       query?: never;
@@ -107,10 +71,218 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener información del usuario autenticado */
+    get: operations["AuthController_me_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los usuarios */
+    get: operations["UsersController_findAll_v1"];
+    put?: never;
+    /** Crear un nuevo usuario */
+    post: operations["UsersController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un usuario por su ID */
+    get: operations["UsersController_findById_v1"];
+    /** Actualizar un usuario existente */
+    put: operations["UsersController_update_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/{id}/permissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener permisos de un usuario
+     * @description Obtiene todos los permisos asignados a un usuario a través de sus roles
+     */
+    get: operations["UsersController_getUserPermissions_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/roles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los roles */
+    get: operations["RolesController_getRoles_v1"];
+    put?: never;
+    /** Crear un nuevo rol */
+    post: operations["RolesController_createRole_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/roles/{roleId}/permissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener permisos de un rol */
+    get: operations["RolesController_getPermissions_v1"];
+    put?: never;
+    /** Asignar un permiso a un rol */
+    post: operations["RolesController_assignPermission_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/roles/{roleId}/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Asignar un rol a un usuario */
+    post: operations["RolesController_assignRoleToUser_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/roles/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un rol */
+    put: operations["RolesController_updateRole_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/permissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los permisos */
+    get: operations["PermissionsController_getPermissions_v1"];
+    put?: never;
+    /** Crear un nuevo permiso */
+    post: operations["PermissionsController_createPermission_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    SignInDto: {
+      /**
+       * @description El email del usuario.
+       * @example admin@admin.com
+       */
+      email: string;
+      /**
+       * @description La contraseña del usuario
+       * @example password
+       */
+      password: string;
+    };
+    AuthResponseDto: {
+      /**
+       * @description Estado HTTP de la respuesta
+       * @example 200
+       */
+      statusCode: number;
+      /**
+       * @description Mensaje informativo sobre la operación
+       * @example Operación realizada con éxito
+       */
+      message?: string;
+      /**
+       * @description ID único del usuario
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id?: string;
+      /**
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email?: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Roles del usuario
+       * @example [
+       *       "user",
+       *       "admin"
+       *     ]
+       */
+      roles?: unknown[][];
+    };
     UserResponseDto: {
       /**
        * @description ID único del usuario
@@ -170,15 +342,12 @@ export interface components {
        */
       fullName: string;
       /**
-       * @description Roles del usuario
-       * @default [
-       *       "user"
-       *     ]
+       * @description IDs de roles a asignar al usuario
        * @example [
-       *       "user"
+       *       "123e4567-e89b-12d3-a456-426614174000"
        *     ]
        */
-      roles: unknown[][];
+      roleIds?: unknown[][];
     };
     UpdateUserDto: {
       /**
@@ -210,59 +379,148 @@ export interface components {
        */
       isActive?: boolean;
     };
-    SignInDto: {
+    PermissionResponseDto: {
       /**
-       * @description El email del usuario.
-       * @example admin@admin.com
-       */
-      email: string;
-      /**
-       * @description La contraseña del usuario
-       * @example password
-       */
-      password: string;
-    };
-    AuthResponseDto: {
-      /**
-       * @description Estado HTTP de la respuesta
-       * @example 200
-       */
-      statusCode: number;
-      /**
-       * @description Mensaje informativo sobre la operación
-       * @example Operación realizada con éxito
-       */
-      message?: string;
-      /**
-       * @description ID único del usuario
+       * @description ID único del permiso
        * @example 5f9d5e7b8e7a6c1d4c8e7a6c
        */
-      id?: string;
+      id: string;
       /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
+       * @description Nombre del permiso
+       * @example users:create
        */
-      email?: string;
+      name: string;
       /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
+       * @description Descripción del permiso
+       * @example Permite crear usuarios en el sistema
        */
-      fullName?: string;
+      description?: string | null;
       /**
-       * @description Roles del usuario
+       * @description Recurso al que aplica el permiso
+       * @example users
+       */
+      resource: string;
+      /**
+       * @description Acción que permite el permiso
+       * @example create
+       */
+      action: string;
+      /**
+       * Format: date-time
+       * @description Fecha de creación del permiso
+       * @example 2023-01-15T14:30:00Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización del permiso
+       * @example 2023-01-20T10:15:00Z
+       */
+      updatedAt: string;
+    };
+    CreateRoleDto: {
+      /**
+       * @description Nombre del rol
+       * @example admin
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Rol de administrador con acceso completo
+       */
+      description?: string;
+      /**
+       * @description IDs de los permisos asignados al rol
        * @example [
-       *       "user",
-       *       "admin"
+       *       "123e4567-e89b-12d3-a456-426614174000"
        *     ]
        */
-      roles?: unknown[][];
+      permissionIds?: unknown[][];
     };
-    RefreshTokenDto: {
+    RoleResponseDto: {
       /**
-       * @description Token de actualización para renovar el token de acceso
-       * @example 7a6c5f9d5e7b8e1d4c8e7a6c...
+       * @description ID único del rol
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
        */
-      refreshToken: string;
+      id: string;
+      /**
+       * @description Nombre del rol
+       * @example admin
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Administrador del sistema con acceso completo
+       */
+      description?: string | null;
+      /**
+       * Format: date-time
+       * @description Fecha de creación del rol
+       * @example 2023-01-15T14:30:00Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización del rol
+       * @example 2023-01-20T10:15:00Z
+       */
+      updatedAt: string;
+    };
+    AssignPermissionDto: {
+      /**
+       * @description The ID of the permission to assign
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      permissionId: string;
+    };
+    AssignRoleToUserDto: {
+      /**
+       * @description The ID of the user to assign the role to
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      userId: string;
+    };
+    UpdateRoleDto: {
+      /**
+       * @description Nombre del rol
+       * @example super-admin
+       */
+      name?: string;
+      /**
+       * @description Descripción del rol
+       * @example Rol con acceso ampliado a todas las funciones
+       */
+      description?: string;
+      /**
+       * @description IDs de los permisos asignados al rol (reemplaza todos los permisos existentes)
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "223e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      permissionIds?: unknown[][];
+    };
+    CreatePermissionDto: {
+      /**
+       * @description The name of the permission
+       * @example users:create
+       */
+      name: string;
+      /**
+       * @description The description of the permission
+       * @example Create a new user
+       */
+      description: string;
+      /**
+       * @description The resource of the permission
+       * @example users
+       */
+      resource: string;
+      /**
+       * @description The action of the permission
+       * @example create
+       */
+      action: string;
     };
   };
   responses: never;
@@ -287,6 +545,90 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  AuthController_login_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignInDto"];
+      };
+    };
+    responses: {
+      /** @description Devuelve los datos del usuario autenticado y establece cookies para los tokens */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+    };
+  };
+  AuthController_refreshToken_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Renueva el token de acceso y actualiza las cookies */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+    };
+  };
+  AuthController_logout_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Sesión cerrada exitosamente y cookies eliminadas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+    };
+  };
+  AuthController_me_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Devuelve la información del usuario autenticado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuthResponseDto"];
+        };
       };
     };
   };
@@ -403,55 +745,43 @@ export interface operations {
       };
     };
   };
-  AuthController_login_v1: {
+  UsersController_getUserPermissions_v1: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        id: string;
+      };
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SignInDto"];
-      };
-    };
+    requestBody?: never;
     responses: {
-      /** @description Devuelve los datos del usuario autenticado y establece cookies para los tokens */
+      /** @description Permisos obtenidos exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
+          "application/json": components["schemas"]["PermissionResponseDto"][];
         };
       };
-    };
-  };
-  AuthController_refreshToken_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["RefreshTokenDto"];
-      };
-    };
-    responses: {
-      /** @description Renueva el token de acceso y actualiza las cookies */
-      200: {
+      /** @description Usuario no encontrado */
+      404: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
+        content?: never;
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
         };
+        content?: never;
       };
     };
   };
-  AuthController_logout_v1: {
+  RolesController_getRoles_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -460,14 +790,174 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Sesión cerrada exitosamente y cookies eliminadas */
+      /** @description Lista de roles */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
+          "application/json": components["schemas"]["RoleResponseDto"][];
         };
+      };
+    };
+  };
+  RolesController_createRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateRoleDto"];
+      };
+    };
+    responses: {
+      /** @description Rol creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleResponseDto"];
+        };
+      };
+    };
+  };
+  RolesController_getPermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roleId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de permisos del rol */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PermissionResponseDto"][];
+        };
+      };
+    };
+  };
+  RolesController_assignPermission_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roleId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignPermissionDto"];
+      };
+    };
+    responses: {
+      /** @description Permiso asignado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RolesController_assignRoleToUser_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        roleId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignRoleToUserDto"];
+      };
+    };
+    responses: {
+      /** @description Rol asignado exitosamente al usuario */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RolesController_updateRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateRoleDto"];
+      };
+    };
+    responses: {
+      /** @description Rol actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleResponseDto"];
+        };
+      };
+    };
+  };
+  PermissionsController_getPermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de permisos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PermissionsController_createPermission_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePermissionDto"];
+      };
+    };
+    responses: {
+      /** @description Permiso creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

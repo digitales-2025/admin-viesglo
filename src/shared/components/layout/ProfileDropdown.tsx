@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/shared/hooks/use-toast";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
 import { LoadingTransition } from "../ui/loading-transition";
+import { Skeleton } from "../ui/skeleton";
 import { User } from "./data/types";
 
 export function ProfileDropdown() {
@@ -52,7 +53,7 @@ export function ProfileDropdown() {
     <>
       <LoadingTransition show={isRedirecting} message="Cerrando sesión, por favor espere..." />
       {isLoadingUser ? (
-        <LoadingTransition show={isLoadingUser} message="Cargando usuario..." />
+        <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
