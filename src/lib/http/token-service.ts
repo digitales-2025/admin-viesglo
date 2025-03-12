@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+// NOTA: No importamos cookies directamente aquí para evitar errores en cliente
+// import { cookies } from "next/headers"; <- ESTO CAUSARÍA ERROR EN CLIENTE
 
 // Estado para almacenar información del token
 let refreshPromise: Promise<boolean> | null = null;
@@ -25,6 +26,9 @@ export async function getCookieValue(name: string): Promise<string | undefined> 
   } else {
     // En el servidor, usar cookies() de next/headers
     try {
+      // Importamos cookies() dinámicamente solo en el servidor
+      const { cookies } = await import("next/headers");
+
       // Manejar caso donde cookies() devuelve una promesa
       const cookieStore = await Promise.resolve(cookies());
       return cookieStore.get(name)?.value;
@@ -36,12 +40,23 @@ export async function getCookieValue(name: string): Promise<string | undefined> 
 }
 
 /**
- * Realiza el refresh del token usando el endpoint de refresh
- * Esta función está optimizada para funcionar en el navegador
+ * Realiza el refresh del token usando el endpoint de refresh.
+ * IMPORTANTE: Esta función SOLO debe ejecutarse en el navegador (cliente),
+ * nunca en el servidor. Las cookies HTTP-only establecidas por el backend
+ * solo se propagarán correctamente cuando la solicitud se origina desde el cliente.
+ *
  * @returns Promise con el resultado del refresh
  */
 export async function refreshAccessToken(): Promise<boolean> {
   console.log("🔄 Iniciando proceso de refresh token");
+
+  // Verificación crítica: Detener inmediatamente si estamos en el servidor
+  if (typeof window === "undefined") {
+    console.error("❌ CRÍTICO: refreshAccessToken llamado desde el servidor");
+    console.error("❌ Las cookies HTTP-only NO se propagarán al navegador");
+    console.error("❌ Use siempre este método desde componentes de cliente");
+    return false;
+  }
 
   // Si ya hay un refresh en proceso, retorna esa promesa
   if (refreshPromise) {
@@ -52,12 +67,6 @@ export async function refreshAccessToken(): Promise<boolean> {
   // Crear nueva promesa de refresh
   refreshPromise = (async () => {
     try {
-      // Verificar que estamos en el cliente (el refresh solo funciona bien en el cliente)
-      if (typeof window === "undefined") {
-        console.warn("⚠️ Refresh token llamado desde el servidor, no es recomendado");
-        return false;
-      }
-
       // Verificar que tenemos la URL base
       if (!process.env.NEXT_PUBLIC_API_URL) {
         console.error("❌ URL base no definida en variables de entorno");
@@ -86,19 +95,19 @@ export async function refreshAccessToken(): Promise<boolean> {
         return false;
       }
 
-      // Procesar respuesta exitosa
-      await response.json();
-      console.log("✅ Refresh exitoso, nuevo token obtenido");
+      // No necesitamos manipular la respuesta, el backend ya estableció las cookies
+      console.log("✅ Refresh exitoso, cookies actualizadas por el backend");
       return true;
     } catch (error) {
-      console.error("❌ Error en proceso de refresh:", error);
+      console.error("❌ Error en el proceso de refresh:", error);
       return false;
     } finally {
-      // Limpiar la promesa de refresh cuando termina
-      refreshPromise = null;
+      // Limpiar la promesa después de un tiempo para permitir futuros refreshes
+      setTimeout(() => {
+        refreshPromise = null;
+      }, 5000);
     }
   })();
 
-  // Retornar promesa de refresh
   return refreshPromise;
 }

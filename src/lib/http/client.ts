@@ -1,4 +1,5 @@
-import { cookies } from "next/headers";
+// NOTA: No importamos cookies directamente aquí para evitar errores en cliente
+// import { cookies } from "next/headers"; <- ESTO CAUSARÍA ERROR EN CLIENTE
 
 import { isTokenExpiredError, refreshAccessToken } from "./token-service";
 
@@ -8,8 +9,14 @@ interface RequestOptions extends RequestInit {
 }
 
 /**
- * Cliente HTTP unificado para cliente y servidor
- * Maneja automáticamente las cookies en ambos entornos
+ * Cliente HTTP unificado para cliente y servidor.
+ *
+ * NOTA IMPORTANTE SOBRE COOKIES Y AUTENTICACIÓN:
+ * - Si se ejecuta desde el cliente: Maneja automáticamente refresh token para errores 401
+ * - Si se ejecuta desde el servidor: Pasa cookies al backend, pero NO puede hacer refresh token
+ *
+ * Para operaciones de autenticación directa (login, logout, refresh) se debe usar fetch directo
+ * desde el cliente, NO este cliente HTTP.
  */
 export async function httpClient<T>(url: string, options: RequestOptions = {}): Promise<T> {
   const { params, skipRefreshToken = false, ...config } = options;
@@ -66,6 +73,10 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
   // Si estamos en el servidor, intentar obtener las cookies y pasarlas manualmente
   if (isServer) {
     try {
+      // Importamos cookies() dinámicamente solo en el servidor
+      // Esto evita errores en el cliente
+      const { cookies } = await import("next/headers");
+
       // En algunas versiones de Next.js, cookies() devuelve una Promise
       const cookieStore = await Promise.resolve(cookies());
 
@@ -104,70 +115,48 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
   }
 
   try {
-    // Realizar la solicitud inicial
-    let response = await fetch(fullUrl.toString(), requestConfig);
+    // Realizar la petición
+    const response = await fetch(fullUrl.toString(), requestConfig);
 
-    // Si el token expiró (401), intentamos refresh solo en el cliente
-    if (isTokenExpiredError(response.status) && !skipRefreshToken && !isServer) {
-      console.log("🔑 Token expirado, intentando refresh...");
+    // Verificar si hay error de token y manejarlo
+    if (!response.ok && isTokenExpiredError(response.status) && !skipRefreshToken && !isServer) {
+      console.log("🔑 Token expirado detectado, intentando refresh...");
 
-      try {
-        // Intentar refrescar el token
-        const refreshSuccess = await refreshAccessToken();
+      // IMPORTANTE: El refresh token DEBE ejecutarse en el cliente
+      // para que las cookies se establezcan en el navegador
+      if (typeof window === "undefined") {
+        console.error("❌ No se puede hacer refresh en el servidor");
+        throw new Error("No se puede renovar sesión desde el servidor");
+      }
 
-        if (refreshSuccess) {
-          console.log("✅ Refresh exitoso, reintentando solicitud original");
-          // Reintentar la solicitud original con el nuevo token
-          response = await fetch(fullUrl.toString(), requestConfig);
-        } else {
-          // Si el refresh falla, consideramos que la sesión expiró
-          console.error("❌ Refresh falló, la sesión probablemente expiró");
+      // Intentar hacer refresh del token (sólo en el cliente)
+      const refreshSuccess = await refreshAccessToken();
 
-          if (!isServer) {
-            // Redirigir a login (solo en el cliente)
-            console.log("🔀 Redirigiendo a login...");
-            window.location.href = "/sign-in";
-          }
+      if (refreshSuccess) {
+        console.log("🔄 Refresh exitoso, reintentando petición original");
+        // Reintentar la petición original
+        const retryResponse = await fetch(fullUrl.toString(), requestConfig);
 
-          throw new Error("La sesión ha expirado");
+        if (!retryResponse.ok) {
+          throw new Error(`Error HTTP ${retryResponse.status} después de refresh`);
         }
-      } catch (refreshError) {
-        console.error("❌ Error en el proceso de refresh:", refreshError);
-        throw refreshError;
+
+        return await retryResponse.json();
+      } else {
+        console.error("❌ Refresh token falló, no se puede continuar");
+        throw new Error("No se pudo renovar la sesión");
       }
     }
 
-    // Si hay error en la respuesta (después del posible refresh)
+    // Si la respuesta no es OK y no es un problema de token, o no se pudo resolver con refresh
     if (!response.ok) {
-      const status = response.status;
-      console.error(`❌ Error HTTP ${status} en ${fullUrl.toString()}`);
-
-      // Intentar obtener detalles del error
-      let errorData;
-      try {
-        errorData = await response.json();
-        console.error("Detalle del error:", errorData);
-      } catch {
-        errorData = { message: response.statusText };
-      }
-
-      // Crear un error enriquecido
-      const error = new Error(errorData.message || "Error en la solicitud");
-      (error as any).status = status;
-      (error as any).data = errorData;
-      throw error;
+      throw new Error(`Error HTTP ${response.status}`);
     }
 
-    // Respuestas vacías (204 No Content)
-    if (response.status === 204) {
-      return {} as T;
-    }
-
-    // Respuestas con contenido
-    const data = await response.json();
-    return data;
+    // Procesar respuesta exitosa
+    return await response.json();
   } catch (error) {
-    console.error("HTTP Request error:", error);
+    console.error("❌ Error en petición HTTP:", error);
     throw error;
   }
 }

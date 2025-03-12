@@ -37,11 +37,14 @@ export function NavUser({
   const { mutate: logout, isPending: isLoading } = useLogout();
 
   const handleLogout = async () => {
+    // Es crucial que el logout se haga desde el cliente (navegador)
+    // para que el backend pueda borrar las cookies del navegador
     logout(undefined, {
       onSuccess: () => {
         setIsRedirecting(true);
         success("Sesión cerrada correctamente");
 
+        // Esperar un poco para asegurar que las cookies se limpien
         setTimeout(() => {
           router.push("/sign-in");
         }, 1500);

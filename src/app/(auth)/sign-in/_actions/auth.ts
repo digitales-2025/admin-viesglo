@@ -16,8 +16,15 @@ const loginSchema = z.object({
 
 export type Credentials = components["schemas"]["SignInDto"];
 
-// Action para login
+/**
+ * @deprecated USAR HOOKS DEL CLIENTE PARA AUTENTICACIÓN
+ * ¡IMPORTANTE! Esta server action no debe usarse para login.
+ * En su lugar, usa el hook useLogin desde _hooks/useAuth.ts
+ * Las cookies HTTP-only solo funcionan correctamente cuando las peticiones se hacen desde el cliente directamente.
+ */
 export async function login(credentials: Credentials) {
+  console.warn("⚠️ DEPRECATED: Usando server action para login, use useLogin hook desde el cliente en su lugar");
+
   // Validar datos
   const validationResult = loginSchema.safeParse(credentials);
   if (!validationResult.success) {
@@ -33,8 +40,10 @@ export async function login(credentials: Credentials) {
       password: credentials.password,
     };
 
-    // Realizar petición al API
-    // Use direct fetch for login to avoid token refresh mechanism
+    // NOTA IMPORTANTE: Aunque esta función es una server action,
+    // el fetch se realiza con credentials:"include" para que las cookies
+    // establecidas por el backend se guarden en el navegador.
+    // Esta respuesta llegará al cliente a través de la action.
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
     const response = await fetch(`${baseUrl}${ENDPOINTS.LOGIN}`, {
       method: "POST",
@@ -42,7 +51,7 @@ export async function login(credentials: Credentials) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(loginData),
-      credentials: "include", // For HttpOnly cookies
+      credentials: "include", // CRÍTICO: Para recibir cookies HTTP-only
     });
     console.log("🚀 ~ login ~ response:", response);
 
@@ -64,8 +73,15 @@ export async function login(credentials: Credentials) {
   }
 }
 
-// Action para logout
+/**
+ * @deprecated USAR HOOKS DEL CLIENTE PARA AUTENTICACIÓN
+ * ¡IMPORTANTE! Esta server action no debe usarse para logout.
+ * En su lugar, usa el hook useLogout desde _hooks/useAuth.ts
+ * Las cookies HTTP-only solo funcionan correctamente cuando las peticiones se hacen desde el cliente directamente.
+ */
 export async function logout() {
+  console.warn("⚠️ DEPRECATED: Usando server action para logout, use useLogout hook desde el cliente en su lugar");
+
   try {
     // Determinar si estamos en el servidor
     const isServer = typeof window === "undefined";
@@ -108,8 +124,17 @@ export async function logout() {
   }
 }
 
-// Action para obtener el usuario actual
+/**
+ * @deprecated USAR HOOKS DEL CLIENTE PARA AUTENTICACIÓN
+ * ¡IMPORTANTE! Esta server action no debe usarse para obtener el usuario actual.
+ * En su lugar, usa el hook useCurrentUser desde _hooks/useAuth.ts
+ * Las cookies HTTP-only solo funcionan correctamente cuando las peticiones se hacen desde el cliente directamente.
+ */
 export async function currentUser() {
+  console.warn(
+    "⚠️ DEPRECATED: Usando server action para currentUser, use useCurrentUser hook desde el cliente en su lugar"
+  );
+
   try {
     // Determinar si estamos en el servidor o cliente
     const isServer = typeof window === "undefined";
@@ -171,43 +196,18 @@ export async function currentUser() {
       const status = response.status;
       console.error(`❌ Error HTTP ${status} en /me con cookies manuales`);
 
-      // Si es error de autenticación y tenemos refresh token, intentar refresh
+      // Si es error de autenticación y tenemos refresh token, ya no intentamos refresh desde el servidor
       if (status === 401 && refreshToken) {
-        console.log("🔄 Intentando refresh token en servidor");
+        console.warn("⚠️ Token expirado detectado en el servidor");
+        console.warn("⚠️ El refresh token debe ser manejado por el cliente");
 
-        // Intentar hacer refresh
-        const refreshResponse = await fetch(`${baseUrl}${ENDPOINTS.REFRESH}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Cookie: `refresh_token=${refreshToken.value}`,
-          },
-          credentials: "include",
-        });
-
-        // Si el refresh fue exitoso, obtener nuevo token y reintentar
-        if (refreshResponse.ok) {
-          const refreshData = await refreshResponse.json();
-          console.log("✅ Refresh en servidor exitoso, reintentando /me");
-
-          // Actualizar header con nuevo access token
-          const newCookieHeader = `access_token=${refreshData.accessToken}; refresh_token=${refreshToken.value}`;
-
-          // Reintentar la petición original
-          const retryResponse = await fetch(`${baseUrl}${ENDPOINTS.ME}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Cookie: newCookieHeader,
-            },
-            credentials: "include",
-          });
-
-          if (retryResponse.ok) {
-            const userData = await retryResponse.json();
-            return { success: true, user: userData };
-          }
-        }
+        // Devolver un error especial que el cliente puede interceptar
+        return {
+          success: false,
+          error: "TOKEN_EXPIRED",
+          message: "El token ha expirado, se requiere refresh desde el cliente",
+          status: status,
+        };
       }
 
       // Si no se pudo resolver, retornar error

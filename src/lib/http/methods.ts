@@ -1,28 +1,46 @@
 import { httpClient } from "./client";
 
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string | number | boolean | undefined>;
-}
-
-function createRequest<T>(method: HttpMethod) {
-  return (url: string, options: RequestOptions = {}) => httpClient<T>(url, { ...options, method });
-}
-
-function createRequestWithData<T, D = unknown>(method: HttpMethod) {
-  return (url: string, data?: D, options: RequestOptions = {}) =>
-    httpClient<T>(url, {
-      ...options,
-      method,
-      body: data ? JSON.stringify(data) : undefined,
-    });
-}
-
+/**
+ * Métodos HTTP simplificados que utilizan el cliente HTTP unificado
+ */
 export const http = {
-  get: createRequest<any>("GET"),
-  delete: createRequest<any>("DELETE"),
-  post: createRequestWithData<any, any>("POST"),
-  put: createRequestWithData<any, any>("PUT"),
-  patch: createRequestWithData<any, any>("PATCH"),
+  /**
+   * GET request
+   */
+  get: <T>(url: string, options = {}) => httpClient<T>(url, { method: "GET", ...options }),
+
+  /**
+   * POST request
+   */
+  post: <T>(url: string, data?: any, options = {}) =>
+    httpClient<T>(url, {
+      method: "POST",
+      body: data ? JSON.stringify(data) : undefined,
+      ...options,
+    }),
+
+  /**
+   * PUT request
+   */
+  put: <T>(url: string, data?: any, options = {}) =>
+    httpClient<T>(url, {
+      method: "PUT",
+      body: data ? JSON.stringify(data) : undefined,
+      ...options,
+    }),
+
+  /**
+   * PATCH request
+   */
+  patch: <T>(url: string, data?: any, options = {}) =>
+    httpClient<T>(url, {
+      method: "PATCH",
+      body: data ? JSON.stringify(data) : undefined,
+      ...options,
+    }),
+
+  /**
+   * DELETE request
+   */
+  delete: <T>(url: string, options = {}) => httpClient<T>(url, { method: "DELETE", ...options }),
 };

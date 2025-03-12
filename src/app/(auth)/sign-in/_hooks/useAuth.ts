@@ -1,8 +1,11 @@
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { ENDPOINTS } from "@/lib/http/endpoints";
+import { http } from "@/lib/http/methods";
 import type { Credentials } from "../_actions/auth";
-import { currentUser, logout } from "../_actions/auth";
+
+// Base URL para las peticiones directas de autenticación
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 // Claves de consulta
 export const AUTH_KEYS = {
@@ -12,66 +15,89 @@ export const AUTH_KEYS = {
   token: () => [...AUTH_KEYS.all, "token"] as const,
 };
 
-// Hook para obtener el usuario actual
-export function useCurrentUser() {
-  return useQuery({
-    queryKey: AUTH_KEYS.user(),
-    queryFn: async () => {
-      const result = await currentUser();
-      if (!result.success) {
-        throw new Error(result.error || "Error al obtener el usuario");
-      }
-      return result.user;
-    },
-    throwOnError: false,
-    placeholderData: null,
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-// Hook para iniciar sesión - conexión directa
+/**
+ * Hook para iniciar sesión desde el cliente
+ *
+ * NOTA: Esta operación debe SIEMPRE ejecutarse en el cliente.
+ * Por eso usamos fetch directo en lugar de httpClient.
+ */
 export function useLogin() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (credentials: Credentials) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      // IMPORTANTE: Esta petición se ejecuta DIRECTAMENTE desde el navegador
+      const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(credentials),
-        credentials: "include", // Fundamental para las cookies
+        credentials: "include", // Fundamental para cookies HTTP-only
       });
 
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || "Error en la autenticación");
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || "Error de inicio de sesión");
       }
 
       const data = await response.json();
-      return {
-        success: true,
-        user: data.user, // Solo necesitas el usuario, no los tokens
-      };
+      return data;
     },
-    onSuccess: (data) => {
-      queryClient.setQueryData(AUTH_KEYS.user(), data.user);
+    onSuccess: () => {
+      // Invalidar consultas relevantes después del login
+      queryClient.invalidateQueries({ queryKey: ["user"] });
     },
   });
 }
 
-// Hook para cerrar sesión - usando Server Action
+/**
+ * Hook para cerrar sesión desde el cliente
+ *
+ * NOTA: Esta operación debe SIEMPRE ejecutarse en el cliente.
+ * Por eso usamos fetch directo en lugar de httpClient.
+ */
 export function useLogout() {
   const queryClient = useQueryClient();
-  const router = useRouter();
 
   return useMutation({
     mutationFn: async () => {
-      return await logout();
+      // IMPORTANTE: Esta petición se ejecuta DIRECTAMENTE desde el navegador
+      const response = await fetch(`${API_URL}${ENDPOINTS.LOGOUT}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include", // Fundamental para cookies HTTP-only
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al cerrar sesión");
+      }
+
+      return await response.json().catch(() => ({}));
     },
     onSuccess: () => {
-      queryClient.removeQueries({ queryKey: AUTH_KEYS.all });
+      // Limpiar cache de consultas después del logout
       queryClient.clear();
-      router.push("/sign-in");
     },
+  });
+}
+
+/**
+ * Hook para obtener el usuario actual
+ *
+ * NOTA: Para operaciones normales que no son de autenticación directa,
+ * usamos httpClient que ya tiene integrado el manejo de refresh token
+ */
+export function useCurrentUser() {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      // Usamos httpClient que ya tiene la lógica de refresh token integrada
+      // y funciona correctamente desde el cliente
+      return await http.get(ENDPOINTS.ME);
+    },
+    retry: false, // No reintentamos automáticamente para evitar bucles
   });
 }
