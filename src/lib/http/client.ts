@@ -65,11 +65,6 @@ export async function httpClient<T>(url: string, options: RequestOptions = {}): 
     credentials: "include", // Asegura que todas las peticiones envíen cookies (fundamental)
   };
 
-  // Log para depuración
-  console.log(
-    `🔄 HTTP ${requestConfig.method || "GET"} a ${fullUrl.toString()} (${isServer ? "servidor" : "cliente"})`
-  );
-
   // Si estamos en el servidor, intentar obtener las cookies y pasarlas manualmente
   if (isServer) {
     try {
