@@ -1,10 +1,8 @@
 import { LinkProps } from "next/link";
 
-interface User {
-  name: string;
-  email: string;
-  avatar: string;
-}
+import { components } from "@/lib/api/types/api";
+
+export type User = components["schemas"]["UserResponseDto"];
 
 interface BaseNavItem {
   title: string;
@@ -30,7 +28,6 @@ interface NavGroup {
 }
 
 interface SidebarData {
-  user: User;
   navGroups: NavGroup[];
 }
 
