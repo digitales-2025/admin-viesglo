@@ -15,7 +15,6 @@ export async function refreshAccessToken(): Promise<boolean> {
   const cookieStore = await cookies();
   const refreshToken = cookieStore.get("refresh_token");
   console.log("🚀 ~ refreshAccessToken ~ refreshToken:", refreshToken);
-
   if (refreshPromise) {
     console.log("⏳ Refresh ya en progreso, esperando...");
     return refreshPromise;
@@ -32,16 +31,22 @@ export async function refreshAccessToken(): Promise<boolean> {
       const refreshUrl = `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`;
       console.log("📡 Enviando solicitud a:", refreshUrl);
 
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      if (refreshToken) {
+        headers["Cookie"] = `refresh_token=${refreshToken.value}`;
+      }
+      console.log("🚀 ~ refreshPromise= ~ headers:", headers);
+
       const response = await fetch(refreshUrl, {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ refreshToken: refreshToken?.value }),
+        headers,
       });
 
-      console.log("📨 Respuesta del servidor:", response.status);
+      console.log("📨 Respuesta del servidor:", response);
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => "No error details");
