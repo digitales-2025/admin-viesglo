@@ -12,9 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/shared/components/ui/input";
 import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 import { PasswordInput } from "@/shared/components/ui/password-input";
-import { useToast } from "@/shared/hooks/use-toast";
 import { cn } from "@/shared/lib/utils";
-import { useLogin } from "../_hooks/useAuth";
+import { useSignIn } from "../_hooks/useAuth";
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>;
 
@@ -26,10 +25,9 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function LoginForm({ className, ...props }: UserAuthFormProps) {
-  const { mutate: login, isPending: isLoading } = useLogin();
+  const { mutate: login, isPending: isLoading } = useSignIn();
   const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
-  const { success, error } = useToast();
 
   // Para manejar timeout de carga
   const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -52,22 +50,18 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(data: FormValues) {
-    login(data, {
-      onSuccess: () => {
-        setIsRedirecting(true);
-        success("Inicio de sesión exitoso! Redirigiendo...");
-
-        // Guarda la referencia del timeout
-        const timeoutId = setTimeout(() => {
+    try {
+      await login(data);
+      setIsRedirecting(true);
+      // Guardamos la referencia del timeout
+      setLoadingTimeout(
+        setTimeout(() => {
           router.push("/");
-        }, 1500);
-
-        setLoadingTimeout(timeoutId);
-      },
-      onError: (err: Error) => {
-        error(err.message || "Error al iniciar sesión");
-      },
-    });
+        }, 1500)
+      );
+    } catch (error) {
+      console.error("Error durante el login:", error);
+    }
   }
   return (
     <div className={cn("grid gap-6", className)} {...props}>
