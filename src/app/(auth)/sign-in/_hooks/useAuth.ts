@@ -1,103 +1,156 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-import { ENDPOINTS } from "@/lib/http/endpoints";
-import { http } from "@/lib/http/methods";
-import type { Credentials } from "../_actions/auth";
+import { currentUser, login, logout } from "../_actions/auth.action";
+import { AuthResponse, SignIn } from "../_types/auth.types";
 
-// Base URL para las peticiones directas de autenticación
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Claves de consulta
-export const AUTH_KEYS = {
-  all: ["auth"] as const,
-  user: () => [...AUTH_KEYS.all, "user"] as const,
-  login: () => [...AUTH_KEYS.all, "login"] as const,
-  token: () => [...AUTH_KEYS.all, "token"] as const,
-};
+interface AuthState {
+  user: AuthResponse | null;
+  isLoading: boolean;
+  isHydrated: boolean;
+  setUser: (user: AuthResponse) => void;
+  logout: () => void;
+}
 
 /**
- * Hook para iniciar sesión desde el cliente
- *
- * NOTA: Esta operación debe SIEMPRE ejecutarse en el cliente.
- * Por eso usamos fetch directo en lugar de httpClient.
+ * Hook personalizado para manejar el estado de autenticación
+ * Utiliza Zustand para la gestión del estado y persist para mantener los datos en localStorage
  */
-export function useLogin() {
+export const useAuth = create<AuthState>()(
+  persist(
+    (set) => ({
+      user: null,
+      isLoading: false,
+      isHydrated: false,
+
+      /**
+       * Establece los datos del usuario en el estado
+       * @param user - Objeto con los datos del perfil del usuario
+       */
+      setUser: (user: AuthResponse) =>
+        set({
+          user: {
+            ...user,
+            roles: user.roles || [],
+          },
+        }),
+
+      /**
+       * Cierra la sesión del usuario actual
+       * Realiza una petición al endpoint de logout y limpia el estado
+       */
+      logout: () => {
+        set({ isLoading: true });
+        try {
+          set({ user: null });
+        } catch (error) {
+          console.error("Error durante el logout:", error);
+          set({ user: null });
+        } finally {
+          set({ isLoading: false });
+        }
+      },
+    }),
+    {
+      name: "auth-storage", // Nombre del almacenamiento en localStorage
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => {
+        return (state) => {
+          if (state) {
+            state.isHydrated = true;
+          }
+          return state;
+        };
+      },
+    }
+  )
+);
+
+/**
+ * Hook personalizado para manejar el proceso de inicio de sesión
+ */
+export function useSignIn() {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (credentials: Credentials) => {
-      // IMPORTANTE: Esta petición se ejecuta DIRECTAMENTE desde el navegador
-      const response = await fetch(`${API_URL}${ENDPOINTS.LOGIN}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
-        credentials: "include", // Fundamental para cookies HTTP-only
-      });
+    mutationFn: async (credentials: SignIn) => {
+      const result = await login(credentials);
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}));
-        throw new Error(error.message || "Error de inicio de sesión");
+      if (result.success === false) {
+        throw new Error(
+          Object.values(result.errors || {})
+            .flat()
+            .join(", ")
+        );
       }
 
-      const data = await response.json();
-      return data;
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
+      if (!result.data) {
+        throw new Error("No se recibieron datos del servidor");
+      }
+
+      return result.data;
     },
-    onSuccess: () => {
-      // Invalidar consultas relevantes después del login
-      queryClient.invalidateQueries({ queryKey: ["user"] });
+    /**
+     * Callback ejecutado cuando el inicio de sesión es exitoso
+     * Transforma y almacena los datos del usuario en el estado
+     * @param response - Respuesta del servidor con los datos del usuario
+     */
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      toast.success("Inicio de sesión exitoso");
+      router.push("/");
+    },
+    onError: (error: Error) => {
+      toast.error(`Error en inicio de sesión: ${error.message}`);
     },
   });
 }
 
 /**
- * Hook para cerrar sesión desde el cliente
- *
- * NOTA: Esta operación debe SIEMPRE ejecutarse en el cliente.
- * Por eso usamos fetch directo en lugar de httpClient.
+ * Hook personalizado para manejar el proceso de logout
  */
 export function useLogout() {
+  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      // IMPORTANTE: Esta petición se ejecuta DIRECTAMENTE desde el navegador
-      const response = await fetch(`${API_URL}${ENDPOINTS.LOGOUT}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // Fundamental para cookies HTTP-only
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al cerrar sesión");
-      }
-
-      return await response.json().catch(() => ({}));
+      await logout();
     },
-    onSuccess: () => {
-      // Limpiar cache de consultas después del logout
-      queryClient.clear();
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      toast.success("Cierre de sesión exitoso");
+      router.push("/sign-in");
+    },
+    onError: (error: Error) => {
+      toast.error(`Error en cierre de sesión: ${error.message}`);
     },
   });
 }
 
 /**
- * Hook para obtener el usuario actual
- *
- * NOTA: Para operaciones normales que no son de autenticación directa,
- * usamos httpClient que ya tiene integrado el manejo de refresh token
+ * Hook personalizado para obtener el usuario autenticado
  */
-export function useCurrentUser<T>() {
-  return useQuery({
+export function useCurrentUser() {
+  const { data, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
-      // Usamos httpClient que ya tiene la lógica de refresh token integrada
-      // y funciona correctamente desde el cliente
-      return await http.get<T>(ENDPOINTS.ME);
+      const response = await currentUser();
+      if (!response) {
+        throw new Error("No se recibieron datos del servidor");
+      }
+      return response;
     },
-    retry: false, // No reintentamos automáticamente para evitar bucles
   });
+  return { data, isLoading };
 }

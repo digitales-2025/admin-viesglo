@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { useCurrentUser, useLogout } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { logout } from "@/app/(auth)/sign-in/_actions/auth.action";
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -18,41 +19,33 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { useToast } from "@/shared/hooks/use-toast";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
 import { LoadingTransition } from "../ui/loading-transition";
 import { Skeleton } from "../ui/skeleton";
-import { User } from "./data/types";
 
 export function ProfileDropdown() {
-  const { success, error } = useToast();
   const router = useRouter();
-  const { data: user, isLoading: isLoadingUser } = useCurrentUser<User>();
+  const { data: user, isLoading } = useCurrentUser();
 
   // Añadimos estado para la redirección
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const { mutate: logout, isPending: isLoading } = useLogout();
 
   const handleLogout = async () => {
-    logout(undefined, {
-      onSuccess: () => {
-        setIsRedirecting(true);
-        success("Sesión cerrada correctamente");
-
-        setTimeout(() => {
-          router.push("/sign-in");
-        }, 1500);
-      },
-      onError: () => {
-        error("Error al cerrar sesión");
-      },
-    });
+    try {
+      await logout();
+      setIsRedirecting(true);
+      setTimeout(() => {
+        router.push("/sign-in");
+      }, 1500);
+    } catch (error) {
+      console.error("Error durante el logout:", error);
+    }
   };
 
   return (
     <>
       <LoadingTransition show={isRedirecting} message="Cerrando sesión, por favor espere..." />
-      {isLoadingUser ? (
+      {isLoading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <DropdownMenu modal={false}>
