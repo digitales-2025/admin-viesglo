@@ -38,7 +38,7 @@ interface Props {
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().optional(),
-  permissions: z.array(z.string()).optional(),
+  permissionsIds: z.array(z.string()).optional(),
 });
 type RolesForm = z.infer<typeof formSchema>;
 
@@ -56,7 +56,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     defaultValues: {
       name: currentRow?.name || "",
       description: currentRow?.description || "",
-      permissions: currentRow?.permissionIds || [],
+      permissionsIds: currentRow?.permissionIds || [],
     },
   });
   console.log("🚀 ~ RolesMutateDrawer ~ currentRow:", currentRow);
@@ -69,7 +69,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           data: {
             name: data.name,
             description: data.description,
-            permissionIds: data.permissions || [],
+            permissionIds: data.permissionsIds || [],
           },
         },
         {
@@ -80,12 +80,13 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         }
       );
     } else {
+      console.log("🚀 ~ onSubmit ~ data:", data);
       // Crear nuevo rol
       createRoleMutate(
         {
           name: data.name,
           description: data.description,
-          permissionIds: data.permissions || [],
+          permissionIds: data.permissionsIds || [],
         },
         {
           onSuccess: () => {
@@ -166,7 +167,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 />
                 <FormField
                   control={form.control}
-                  name="permissions"
+                  name="permissionsIds"
                   render={() => (
                     <FormItem>
                       <div className="space-y-6">
@@ -182,7 +183,9 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                 <div className="flex items-center gap-3">
                                   <Checkbox
                                     id={`group-${group.resource}`}
-                                    checked={group.actions.every((p) => form.getValues("permissions")?.includes(p.id))}
+                                    checked={group.actions.every((p) =>
+                                      form.getValues("permissionsIds")?.includes(p.id)
+                                    )}
                                     className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                                   />
                                   <div>
@@ -196,7 +199,10 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Badge variant="outline">
-                                    {group.actions.filter((p) => form.getValues("permissions")?.includes(p.id)).length}{" "}
+                                    {
+                                      group.actions.filter((p) => form.getValues("permissionsIds")?.includes(p.id))
+                                        .length
+                                    }{" "}
                                     / {group.actions.length}
                                   </Badge>
                                   <ChevronDown
@@ -212,7 +218,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                   <FormField
                                     key={permission.id}
                                     control={form.control}
-                                    name="permissions"
+                                    name="permissionsIds"
                                     render={({ field }) => {
                                       return (
                                         <FormItem
