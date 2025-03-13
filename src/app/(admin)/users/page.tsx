@@ -11,7 +11,6 @@ import { users } from "./data/users";
 import { columns } from "./_components/UsersColumn";
 
 export default function Users() {
-  // Parse user list
   const userList = userListSchema.parse(users)
 
   return (
