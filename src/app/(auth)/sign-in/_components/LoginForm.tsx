@@ -1,7 +1,8 @@
 "use client";
 
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -9,30 +10,38 @@ import { z } from "zod";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
+import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 import { PasswordInput } from "@/shared/components/ui/password-input";
 import { cn } from "@/shared/lib/utils";
+import { useSignIn } from "../_hooks/useAuth";
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>;
 
 const formSchema = z.object({
-  email: z
-    .string()
-    .min(1, { message: "Por favor ingrese su correo electrónico" })
-    .email({ message: "Dirección de correo electrónico no válida" }),
-  password: z
-    .string()
-    .min(1, {
-      message: "Ingrese su contraseña",
-    })
-    .min(7, {
-      message: "La contraseña debe tener al menos 7 caracteres",
-    }),
+  email: z.string().email("Email inválido"),
+  password: z.string().min(1, "Contraseña requerida"),
 });
 
-export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = useState(false);
+type FormValues = z.infer<typeof formSchema>;
 
-  const form = useForm<z.infer<typeof formSchema>>({
+export function LoginForm({ className, ...props }: UserAuthFormProps) {
+  const { mutate: login, isPending: isLoading } = useSignIn();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const router = useRouter();
+
+  // Para manejar timeout de carga
+  const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Limpiar timeout al desmontar
+  useEffect(() => {
+    return () => {
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
+    };
+  }, [loadingTimeout]);
+
+  const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
@@ -40,21 +49,28 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
     },
   });
 
-  function onSubmit(data: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-
-    console.log(data);
-
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
+  async function onSubmit(data: FormValues) {
+    try {
+      await login(data);
+      setIsRedirecting(true);
+      // Guardamos la referencia del timeout
+      setLoadingTimeout(
+        setTimeout(() => {
+          router.push("/");
+        }, 1500)
+      );
+    } catch (error) {
+      console.error("Error durante el login:", error);
+    }
   }
-
   return (
     <div className={cn("grid gap-6", className)} {...props}>
+      {/* Componente de transición para indicar redirección */}
+      <LoadingTransition show={isRedirecting} message="Iniciando sesión, por favor espere..." />
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="grid gap-2">
+          <div className="grid gap-4">
             <FormField
               control={form.control}
               name="email"
@@ -62,7 +78,12 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 <FormItem className="space-y-1">
                   <FormLabel>Correo electrónico</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" {...field} />
+                    <Input
+                      placeholder="nombre@ejemplo.com"
+                      autoComplete="email"
+                      disabled={isLoading || isRedirecting}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -83,14 +104,19 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                     </Link>
                   </div>
                   <FormControl>
-                    <PasswordInput placeholder="********" {...field} />
+                    <PasswordInput
+                      placeholder="********"
+                      autoComplete="current-password"
+                      disabled={isLoading || isRedirecting}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="mt-2" disabled={isLoading}>
-              Iniciar sesión
+            <Button className="mt-2" disabled={isLoading || isRedirecting}>
+              {isRedirecting ? "Redirigiendo..." : isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
             </Button>
 
             <div className="relative my-2">
