@@ -1,7 +1,24 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { User } from '../data/schema'
-import { DataTableColumnHeader } from '@/shared/components/data-table/DataTableColumnHeaderProps'
+import { ColumnDef } from "@tanstack/react-table";
 
-export const columns: ColumnDef<User>[] = [   
-  
-]
+import { User } from "../_data/schema";
+
+export const columns: ColumnDef<User>[] = [
+  {
+    accessorKey: "Nombre",
+  },
+  {
+    accessorKey: "Apellido",
+  },
+  {
+    accessorKey: "Correo Electrónico",
+  },
+  {
+    accessorKey: "Teléfono",
+  },
+  {
+    accessorKey: "Cargo",
+  },
+  {
+    accessorKey: "Rol",
+  },
+];
