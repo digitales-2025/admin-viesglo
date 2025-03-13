@@ -18,7 +18,8 @@ const EXCLUDED_REDIRECT_ROUTES = ["/", "/sign-in"];
 export async function middleware(request: NextRequest) {
   const access_token = request.cookies.get("access_token");
   const refresh_token = request.cookies.get("refresh_token");
-  const isAuthenticated = !!access_token && !!refresh_token;
+  const isAuthenticated = !!access_token || !!refresh_token;
+  console.log("🚀 ~ middleware ~ isAuthenticated:", isAuthenticated);
   const { pathname } = request.nextUrl;
 
   devlog("middleware hit");
@@ -85,6 +86,7 @@ export async function middleware(request: NextRequest) {
     }
 
     const [newCookies, err] = await refresh(refresh_token.value);
+    console.log("🚀 ~ middleware ~ newCookies:", newCookies);
     if (err) {
       devlog("refresh failure");
 
