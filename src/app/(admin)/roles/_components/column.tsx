@@ -12,16 +12,11 @@ import { RolesTableActions } from "./RolesTableActions";
 export const columnsRoles = (): ColumnDef<Role>[] => [
   // Columna de expansión explícita
   {
-    id: "expander",
+    id: "select",
     size: 40,
-    enableSorting: false,
-    enableHiding: false,
-    enablePinning: true,
-    accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="" />,
+    accessorKey: "permissions",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Permisos" />,
     cell: ({ row }) => {
-      console.log("🚀 ~ row:", row);
-      console.log("🚀 ~ cell ~ row:", row.getCanExpand());
       return row.getCanExpand() ? (
         <Button
           variant="ghost"
@@ -33,6 +28,9 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
         </Button>
       ) : null;
     },
+    enableSorting: false,
+    enableHiding: false,
+    enablePinning: true,
   },
   {
     accessorKey: "name",
@@ -46,6 +44,7 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
   },
   {
     id: "actions",
+    size: 100,
     cell: ({ row }) => {
       const item = row.original;
 

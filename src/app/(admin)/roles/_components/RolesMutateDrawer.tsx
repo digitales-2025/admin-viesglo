@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, Info, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -24,7 +24,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
@@ -32,14 +31,14 @@ import { Role } from "../_types/roles";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentRow?: Partial<Role & { permissions: string[] }>;
+  currentRow?: Role;
 }
 
 // Esquema simplificado para coincidir con la estructura de Role
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
-  description: z.string().min(1, "La descripción es requerida."),
-  permissions: z.array(z.string()).min(1, "Las permissioines son requeridas."),
+  description: z.string().optional(),
+  permissions: z.array(z.string()).optional(),
 });
 type RolesForm = z.infer<typeof formSchema>;
 
@@ -57,10 +56,10 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     defaultValues: {
       name: currentRow?.name || "",
       description: currentRow?.description || "",
-      permissions: currentRow?.permissions || [],
+      permissions: currentRow?.permissionIds || [],
     },
   });
-
+  console.log("🚀 ~ RolesMutateDrawer ~ currentRow:", currentRow);
   const onSubmit = (data: RolesForm) => {
     if (isUpdate && currentRow?.id) {
       // Actualizar rol existente
@@ -70,6 +69,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           data: {
             name: data.name,
             description: data.description,
+            permissionIds: data.permissions || [],
           },
         },
         {
@@ -85,6 +85,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         {
           name: data.name,
           description: data.description,
+          permissionIds: data.permissions || [],
         },
         {
           onSuccess: () => {
@@ -97,7 +98,6 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   };
   const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
   const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
-  console.log("🚀 ~ RolesMutateDrawer ~ permissions:", permissions);
 
   const groupedPermissions = Object.values(
     permissions?.reduce<Record<string, { resource: string; actions: any[] }>>((acc, { resource, ...rest }) => {
@@ -130,45 +130,45 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="flex-1 h-full">
-          <Form {...form}>
-            <form id="tasks-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Nombre</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Descripción</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Ingrese una descripción" disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="permissions"
-                render={() => (
-                  <FormItem>
-                    {isLoadingPermissions ? (
-                      <div className="flex items-center justify-center h-full">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      </div>
-                    ) : (
+        <ScrollArea className="h-[calc(100vh-250px)]">
+          {isLoadingPermissions ? (
+            <div className="flex items-center justify-center h-full">
+              <Loader2 className="animate-spin" />
+            </div>
+          ) : (
+            <Form {...form}>
+              <form id="tasks-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel>Nombre</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel>Descripción</FormLabel>
+                      <FormControl>
+                        <Input {...field} placeholder="Ingrese una descripción" disabled={isPending} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="permissions"
+                  render={() => (
+                    <FormItem>
                       <div className="space-y-6">
                         {groupedPermissions.map((group) => (
                           <Collapsible
@@ -182,7 +182,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                 <div className="flex items-center gap-3">
                                   <Checkbox
                                     id={`group-${group.resource}`}
-                                    checked={group.actions.every((p) => form.getValues("permissions").includes(p.id))}
+                                    checked={group.actions.every((p) => form.getValues("permissions")?.includes(p.id))}
                                     className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
                                   />
                                   <div>
@@ -190,14 +190,14 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                       htmlFor={`group-${group.resource}`}
                                       className="font-medium cursor-pointer flex items-center"
                                     >
-                                      <span className="ml-2">{group.resource}</span>
+                                      <span className="ml-2 capitalize font-semibold">{group.resource}</span>
                                     </Label>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <Badge variant="outline">
-                                    {group.actions.filter((p) => form.getValues("permissions").includes(p.id)).length} /{" "}
-                                    {group.actions.length}
+                                    {group.actions.filter((p) => form.getValues("permissions")?.includes(p.id)).length}{" "}
+                                    / {group.actions.length}
                                   </Badge>
                                   <ChevronDown
                                     className={`h-5 w-5 transition-transform ${openGroups.includes(group.resource) ? "transform rotate-180" : ""}`}
@@ -221,6 +221,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                         >
                                           <FormControl>
                                             <Checkbox
+                                              id={permission.id}
                                               checked={field.value?.includes(permission.id)}
                                               onCheckedChange={(checked) => {
                                                 const currentValues = field.value || [];
@@ -232,29 +233,12 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                               }}
                                             />
                                           </FormControl>
-                                          <div className="inline-flex space-y-1 leading-none">
-                                            <div className=" items-center">
-                                              <FormLabel className="font-medium cursor-pointer">
-                                                {permission.label}
-                                              </FormLabel>
-                                              <TooltipProvider>
-                                                <Tooltip>
-                                                  <TooltipTrigger asChild>
-                                                    <Badge
-                                                      variant="outline"
-                                                      className="inline-flex items-center gap-1 "
-                                                    >
-                                                      <Info />
-                                                    </Badge>
-                                                  </TooltipTrigger>
-                                                  <TooltipContent>
-                                                    <p>{permission.description}</p>
-                                                  </TooltipContent>
-                                                </Tooltip>
-                                              </TooltipProvider>
-                                            </div>
-                                            <p className="text-xs text-muted-foreground">{permission.description}</p>
-                                          </div>
+                                          <label
+                                            htmlFor={permission.id}
+                                            className="text-xs text-muted-foreground leading-none "
+                                          >
+                                            {permission.description}
+                                          </label>
                                         </FormItem>
                                       );
                                     }}
@@ -265,12 +249,12 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                           </Collapsible>
                         ))}
                       </div>
-                    )}
-                  </FormItem>
-                )}
-              />
-            </form>
-          </Form>
+                    </FormItem>
+                  )}
+                />
+              </form>
+            </Form>
+          )}
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="tasks-form" type="submit" disabled={isPending}>

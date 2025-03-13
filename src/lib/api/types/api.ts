@@ -238,6 +238,7 @@ export interface components {
   schemas: {
     SignInDto: {
       /**
+       * Format: email
        * @description El email del usuario.
        * @example admin@admin.com
        */
@@ -274,14 +275,7 @@ export interface components {
        * @example Juan Pérez
        */
       fullName?: string;
-      /**
-       * @description Roles del usuario
-       * @example [
-       *       "user",
-       *       "admin"
-       *     ]
-       */
-      roles?: unknown[][];
+      roles: string[][];
     };
     UserResponseDto: {
       /**
@@ -299,14 +293,7 @@ export interface components {
        * @example Juan Pérez
        */
       fullName: string;
-      /**
-       * @description Roles del usuario
-       * @example [
-       *       "user",
-       *       "admin"
-       *     ]
-       */
-      roles: unknown[][];
+      roles: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
        * @example true
@@ -327,6 +314,7 @@ export interface components {
     };
     CreateUserDto: {
       /**
+       * Format: email
        * @description Correo electrónico del usuario
        * @example usuario@ejemplo.com
        */
@@ -341,16 +329,11 @@ export interface components {
        * @example Juan Pérez
        */
       fullName: string;
-      /**
-       * @description IDs de roles a asignar al usuario
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000"
-       *     ]
-       */
-      roleIds?: unknown[][];
+      roleIds: string[][];
     };
     UpdateUserDto: {
       /**
+       * Format: email
        * @description Correo electrónico del usuario
        * @example usuario@ejemplo.com
        */
@@ -365,14 +348,7 @@ export interface components {
        * @example Juan Pérez
        */
       fullName?: string;
-      /**
-       * @description Roles del usuario
-       * @example [
-       *       "user",
-       *       "admin"
-       *     ]
-       */
-      roles?: unknown[][];
+      roles: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
        * @example true
@@ -429,13 +405,7 @@ export interface components {
        * @example Rol de administrador con acceso completo
        */
       description?: string;
-      /**
-       * @description IDs de los permisos asignados al rol
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000"
-       *     ]
-       */
-      permissionIds?: unknown[][];
+      permissionIds: string[][];
     };
     RoleResponseDto: {
       /**
@@ -453,6 +423,7 @@ export interface components {
        * @example Administrador del sistema con acceso completo
        */
       description?: string | null;
+      permissionIds: string[][];
       /**
        * Format: date-time
        * @description Fecha de creación del rol
@@ -491,14 +462,7 @@ export interface components {
        * @example Rol con acceso ampliado a todas las funciones
        */
       description?: string;
-      /**
-       * @description IDs de los permisos asignados al rol (reemplaza todos los permisos existentes)
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "223e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      permissionIds?: unknown[][];
+      permissionIds: string[][];
     };
     CreatePermissionDto: {
       /**
@@ -510,7 +474,7 @@ export interface components {
        * @description The description of the permission
        * @example Create a new user
        */
-      description: string;
+      description?: string;
       /**
        * @description The resource of the permission
        * @example users
@@ -544,7 +508,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": string;
+        };
       };
     };
   };

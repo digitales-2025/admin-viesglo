@@ -8,7 +8,6 @@ import {
   ColumnPinningState,
   flexRender,
   getCoreRowModel,
-  getExpandedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -63,7 +62,6 @@ export function ExpandableDataTable<TData, TValue>({
       columnPinning,
     },
     enableRowSelection: true,
-    enableExpanding: true,
     getSubRows,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -77,7 +75,6 @@ export function ExpandableDataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    getExpandedRowModel: getExpandedRowModel(),
   });
 
   const getCommonPinningStyles = (column: Column<TData>): CSSProperties => {
@@ -110,8 +107,9 @@ export function ExpandableDataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const { column } = header;
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id} colSpan={header.colSpan} style={{ ...getCommonPinningStyles(column) }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );

@@ -22,9 +22,6 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
       <h3 className="font-medium mb-2 text-sm text-gray-700">Información del Rol:</h3>
       <div className="mb-4">
         <p>
-          <strong>ID:</strong> {role.id}
-        </p>
-        <p>
           <strong>Nombre:</strong> {role.name}
         </p>
         <p>

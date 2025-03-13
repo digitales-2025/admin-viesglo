@@ -1,7 +1,7 @@
 "use server";
 
 import { http } from "@/lib/http/methods";
-import { Permission, Role } from "../_types/roles";
+import { Permission, Role, RoleCreate } from "../_types/roles";
 
 const API_ENDPOINT = "/roles";
 
@@ -35,7 +35,7 @@ export async function getRole(id: string): Promise<{ data: Role | null; success:
  * Crea un nuevo rol
  */
 export async function createRole(
-  roleData: Omit<Role, "id" | "createdAt" | "updatedAt">
+  roleData: RoleCreate
 ): Promise<{ data: Role | null; success: boolean; error?: string }> {
   try {
     const data = await http.post<Role>(API_ENDPOINT, roleData);

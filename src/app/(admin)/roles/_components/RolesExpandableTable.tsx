@@ -6,7 +6,9 @@ import { Loader2 } from "lucide-react";
 import { ExpandableDataTable } from "@/shared/components/data-table/ExpandableDataTable";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { useRoles } from "../_hooks/useRoles";
+import { Role } from "../_types/roles";
 import { columnsRoles } from "./column";
+import { RolePermissionsView } from "./RolePermissionsView";
 
 export function RolesExpandableTable() {
   const { data: roles, isLoading, isError } = useRoles();
@@ -42,5 +44,12 @@ export function RolesExpandableTable() {
     );
   }
 
-  return <ExpandableDataTable columns={columns} data={roles} />;
+  return (
+    <ExpandableDataTable
+      columns={columns}
+      data={roles}
+      getSubRows={(row) => row.permissionIds as unknown as Role[]}
+      renderExpandedRow={(row) => <RolePermissionsView role={row} />}
+    />
+  );
 }

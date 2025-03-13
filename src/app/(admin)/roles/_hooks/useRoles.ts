@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { createRole, deleteRole, getRole, getRolePermissions, getRoles, updateRole } from "../_actions/roles.actions";
-import { Role } from "../_types/roles";
+import { RoleCreate, RoleUpdate } from "../_types/roles";
 
 // Claves de consulta para roles
 export const ROLES_KEYS = {
@@ -57,7 +57,7 @@ export function useCreateRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newRole: Omit<Role, "id" | "createdAt" | "updatedAt">) => createRole(newRole),
+    mutationFn: (newRole: RoleCreate) => createRole(newRole),
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
@@ -76,8 +76,7 @@ export function useUpdateRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<Omit<Role, "id" | "createdAt" | "updatedAt">> }) =>
-      updateRole(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<RoleUpdate> }) => updateRole(id, data),
     onSuccess: (data, variables) => {
       // Invalida consultas para refrescar los datos
       queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
