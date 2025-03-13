@@ -4,10 +4,12 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useDeleteRole } from "../_hooks/useRoles";
 import { RolesMutateDrawer } from "./RolesMutateDrawer";
 
 export default function RolesDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
+  const { mutate: deleteRole } = useDeleteRole();
   // Constantes para módulo
   const MODULE = "roles";
 
@@ -32,7 +34,11 @@ export default function RolesDialogs() {
           if (!open) close();
         }}
         handleConfirm={() => {
-          console.log("delete");
+          deleteRole(data?.id, {
+            onSuccess: () => {
+              close();
+            },
+          });
         }}
         className="max-w-md"
         title={

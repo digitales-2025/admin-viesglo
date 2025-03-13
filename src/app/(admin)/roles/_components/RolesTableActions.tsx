@@ -1,7 +1,6 @@
 "use client";
 
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -11,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
 
 interface RolesTableActionsProps {
@@ -20,7 +18,6 @@ interface RolesTableActionsProps {
 
 export function RolesTableActions({ row }: RolesTableActionsProps) {
   const { open } = useDialogStore();
-  const { mutate: deleteRole } = useDeleteRole();
 
   // Constante para módulo
   const MODULE = "roles";
@@ -30,16 +27,7 @@ export function RolesTableActions({ row }: RolesTableActionsProps) {
   };
 
   const handleDelete = () => {
-    if (confirm(`¿Estás seguro de que deseas eliminar el rol "${row.name}"?`)) {
-      deleteRole(row.id, {
-        onSuccess: () => {
-          toast.success("Rol eliminado correctamente");
-        },
-        onError: (error) => {
-          toast.error(`Error al eliminar el rol: ${error.message}`);
-        },
-      });
-    }
+    open(MODULE, "delete", row);
   };
 
   return (

@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Role } from "../_types/roles";
 import { RolesTableActions } from "./RolesTableActions";
@@ -41,6 +42,19 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
     accessorKey: "description",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
     cell: ({ row }) => <div className="truncate max-w-[300px]">{row.getValue("description")}</div>,
+  },
+  {
+    accessorKey: "isActive",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">
+        {row.getValue("isActive") ? (
+          <Badge variant="successOutline"> Activo</Badge>
+        ) : (
+          <Badge variant="errorOutline">Inactivo</Badge>
+        )}
+      </div>
+    ),
   },
   {
     id: "actions",

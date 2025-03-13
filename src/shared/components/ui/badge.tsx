@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/shared/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
       variant: {
@@ -14,6 +14,16 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        success: "border-emerald-500 bg-emerald-500 text-white [a&]:hover:bg-emerald-600",
+        error: "border-rose-500 bg-rose-500 text-white [a&]:hover:bg-rose-600",
+        warning: "border-yellow-500 bg-yellow-500 text-white [a&]:hover:bg-yellow-600",
+        info: "border-blue-500 bg-blue-500 text-white [a&]:hover:bg-blue-600",
+        muted: "border-gray-500 bg-gray-500 text-white [a&]:hover:bg-gray-600",
+        successOutline: "border-emerald-500 text-emerald-500  [a&]:hover:bg-emerald-50 [a&]:hover:text-emerald-600",
+        errorOutline: "border-rose-500 text-rose-500 [a&]:hover:bg-rose-50 [a&]:hover:text-rose-600",
+        warningOutline: "border-yellow-500 text-yellow-500 [a&]:hover:bg-yellow-50 [a&]:hover:text-yellow-600",
+        infoOutline: "border-blue-500 text-blue-500 [a&]:hover:bg-blue-50 [a&]:hover:text-blue-600",
+        mutedOutline: "border-gray-500 text-gray-500 [a&]:hover:bg-gray-50 [a&]:hover:text-gray-600",
       },
     },
     defaultVariants: {
