@@ -8,6 +8,7 @@ import {
   ColumnPinningState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
@@ -62,6 +63,7 @@ export function ExpandableDataTable<TData, TValue>({
       columnPinning,
     },
     enableRowSelection: true,
+    enableExpanding: true,
     getSubRows,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -75,6 +77,7 @@ export function ExpandableDataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    getExpandedRowModel: getExpandedRowModel(),
   });
 
   const getCommonPinningStyles = (column: Column<TData>): CSSProperties => {

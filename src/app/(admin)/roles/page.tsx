@@ -1,8 +1,8 @@
 import { Metadata } from "next";
 
 import RolesDialogs from "./_components/RolesDialogs";
+import { RolesExpandableTable } from "./_components/RolesExpandableTable";
 import RolesPrimaryButtons from "./_components/RolesPrimaryButtons";
-import RolesTable from "./_components/RolesTable";
 
 export const metadata: Metadata = {
   title: "Administrador de roles",
@@ -19,7 +19,7 @@ export default function RolesPage() {
         <RolesPrimaryButtons />
       </div>
       <div className="-mx-4 flex-1 overflow-auto px-4 py-1 lg:flex-row lg:space-x-12 lg:space-y-0">
-        <RolesTable />
+        <RolesExpandableTable />
       </div>
       <RolesDialogs />
     </>

@@ -1,7 +1,7 @@
 "use server";
 
 import { http } from "@/lib/http/methods";
-import { Role } from "../_types/roles";
+import { Permission, Role } from "../_types/roles";
 
 const API_ENDPOINT = "/roles";
 
@@ -72,5 +72,19 @@ export async function deleteRole(id: string): Promise<{ success: boolean; error?
   } catch (error: any) {
     console.error(`Error al eliminar rol ${id}:`, error);
     return { success: false, error: error.message || "Error al eliminar rol" };
+  }
+}
+
+/**
+ * Obtiene los permisos de un rol
+ */
+export async function getRolePermissions(
+  id: string
+): Promise<{ data: Permission[]; success: boolean; error?: string }> {
+  try {
+    const data = await http.get<Permission[]>(`${API_ENDPOINT}/${id}/permissions`);
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, data: [], error: error.message || "Error al obtener permisos del rol" };
   }
 }

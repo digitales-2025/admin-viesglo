@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createRole, deleteRole, getRole, getRoles, updateRole } from "../_actions/roles.actions";
+import { createRole, deleteRole, getRole, getRolePermissions, getRoles, updateRole } from "../_actions/roles.actions";
 import { Role } from "../_types/roles";
 
 // Claves de consulta para roles
@@ -13,6 +13,8 @@ export const ROLES_KEYS = {
   list: (filters: string) => [...ROLES_KEYS.lists(), { filters }] as const,
   details: () => [...ROLES_KEYS.all, "detail"] as const,
   detail: (id: string) => [...ROLES_KEYS.details(), id] as const,
+  permissions: () => [...ROLES_KEYS.all, "permissions"] as const,
+  permissionsDetail: (id: string) => [...ROLES_KEYS.permissions(), id] as const,
 };
 
 /**
@@ -104,5 +106,30 @@ export function useDeleteRole() {
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar rol");
     },
+  });
+}
+
+/**
+ * Hook para obtener los permisos de un rol
+ */
+export function useRolePermissions(id: string) {
+  return useQuery({
+    queryKey: ROLES_KEYS.permissionsDetail(id),
+    queryFn: async () => {
+      try {
+        const response = await getRolePermissions(id);
+
+        if (!response.success) {
+          throw new Error(response.error || "Error al obtener permisos del rol");
+        }
+
+        return response.data;
+      } catch (error) {
+        throw error;
+      }
+    },
+    enabled: !!id,
+    staleTime: 0, // Siempre obtener datos frescos
+    gcTime: 1000 * 60 * 5, // Caché por 5 minutos
   });
 }

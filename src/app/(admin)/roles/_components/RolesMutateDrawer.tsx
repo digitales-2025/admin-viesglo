@@ -1,13 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ChevronDown, Info, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Separator } from "@/shared/components/ui/separator";
 import {
   Sheet,
   SheetClose,
@@ -17,19 +24,22 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentRow?: Partial<Role>;
+  currentRow?: Partial<Role & { permissions: string[] }>;
 }
 
 // Esquema simplificado para coincidir con la estructura de Role
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().min(1, "La descripción es requerida."),
+  permissions: z.array(z.string()).min(1, "Las permissioines son requeridas."),
 });
 type RolesForm = z.infer<typeof formSchema>;
 
@@ -47,6 +57,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     defaultValues: {
       name: currentRow?.name || "",
       description: currentRow?.description || "",
+      permissions: currentRow?.permissions || [],
     },
   });
 
@@ -83,6 +94,20 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         }
       );
     }
+  };
+  const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
+  const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
+  console.log("🚀 ~ RolesMutateDrawer ~ permissions:", permissions);
+
+  const groupedPermissions = Object.values(
+    permissions?.reduce<Record<string, { resource: string; actions: any[] }>>((acc, { resource, ...rest }) => {
+      acc[resource] = acc[resource] || { resource, actions: [] };
+      acc[resource].actions.push(rest);
+      return acc;
+    }, {}) || {}
+  );
+  const toggleGroup = (groupId: string) => {
+    setOpenGroups((prev) => (prev.includes(groupId) ? prev.filter((g) => g !== groupId) : [...prev, groupId]));
   };
 
   return (
@@ -131,6 +156,116 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <Input {...field} placeholder="Ingrese una descripción" disabled={isPending} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="permissions"
+                render={() => (
+                  <FormItem>
+                    {isLoadingPermissions ? (
+                      <div className="flex items-center justify-center h-full">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {groupedPermissions.map((group) => (
+                          <Collapsible
+                            key={group.resource}
+                            open={openGroups.includes(group.resource)}
+                            onOpenChange={() => toggleGroup(group.resource)}
+                            className="border rounded-md bg-background"
+                          >
+                            <CollapsibleTrigger asChild>
+                              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50">
+                                <div className="flex items-center gap-3">
+                                  <Checkbox
+                                    id={`group-${group.resource}`}
+                                    checked={group.actions.every((p) => form.getValues("permissions").includes(p.id))}
+                                    className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
+                                  />
+                                  <div>
+                                    <Label
+                                      htmlFor={`group-${group.resource}`}
+                                      className="font-medium cursor-pointer flex items-center"
+                                    >
+                                      <span className="ml-2">{group.resource}</span>
+                                    </Label>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline">
+                                    {group.actions.filter((p) => form.getValues("permissions").includes(p.id)).length} /{" "}
+                                    {group.actions.length}
+                                  </Badge>
+                                  <ChevronDown
+                                    className={`h-5 w-5 transition-transform ${openGroups.includes(group.resource) ? "transform rotate-180" : ""}`}
+                                  />
+                                </div>
+                              </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                              <Separator />
+                              <div className="p-4 space-y-3">
+                                {group.actions.map((permission) => (
+                                  <FormField
+                                    key={permission.id}
+                                    control={form.control}
+                                    name="permissions"
+                                    render={({ field }) => {
+                                      return (
+                                        <FormItem
+                                          key={permission.id}
+                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                        >
+                                          <FormControl>
+                                            <Checkbox
+                                              checked={field.value?.includes(permission.id)}
+                                              onCheckedChange={(checked) => {
+                                                const currentValues = field.value || [];
+                                                return checked
+                                                  ? field.onChange([...currentValues, permission.id])
+                                                  : field.onChange(
+                                                      currentValues.filter((value) => value !== permission.id)
+                                                    );
+                                              }}
+                                            />
+                                          </FormControl>
+                                          <div className="inline-flex space-y-1 leading-none">
+                                            <div className=" items-center">
+                                              <FormLabel className="font-medium cursor-pointer">
+                                                {permission.label}
+                                              </FormLabel>
+                                              <TooltipProvider>
+                                                <Tooltip>
+                                                  <TooltipTrigger asChild>
+                                                    <Badge
+                                                      variant="outline"
+                                                      className="inline-flex items-center gap-1 "
+                                                    >
+                                                      <Info />
+                                                    </Badge>
+                                                  </TooltipTrigger>
+                                                  <TooltipContent>
+                                                    <p>{permission.description}</p>
+                                                  </TooltipContent>
+                                                </Tooltip>
+                                              </TooltipProvider>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">{permission.description}</p>
+                                          </div>
+                                        </FormItem>
+                                      );
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            </CollapsibleContent>
+                          </Collapsible>
+                        ))}
+                      </div>
+                    )}
                   </FormItem>
                 )}
               />

@@ -12,7 +12,7 @@ export function RolesExpandableTable() {
   const { data: roles, isLoading, isError } = useRoles();
 
   // Memorizamos las columnas para evitar re-renderizados innecesarios
-  const columns = useMemo(() => columnsRoles, []);
+  const columns = useMemo(() => columnsRoles(), []);
 
   if (isLoading) {
     return (
@@ -32,5 +32,15 @@ export function RolesExpandableTable() {
     );
   }
 
-  return <ExpandableDataTable columns={columns} data={roles || []} />;
+  // Verificar que roles sea un array válido y no esté vacío
+  if (!roles || !Array.isArray(roles) || roles.length === 0) {
+    return (
+      <Alert>
+        <AlertTitle>Información</AlertTitle>
+        <AlertDescription>No hay roles para mostrar.</AlertDescription>
+      </Alert>
+    );
+  }
+
+  return <ExpandableDataTable columns={columns} data={roles} />;
 }
