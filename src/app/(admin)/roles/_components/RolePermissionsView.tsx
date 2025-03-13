@@ -19,7 +19,7 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
   // Mostrar información del rol aunque no se carguen los permisos
   return (
     <div className="py-4">
-      <h3 className="font-medium mb-2 text-sm text-gray-700">Información del Rol:</h3>
+      <h3 className="font-medium mb-2 text-sm text-gray-700 dark:text-gray-300">Información del Rol:</h3>
       <div className="mb-4">
         <p>
           <strong>Nombre:</strong> {role.name}
@@ -29,7 +29,7 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
         </p>
       </div>
 
-      <h3 className="font-medium mb-2 text-sm text-gray-700">Estado de Permisos:</h3>
+      <h3 className="font-medium mb-2 text-sm text-gray-700 dark:text-gray-300">Estado de Permisos:</h3>
       {isLoading && (
         <div className="py-2 flex items-center">
           <Loader2 className="h-4 w-4 animate-spin mr-2" />

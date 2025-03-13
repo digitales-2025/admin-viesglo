@@ -86,7 +86,6 @@ export function ExpandableDataTable<TData, TValue>({
       position: isPinned ? "sticky" : "relative",
       width: column.getSize(),
       zIndex: isPinned ? 1 : 0,
-      backgroundColor: "white",
     };
   };
 
@@ -129,11 +128,7 @@ export function ExpandableDataTable<TData, TValue>({
                       const { column } = cell;
 
                       return (
-                        <TableCell
-                          key={cell.id}
-                          className="text-slate-600"
-                          style={{ ...getCommonPinningStyles(column) }}
-                        >
+                        <TableCell key={cell.id} style={{ ...getCommonPinningStyles(column) }}>
                           {flexRender(cell.column.columnDef.cell, cell.getContext())}
                         </TableCell>
                       );

@@ -34,21 +34,24 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
     enablePinning: true,
   },
   {
+    id: "nombre",
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("name")}</div>,
+    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("nombre")}</div>,
   },
   {
+    id: "descripcion",
     accessorKey: "description",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
-    cell: ({ row }) => <div className="truncate max-w-[300px]">{row.getValue("description")}</div>,
+    cell: ({ row }) => <div className="truncate max-w-[300px]">{row.getValue("descripcion")}</div>,
   },
   {
+    id: "estado",
     accessorKey: "isActive",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        {row.getValue("isActive") ? (
+        {row.getValue("estado") ? (
           <Badge variant="successOutline"> Activo</Badge>
         ) : (
           <Badge variant="errorOutline">Inactivo</Badge>
