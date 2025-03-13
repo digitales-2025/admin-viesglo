@@ -27,8 +27,7 @@ export default function RolesDialogs() {
 
       {/* Diálogo para eliminar rol */}
       <ConfirmDialog
-        key="task-delete"
-        destructive
+        key="rol-delete"
         open={isOpenForModule(MODULE, "delete")}
         onOpenChange={(open) => {
           if (!open) close();
@@ -54,6 +53,7 @@ export default function RolesDialogs() {
           </>
         }
         confirmText="Eliminar"
+        cancelBtnText="Cancelar"
       />
     </>
   );

@@ -43,7 +43,7 @@ export function RolesTableActions({ row }: RolesTableActionsProps) {
           <Edit className="mr-2 h-4 w-4" />
           <span>Editar</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete}>
+        <DropdownMenuItem onClick={handleDelete} disabled={!row.isActive}>
           <Trash className="mr-2 h-4 w-4" />
           <span>Eliminar</span>
         </DropdownMenuItem>

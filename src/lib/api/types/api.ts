@@ -208,7 +208,8 @@ export interface paths {
     /** Actualizar un rol */
     put: operations["RolesController_updateRole_v1"];
     post?: never;
-    delete?: never;
+    /** Eliminar un rol (desactivación lógica) */
+    delete: operations["RolesController_deleteRole_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -423,7 +424,19 @@ export interface components {
        * @example Administrador del sistema con acceso completo
        */
       description?: string | null;
-      permissionIds: string[][];
+      /**
+       * @description IDs de permisos asignados al rol
+       * @example [
+       *       "5f9d5e7b8e7a6c1d4c8e7a6c",
+       *       "5f9d5e7b8e7a6c1d4c8e7a6d"
+       *     ]
+       */
+      permissionIds?: string[];
+      /**
+       * @description Estado del rol (activo/inactivo)
+       * @example true
+       */
+      isActive: boolean;
       /**
        * Format: date-time
        * @description Fecha de creación del rol
@@ -884,6 +897,40 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["RoleResponseDto"];
         };
+      };
+    };
+  };
+  RolesController_deleteRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Rol eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No se puede eliminar el rol (ya está inactivo o está asignado a usuarios) */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Rol no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
