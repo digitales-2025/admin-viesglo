@@ -27,6 +27,7 @@ import {
 import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
+import { groupedPermission } from "../_utils/groupedPermission";
 
 interface Props {
   open: boolean;
@@ -103,18 +104,13 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         permissionsIds: currentRow.permissionIds || [],
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
 
   const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
   const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
 
-  const groupedPermissions = Object.values(
-    permissions?.reduce<Record<string, { resource: string; actions: any[] }>>((acc, { resource, ...rest }) => {
-      acc[resource] = acc[resource] || { resource, actions: [] };
-      acc[resource].actions.push(rest);
-      return acc;
-    }, {}) || {}
-  );
+  const groupedPermissions = groupedPermission(permissions || []);
   const toggleGroup = (groupId: string) => {
     setOpenGroups((prev) => (prev.includes(groupId) ? prev.filter((g) => g !== groupId) : [...prev, groupId]));
   };

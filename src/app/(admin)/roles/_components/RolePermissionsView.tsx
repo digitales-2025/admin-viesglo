@@ -1,10 +1,11 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Check, Loader2, Minus } from "lucide-react";
 
-import { Badge } from "@/shared/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { useRolePermissions } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
+import { groupedPermission } from "../_utils/groupedPermission";
 
 interface RolePermissionsViewProps {
   role: Role;
@@ -12,6 +13,10 @@ interface RolePermissionsViewProps {
 
 export function RolePermissionsView({ role }: RolePermissionsViewProps) {
   const { data: permissions, isLoading, isError } = useRolePermissions(role.id);
+  const groupedPermissions = groupedPermission(permissions || []);
+
+  const allActions = Array.from(new Set(groupedPermissions.flatMap((p) => p.actions.map((a) => a.action))));
+
   // Verificar que el rol tenga un ID válido
   if (!role || !role.id) {
     return <div className="py-4 text-red-500">Error: No se pudo obtener información del rol</div>;
@@ -41,11 +46,40 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
 
       {!isLoading && !isError && permissions && permissions.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {permissions.map((permission) => (
-            <Badge key={permission.id} variant="secondary">
-              {permission.name}
-            </Badge>
-          ))}
+          <div className="w-full overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-left">Recurso</TableHead>
+                  {allActions.map((action) => (
+                    <TableHead key={action} className="text-start capitalize">
+                      {action}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {groupedPermissions.map(({ resource, actions }) => {
+                  const actionSet = new Set(actions.map((a) => a.action));
+
+                  return (
+                    <TableRow key={resource}>
+                      <TableCell className="font-medium">{resource}</TableCell>
+                      {allActions.map((action) => (
+                        <TableCell key={action} className="text-center">
+                          {actionSet.has(action) ? (
+                            <Check className="text-green-500 w-5 h-5" />
+                          ) : (
+                            <Minus className="text-gray-400 w-5 h-5" />
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
 
