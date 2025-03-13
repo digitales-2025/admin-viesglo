@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -44,7 +44,6 @@ type RolesForm = z.infer<typeof formSchema>;
 
 export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow?.id;
-
   // Hooks de mutación
   const { mutate: createRoleMutate, isPending: isCreating } = useCreateRole();
   const { mutate: updateRoleMutate, isPending: isUpdating } = useUpdateRole();
@@ -59,7 +58,6 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       permissionsIds: currentRow?.permissionIds || [],
     },
   });
-  console.log("🚀 ~ RolesMutateDrawer ~ currentRow:", currentRow);
   const onSubmit = (data: RolesForm) => {
     if (isUpdate && currentRow?.id) {
       // Actualizar rol existente
@@ -80,7 +78,6 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         }
       );
     } else {
-      console.log("🚀 ~ onSubmit ~ data:", data);
       // Crear nuevo rol
       createRoleMutate(
         {
@@ -97,6 +94,17 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       );
     }
   };
+
+  useEffect(() => {
+    if (isUpdate && currentRow?.id) {
+      form.reset({
+        name: currentRow.name,
+        description: currentRow.description || "",
+        permissionsIds: currentRow.permissionIds || [],
+      });
+    }
+  }, [isUpdate, currentRow?.id]);
+
   const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
   const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
 
