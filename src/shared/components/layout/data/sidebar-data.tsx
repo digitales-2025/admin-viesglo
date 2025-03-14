@@ -57,7 +57,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Servicios",
           icon: BriefcaseBusiness,
-          url: "/clients",
+          url: "/services",
         },
       ],
     },
