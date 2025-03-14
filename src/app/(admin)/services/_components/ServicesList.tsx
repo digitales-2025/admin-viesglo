@@ -13,7 +13,7 @@ import CardItem from "./CardItem";
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
   const { open } = useDialogStore();
-  const { setSelectedService, selectedService } = useServiceStore();
+  const { setSelectedService, selectedService, clearOnServiceDelete } = useServiceStore();
 
   if (error) return <div>Error: {error.message}</div>;
 
@@ -45,7 +45,10 @@ export default function ServicesList() {
                   description={service.description ?? ""}
                   badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
                   onEdit={() => open("services", "edit", service)}
-                  onDelete={() => open("services", "delete", service)}
+                  onDelete={() => {
+                    clearOnServiceDelete(service.id);
+                    open("services", "delete", service);
+                  }}
                   onClick={() => setSelectedService(service)}
                   className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
                 />

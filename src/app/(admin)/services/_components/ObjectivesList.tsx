@@ -10,7 +10,7 @@ import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ObjectivesList() {
-  const { selectedService, setSelectedObjective, selectedObjective } = useServiceStore();
+  const { selectedService, setSelectedObjective, selectedObjective, clearOnObjectiveDelete } = useServiceStore();
 
   const { data: objectives, isLoading, error } = useObjectivesByServiceId(selectedService?.id || "");
 
@@ -44,7 +44,10 @@ export default function ObjectivesList() {
                     description={objective.description ?? ""}
                     onClick={() => setSelectedObjective(objective)}
                     onEdit={() => {}}
-                    onDelete={() => {}}
+                    onDelete={() => {
+                      clearOnObjectiveDelete(objective.id);
+                      // Aquí deberías agregar la lógica para abrir el diálogo de eliminación
+                    }}
                     className={cn(
                       selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10"
                     )}

@@ -27,6 +27,9 @@ interface ServiceStore {
   setIsCreating: (isCreating: boolean) => void;
   isDeleting: boolean;
   setIsDeleting: (isDeleting: boolean) => void;
+  clearOnServiceDelete: (serviceId: string) => void;
+  clearOnObjectiveDelete: (objectiveId: string) => void;
+  clearOnActivityDelete: (activityId: string) => void;
 }
 
 export const useServiceStore = create<ServiceStore>((set) => ({
@@ -54,4 +57,42 @@ export const useServiceStore = create<ServiceStore>((set) => ({
   setIsCreating: (isCreating: boolean) => set({ isCreating }),
   isDeleting: false,
   setIsDeleting: (isDeleting: boolean) => set({ isDeleting }),
+  clearOnServiceDelete: (serviceId: string) =>
+    set((state) => {
+      const result = {
+        objectives: [],
+        activities: [],
+      };
+
+      if (state.selectedService?.id === serviceId) {
+        return {
+          ...result,
+          selectedService: null,
+          selectedObjective: null,
+          selectedActivity: null,
+        };
+      }
+
+      return result;
+    }),
+  clearOnObjectiveDelete: (objectiveId: string) =>
+    set((state) => {
+      if (state.selectedObjective?.id === objectiveId) {
+        return {
+          selectedObjective: null,
+          selectedActivity: null,
+          activities: [],
+        };
+      }
+      return state;
+    }),
+  clearOnActivityDelete: (activityId: string) =>
+    set((state) => {
+      if (state.selectedActivity?.id === activityId) {
+        return {
+          selectedActivity: null,
+        };
+      }
+      return state;
+    }),
 }));

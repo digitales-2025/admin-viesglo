@@ -9,7 +9,7 @@ import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ActivitiesList() {
-  const { selectedObjective, setSelectedActivity, selectedActivity } = useServiceStore();
+  const { selectedObjective, setSelectedActivity, selectedActivity, clearOnActivityDelete } = useServiceStore();
 
   const { data: activities, isLoading, error } = useActivitiesByObjectiveId(selectedObjective?.id || "");
 
@@ -42,7 +42,10 @@ export default function ActivitiesList() {
                     description={activity.description ?? ""}
                     onClick={() => setSelectedActivity(activity)}
                     onEdit={() => {}}
-                    onDelete={() => {}}
+                    onDelete={() => {
+                      clearOnActivityDelete(activity.id);
+                      // Aquí deberías agregar la lógica para abrir el diálogo de eliminación
+                    }}
                     className={cn(
                       selectedActivity?.id === activity.id && "border-sky-400  outline-4 outline-sky-300/10"
                     )}
