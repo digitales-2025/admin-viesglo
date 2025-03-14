@@ -5,12 +5,14 @@ import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
+  const { open } = useDialogStore();
   const { setSelectedService, selectedService } = useServiceStore();
 
   if (error) return <div>Error: {error.message}</div>;
@@ -22,7 +24,7 @@ export default function ServicesList() {
           <h3 className="text-lg font-bold">Lista de Servicios</h3>
           <p className="text-sm text-muted-foreground">Aquí puedes ver todos los servicios que tienes disponibles.</p>
         </div>
-        <Button size="sm" disabled={isLoading} variant="outline">
+        <Button size="sm" disabled={isLoading} variant="outline" onClick={() => open("services", "create")}>
           <Plus className="w-4 h-4" />
           Nuevo Servicio
         </Button>
@@ -40,9 +42,9 @@ export default function ServicesList() {
                 key={service.id}
                 title={service.name}
                 description={service.description ?? ""}
-                badge={<Badge variant="outline">{service.objectives.length} Objetivos</Badge>}
-                onEdit={() => {}}
-                onDelete={() => {}}
+                badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
+                onEdit={() => open("services", "edit", service)}
+                onDelete={() => open("services", "delete", service)}
                 onClick={() => setSelectedService(service)}
                 className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
               />

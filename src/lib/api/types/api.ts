@@ -251,6 +251,24 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/services/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un servicio existente */
+    put: operations["ServicesController_update_v1"];
+    post?: never;
+    /** Eliminar un servicio existente */
+    delete: operations["ServicesController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/objectives": {
     parameters: {
       query?: never;
@@ -285,7 +303,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/activities": {
+  "/api/v1/objectives/{id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -293,16 +311,17 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    put?: never;
-    /** Crear una nueva actividad */
-    post: operations["ActivitiesController_create_v1"];
-    delete?: never;
+    /** Actualizar un objetivo existente */
+    put: operations["ObjectivesController_update_v1"];
+    post?: never;
+    /** Eliminar una objetivo existente */
+    delete: operations["ObjectivesController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/activities/{objectiveId}": {
+  "/api/v1/activities": {
     parameters: {
       query?: never;
       header?: never;
@@ -312,8 +331,27 @@ export interface paths {
     /** Obtener actividades por objetivo */
     get: operations["ActivitiesController_getActivitiesByObjectiveId_v1"];
     put?: never;
-    post?: never;
+    /** Crear una nueva actividad */
+    post: operations["ActivitiesController_create_v1"];
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/activities/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar una actividad existente */
+    put: operations["ActivitiesController_update_v1"];
+    post?: never;
+    /** Eliminar una actividad existente */
+    delete: operations["ActivitiesController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -596,7 +634,14 @@ export interface components {
        * @example Descripción del servicio de ejemplo
        */
       description?: string;
-      objectives: string[][];
+      /**
+       * @description Los objetivos del servicio
+       * @example [
+       *       "Objetivo 1",
+       *       "Objetivo 2"
+       *     ]
+       */
+      objectives?: string[];
     };
     ServiceResponseDto: {
       /**
@@ -620,6 +665,26 @@ export interface components {
        * @example true
        */
       isActive: boolean;
+    };
+    UpdateServiceDto: {
+      /**
+       * @description El nombre del servicio
+       * @example Servicio 1
+       */
+      name?: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio
+       */
+      description?: string;
+      /**
+       * @description Los objetivos del servicio
+       * @example [
+       *       "Objetivo 1",
+       *       "Objetivo 2"
+       *     ]
+       */
+      objectives?: string[];
     };
     CreateObjectiveDto: {
       /**
@@ -673,6 +738,23 @@ export interface components {
        *     ]
        */
       activities?: string[];
+    };
+    UpdateObjectiveDto: {
+      /**
+       * @description El nombre del objetivo
+       * @example Objetivo 1
+       */
+      name?: string;
+      /**
+       * @description La descripción del objetivo
+       * @example Descripción del objetivo 1
+       */
+      description?: string;
+      /**
+       * @description El ID del servicio al que pertenece el objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
     };
     CreateActivityDto: {
       /**
@@ -752,6 +834,38 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       objectiveId: string;
+    };
+    UpdateActivityDto: {
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name?: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description?: string;
+      /**
+       * @description El ID del usuario responsable de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description La frecuencia de la actividad
+       * @example YEARLY
+       */
+      frequency?: string;
+      /**
+       * @description La fecha de programación de la actividad
+       * @example 2025-03-22
+       */
+      scheduleDate?: string;
+      /**
+       * @description La fecha de ejecución de la actividad
+       * @example 2025-03-22
+       */
+      executionDate?: string;
     };
   };
   responses: never;
@@ -1272,6 +1386,52 @@ export interface operations {
       };
     };
   };
+  ServicesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateServiceDto"];
+      };
+    };
+    responses: {
+      /** @description El servicio ha sido actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"];
+        };
+      };
+    };
+  };
+  ServicesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El servicio ha sido eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ObjectivesController_create_v1: {
     parameters: {
       query?: never;
@@ -1318,6 +1478,75 @@ export interface operations {
       };
     };
   };
+  ObjectivesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description Objetivo actualizado con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"];
+        };
+      };
+    };
+  };
+  ObjectivesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Objetivo eliminado con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ActivitiesController_getActivitiesByObjectiveId_v1: {
+    parameters: {
+      query: {
+        /** @description ID del objetivo para filtrar actividades */
+        objectiveId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Las actividades han sido obtenidas correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"][];
+        };
+      };
+    };
+  };
   ActivitiesController_create_v1: {
     parameters: {
       query?: never;
@@ -1342,18 +1571,22 @@ export interface operations {
       };
     };
   };
-  ActivitiesController_getActivitiesByObjectiveId_v1: {
+  ActivitiesController_update_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
-        objectiveId: string;
+        id: string;
       };
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateActivityDto"];
+      };
+    };
     responses: {
-      /** @description Las actividades han sido obtenidas correctamente */
+      /** @description La actividad ha sido actualizada correctamente */
       200: {
         headers: {
           [name: string]: unknown;
@@ -1361,6 +1594,26 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ActivityResponseDto"];
         };
+      };
+    };
+  };
+  ActivitiesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La actividad ha sido eliminada correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
