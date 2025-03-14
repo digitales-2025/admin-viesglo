@@ -2,12 +2,12 @@ import { Loader2, Plus } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { useObjectivesByServiceId } from "../_hooks/useObjectives";
 import { useServiceStore } from "../_hooks/useServiceStore";
+import CardItem from "./CardItem";
 
 export default function ObjectivesList() {
   const { selectedService, setSelectedObjective, selectedObjective } = useServiceStore();
@@ -36,22 +36,16 @@ export default function ObjectivesList() {
         <ScrollArea className="flex-1 h-full">
           <div className="flex flex-col gap-2 p-2">
             {objectives?.map((objective) => (
-              <Card
+              <CardItem
                 key={objective.id}
-                className={cn(
-                  "shadow-none hover:cursor-pointer",
-                  selectedObjective?.id === objective.id && "border-primary"
-                )}
+                title={objective.name}
+                badge={<Badge variant="outline">{objective.activities?.length} Actividades</Badge>}
+                description={objective.description ?? ""}
                 onClick={() => setSelectedObjective(objective)}
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 justify-between">
-                    {objective.name}
-                    <Badge variant="outline">{objective.activities?.length} Actividades</Badge>
-                  </CardTitle>
-                  <CardDescription>{objective.description}</CardDescription>
-                </CardHeader>
-              </Card>
+                onEdit={() => {}}
+                onDelete={() => {}}
+                className={cn(selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10")}
+              />
             ))}
           </div>
         </ScrollArea>

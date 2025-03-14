@@ -1,12 +1,12 @@
 import { Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { useActivitiesByObjectiveId } from "../_hooks/useActivities";
 import { useServiceStore } from "../_hooks/useServiceStore";
+import CardItem from "./CardItem";
 
 export default function ActivitiesList() {
   const { selectedObjective, setSelectedActivity, selectedActivity } = useServiceStore();
@@ -34,19 +34,15 @@ export default function ActivitiesList() {
         <ScrollArea className="flex-1 h-full">
           <div className="flex flex-col gap-2 p-2">
             {activities?.map((activity) => (
-              <Card
+              <CardItem
                 key={activity.id}
-                className={cn(
-                  "shadow-none hover:cursor-pointer",
-                  selectedActivity?.id === activity.id && "border-primary"
-                )}
+                title={activity.name}
+                description={activity.description ?? ""}
                 onClick={() => setSelectedActivity(activity)}
-              >
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 justify-between">{activity.name}</CardTitle>
-                  <CardDescription>{activity.description}</CardDescription>
-                </CardHeader>
-              </Card>
+                onEdit={() => {}}
+                onDelete={() => {}}
+                className={cn(selectedActivity?.id === activity.id && "border-sky-400  outline-4 outline-sky-300/10")}
+              />
             ))}
           </div>
         </ScrollArea>

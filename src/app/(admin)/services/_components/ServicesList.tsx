@@ -2,13 +2,13 @@ import { Plus } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { cn } from "@/shared/lib/utils";
 import { useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
+import CardItem from "./CardItem";
 
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
@@ -41,19 +41,16 @@ export default function ServicesList() {
       <ScrollArea className="flex-1 h-full">
         <div className="flex flex-col gap-2 p-2">
           {services?.map((service) => (
-            <Card
+            <CardItem
               key={service.id}
-              className={cn("shadow-none hover:cursor-pointer", selectedService?.id === service.id && "border-primary")}
+              title={service.name}
+              description={service.description ?? ""}
+              badge={<Badge variant="outline">{service.objectives.length} Objetivos</Badge>}
+              onEdit={() => {}}
+              onDelete={() => {}}
               onClick={() => setSelectedService(service)}
-            >
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 justify-between">
-                  {service.name}
-                  <Badge variant="outline">{service.objectives.length} Objetivos</Badge>
-                </CardTitle>
-                <CardDescription>{service.description}</CardDescription>
-              </CardHeader>
-            </Card>
+              className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
+            />
           ))}
         </div>
       </ScrollArea>
