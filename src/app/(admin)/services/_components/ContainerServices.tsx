@@ -9,7 +9,7 @@ export default function ContainerServices() {
   return (
     <ResizablePanelGroup
       direction="horizontal"
-      className="h-[calc(100vh-160px)] max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full border"
+      className="h-[calc(100vh-160px)] max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full"
     >
       <ResizablePanel defaultSize={40} minSize={40} className="p-4 flex flex-col">
         <ServicesList />

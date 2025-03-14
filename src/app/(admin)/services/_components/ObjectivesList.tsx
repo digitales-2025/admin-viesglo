@@ -1,4 +1,4 @@
-import { Loader2, Plus } from "lucide-react";
+import { ChevronRight, Loader2, Plus } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -13,7 +13,6 @@ export default function ObjectivesList() {
   const { selectedService, setSelectedObjective, selectedObjective } = useServiceStore();
 
   const { data: objectives, isLoading, error } = useObjectivesByServiceId(selectedService?.id || "");
-  console.log("🚀 ~ ObjectivesList ~ objectives:", objectives);
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -21,7 +20,7 @@ export default function ObjectivesList() {
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Objetivos</h3>
         </div>
-        <Button size="sm">
+        <Button size="sm" disabled={!selectedService} variant="outline">
           <Plus className="w-4 h-4" />
           Nuevo Objetivo
         </Button>
@@ -35,18 +34,32 @@ export default function ObjectivesList() {
       ) : (
         <ScrollArea className="flex-1 h-full">
           <div className="flex flex-col gap-2 p-2">
-            {objectives?.map((objective) => (
-              <CardItem
-                key={objective.id}
-                title={objective.name}
-                badge={<Badge variant="outline">{objective.activities?.length} Actividades</Badge>}
-                description={objective.description ?? ""}
-                onClick={() => setSelectedObjective(objective)}
-                onEdit={() => {}}
-                onDelete={() => {}}
-                className={cn(selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10")}
-              />
-            ))}
+            {selectedService ? (
+              objectives?.map((objective) => (
+                <CardItem
+                  key={objective.id}
+                  title={objective.name}
+                  badge={<Badge variant="outline">{objective.activities?.length} Actividades</Badge>}
+                  description={objective.description ?? ""}
+                  onClick={() => setSelectedObjective(objective)}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  className={cn(
+                    selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10"
+                  )}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12 px-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+                  <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold">Selecciona un servicio</h3>
+                <p className="text-muted-foreground mt-2">
+                  Selecciona un servicio desde el lado izquierdo para ver sus objetivos
+                </p>
+              </div>
+            )}
           </div>
         </ScrollArea>
       )}
