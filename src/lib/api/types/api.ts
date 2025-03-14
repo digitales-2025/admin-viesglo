@@ -233,6 +233,58 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los servicios */
+    get: operations["ServicesController_getServices_v1"];
+    put?: never;
+    /** Crear un nuevo servicio */
+    post: operations["ServicesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/objectives": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva objetivo */
+    post: operations["ObjectivesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/objectives/{serviceId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las objetivos de un servicio */
+    get: operations["ObjectivesController_getObjectivesByServiceId_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -498,6 +550,95 @@ export interface components {
        * @example create
        */
       action: string;
+    };
+    CreateServiceDto: {
+      /**
+       * @description El nombre del servicio
+       * @example Servicio de ejemplo
+       */
+      name: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio de ejemplo
+       */
+      description?: string;
+      objectives: string[][];
+    };
+    ServiceResponseDto: {
+      /**
+       * @description El ID del servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El nombre del servicio
+       * @example Servicio de ejemplo
+       */
+      name: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio de ejemplo
+       */
+      description?: string;
+      objectives: string[][];
+      /**
+       * @description El estado del servicio
+       * @example true
+       */
+      isActive: boolean;
+    };
+    CreateObjectiveDto: {
+      /**
+       * @description Nombre de la objetivo
+       * @example Objetivo de ejemplo
+       */
+      name: string;
+      /**
+       * @description Descripción de la objetivo
+       * @example Descripción de la objetivo
+       */
+      description?: string;
+      /**
+       * @description ID del servicio al que pertenece la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /**
+       * @description Actividades de la objetivo
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      activities?: string[];
+    };
+    ObjectiveResponseDto: {
+      /**
+       * @description ID de la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la objetivo
+       * @example Objetivo de ejemplo
+       */
+      name: string;
+      /**
+       * @description Descripción de la objetivo
+       * @example Descripción de la objetivo
+       */
+      description?: string;
+      /**
+       * @description ID del servicio al que pertenece la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /**
+       * @description Actividades de la objetivo
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      activities?: string[];
     };
   };
   responses: never;
@@ -971,6 +1112,96 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ServicesController_getServices_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de servicios */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"][];
+        };
+      };
+    };
+  };
+  ServicesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateServiceDto"];
+      };
+    };
+    responses: {
+      /** @description El servicio ha sido creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"];
+        };
+      };
+    };
+  };
+  ObjectivesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description Objetivo creado con éxito */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"];
+        };
+      };
+    };
+  };
+  ObjectivesController_getObjectivesByServiceId_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        serviceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de objetivos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"][];
+        };
       };
     };
   };
