@@ -285,6 +285,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/activities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva actividad */
+    post: operations["ActivitiesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/activities/{objectiveId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener actividades por objetivo */
+    get: operations["ActivitiesController_getActivitiesByObjectiveId_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -639,6 +673,85 @@ export interface components {
        *     ]
        */
       activities?: string[];
+    };
+    CreateActivityDto: {
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description?: string;
+      /**
+       * @description El ID del usuario responsable de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description La frecuencia de la actividad
+       * @example YEARLY
+       */
+      frequency?: string;
+      /**
+       * @description La fecha de programación de la actividad
+       * @example 2025-03-22
+       */
+      scheduleDate?: string;
+      /**
+       * @description La fecha de ejecución de la actividad
+       * @example 2025-03-22
+       */
+      executionDate?: string;
+      /**
+       * @description El ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+    };
+    ActivityResponseDto: {
+      /**
+       * @description El ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description: string;
+      /**
+       * @description El ID del usuario responsable de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * @description La frecuencia de la actividad
+       * @example YEARLY
+       */
+      frequency: string;
+      /**
+       * @description La fecha de programación de la actividad
+       * @example 2025-03-22
+       */
+      scheduleDate: string;
+      /**
+       * @description La fecha de ejecución de la actividad
+       * @example 2025-03-22
+       */
+      executionDate: string;
+      /**
+       * @description El ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId: string;
     };
   };
   responses: never;
@@ -1201,6 +1314,52 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ObjectiveResponseDto"][];
+        };
+      };
+    };
+  };
+  ActivitiesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateActivityDto"];
+      };
+    };
+    responses: {
+      /** @description La actividad ha sido creada correctamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ActivitiesController_getActivitiesByObjectiveId_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        objectiveId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Las actividades han sido obtenidas correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"];
         };
       };
     };

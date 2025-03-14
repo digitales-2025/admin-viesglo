@@ -1,6 +1,7 @@
 "use client";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/components/ui/resizable";
+import ActivitiesList from "./ActivitiesList";
 import ObjectivesList from "./ObjectivesList";
 import ServicesList from "./ServicesList";
 
@@ -19,7 +20,7 @@ export default function ContainerServices() {
       </ResizablePanel>
       <ResizableHandle withHandle />
       <ResizablePanel defaultSize={30} minSize={20} className="p-4">
-        <div>Panel 2</div>
+        <ActivitiesList />
       </ResizablePanel>
     </ResizablePanelGroup>
   );

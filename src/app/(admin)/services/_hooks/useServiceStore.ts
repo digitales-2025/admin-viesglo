@@ -1,14 +1,18 @@
 import { create } from "zustand";
 
-import { ObjectiveResponse, ServiceResponse } from "../_types/services.types";
+import { ActivityResponse, ObjectiveResponse, ServiceResponse } from "../_types/services.types";
 
 interface ServiceStore {
   service: ServiceResponse | null;
   setService: (service: ServiceResponse) => void;
   objectives: ObjectiveResponse[];
   setObjectives: (objectives: ObjectiveResponse[]) => void;
+  activities: ActivityResponse[];
+  setActivities: (activities: ActivityResponse[]) => void;
   selectedObjective: ObjectiveResponse | null;
   setSelectedObjective: (selectedObjective: ObjectiveResponse | null) => void;
+  selectedActivity: ActivityResponse | null;
+  setSelectedActivity: (selectedActivity: ActivityResponse | null) => void;
   selectedService: ServiceResponse | null;
   setSelectedService: (selectedService: ServiceResponse | null) => void;
   isLoading: boolean;
@@ -30,10 +34,12 @@ export const useServiceStore = create<ServiceStore>((set) => ({
   setService: (service: ServiceResponse) => set({ service }),
   objectives: [],
   setObjectives: (objectives: ObjectiveResponse[]) => set({ objectives }),
-  //activities: [],
-  //setActivities: (activities: Activity[]) => set({ activities }),
+  activities: [],
+  setActivities: (activities: ActivityResponse[]) => set({ activities }),
   selectedObjective: null,
   setSelectedObjective: (selectedObjective: ObjectiveResponse | null) => set({ selectedObjective }),
+  selectedActivity: null,
+  setSelectedActivity: (selectedActivity: ActivityResponse | null) => set({ selectedActivity }),
   selectedService: null,
   setSelectedService: (selectedService: ServiceResponse | null) => set({ selectedService }),
   isLoading: false,
