@@ -1,4 +1,4 @@
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, SquareDashed } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -37,18 +37,27 @@ export default function ServicesList() {
       ) : (
         <ScrollArea className="flex-1 h-full">
           <div className="flex flex-col gap-2 p-2">
-            {services?.map((service) => (
-              <CardItem
-                key={service.id}
-                title={service.name}
-                description={service.description ?? ""}
-                badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
-                onEdit={() => open("services", "edit", service)}
-                onDelete={() => open("services", "delete", service)}
-                onClick={() => setSelectedService(service)}
-                className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
-              />
-            ))}
+            {services?.length && services?.length > 0 ? (
+              services?.map((service) => (
+                <CardItem
+                  key={service.id}
+                  title={service.name}
+                  description={service.description ?? ""}
+                  badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
+                  onEdit={() => open("services", "edit", service)}
+                  onDelete={() => open("services", "delete", service)}
+                  onClick={() => setSelectedService(service)}
+                  className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
+                />
+              ))
+            ) : (
+              <div className="text-center py-12 px-4">
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
+                  <SquareDashed className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className=" text-muted-foreground text-xs">No hay servicios</p>
+              </div>
+            )}
           </div>
         </ScrollArea>
       )}
