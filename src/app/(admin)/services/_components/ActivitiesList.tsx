@@ -1,4 +1,4 @@
-import { ChevronRight, Loader2, Plus } from "lucide-react";
+import { ChevronRight, Loader2, Plus, SquareDashed } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -54,12 +54,9 @@ export default function ActivitiesList() {
               ) : (
                 <div className="text-center py-12 px-4">
                   <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-muted mb-4">
-                    <ChevronRight className="h-6 w-6 text-muted-foreground" />
+                    <SquareDashed className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-semibold">Selecciona un objetivo</h3>
-                  <p className="text-muted-foreground mt-2">
-                    Selecciona un objetivo desde el lado izquierdo para ver sus actividades
-                  </p>
+                  <p className=" text-muted-foreground text-xs">No hay actividades para este objetivo</p>
                 </div>
               )
             ) : (
