@@ -46,10 +46,10 @@ export default function ObjectivesList() {
                     badge={<Badge variant="outline">{objective.activities?.length} Actividades</Badge>}
                     description={objective.description ?? ""}
                     onClick={() => setSelectedObjective(objective)}
-                    onEdit={() => {}}
+                    onEdit={() => open("objectives", "edit", objective)}
                     onDelete={() => {
                       clearOnObjectiveDelete(objective.id);
-                      // Aquí deberías agregar la lógica para abrir el diálogo de eliminación
+                      open("objectives", "delete", objective);
                     }}
                     className={cn(
                       selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10"

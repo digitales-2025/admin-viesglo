@@ -768,25 +768,10 @@ export interface components {
        */
       description?: string;
       /**
-       * @description El ID del usuario responsable de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * @description Si necesita evidencia de la actividad
+       * @example true
        */
-      responsibleUserId?: string;
-      /**
-       * @description La frecuencia de la actividad
-       * @example YEARLY
-       */
-      frequency?: string;
-      /**
-       * @description La fecha de programación de la actividad
-       * @example 2025-03-22
-       */
-      scheduleDate?: string;
-      /**
-       * @description La fecha de ejecución de la actividad
-       * @example 2025-03-22
-       */
-      executionDate?: string;
+      evidenceRequired?: boolean;
       /**
        * @description El ID del objetivo al que pertenece la actividad
        * @example 123e4567-e89b-12d3-a456-426614174000
@@ -810,25 +795,10 @@ export interface components {
        */
       description: string;
       /**
-       * @description El ID del usuario responsable de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * @description Si la actividad requiere evidencia
+       * @example true
        */
-      responsibleUserId: string;
-      /**
-       * @description La frecuencia de la actividad
-       * @example YEARLY
-       */
-      frequency: string;
-      /**
-       * @description La fecha de programación de la actividad
-       * @example 2025-03-22
-       */
-      scheduleDate: string;
-      /**
-       * @description La fecha de ejecución de la actividad
-       * @example 2025-03-22
-       */
-      executionDate: string;
+      evidenceRequired: boolean;
       /**
        * @description El ID del objetivo al que pertenece la actividad
        * @example 123e4567-e89b-12d3-a456-426614174000
@@ -847,25 +817,15 @@ export interface components {
        */
       description?: string;
       /**
-       * @description El ID del usuario responsable de la actividad
+       * @description Si la actividad requiere evidencia
+       * @example true
+       */
+      evidenceRequired?: boolean;
+      /**
+       * @description ID del objetivo al que pertenece la actividad
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
-      responsibleUserId?: string;
-      /**
-       * @description La frecuencia de la actividad
-       * @example YEARLY
-       */
-      frequency?: string;
-      /**
-       * @description La fecha de programación de la actividad
-       * @example 2025-03-22
-       */
-      scheduleDate?: string;
-      /**
-       * @description La fecha de ejecución de la actividad
-       * @example 2025-03-22
-       */
-      executionDate?: string;
+      objectiveId?: string;
     };
   };
   responses: never;

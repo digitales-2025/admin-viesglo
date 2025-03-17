@@ -26,9 +26,6 @@ export type OriginalObjectiveUpdate = Omit<ObjectiveUpdate, "serviceId"> & {
 };
 
 // Actividades
-export type ActivityRequest = components["schemas"]["CreateActivityDto"];
+export type ActivityCreate = components["schemas"]["CreateActivityDto"];
 export type ActivityResponse = components["schemas"]["ActivityResponseDto"];
-export type OriginalActivityUpdate = Omit<ActivityUpdate, "objectiveId"> & {
-  objectiveId?: string;
-};
 export type ActivityUpdate = components["schemas"]["UpdateActivityDto"];

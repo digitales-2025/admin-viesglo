@@ -4,6 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useActivitiesByObjectiveId } from "../_hooks/useActivities";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
@@ -13,13 +14,15 @@ export default function ActivitiesList() {
 
   const { data: activities, isLoading, error } = useActivitiesByObjectiveId(selectedObjective?.id || "");
 
+  const { open } = useDialogStore();
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between min-h-14">
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Actividades</h3>
         </div>
-        <Button size="sm" disabled={!selectedObjective} variant="outline">
+        <Button size="sm" disabled={!selectedObjective} variant="outline" onClick={() => open("activities", "create")}>
           <Plus className="w-4 h-4" />
           Nueva Actividad
         </Button>
@@ -41,10 +44,13 @@ export default function ActivitiesList() {
                     title={activity.name}
                     description={activity.description ?? ""}
                     onClick={() => setSelectedActivity(activity)}
-                    onEdit={() => {}}
+                    onEdit={() => {
+                      clearOnActivityDelete(activity.id);
+                      open("activities", "edit", activity);
+                    }}
                     onDelete={() => {
                       clearOnActivityDelete(activity.id);
-                      // Aquí deberías agregar la lógica para abrir el diálogo de eliminación
+                      open("activities", "delete", activity);
                     }}
                     className={cn(
                       selectedActivity?.id === activity.id && "border-sky-400  outline-4 outline-sky-300/10"
