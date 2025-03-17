@@ -8,6 +8,7 @@ import {
   updateObjective,
 } from "../_actions/objectives.actions";
 import { ObjectiveCreate, ObjectiveUpdate } from "../_types/services.types";
+import { ACTIVITIES_KEYS } from "./useActivities";
 import { SERVICES_KEYS } from "./useServices";
 
 export const OBJECTIVES_KEYS = {
@@ -99,6 +100,8 @@ export const useDeleteObjective = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ACTIVITIES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Objetivo eliminado exitosamente");
     },
     onError: (error: Error) => {

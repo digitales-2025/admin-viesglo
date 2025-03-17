@@ -8,6 +8,8 @@ import {
   updateActivity,
 } from "../_actions/activities.actions";
 import { ActivityCreate, ActivityUpdate } from "../_types/services.types";
+import { OBJECTIVES_KEYS } from "./useObjectives";
+import { SERVICES_KEYS } from "./useServices";
 
 export const ACTIVITIES_KEYS = {
   all: ["activities"] as const,
@@ -44,6 +46,8 @@ export const useCreateActivity = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Actividad creada exitosamente");
     },
     onError: (error: Error) => {
@@ -67,6 +71,8 @@ export const useUpdateActivity = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Actividad actualizada exitosamente");
     },
     onError: (error: Error) => {
@@ -90,6 +96,8 @@ export const useDeleteActivity = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Actividad eliminada exitosamente");
     },
     onError: (error: Error) => {
