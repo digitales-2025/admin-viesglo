@@ -8,14 +8,19 @@ import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
+import { ServiceResponse } from "../_types/services.types";
 import CardItem from "./CardItem";
 
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
   const { open } = useDialogStore();
-  const { setSelectedService, selectedService, clearOnServiceDelete } = useServiceStore();
+  const { setSelectedService, selectedService } = useServiceStore();
 
   if (error) return <div>Error: {error.message}</div>;
+
+  const handleDelete = (service: ServiceResponse) => {
+    open("services", "delete", service);
+  };
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -45,10 +50,7 @@ export default function ServicesList() {
                   description={service.description ?? ""}
                   badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
                   onEdit={() => open("services", "edit", service)}
-                  onDelete={() => {
-                    clearOnServiceDelete(service.id);
-                    open("services", "delete", service);
-                  }}
+                  onDelete={() => handleDelete(service)}
                   onClick={() => setSelectedService(service)}
                   className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
                 />

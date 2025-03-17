@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getObjectivesByServiceId } from "../_actions/objectives.actions";
 
@@ -20,4 +20,11 @@ export const useObjectivesByServiceId = (serviceId: string) => {
     },
     enabled: !!serviceId,
   });
+};
+
+export const useInvalidateObjectives = () => {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+  };
 };

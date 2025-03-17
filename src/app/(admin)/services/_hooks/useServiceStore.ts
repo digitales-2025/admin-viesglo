@@ -59,26 +59,24 @@ export const useServiceStore = create<ServiceStore>((set) => ({
   setIsDeleting: (isDeleting: boolean) => set({ isDeleting }),
   clearOnServiceDelete: (serviceId: string) =>
     set((state) => {
-      const result = {
-        objectives: [],
-        activities: [],
-      };
-
       if (state.selectedService?.id === serviceId) {
         return {
-          ...result,
+          ...state,
           selectedService: null,
           selectedObjective: null,
           selectedActivity: null,
+          objectives: [],
+          activities: [],
+          service: null,
         };
       }
-
-      return result;
+      return state;
     }),
   clearOnObjectiveDelete: (objectiveId: string) =>
     set((state) => {
       if (state.selectedObjective?.id === objectiveId) {
         return {
+          ...state,
           selectedObjective: null,
           selectedActivity: null,
           activities: [],
@@ -90,6 +88,7 @@ export const useServiceStore = create<ServiceStore>((set) => ({
     set((state) => {
       if (state.selectedActivity?.id === activityId) {
         return {
+          ...state,
           selectedActivity: null,
         };
       }

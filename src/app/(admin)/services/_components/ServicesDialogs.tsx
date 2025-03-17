@@ -2,13 +2,18 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useInvalidateObjectives } from "../_hooks/useObjectives";
 import { useDeleteService } from "../_hooks/useServices";
+import { useServiceStore } from "../_hooks/useServiceStore";
 import ServicesMutateDrawer from "./ServicesMutateDrawer";
 
 export default function ServicesDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteService } = useDeleteService();
   const MODULE = "services";
+
+  const { clearOnServiceDelete } = useServiceStore();
+  const invalidateObjectives = useInvalidateObjectives();
 
   return (
     <>
@@ -30,8 +35,10 @@ export default function ServicesDialogs() {
           if (!open) close();
         }}
         handleConfirm={() => {
-          deleteService(data?.id, {
+          deleteService(data.id, {
             onSuccess: () => {
+              clearOnServiceDelete(data.id);
+              invalidateObjectives();
               close();
             },
           });
