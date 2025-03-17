@@ -2,6 +2,7 @@
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/components/ui/resizable";
 import ActivitiesList from "./ActivitiesList";
+import ObjectivesDialogs from "./ObjectivesDialogs";
 import ObjectivesList from "./ObjectivesList";
 import ServicesDialogs from "./ServicesDialogs";
 import ServicesList from "./ServicesList";
@@ -10,6 +11,7 @@ export default function ContainerServices() {
   return (
     <>
       <ServicesDialogs />
+      <ObjectivesDialogs />
       <ResizablePanelGroup
         direction="horizontal"
         className="h-[calc(100vh-160px)] max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full"

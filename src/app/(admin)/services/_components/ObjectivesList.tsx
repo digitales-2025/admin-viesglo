@@ -5,6 +5,7 @@ import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useObjectivesByServiceId } from "../_hooks/useObjectives";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
@@ -14,13 +15,15 @@ export default function ObjectivesList() {
 
   const { data: objectives, isLoading, error } = useObjectivesByServiceId(selectedService?.id || "");
 
+  const { open } = useDialogStore();
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between min-h-14">
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Objetivos</h3>
         </div>
-        <Button size="sm" disabled={!selectedService} variant="outline">
+        <Button size="sm" disabled={!selectedService} variant="outline" onClick={() => open("objectives", "create")}>
           <Plus className="w-4 h-4" />
           Nuevo Objetivo
         </Button>

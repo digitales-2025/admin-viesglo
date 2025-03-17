@@ -1,0 +1,54 @@
+import { Trash } from "lucide-react";
+
+import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useDeleteObjective } from "../_hooks/useObjectives";
+import ObjectivesMutateDrawer from "./ObjectivesMutateDrawer";
+
+export default function ObjectivesDialogs() {
+  const { isOpenForModule, data, close } = useDialogStore();
+  const MODULE = "objectives";
+
+  const { mutate: deleteObjective } = useDeleteObjective();
+
+  return (
+    <>
+      {/* Diálogo para crear/editar objetivo */}
+      <ObjectivesMutateDrawer
+        key="objective-mutate"
+        open={isOpenForModule(MODULE, "create") || isOpenForModule(MODULE, "edit")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        currentRow={isOpenForModule(MODULE, "edit") ? data : undefined}
+      />
+
+      {/* Diálogo para eliminar objetivo */}
+      <ConfirmDialog
+        key="objective-delete"
+        open={isOpenForModule(MODULE, "delete")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        handleConfirm={() => {
+          deleteObjective(data.id, {
+            onSuccess: () => {
+              close();
+            },
+          });
+        }}
+        title={
+          <div className="flex items-center flex-wrap text-wrap gap-2 ">
+            <Trash className="h-4 w-4 text-rose-500" />
+            Eliminar objetivo
+          </div>
+        }
+        desc={
+          <>
+            <strong className="uppercase text-wrap">{data?.name}</strong>
+          </>
+        }
+      />
+    </>
+  );
+}
