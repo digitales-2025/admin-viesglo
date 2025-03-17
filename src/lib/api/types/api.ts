@@ -294,6 +294,16 @@ export interface components {
        * @example Juan Pérez
        */
       fullName: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description Teléfono del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
       roles: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
@@ -330,6 +340,16 @@ export interface components {
        * @example Juan Pérez
        */
       fullName: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
       roleIds: string[][];
     };
     UpdateUserDto: {
@@ -349,6 +369,16 @@ export interface components {
        * @example Juan Pérez
        */
       fullName?: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
       roles: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
