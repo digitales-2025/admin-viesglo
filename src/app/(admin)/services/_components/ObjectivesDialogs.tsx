@@ -3,12 +3,13 @@ import { Trash } from "lucide-react";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteObjective } from "../_hooks/useObjectives";
+import { useServiceStore } from "../_hooks/useServiceStore";
 import ObjectivesMutateDrawer from "./ObjectivesMutateDrawer";
 
 export default function ObjectivesDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
   const MODULE = "objectives";
-
+  const { clearOnObjectiveDelete } = useServiceStore();
   const { mutate: deleteObjective } = useDeleteObjective();
 
   return (
@@ -31,6 +32,10 @@ export default function ObjectivesDialogs() {
           if (!open) close();
         }}
         handleConfirm={() => {
+          // Primero limpiar el estado local
+          clearOnObjectiveDelete(data.id);
+
+          // Luego eliminar el objetivo
           deleteObjective(data.id, {
             onSuccess: () => {
               close();

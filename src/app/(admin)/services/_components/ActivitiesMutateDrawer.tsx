@@ -5,8 +5,8 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from "@/shared/components/ui/form";
+import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Sheet,
@@ -17,10 +17,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
+import { cn } from "@/shared/lib/utils";
 import { useCreateActivity, useUpdateActivity } from "../_hooks/useActivities";
 import { useServiceStore } from "../_hooks/useServiceStore";
-import { ActivityCreate, ActivityResponse } from "../_types/services.types";
+import { ActivityResponse } from "../_types/services.types";
 
 interface Props {
   open: boolean;
@@ -29,10 +31,10 @@ interface Props {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido."),
-  description: z.string().min(1, "La descripción es requerida."),
-  evidenceRequired: z.boolean().optional(),
-}) satisfies z.ZodType<ActivityCreate>;
+  name: z.string().min(1, "El nombre es requerido"),
+  description: z.string().optional(),
+  evidenceRequired: z.boolean().default(false),
+});
 
 type ActivitiesForm = z.infer<typeof formSchema>;
 
@@ -44,6 +46,14 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
+  // Si el drawer está abierto y no hay un objetivo seleccionado, cerrar y mostrar error
+  useEffect(() => {
+    if (open && !selectedObjective) {
+      onOpenChange(false);
+      toast.error("Debe seleccionar un objetivo antes de crear o editar una actividad");
+    }
+  }, [open, selectedObjective, onOpenChange]);
+
   const form = useForm<ActivitiesForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,8 +64,13 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
   });
 
   const onSubmit = (data: ActivitiesForm) => {
+    if (!selectedObjective) {
+      toast.error("No se pudo procesar la actividad. No hay un objetivo seleccionado.");
+      onOpenChange(false);
+      return;
+    }
+
     if (isUpdate) {
-      if (!selectedObjective) return toast.error("No se pudo actualizar la actividad. Por favor, intente nuevamente.");
       updateActivity(
         { id: currentRow.id, data: { ...data, objectiveId: selectedObjective.id } },
         {
@@ -66,7 +81,6 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         }
       );
     } else {
-      if (!selectedObjective) return toast.error("No se pudo crear la actividad. Por favor, intente nuevamente.");
       createActivity(
         { ...data, objectiveId: selectedObjective.id },
         {
@@ -87,8 +101,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         evidenceRequired: currentRow.evidenceRequired || false,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id]);
+  }, [currentRow, form, isUpdate]);
 
   return (
     <Sheet
@@ -117,11 +130,10 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>Nombre de la actividad</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Input placeholder="Introduce el nombre de la actividad" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -132,9 +144,8 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                   <FormItem>
                     <FormLabel>Descripción</FormLabel>
                     <FormControl>
-                      <Textarea {...field} />
+                      <Textarea placeholder="Describe brevemente la actividad..." className="resize-none" {...field} />
                     </FormControl>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -142,13 +153,18 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                 control={form.control}
                 name="evidenceRequired"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Requiere evidencia</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Requiere Evidencia</FormLabel>
+                      <FormDescription>Activa si la actividad requiere evidencia para ser completada</FormDescription>
+                    </div>
                     <FormControl>
-                      <div className="flex gap-2 items-center">
-                        <Checkbox id="evidenceRequired" checked={field.value} onCheckedChange={field.onChange} />
-                        <label htmlFor="evidenceRequired">Requiere evidencia</label>
-                      </div>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isPending}
+                        className={cn(field.value ? "bg-green-500" : "")}
+                      />
                     </FormControl>
                   </FormItem>
                 )}

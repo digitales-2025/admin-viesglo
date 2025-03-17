@@ -3,12 +3,13 @@ import { Trash } from "lucide-react";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteActivity } from "../_hooks/useActivities";
+import { useServiceStore } from "../_hooks/useServiceStore";
 import { ActivitiesMutateDrawer } from "./ActivitiesMutateDrawer";
 
 export default function ActivitiesDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
   const MODULE = "activities";
-
+  const { clearOnActivityDelete } = useServiceStore();
   const { mutate: deleteActivity } = useDeleteActivity();
 
   return (
@@ -31,7 +32,15 @@ export default function ActivitiesDialogs() {
           if (!open) close();
         }}
         handleConfirm={() => {
-          deleteActivity(data.id);
+          // Primero limpiar el estado local
+          clearOnActivityDelete(data.id);
+
+          // Luego eliminar la actividad
+          deleteActivity(data.id, {
+            onSuccess: () => {
+              close();
+            },
+          });
         }}
         title={
           <div className="flex items-center flex-wrap text-wrap gap-2 ">
