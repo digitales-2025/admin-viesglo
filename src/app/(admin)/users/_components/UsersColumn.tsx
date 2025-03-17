@@ -13,31 +13,33 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     id: "Nombre Completo",
     accessorKey: "fullName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre Completo" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("Nombre Completo")}</div>,
+    cell: ({ row }) => <div className=" capitalize">{row.getValue("Nombre Completo")}</div>,
   },
   {
     id: "email",
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("email")}</div>,
+    cell: ({ row }) => <div className=" capitalize">{row.getValue("email")}</div>,
   },
   {
     id: "Teléfono",
     accessorKey: "phone",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("Teléfono")}</div>,
+    cell: ({ row }) => <div className=" capitalize">{row.getValue("Teléfono")}</div>,
   },
   {
     id: "Cargo",
     accessorKey: "post",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("Cargo")}</div>,
+    cell: ({ row }) => <div className=" capitalize">{row.getValue("Cargo")}</div>,
   },
   {
     id: "Rol",
     accessorKey: "roles",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("Rol")}</div>,
+    cell: ({ row }) => {
+      return <div className=" capitalize">{row.original.roleIds.map((roleId) => roleId).join(", ")}</div>;
+    },
   },
   {
     id: "actions",

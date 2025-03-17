@@ -304,24 +304,12 @@ export interface components {
        * @example 999 999 999
        */
       phone?: string;
-      roles: string[][];
+      roleIds: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
        * @example true
        */
       isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del usuario
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del usuario
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
     };
     CreateUserDto: {
       /**
@@ -379,7 +367,7 @@ export interface components {
        * @example Administrador
        */
       post?: string;
-      roles: string[][];
+      roleIds: string[][];
       /**
        * @description Estado del usuario (activo/inactivo)
        * @example true
@@ -412,18 +400,6 @@ export interface components {
        * @example create
        */
       action: string;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del permiso
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del permiso
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
     };
     CreateRoleDto: {
       /**

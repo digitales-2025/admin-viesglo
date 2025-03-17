@@ -20,15 +20,7 @@ export function UsersTableActions({ row }: UsersTableActionsProps) {
   const { open } = useDialogStore();
 
   // Constante para módulo
-  const MODULE = "create";
-
-  const handleEdit = () => {
-    open(MODULE, "edit", row);
-  };
-
-  const handleDelete = () => {
-    open(MODULE, "delete", row);
-  };
+  const MODULE = "users";
 
   return (
     <DropdownMenu>
@@ -39,11 +31,11 @@ export function UsersTableActions({ row }: UsersTableActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={handleEdit}>
+        <DropdownMenuItem onClick={() => open(MODULE, "edit", row)}>
           <Edit className="mr-2 h-4 w-4" />
           <span>Editar</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete} disabled={!row.isActive}>
+        <DropdownMenuItem onClick={() => open(MODULE, "delete", row)} disabled={!row.isActive}>
           <Trash className="mr-2 h-4 w-4" />
           <span>Eliminar</span>
         </DropdownMenuItem>

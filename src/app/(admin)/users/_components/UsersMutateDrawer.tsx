@@ -2,13 +2,15 @@
 
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Bot, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
+import { PhoneInput } from "@/shared/components/ui/phone-input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
@@ -20,8 +22,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateUser, useUpdateUser } from "../_hooks/useUsers";
 import { User } from "../_types/user";
+import { generateRandomPass } from "../_utils/generateRandomPass";
 import { useRoles } from "../../roles/_hooks/useRoles";
 
 interface Props {
@@ -30,20 +34,27 @@ interface Props {
   currentRow?: User;
 }
 
-// Esquema simplificado para coincidir con la estructura de Role
 const formSchema = z.object({
   fullname: z.string().min(1, "El nombre es requerido."),
   email: z.string().min(1, "El email es requerido.").email("Email inválido."),
-  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres."),
-  phone: z.string().optional(),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+      "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
+    ),
+  phone: z
+    .string()
+    .optional()
+    .refine((value) => value === "" || isValidPhoneNumber(value || ""), "Teléfono inválido."),
   post: z.string().optional(),
-  roles: z.array(z.string()).optional(),
+  roleIds: z.array(z.string()).min(1, "El rol es requerido."),
 });
 type UsersForm = z.infer<typeof formSchema>;
 
 export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow?.id;
-  // Hooks de mutación
   const { mutate: createUserMutate, isPending: isCreating } = useCreateUser();
   const { mutate: updateUsereMutate, isPending: isUpdating } = useUpdateUser();
   const { data, isLoading } = useRoles();
@@ -52,15 +63,27 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const form = useForm<UsersForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      fullname: currentRow?.fullName || "",
-      email: currentRow?.email || "",
+      fullname: "",
+      email: "",
       password: "",
-      phone: currentRow?.phone || "",
-      post: currentRow?.post || "",
-      roles: [],
+      phone: "",
+      post: "",
+      roleIds: [],
     },
   });
-  console.log(form.watch());
+
+  useEffect(() => {
+    if (isUpdate && currentRow?.id) {
+      form.reset({
+        fullname: currentRow.fullName,
+        email: currentRow.email,
+        phone: currentRow.phone || "",
+        post: currentRow.post || "",
+        roleIds: [],
+      });
+    }
+  }, [isUpdate, currentRow?.id]);
+
   const onSubmit = (data: UsersForm) => {
     if (isUpdate && currentRow?.id) {
       // Actualizar rol existente
@@ -73,7 +96,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             password: data.password,
             phone: data.phone,
             post: data.post,
-            roleIds: data.roles,
+            roleIds: data.roleIds || [],
           },
         },
         {
@@ -92,8 +115,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           password: data.password,
           phone: data.phone,
           post: data.post,
-          roleIds: [],
-          permissionIds: [],
+          roleIds: data.roleIds || [],
         },
         {
           onSuccess: () => {
@@ -112,7 +134,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
-        roles: [],
+        roleIds: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -130,11 +152,11 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     >
       <SheetContent className="flex flex-col ">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} rol</SheetTitle>
+          <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} Usuario</SheetTitle>
           <SheetDescription>
             {isUpdate
-              ? "Actualiza el rol proporcionando la información necesaria."
-              : "Agrega un nuevo rol proporcionando la información necesaria."}{" "}
+              ? "Actualiza el usuario proporcionando la información necesaria."
+              : "Agrega un nuevo usuario proporcionando la información necesaria."}{" "}
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
@@ -179,7 +201,44 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese su contraseña" disabled={isPending} />
+                        <div className="inline-flex gap-1">
+                          <Input {...field} placeholder="Ingrese su contraseña" disabled={isPending} />
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  type="button"
+                                  onClick={() => {
+                                    field.onChange(generateRandomPass());
+                                  }}
+                                >
+                                  <Bot />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Generar una contraseña</TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="space-y-1">
+                      <FormLabel>Teléfono</FormLabel>
+                      <FormControl>
+                        <PhoneInput
+                          defaultCountry="PE"
+                          {...field}
+                          placeholder="Ingrese su teléfono"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -200,16 +259,16 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 />
                 <FormField
                   control={form.control}
-                  name="roles"
+                  name="roleIds"
                   render={({ field }) => (
                     <FormItem className="space-y-1">
                       <FormLabel>Rol</FormLabel>
                       <FormControl>
                         <Select value={field.value?.[0] || ""} onValueChange={(value) => field.onChange([value])}>
-                          <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Theme" />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecciona un rol" />
                           </SelectTrigger>
-                          <SelectContent>
+                          <SelectContent className="w-full">
                             {data?.map((role) => (
                               <SelectItem key={role.id} value={role.id}>
                                 {role.name}

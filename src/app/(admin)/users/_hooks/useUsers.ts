@@ -56,7 +56,13 @@ export function useCreateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (newUser: UserCreate) => createUser(newUser),
+    mutationFn: async (newUser: UserCreate) => {
+      const user = await createUser(newUser);
+      if (!user.success) {
+        throw new Error(user.error || "Error al crear usuario");
+      }
+      return user.data;
+    },
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });

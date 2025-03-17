@@ -44,8 +44,7 @@ export async function createUser(
   roleData: UserCreate
 ): Promise<{ data: User | null; success: boolean; error?: string }> {
   try {
-    const { ...sanitizedData } = roleData;
-    const [data, err] = await http.post<User>(API_ENDPOINT, sanitizedData);
+    const [data, err] = await http.post<User>(API_ENDPOINT, roleData);
 
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al crear usuario" };

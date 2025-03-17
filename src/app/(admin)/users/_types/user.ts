@@ -4,19 +4,16 @@ import { components } from "@/lib/api/types/api";
 type OriginalUser = components["schemas"]["UserResponseDto"];
 
 // Tipo modificado con permissionIds como string[] en lugar de string[][]
-export type User = Omit<OriginalUser, "permissionIds"> & {
-  permissionIds: string[];
+export type User = Omit<OriginalUser, "roleIds"> & {
   roleIds: string[];
 };
 
-export type UserCreate = Omit<components["schemas"]["CreateUserDto"], "permissionIds"> & {
-  permissionIds: string[];
+export type UserCreate = Omit<components["schemas"]["CreateUserDto"], "roleIds"> & {
   roleIds: string[];
 };
 
-export type UserUpdate = Omit<components["schemas"]["UpdateUserDto"], "permissionIds"> & {
-  permissionIds: string[];
+export type UserUpdate = Omit<components["schemas"]["UpdateUserDto"], "roleIds"> & {
   roleIds: string[];
 };
 
-export type Permission = components["schemas"]["PermissionResponseDto"];
+export type Role = components["schemas"]["RoleResponseDto"];
