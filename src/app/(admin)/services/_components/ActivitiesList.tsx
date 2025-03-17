@@ -4,14 +4,13 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
-import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useActivitiesByObjectiveId } from "../_hooks/useActivities";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ActivitiesList() {
-  const { selectedObjective, setSelectedActivity, selectedActivity, clearOnActivityDelete } = useServiceStore();
+  const { selectedObjective, setSelectedActivity, clearOnActivityDelete } = useServiceStore();
 
   const { data: activities, isLoading, error } = useActivitiesByObjectiveId(selectedObjective?.id || "");
 
@@ -53,9 +52,7 @@ export default function ActivitiesList() {
                       clearOnActivityDelete(activity.id);
                       open("activities", "delete", activity);
                     }}
-                    className={cn(
-                      selectedActivity?.id === activity.id && "border-sky-400  outline-4 outline-sky-300/10"
-                    )}
+                    className="hover:cursor-auto"
                     badge={
                       activity.evidenceRequired && (
                         <Badge variant="infoOutline">
