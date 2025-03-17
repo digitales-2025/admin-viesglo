@@ -57,9 +57,9 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
   const form = useForm<ActivitiesForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: currentRow?.name || "",
-      description: currentRow?.description || "",
-      evidenceRequired: currentRow?.evidenceRequired || false,
+      name: "",
+      description: "",
+      evidenceRequired: false,
     },
   });
 
@@ -93,6 +93,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
     }
   };
 
+  // Resetear formulario cuando cambia entre edición y creación
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
@@ -100,8 +101,25 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         description: currentRow.description || "",
         evidenceRequired: currentRow.evidenceRequired || false,
       });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        evidenceRequired: false,
+      });
     }
-  }, [currentRow, form, isUpdate]);
+  }, [isUpdate, currentRow?.id, form]);
+
+  // Resetear al cerrar el modal
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        name: "",
+        description: "",
+        evidenceRequired: false,
+      });
+    }
+  }, [open, form]);
 
   return (
     <Sheet

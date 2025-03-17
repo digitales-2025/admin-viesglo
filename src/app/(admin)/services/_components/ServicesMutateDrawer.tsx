@@ -42,9 +42,9 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
   const form = useForm<ServicesForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: currentRow?.name || "",
-      description: currentRow?.description || "",
-      objectives: currentRow?.objectives || [],
+      name: "",
+      description: "",
+      objectives: [],
     },
   });
 
@@ -69,15 +69,32 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
     }
   };
 
+  // Resetear formulario cuando cambia entre edición y creación
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
         name: currentRow.name,
         description: currentRow.description || "",
       });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        objectives: [],
+      });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id]);
+  }, [isUpdate, currentRow?.id, form]);
+
+  // Resetear al cerrar el modal
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        name: "",
+        description: "",
+        objectives: [],
+      });
+    }
+  }, [open, form]);
 
   return (
     <Sheet
