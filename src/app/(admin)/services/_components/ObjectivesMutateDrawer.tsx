@@ -35,7 +35,6 @@ const formSchema = z.object({
 type ObjectivesForm = z.infer<typeof formSchema>;
 
 export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
-  console.log("🚀 ~ ObjectivesMutateDrawer ~ currentRow:", currentRow);
   const { mutate: createObjective, isPending: isCreating } = useCreateObjective();
   const { mutate: updateObjective, isPending: isUpdating } = useUpdateObjective();
   const { selectedService } = useServiceStore();

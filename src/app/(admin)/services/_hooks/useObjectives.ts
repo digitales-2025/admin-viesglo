@@ -8,6 +8,7 @@ import {
   updateObjective,
 } from "../_actions/objectives.actions";
 import { ObjectiveCreate, ObjectiveUpdate } from "../_types/services.types";
+import { SERVICES_KEYS } from "./useServices";
 
 export const OBJECTIVES_KEYS = {
   all: ["objectives"] as const,
@@ -51,6 +52,7 @@ export const useCreateObjective = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Objetivo creado exitosamente");
     },
     onError: (error: Error) => {
