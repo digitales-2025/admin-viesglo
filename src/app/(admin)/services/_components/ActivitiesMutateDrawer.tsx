@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
+import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
@@ -30,6 +31,7 @@ interface Props {
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().min(1, "La descripción es requerida."),
+  evidenceRequired: z.boolean().optional(),
 }) satisfies z.ZodType<ActivityCreate>;
 
 type ActivitiesForm = z.infer<typeof formSchema>;
@@ -47,6 +49,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
     defaultValues: {
       name: currentRow?.name || "",
       description: currentRow?.description || "",
+      evidenceRequired: currentRow?.evidenceRequired || false,
     },
   });
 
@@ -81,6 +84,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
       form.reset({
         name: currentRow.name,
         description: currentRow.description || "",
+        evidenceRequired: currentRow.evidenceRequired || false,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -131,6 +135,21 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                       <Textarea {...field} />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="evidenceRequired"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Requiere evidencia</FormLabel>
+                    <FormControl>
+                      <div className="flex gap-2 items-center">
+                        <Checkbox id="evidenceRequired" checked={field.value} onCheckedChange={field.onChange} />
+                        <label htmlFor="evidenceRequired">Requiere evidencia</label>
+                      </div>
+                    </FormControl>
                   </FormItem>
                 )}
               />

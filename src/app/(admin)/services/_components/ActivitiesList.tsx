@@ -1,5 +1,6 @@
-import { ChevronRight, Loader2, Plus, SquareDashed } from "lucide-react";
+import { ChevronRight, Loader2, Paperclip, Plus, SquareDashed } from "lucide-react";
 
+import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
@@ -55,6 +56,14 @@ export default function ActivitiesList() {
                     className={cn(
                       selectedActivity?.id === activity.id && "border-sky-400  outline-4 outline-sky-300/10"
                     )}
+                    badge={
+                      activity.evidenceRequired && (
+                        <Badge variant="infoOutline">
+                          <Paperclip className="w-4 h-4" />
+                          Requiere evidencia
+                        </Badge>
+                      )
+                    }
                   />
                 ))
               ) : (
