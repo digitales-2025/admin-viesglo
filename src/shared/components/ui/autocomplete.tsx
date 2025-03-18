@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import { Command as CommandPrimitive } from "cmdk";
-import { Check } from "lucide-react";
+import { Check, X } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
 import { CommandGroup, CommandInput, CommandItem, CommandList } from "./command";
@@ -82,9 +82,21 @@ export const AutoComplete = ({
     [onValueChange]
   );
 
+  // Manejar la limpieza del valor
+  const handleClearValue = useCallback(() => {
+    setInputValue("");
+    setSelected(undefined as unknown as Option);
+    onValueChange?.({ value: "", label: "" });
+
+    // Enfocar el input después de limpiar
+    setTimeout(() => {
+      inputRef?.current?.focus();
+    }, 0);
+  }, [onValueChange]);
+
   return (
     <CommandPrimitive onKeyDown={handleKeyDown}>
-      <div>
+      <div className="relative">
         <CommandInput
           ref={inputRef}
           value={inputValue}
@@ -93,8 +105,18 @@ export const AutoComplete = ({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           disabled={disabled}
-          className="text-sm placeholder:text-muted-foreground placeholder:text-sm"
+          className="text-sm placeholder:text-muted-foreground placeholder:text-sm pr-8"
         />
+        {inputValue && !disabled && (
+          <button
+            type="button"
+            onClick={handleClearValue}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+            aria-label="Limpiar selección"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
       <div className="relative mt-1 border-none">
         <div
