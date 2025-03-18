@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
+import { MapPin } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -26,7 +28,15 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "department",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Departamento" />,
     cell: ({ row }) => (
-      <div className="truncate max-w-[300px]">{row.getValue("departamento") ? row.getValue("departamento") : "--"}</div>
+      <div className="truncate max-w-[300px]">
+        {row.getValue("departamento") ? (
+          <Badge variant="outline">
+            <MapPin className="size-4" /> {row.getValue("departamento")}
+          </Badge>
+        ) : (
+          "--"
+        )}
+      </div>
     ),
   },
   {
@@ -34,7 +44,15 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "province",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Provincia" />,
     cell: ({ row }) => (
-      <div className="truncate max-w-[300px]">{row.getValue("provincia") ? row.getValue("provincia") : "--"}</div>
+      <div className="truncate max-w-[300px]">
+        {row.getValue("provincia") ? (
+          <Badge variant="outline">
+            <MapPin className="size-4" /> {row.getValue("provincia")}
+          </Badge>
+        ) : (
+          "--"
+        )}
+      </div>
     ),
   },
   {
@@ -42,7 +60,15 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "district",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Distrito" />,
     cell: ({ row }) => (
-      <div className="truncate max-w-[300px]">{row.getValue("distrito") ? row.getValue("distrito") : "--"}</div>
+      <div className="truncate max-w-[300px]">
+        {row.getValue("distrito") ? (
+          <Badge variant="outline">
+            <MapPin className="size-4" /> {row.getValue("distrito")}
+          </Badge>
+        ) : (
+          "--"
+        )}
+      </div>
     ),
   },
   {
@@ -58,7 +84,15 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "phone",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
     cell: ({ row }) => (
-      <div className="truncate max-w-[300px]">{row.getValue("telefono") ? row.getValue("telefono") : "--"}</div>
+      <div className="truncate max-w-[300px]">
+        {row.getValue("telefono") ? (
+          <Badge variant="outline">
+            <Link href={`tel:${row.getValue("telefono")}`}>{row.getValue("telefono")}</Link>
+          </Badge>
+        ) : (
+          "--"
+        )}
+      </div>
     ),
   },
   {
@@ -66,7 +100,15 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
     cell: ({ row }) => (
-      <div className="truncate max-w-[300px]">{row.getValue("email") ? row.getValue("email") : "--"}</div>
+      <div className="truncate max-w-[300px]">
+        {row.getValue("email") ? (
+          <Badge variant="outline">
+            <Link href={`mailto:${row.getValue("email")}`}>{row.getValue("email")}</Link>
+          </Badge>
+        ) : (
+          "--"
+        )}
+      </div>
     ),
   },
   {
