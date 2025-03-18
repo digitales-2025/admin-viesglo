@@ -900,17 +900,17 @@ export interface components {
        * @description Departamento de la clínica
        * @example Lima
        */
-      department: string;
+      department?: string;
       /**
        * @description Provincia de la clínica
        * @example Lima
        */
-      province: string;
+      province?: string;
       /**
        * @description Distrito de la clínica
        * @example Miraflores
        */
-      district: string;
+      district?: string;
     };
     ClinicResponseDto: {
       /**
