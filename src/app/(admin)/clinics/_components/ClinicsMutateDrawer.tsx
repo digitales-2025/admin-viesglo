@@ -31,11 +31,11 @@ const formSchema = z.object({
   ruc: z.string().min(1, "El RUC es requerido."),
   address: z.string().min(1, "La dirección es requerida."),
   phone: z.string().min(1, "El teléfono es requerido."),
-  email: z.string().min(1, "El email es requerido."),
+  email: z.string().email("El email es requerido."),
   password: z.string().min(1, "La contraseña es requerida."),
-  department: z.string().min(1, "El departamento es requerido.").optional(),
-  province: z.string().min(1, "La provincia es requerida.").optional(),
-  district: z.string().min(1, "El distrito es requerido.").optional(),
+  department: z.string().optional(),
+  province: z.string().optional(),
+  district: z.string().optional(),
 }) satisfies z.ZodType<ClinicCreate>;
 type ClinicsForm = z.infer<typeof formSchema>;
 
@@ -62,6 +62,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   });
 
   const onSubmit = (data: ClinicsForm) => {
+    console.log("🚀 ~ onSubmit ~ data:", data);
     if (isUpdate) {
       updateClinic(
         { id: currentRow.id, data: { ...data } },
@@ -128,7 +129,15 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   }, [open, form]);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet
+      open={open}
+      onOpenChange={(v) => {
+        if (!isPending) {
+          onOpenChange(v);
+          if (!v) form.reset();
+        }
+      }}
+    >
       <SheetContent className="flex flex-col ">
         <SheetHeader className="text-left">
           <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} clínica</SheetTitle>
