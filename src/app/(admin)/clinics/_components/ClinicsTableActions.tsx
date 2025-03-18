@@ -1,5 +1,5 @@
 import React from "react";
-import { MoreHorizontal } from "lucide-react";
+import { Mail, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -30,16 +30,21 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="bg-background" size="icon">
-          <MoreHorizontal className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleEdit}>Editar</DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete}>Eliminar</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" className="bg-background" size="icon">
+        <Mail className="size-4" />
+      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="bg-background" size="icon">
+            <MoreHorizontal className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem onClick={handleEdit}>Editar</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDelete}>Eliminar</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }
