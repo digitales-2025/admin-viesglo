@@ -2,47 +2,88 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 
+import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { Badge } from "@/shared/components/ui/badge";
 import { ClinicResponse } from "../_types/clinics.types";
+import ClinicsTableActions from "./ClinicsTableActions";
 
 export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
   {
-    id: "name",
-    header: "Nombre",
-    cell: ({ row }) => row.original.name,
+    id: "nombre",
+    size: 300,
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+    cell: ({ row }) => <div className="font-semibold capitalize min-w-[300px]">{row.getValue("nombre")}</div>,
   },
   {
-    id: "department",
-    header: "Departamento",
-    cell: ({ row }) => row.original.department,
+    id: "departamento",
+    accessorKey: "department",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Departamento" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">{row.getValue("departamento") ? row.getValue("departamento") : "--"}</div>
+    ),
   },
   {
-    id: "province",
-    header: "Provincia",
-    cell: ({ row }) => row.original.province,
+    id: "provincia",
+    accessorKey: "province",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Provincia" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">{row.getValue("provincia") ? row.getValue("provincia") : "--"}</div>
+    ),
   },
   {
-    id: "district",
-    header: "Distrito",
-    cell: ({ row }) => row.original.district,
+    id: "distrito",
+    accessorKey: "district",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Distrito" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">{row.getValue("distrito") ? row.getValue("distrito") : "--"}</div>
+    ),
   },
   {
-    id: "address",
-    header: "Dirección",
-    cell: ({ row }) => row.original.address,
+    id: "direccion",
+    accessorKey: "address",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Dirección" />,
+    cell: ({ row }) => (
+      <div className="truncate min-w-[300px]">{row.getValue("direccion") ? row.getValue("direccion") : "--"}</div>
+    ),
   },
   {
-    id: "phone",
-    header: "Teléfono",
-    cell: ({ row }) => row.original.phone,
+    id: "telefono",
+    accessorKey: "phone",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">{row.getValue("telefono") ? row.getValue("telefono") : "--"}</div>
+    ),
   },
   {
     id: "email",
-    header: "Email",
-    cell: ({ row }) => row.original.email,
+    accessorKey: "email",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">{row.getValue("email") ? row.getValue("email") : "--"}</div>
+    ),
   },
   {
-    id: "isActive",
-    header: "Activo",
-    cell: ({ row }) => row.original.isActive,
+    id: "estado",
+    accessorKey: "isActive",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px]">
+        {row.getValue("estado") ? (
+          <Badge variant="successOutline"> Activo</Badge>
+        ) : (
+          <Badge variant="errorOutline">Inactivo</Badge>
+        )}
+      </div>
+    ),
+  },
+  {
+    id: "actions",
+    size: 100,
+    cell: ({ row }) => {
+      const item = row.original;
+
+      return <ClinicsTableActions row={item} />;
+    },
   },
 ];
