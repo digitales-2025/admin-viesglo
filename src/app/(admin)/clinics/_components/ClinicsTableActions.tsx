@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, MoreHorizontal } from "lucide-react";
+import { Mail, MoreHorizontal, RectangleEllipsis } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -8,6 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ClinicResponse } from "../_types/clinics.types";
 
@@ -31,9 +32,19 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="ghost" className="bg-background" size="icon">
-        <Mail className="size-4" />
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant="outline" size="icon" className="cursor-pointer relative text-border hover:text-primary">
+              <Mail className="size-5" />
+              <RectangleEllipsis className="size-4 absolute top-1/2 left-1/2 fill-border" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Enviar credenciales de acceso</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="bg-background" size="icon">
