@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
+import { PhoneInput } from "@/shared/components/ui/phone-input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
   Sheet,
@@ -30,8 +32,8 @@ const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   ruc: z.string().min(1, "El RUC es requerido."),
   address: z.string().min(1, "La dirección es requerida."),
-  phone: z.string().min(1, "El teléfono es requerido."),
-  email: z.string().email("El email es requerido."),
+  phone: z.string().refine(isValidPhoneNumber, "El teléfono es requerido."),
+  email: z.string().email("El email no es válido."),
   password: z.string().min(1, "La contraseña es requerida."),
   department: z.string().optional(),
   province: z.string().optional(),
@@ -194,7 +196,14 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Teléfono</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el teléfono de la clínica" {...field} />
+                      <PhoneInput
+                        placeholder="Introduce el teléfono de la clínica"
+                        defaultCountry="PE"
+                        {...field}
+                        onChange={(value) => {
+                          field.onChange(value);
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
