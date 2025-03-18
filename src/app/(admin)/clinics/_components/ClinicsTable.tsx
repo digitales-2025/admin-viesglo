@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { useClinics } from "../_hooks/useClinics";
-import { columnsClinics } from "./columns";
+import { columnsClinics } from "./clinics.columns";
 
 export default function ClinicsTable() {
   const { data: clinics, isLoading, error } = useClinics();

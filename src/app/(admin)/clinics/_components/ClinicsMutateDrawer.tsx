@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
@@ -32,9 +33,9 @@ const formSchema = z.object({
   phone: z.string().min(1, "El teléfono es requerido."),
   email: z.string().min(1, "El email es requerido."),
   password: z.string().min(1, "La contraseña es requerida."),
-  department: z.string().min(1, "El departamento es requerido."),
-  province: z.string().min(1, "La provincia es requerida."),
-  district: z.string().min(1, "El distrito es requerido."),
+  department: z.string().min(1, "El departamento es requerido.").optional(),
+  province: z.string().min(1, "La provincia es requerida.").optional(),
+  district: z.string().min(1, "El distrito es requerido.").optional(),
 }) satisfies z.ZodType<ClinicCreate>;
 type ClinicsForm = z.infer<typeof formSchema>;
 
@@ -47,7 +48,17 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
 
   const form = useForm<ClinicsForm>({
     resolver: zodResolver(formSchema),
-    defaultValues: currentRow,
+    defaultValues: {
+      name: "",
+      ruc: "",
+      address: "",
+      phone: "",
+      email: "",
+      password: "",
+      department: "",
+      province: "",
+      district: "",
+    },
   });
 
   const onSubmit = (data: ClinicsForm) => {
@@ -97,6 +108,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         district: "",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id, form]);
 
   useEffect(() => {
@@ -135,6 +147,90 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
                       <Input placeholder="Introduce el nombre de la clínica" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="ruc"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>RUC</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce el RUC de la clínica" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dirección</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce la dirección de la clínica" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teléfono</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce el teléfono de la clínica" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Componente de selección de ubigeo (Departamento, Provincia, Distrito) */}
+              <UbigeoSelect
+                control={form.control}
+                initialValues={{
+                  department: form.getValues("department"),
+                  province: form.getValues("province"),
+                  district: form.getValues("district"),
+                }}
+              />
+
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Usuario (Correo electrónico)</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce el email de la clínica" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contraseña</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder={
+                          isUpdate
+                            ? "Dejar en blanco para mantener la contraseña actual"
+                            : "Introduce la contraseña de la clínica"
+                        }
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
