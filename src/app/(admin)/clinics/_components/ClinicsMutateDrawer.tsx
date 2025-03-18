@@ -141,12 +141,12 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             <form id="clinics-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField
                 control={form.control}
-                name="name"
+                name="ruc"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>RUC</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el nombre de la clínica" {...field} />
+                      <Input placeholder="Introduce el RUC de la clínica" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -154,12 +154,12 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
               />
               <FormField
                 control={form.control}
-                name="ruc"
+                name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>RUC</FormLabel>
+                    <FormLabel>Nombre comercial</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el RUC de la clínica" {...field} />
+                      <Input placeholder="Introduce el nombre de la clínica" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
