@@ -108,7 +108,9 @@ export function useSignIn() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Inicio de sesión exitoso");
-      router.push("/");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     },
     onError: (error: Error) => {
       toast.error(`Error en inicio de sesión: ${error.message}`);
