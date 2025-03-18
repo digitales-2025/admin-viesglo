@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Bot } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
@@ -19,8 +20,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClinic, useUpdateClinic } from "../_hooks/useClinics";
 import { ClinicCreate, ClinicResponse } from "../_types/clinics.types";
+import { generateRandomPass } from "../../users/_utils/generateRandomPass";
 
 interface Props {
   open: boolean;
@@ -290,15 +293,33 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder={
-                          isUpdate
-                            ? "Dejar en blanco para mantener la contraseña actual"
-                            : "Introduce la contraseña de la clínica"
-                        }
-                        {...field}
-                      />
+                      <div className="inline-flex gap-1">
+                        <Input
+                          placeholder={
+                            isUpdate
+                              ? "Dejar en blanco para mantener la contraseña actual"
+                              : "Introduce la contraseña de la clínica"
+                          }
+                          {...field}
+                        />
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => field.onChange(generateRandomPass())}
+                                type="button"
+                              >
+                                <Bot />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Generar contraseña aleatoria</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
