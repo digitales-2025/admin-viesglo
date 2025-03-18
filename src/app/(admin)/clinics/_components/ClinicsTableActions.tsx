@@ -32,7 +32,7 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" className="bg-background" size="icon">
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>

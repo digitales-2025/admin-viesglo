@@ -88,8 +88,8 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     size: 100,
     cell: ({ row }) => {
       const item = row.original;
-
       return <ClinicsTableActions row={item} />;
     },
+    enablePinning: true,
   },
 ];

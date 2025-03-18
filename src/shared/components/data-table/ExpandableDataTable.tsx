@@ -31,6 +31,7 @@ interface ExpandableDataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => ReactElement;
   onClickRow?: (row: TData) => void;
+  actions?: ReactElement;
 }
 
 export function ExpandableDataTable<TData, TValue>({
@@ -39,6 +40,7 @@ export function ExpandableDataTable<TData, TValue>({
   getSubRows,
   renderExpandedRow,
   onClickRow,
+  actions,
 }: ExpandableDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -99,7 +101,7 @@ export function ExpandableDataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} actions={actions} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
