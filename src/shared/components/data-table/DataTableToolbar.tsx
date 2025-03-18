@@ -13,6 +13,7 @@ interface DataTableToolbarProps<TData> {
   placeholder?: string;
   searchColumn?: string;
   filterOptions?: { label: string; value: string }[];
+  actions?: React.ReactNode;
 }
 
 export function DataTableToolbar<TData>({
@@ -20,6 +21,7 @@ export function DataTableToolbar<TData>({
   placeholder = "Buscar",
   searchColumn,
   filterOptions,
+  actions,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = searchColumn ? Boolean(table.getState().globalFilter) : table.getState().columnFilters.length > 0;
 
@@ -54,7 +56,10 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className="flex gap-x-2">
+        {actions && actions}
+        <DataTableViewOptions table={table} />
+      </div>
     </div>
   );
 }

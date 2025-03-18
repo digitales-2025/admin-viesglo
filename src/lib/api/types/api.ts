@@ -357,6 +357,43 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clinics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las clínicas */
+    get: operations["ClinicsController_getClinics_v1"];
+    put?: never;
+    /** Crear una clínica */
+    post: operations["ClinicsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clinics/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener una clínica por ID */
+    get: operations["ClinicsController_getClinicById_v1"];
+    /** Actualizar una clínica */
+    put: operations["ClinicsController_update_v1"];
+    post?: never;
+    /** Eliminar una clínica */
+    delete: operations["ClinicsController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -826,6 +863,158 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       objectiveId?: string;
+    };
+    CreateClinicDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email: string;
+      /**
+       * @description Contraseña de la clínica
+       * @example 1234567890
+       */
+      password: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Miraflores
+       */
+      district?: string;
+    };
+    ClinicResponseDto: {
+      /**
+       * @description ID de la clínica
+       * @example 12345678901
+       */
+      id: string;
+      /**
+       * @description RUC de la clínica
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Lima
+       */
+      district: string;
+      /**
+       * @description Estado de la clínica
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateClinicDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 1234567890
+       */
+      ruc?: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name?: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address?: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone?: string;
+      /**
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña de la clínica
+       * @example 1234567890
+       */
+      password?: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Lima
+       */
+      district?: string;
+      /**
+       * @description Estado de la clínica
+       * @example true
+       */
+      isActive?: boolean;
     };
   };
   responses: never;
@@ -1569,6 +1758,118 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description La actividad ha sido eliminada correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ClinicsController_getClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínicas obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClinicsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateClinicDto"];
+      };
+    };
+    responses: {
+      /** @description Clínica creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_getClinicById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínica obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClinicDto"];
+      };
+    };
+    responses: {
+      /** @description Clínica actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínica eliminada exitosamente */
       200: {
         headers: {
           [name: string]: unknown;

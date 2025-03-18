@@ -1,4 +1,9 @@
 import { components } from "@/lib/api/types/api";
 
-export type AuthResponse = components["schemas"]["AuthResponseDto"];
+export type AuthResponseOriginal = components["schemas"]["AuthResponseDto"];
+
+export type AuthResponse = Omit<AuthResponseOriginal, "roles"> & {
+  roles: string[];
+};
+
 export type SignIn = components["schemas"]["SignInDto"];
