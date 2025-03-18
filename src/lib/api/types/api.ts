@@ -966,6 +966,11 @@ export interface components {
     };
     UpdateClinicDto: {
       /**
+       * @description RUC de la clínica
+       * @example 1234567890
+       */
+      ruc?: string;
+      /**
        * @description Nombre de la clínica
        * @example Clínica de Salud
        */

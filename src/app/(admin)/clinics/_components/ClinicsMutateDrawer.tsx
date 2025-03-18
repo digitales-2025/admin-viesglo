@@ -28,18 +28,34 @@ interface Props {
   currentRow?: ClinicResponse;
 }
 
-const formSchema = z.object({
+// Esquema base para los campos comunes
+const baseSchema = {
   name: z.string().min(1, "El nombre es requerido."),
   ruc: z.string().min(1, "El RUC es requerido."),
   address: z.string().min(1, "La dirección es requerida."),
   phone: z.string().refine(isValidPhoneNumber, "El teléfono es requerido."),
   email: z.string().email("El email no es válido."),
-  password: z.string().min(1, "La contraseña es requerida."),
   department: z.string().optional(),
   province: z.string().optional(),
   district: z.string().optional(),
-}) satisfies z.ZodType<ClinicCreate>;
-type ClinicsForm = z.infer<typeof formSchema>;
+};
+
+// Esquema para crear (contraseña requerida)
+const createSchema = z.object({
+  ...baseSchema,
+  password: z.string().min(1, "La contraseña es requerida."),
+});
+
+// Esquema para actualizar (contraseña opcional)
+const updateSchema = z.object({
+  ...baseSchema,
+  password: z.string().optional(),
+});
+
+// Tipo unificado para el formulario
+type FormValues = z.infer<typeof createSchema> & {
+  password?: string;
+};
 
 export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const { mutate: createClinic, isPending: isCreating } = useCreateClinic();
@@ -48,8 +64,8 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
-  const form = useForm<ClinicsForm>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<FormValues>({
+    resolver: zodResolver(isUpdate ? updateSchema : createSchema) as any,
     defaultValues: {
       name: "",
       ruc: "",
@@ -61,22 +77,37 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       province: "",
       district: "",
     },
+    mode: "onChange",
   });
 
-  const onSubmit = (data: ClinicsForm) => {
-    console.log("🚀 ~ onSubmit ~ data:", data);
+  const onSubmit = (data: FormValues) => {
     if (isUpdate) {
-      updateClinic(
-        { id: currentRow.id, data: { ...data } },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          },
-        }
-      );
+      // Si la contraseña está vacía y estamos actualizando, la omitimos para mantener la actual
+      const updateData = { ...data };
+      if (updateData.password === "") {
+        const { password: _, ...rest } = updateData;
+        updateClinic(
+          { id: currentRow.id, data: rest },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+          }
+        );
+      } else {
+        updateClinic(
+          { id: currentRow.id, data: updateData },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+          }
+        );
+      }
     } else {
-      createClinic(data, {
+      createClinic(data as ClinicCreate, {
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
@@ -129,6 +160,25 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       });
     }
   }, [open, form]);
+
+  // Actualiza el formulario cuando cambia el modo entre crear y actualizar
+  useEffect(() => {
+    // Limpiar errores previos
+    form.clearErrors();
+
+    // Al cambiar entre crear y actualizar, reiniciar el formulario para aplicar
+    // las nuevas reglas de validación, ya que no podemos cambiar el resolver directamente
+    if (isUpdate) {
+      form.reset(form.getValues());
+    } else {
+      // Si cambia a modo creación, asegurarnos que el campo password esté vacío
+      const values = form.getValues();
+      form.reset({
+        ...values,
+        password: "",
+      });
+    }
+  }, [isUpdate, form]);
 
   return (
     <Sheet
@@ -238,7 +288,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Contraseña</FormLabel>
+                    <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
                     <FormControl>
                       <Input
                         type="password"

@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { createClinic, deleteClinic, getClinics, updateClinic } from "../_actions/clinics.actions";
-import { ClinicUpdate } from "../_types/clinics.types";
+import { ClinicCreate, ClinicUpdate } from "../_types/clinics.types";
 
 export const CLINICS_KEYS = {
   all: ["clinics"] as const,
@@ -35,7 +35,13 @@ export function useClinics() {
 export function useCreateClinic() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createClinic,
+    mutationFn: async (data: ClinicCreate) => {
+      const response = await createClinic(data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al crear clínica");
+      }
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
       toast.success("Clínica creada exitosamente");
@@ -52,7 +58,13 @@ export function useCreateClinic() {
 export function useUpdateClinic() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<ClinicUpdate> }) => updateClinic(id, data),
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ClinicUpdate> }) => {
+      const response = await updateClinic(id, data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar clínica");
+      }
+      return response.data;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
       toast.success("Clínica actualizada exitosamente");
@@ -69,7 +81,13 @@ export function useUpdateClinic() {
 export function useDeleteClinic() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteClinic,
+    mutationFn: async (id: string) => {
+      const response = await deleteClinic(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al eliminar clínica");
+      }
+      return response;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
       toast.success("Clínica eliminada exitosamente");

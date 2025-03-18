@@ -66,6 +66,8 @@ export async function updateClinic(
 ): Promise<{ data: ClinicResponse | null; success: boolean; error?: string }> {
   try {
     const [data, err] = await http.put<ClinicResponse>(`${API_ENDPOINT}/${id}`, clinic);
+    console.log("🚀 ~ err:", err);
+    console.log("🚀 ~ data:", data);
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al actualizar clínica" };
     }

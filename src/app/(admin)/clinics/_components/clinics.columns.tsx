@@ -9,6 +9,12 @@ import ClinicsTableActions from "./ClinicsTableActions";
 
 export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
   {
+    id: "ruc",
+    accessorKey: "ruc",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="RUC" />,
+    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("ruc")}</div>,
+  },
+  {
     id: "nombre",
     size: 300,
     accessorKey: "name",
