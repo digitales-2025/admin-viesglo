@@ -83,6 +83,10 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     mode: "onChange",
   });
 
+  // Obtener los valores actuales del formulario para usarlos en UbigeoSelect
+  const watchedUbigeoValues = form.watch(["department", "province", "district"]);
+  const [watchedDepartment, watchedProvince, watchedDistrict] = watchedUbigeoValues;
+
   const onSubmit = (data: FormValues) => {
     if (isUpdate) {
       // Si la contraseña está vacía y estamos actualizando, la omitimos para mantener la actual
@@ -183,6 +187,9 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     }
   }, [isUpdate, form]);
 
+  // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
+  const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
+
   return (
     <Sheet
       open={open}
@@ -265,11 +272,17 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
 
               {/* Componente de selección de ubigeo (Departamento, Provincia, Distrito) */}
               <UbigeoSelect
+                key={ubigeoSelectKey}
                 control={form.control}
                 initialValues={{
-                  department: form.getValues("department"),
-                  province: form.getValues("province"),
-                  district: form.getValues("district"),
+                  department: watchedDepartment,
+                  province: watchedProvince,
+                  district: watchedDistrict,
+                }}
+                onChange={{
+                  department: (value) => form.setValue("department", value, { shouldValidate: true }),
+                  province: (value) => form.setValue("province", value, { shouldValidate: true }),
+                  district: (value) => form.setValue("district", value, { shouldValidate: true }),
                 }}
               />
 
@@ -295,6 +308,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormControl>
                       <div className="inline-flex gap-1">
                         <Input
+                          type="password"
                           placeholder={
                             isUpdate
                               ? "Dejar en blanco para mantener la contraseña actual"

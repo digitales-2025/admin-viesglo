@@ -35,9 +35,12 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" className="cursor-pointer relative text-border hover:text-primary">
-              <Mail className="size-5" />
-              <RectangleEllipsis className="size-4 absolute top-1/2 left-1/2 fill-border" />
+            <Button variant="outline" size="icon" className="cursor-pointer relative text-slate-400">
+              <Mail className="size-5" strokeWidth={1.5} />
+              <RectangleEllipsis
+                className="size-4 absolute top-1/2 left-1/2 fill-white dark:fill-black stroke-slate-400"
+                strokeWidth={1.5}
+              />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
