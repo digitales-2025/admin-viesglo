@@ -308,7 +308,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormControl>
                       <div className="inline-flex gap-1">
                         <Input
-                          type="password"
+                          type="text"
                           placeholder={
                             isUpdate
                               ? "Dejar en blanco para mantener la contraseña actual"
