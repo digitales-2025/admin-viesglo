@@ -394,6 +394,62 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los clientes */
+    get: operations["ClientsController_getClients_v1"];
+    put?: never;
+    /** Crear un cliente */
+    post: operations["ClientsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un cliente por ID */
+    get: operations["ClientsController_getClientById_v1"];
+    /** Actualizar un cliente */
+    put: operations["ClientsController_update_v1"];
+    post?: never;
+    /** Eliminar un cliente */
+    delete: operations["ClientsController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients/{id}/clinics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener las clínicas asignadas a un cliente */
+    get: operations["ClientsController_getClinicsByClient_v1"];
+    put?: never;
+    /** Asignar clínicas a un cliente */
+    post: operations["ClientsController_assignClinics_v1"];
+    /** Desasignar clínicas de un cliente */
+    delete: operations["ClientsController_unassignClinics_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1015,6 +1071,187 @@ export interface components {
        * @example true
        */
       isActive?: boolean;
+    };
+    CreateClientDto: {
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email: string;
+      /**
+       * @description Contraseña del cliente
+       * @example 1234567890
+       */
+      password: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example Miraflores
+       */
+      district?: string;
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds?: string[];
+    };
+    ClientResponseDto: {
+      /**
+       * @description ID único del cliente
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito del cliente
+       * @example Miraflores
+       */
+      district: string;
+      /**
+       * @description Indica si el cliente está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Clínicas asignadas al cliente */
+      clinics?: string[];
+    };
+    AssignClinicsDto: {
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds: string[];
+    };
+    UpdateClientDto: {
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name?: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address?: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone?: string;
+      /**
+       * Format: email
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña del cliente
+       * @example 1234567890
+       */
+      password?: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example Lima
+       */
+      district?: string;
+      /**
+       * @description Estado del cliente
+       * @example true
+       */
+      isActive?: boolean;
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds?: string[];
     };
   };
   responses: never;
@@ -1875,6 +2112,203 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ClientsController_getClients_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateClientDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_getClientById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClientDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ClientsController_getClinicsByClient_v1: {
+    parameters: {
+      query?: {
+        /** @description Si es true, solo devuelve las clínicas actualmente asignadas */
+        onlyActive?: boolean;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínicas obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_assignClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignClinicsDto"];
+      };
+    };
+    responses: {
+      /** @description Clínicas asignadas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_unassignClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignClinicsDto"];
+      };
+    };
+    responses: {
+      /** @description Clínicas desasignadas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
       };
     };
   };

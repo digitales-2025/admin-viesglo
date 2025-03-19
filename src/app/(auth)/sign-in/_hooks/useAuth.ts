@@ -144,7 +144,7 @@ export function useLogout() {
  * Hook personalizado para obtener el usuario autenticado
  */
 export function useCurrentUser() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       const response = await currentUser();
@@ -154,5 +154,5 @@ export function useCurrentUser() {
       return response;
     },
   });
-  return { data, isLoading };
+  return { data, isLoading, error };
 }
