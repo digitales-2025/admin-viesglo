@@ -19,13 +19,13 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     id: "email",
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
-    cell: ({ row }) => <div className=" capitalize">{row.getValue("email")}</div>,
+    cell: ({ row }) => <div>{row.getValue("email")}</div>,
   },
   {
     id: "Teléfono",
     accessorKey: "phone",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
-    cell: ({ row }) => <div className=" capitalize">{row.getValue("Teléfono")}</div>,
+    cell: ({ row }) => <div>{row.getValue("Teléfono")}</div>,
   },
   {
     id: "Cargo",

@@ -175,7 +175,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem>
                       <FormLabel>Nombre Completo</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese su Nombre Completo" disabled={isPending} />
+                        <Input {...field} placeholder="Ingrese nombre completo" disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -188,7 +188,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese su email" disabled={isPending} />
+                        <Input {...field} placeholder="Ingrese email" disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -202,7 +202,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
                         <div className="inline-flex gap-1">
-                          <Input {...field} placeholder="Ingrese su contraseña" disabled={isPending} />
+                          <Input {...field} placeholder="Ingrese una contraseña" disabled={isPending} />
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
