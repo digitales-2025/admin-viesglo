@@ -2,6 +2,7 @@ import React from "react";
 import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import * as RPNInput from "react-phone-number-input";
 import flags from "react-phone-number-input/flags";
+import es from "react-phone-number-input/locale/es";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -45,6 +46,7 @@ const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> = React.forwa
        */
       onChange={(value) => onChange?.(value || ("" as RPNInput.Value))}
       {...props}
+      labels={es}
     />
   );
 });
@@ -83,10 +85,10 @@ const CountrySelect = ({ disabled, value: selectedCountry, options: countryList,
       </PopoverTrigger>
       <PopoverContent className="w-[300px] p-0">
         <Command>
-          <CommandInput placeholder="Search country..." />
+          <CommandInput placeholder="Buscar país..." />
           <CommandList>
             <ScrollArea className="h-72">
-              <CommandEmpty>No country found.</CommandEmpty>
+              <CommandEmpty>No se encontró ningún país.</CommandEmpty>
               <CommandGroup>
                 {countryList.map(({ value, label }) =>
                   value ? (

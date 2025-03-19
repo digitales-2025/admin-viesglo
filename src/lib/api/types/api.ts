@@ -233,6 +233,223 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los servicios */
+    get: operations["ServicesController_getServices_v1"];
+    put?: never;
+    /** Crear un nuevo servicio */
+    post: operations["ServicesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/services/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un servicio existente */
+    put: operations["ServicesController_update_v1"];
+    post?: never;
+    /** Eliminar un servicio existente */
+    delete: operations["ServicesController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/objectives": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva objetivo */
+    post: operations["ObjectivesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/objectives/{serviceId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las objetivos de un servicio */
+    get: operations["ObjectivesController_getObjectivesByServiceId_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/objectives/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un objetivo existente */
+    put: operations["ObjectivesController_update_v1"];
+    post?: never;
+    /** Eliminar una objetivo existente */
+    delete: operations["ObjectivesController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/activities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener actividades por objetivo */
+    get: operations["ActivitiesController_getActivitiesByObjectiveId_v1"];
+    put?: never;
+    /** Crear una nueva actividad */
+    post: operations["ActivitiesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/activities/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar una actividad existente */
+    put: operations["ActivitiesController_update_v1"];
+    post?: never;
+    /** Eliminar una actividad existente */
+    delete: operations["ActivitiesController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clinics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las clínicas */
+    get: operations["ClinicsController_getClinics_v1"];
+    put?: never;
+    /** Crear una clínica */
+    post: operations["ClinicsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clinics/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener una clínica por ID */
+    get: operations["ClinicsController_getClinicById_v1"];
+    /** Actualizar una clínica */
+    put: operations["ClinicsController_update_v1"];
+    post?: never;
+    /** Eliminar una clínica */
+    delete: operations["ClinicsController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los clientes */
+    get: operations["ClientsController_getClients_v1"];
+    put?: never;
+    /** Crear un cliente */
+    post: operations["ClientsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un cliente por ID */
+    get: operations["ClientsController_getClientById_v1"];
+    /** Actualizar un cliente */
+    put: operations["ClientsController_update_v1"];
+    post?: never;
+    /** Eliminar un cliente */
+    delete: operations["ClientsController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients/{id}/clinics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener las clínicas asignadas a un cliente */
+    get: operations["ClientsController_getClinicsByClient_v1"];
+    put?: never;
+    /** Asignar clínicas a un cliente */
+    post: operations["ClientsController_assignClinics_v1"];
+    /** Desasignar clínicas de un cliente */
+    delete: operations["ClientsController_unassignClinics_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -504,6 +721,543 @@ export interface components {
        * @example create
        */
       action: string;
+    };
+    CreateServiceDto: {
+      /**
+       * @description El nombre del servicio
+       * @example Servicio de ejemplo
+       */
+      name: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio de ejemplo
+       */
+      description?: string;
+      /**
+       * @description Los objetivos del servicio
+       * @example [
+       *       "Objetivo 1",
+       *       "Objetivo 2"
+       *     ]
+       */
+      objectives?: string[];
+    };
+    ServiceResponseDto: {
+      /**
+       * @description El ID del servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El nombre del servicio
+       * @example Servicio de ejemplo
+       */
+      name: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio de ejemplo
+       */
+      description?: string;
+      objectives: string[][];
+      /**
+       * @description El estado del servicio
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateServiceDto: {
+      /**
+       * @description El nombre del servicio
+       * @example Servicio 1
+       */
+      name?: string;
+      /**
+       * @description La descripción del servicio
+       * @example Descripción del servicio
+       */
+      description?: string;
+      /**
+       * @description Los objetivos del servicio
+       * @example [
+       *       "Objetivo 1",
+       *       "Objetivo 2"
+       *     ]
+       */
+      objectives?: string[];
+    };
+    CreateObjectiveDto: {
+      /**
+       * @description Nombre de la objetivo
+       * @example Objetivo de ejemplo
+       */
+      name: string;
+      /**
+       * @description Descripción de la objetivo
+       * @example Descripción de la objetivo
+       */
+      description?: string;
+      /**
+       * @description ID del servicio al que pertenece la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /**
+       * @description Actividades de la objetivo
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      activities?: string[];
+    };
+    ObjectiveResponseDto: {
+      /**
+       * @description ID de la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la objetivo
+       * @example Objetivo de ejemplo
+       */
+      name: string;
+      /**
+       * @description Descripción de la objetivo
+       * @example Descripción de la objetivo
+       */
+      description?: string;
+      /**
+       * @description ID del servicio al que pertenece la objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /**
+       * @description Actividades de la objetivo
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      activities?: string[];
+    };
+    UpdateObjectiveDto: {
+      /**
+       * @description El nombre del objetivo
+       * @example Objetivo 1
+       */
+      name?: string;
+      /**
+       * @description La descripción del objetivo
+       * @example Descripción del objetivo 1
+       */
+      description?: string;
+      /**
+       * @description El ID del servicio al que pertenece el objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+    };
+    CreateActivityDto: {
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description?: string;
+      /**
+       * @description Si necesita evidencia de la actividad
+       * @example true
+       */
+      evidenceRequired?: boolean;
+      /**
+       * @description El ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+    };
+    ActivityResponseDto: {
+      /**
+       * @description El ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description: string;
+      /**
+       * @description Si la actividad requiere evidencia
+       * @example true
+       */
+      evidenceRequired: boolean;
+      /**
+       * @description El ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId: string;
+    };
+    UpdateActivityDto: {
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name?: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description?: string;
+      /**
+       * @description Si la actividad requiere evidencia
+       * @example true
+       */
+      evidenceRequired?: boolean;
+      /**
+       * @description ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+    };
+    CreateClinicDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email: string;
+      /**
+       * @description Contraseña de la clínica
+       * @example 1234567890
+       */
+      password: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Miraflores
+       */
+      district?: string;
+    };
+    ClinicResponseDto: {
+      /**
+       * @description ID de la clínica
+       * @example 12345678901
+       */
+      id: string;
+      /**
+       * @description RUC de la clínica
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Lima
+       */
+      district: string;
+      /**
+       * @description Estado de la clínica
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateClinicDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 1234567890
+       */
+      ruc?: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica de Salud
+       */
+      name?: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Calle Principal 123
+       */
+      address?: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 1234567890
+       */
+      phone?: string;
+      /**
+       * @description Correo electrónico de la clínica
+       * @example clinica@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña de la clínica
+       * @example 1234567890
+       */
+      password?: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Lima
+       */
+      district?: string;
+      /**
+       * @description Estado de la clínica
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    CreateClientDto: {
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email: string;
+      /**
+       * @description Contraseña del cliente
+       * @example 1234567890
+       */
+      password: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example Miraflores
+       */
+      district?: string;
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds?: string[];
+    };
+    ClientResponseDto: {
+      /**
+       * @description ID único del cliente
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito del cliente
+       * @example Miraflores
+       */
+      district: string;
+      /**
+       * @description Indica si el cliente está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Clínicas asignadas al cliente */
+      clinics?: string[];
+    };
+    AssignClinicsDto: {
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds: string[];
+    };
+    UpdateClientDto: {
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name?: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address?: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone?: string;
+      /**
+       * Format: email
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña del cliente
+       * @example 1234567890
+       */
+      password?: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example Lima
+       */
+      district?: string;
+      /**
+       * @description Estado del cliente
+       * @example true
+       */
+      isActive?: boolean;
+      /**
+       * @description IDs de las clínicas a asignar al cliente
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000",
+       *       "123e4567-e89b-12d3-a456-426614174001"
+       *     ]
+       */
+      clinicIds?: string[];
     };
   };
   responses: never;
@@ -977,6 +1731,590 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ServicesController_getServices_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de servicios */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"][];
+        };
+      };
+    };
+  };
+  ServicesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateServiceDto"];
+      };
+    };
+    responses: {
+      /** @description El servicio ha sido creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"];
+        };
+      };
+    };
+  };
+  ServicesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateServiceDto"];
+      };
+    };
+    responses: {
+      /** @description El servicio ha sido actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ServiceResponseDto"];
+        };
+      };
+    };
+  };
+  ServicesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El servicio ha sido eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ObjectivesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description Objetivo creado con éxito */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"];
+        };
+      };
+    };
+  };
+  ObjectivesController_getObjectivesByServiceId_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        serviceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de objetivos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"][];
+        };
+      };
+    };
+  };
+  ObjectivesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description Objetivo actualizado con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ObjectiveResponseDto"];
+        };
+      };
+    };
+  };
+  ObjectivesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Objetivo eliminado con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ActivitiesController_getActivitiesByObjectiveId_v1: {
+    parameters: {
+      query: {
+        /** @description ID del objetivo para filtrar actividades */
+        objectiveId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Las actividades han sido obtenidas correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"][];
+        };
+      };
+    };
+  };
+  ActivitiesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateActivityDto"];
+      };
+    };
+    responses: {
+      /** @description La actividad ha sido creada correctamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ActivitiesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateActivityDto"];
+      };
+    };
+    responses: {
+      /** @description La actividad ha sido actualizada correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ActivitiesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La actividad ha sido eliminada correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ClinicsController_getClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínicas obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClinicsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateClinicDto"];
+      };
+    };
+    responses: {
+      /** @description Clínica creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_getClinicById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínica obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClinicDto"];
+      };
+    };
+    responses: {
+      /** @description Clínica actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"];
+        };
+      };
+    };
+  };
+  ClinicsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínica eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ClientsController_getClients_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateClientDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_getClientById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClientDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ClientsController_getClinicsByClient_v1: {
+    parameters: {
+      query?: {
+        /** @description Si es true, solo devuelve las clínicas actualmente asignadas */
+        onlyActive?: boolean;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clínicas obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_assignClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignClinicsDto"];
+      };
+    };
+    responses: {
+      /** @description Clínicas asignadas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ClientsController_unassignClinics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignClinicsDto"];
+      };
+    };
+    responses: {
+      /** @description Clínicas desasignadas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
       };
     };
   };

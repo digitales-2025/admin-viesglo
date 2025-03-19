@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import {
+  Column,
   ColumnDef,
   ColumnFiltersState,
+  ColumnPinningState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -23,13 +25,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  actions?: React.ReactNode;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, actions }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({
+    left: ["select"],
+    right: ["actions"],
+  });
 
   const table = useReactTable({
     data,
@@ -39,12 +46,14 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
       columnVisibility,
       rowSelection,
       columnFilters,
+      columnPinning,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
+    onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -53,17 +62,29 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const getCommonPinningStyles = (column: Column<TData>): React.CSSProperties => {
+    const isPinned = column.getIsPinned();
+    return {
+      left: isPinned === "left" ? `${column.getStart("left")}px` : undefined,
+      right: isPinned === "right" ? `${column.getAfter("right")}px` : undefined,
+      position: isPinned ? "sticky" : "relative",
+      width: column.getSize(),
+      zIndex: isPinned ? 1 : 0,
+    };
+  };
+
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
+      <DataTableToolbar table={table} actions={actions} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const { column } = header;
                   return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
+                    <TableHead key={header.id} colSpan={header.colSpan} style={{ ...getCommonPinningStyles(column) }}>
                       {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
@@ -75,9 +96,14 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const { column } = cell;
+                    return (
+                      <TableCell key={cell.id} style={{ ...getCommonPinningStyles(column) }}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (

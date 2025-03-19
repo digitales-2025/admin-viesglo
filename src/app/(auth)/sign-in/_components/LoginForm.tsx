@@ -2,7 +2,6 @@
 
 import { HTMLAttributes, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,10 +26,9 @@ type FormValues = z.infer<typeof formSchema>;
 export function LoginForm({ className, ...props }: UserAuthFormProps) {
   const { mutate: login, isPending: isLoading } = useSignIn();
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const router = useRouter();
 
   // Para manejar timeout de carga
-  const [loadingTimeout, setLoadingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [loadingTimeout, _] = useState<NodeJS.Timeout | null>(null);
 
   // Limpiar timeout al desmontar
   useEffect(() => {
@@ -50,18 +48,16 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(data: FormValues) {
-    try {
-      await login(data);
-      setIsRedirecting(true);
-      // Guardamos la referencia del timeout
-      setLoadingTimeout(
-        setTimeout(() => {
-          router.push("/");
-        }, 1500)
-      );
-    } catch (error) {
-      console.error("Error durante el login:", error);
-    }
+    // Establecemos isRedirecting a true para mostrar la pantalla de carga
+    setIsRedirecting(true);
+
+    login(data, {
+      // Este callback solo se ejecuta si hay un error
+      onError: () => {
+        // Cancelamos inmediatamente la carga/redirección
+        setIsRedirecting(false);
+      },
+    });
   }
   return (
     <div className={cn("grid gap-6", className)} {...props}>

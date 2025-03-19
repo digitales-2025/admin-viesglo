@@ -108,7 +108,9 @@ export function useSignIn() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["user"] });
       toast.success("Inicio de sesión exitoso");
-      router.push("/");
+      setTimeout(() => {
+        router.push("/");
+      }, 1000);
     },
     onError: (error: Error) => {
       toast.error(`Error en inicio de sesión: ${error.message}`);
@@ -142,7 +144,7 @@ export function useLogout() {
  * Hook personalizado para obtener el usuario autenticado
  */
 export function useCurrentUser() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["user"],
     queryFn: async () => {
       const response = await currentUser();
@@ -152,5 +154,5 @@ export function useCurrentUser() {
       return response;
     },
   });
-  return { data, isLoading };
+  return { data, isLoading, error };
 }
