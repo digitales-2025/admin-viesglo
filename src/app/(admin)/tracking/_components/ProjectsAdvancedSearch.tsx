@@ -7,24 +7,37 @@ import { z } from "zod";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
-import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { cn } from "@/shared/lib/utils";
 
+// Interfaz que coincide con ProjectFilters
+export interface ProjectFilterValues {
+  search?: string;
+  status?: string;
+  typeProject?: string;
+  typeContract?: string;
+  startDateFrom?: string;
+  startDateTo?: string;
+  endDateFrom?: string;
+  endDateTo?: string;
+  clientId?: string;
+  isActive?: string;
+}
+
 const formSchema = z.object({
   search: z.string().optional(),
-  status: z.array(z.string()).optional(),
-  types: z.array(z.string()).optional(),
-  categories: z.array(z.string()).optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  minBudget: z.coerce.number().optional(),
-  maxBudget: z.coerce.number().optional(),
-  location: z.string().optional(),
-  sortBy: z.string().optional(),
+  status: z.string().optional(),
+  typeProject: z.string().optional(),
+  typeContract: z.string().optional(),
+  startDateFrom: z.string().optional(),
+  startDateTo: z.string().optional(),
+  endDateFrom: z.string().optional(),
+  endDateTo: z.string().optional(),
+  clientId: z.string().optional(),
+  isActive: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -36,32 +49,9 @@ const PROJECT_STATUS = [
   { id: "cancelled", label: "Cancelado" },
 ];
 
-const PROJECT_TYPES = [
-  { id: "design", label: "Diseño" },
-  { id: "development", label: "Desarrollo" },
-  { id: "consulting", label: "Consultoría" },
-  { id: "maintenance", label: "Mantenimiento" },
-];
-
-const PROJECT_CATEGORIES = [
-  { id: "web", label: "Web" },
-  { id: "mobile", label: "Móvil" },
-  { id: "desktop", label: "Escritorio" },
-  { id: "infrastructure", label: "Infraestructura" },
-];
-
-const SORT_OPTIONS = [
-  { id: "newest", label: "Más recientes" },
-  { id: "oldest", label: "Más antiguos" },
-  { id: "budget_high", label: "Mayor presupuesto" },
-  { id: "budget_low", label: "Menor presupuesto" },
-  { id: "name_asc", label: "Nombre (A-Z)" },
-  { id: "name_desc", label: "Nombre (Z-A)" },
-];
-
 export interface ProjectsAdvancedSearchProps {
-  onSearch: (filters: FormValues) => void;
-  defaultValues?: FormValues;
+  onSearch: (filters: ProjectFilterValues) => void;
+  defaultValues?: ProjectFilterValues;
   className?: string;
 }
 
@@ -69,17 +59,17 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   const [isOpen, setIsOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
 
-  const defaultFormValues = {
+  const defaultFormValues: FormValues = {
     search: "",
-    status: [],
-    types: [],
-    categories: [],
-    startDate: undefined,
-    endDate: undefined,
-    minBudget: undefined,
-    maxBudget: undefined,
-    location: "",
-    sortBy: "newest",
+    status: "",
+    typeProject: "",
+    typeContract: "",
+    startDateFrom: "",
+    startDateTo: "",
+    endDateFrom: "",
+    endDateTo: "",
+    clientId: "",
+    isActive: "true",
     ...defaultValues,
   };
 
@@ -98,53 +88,39 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       filters.push(`Búsqueda: ${watchValues.search}`);
     }
 
-    if (watchValues.status && watchValues.status.length > 0) {
-      const statusLabels = PROJECT_STATUS.filter((s) => watchValues.status?.includes(s.id)).map((s) => s.label);
-      filters.push(`Estado: ${statusLabels.join(", ")}`);
-    }
-
-    if (watchValues.types && watchValues.types.length > 0) {
-      const typeLabels = PROJECT_TYPES.filter((t) => watchValues.types?.includes(t.id)).map((t) => t.label);
-      filters.push(`Tipo: ${typeLabels.join(", ")}`);
-    }
-
-    if (watchValues.categories && watchValues.categories.length > 0) {
-      const categoryLabels = PROJECT_CATEGORIES.filter((c) => watchValues.categories?.includes(c.id)).map(
-        (c) => c.label
-      );
-      filters.push(`Categoría: ${categoryLabels.join(", ")}`);
-    }
-
-    if (watchValues.startDate) {
-      filters.push(`Desde: ${new Date(watchValues.startDate).toLocaleDateString()}`);
-    }
-
-    if (watchValues.endDate) {
-      filters.push(`Hasta: ${new Date(watchValues.endDate).toLocaleDateString()}`);
-    }
-
-    if (watchValues.minBudget) {
-      filters.push(`Presupuesto mín: ${watchValues.minBudget}`);
-    }
-
-    if (watchValues.maxBudget) {
-      filters.push(`Presupuesto máx: ${watchValues.maxBudget}`);
-    }
-
-    if (watchValues.location) {
-      filters.push(`Ubicación: ${watchValues.location}`);
-    }
-
-    if (watchValues.sortBy && watchValues.sortBy !== defaultFormValues.sortBy) {
-      const sortOption = SORT_OPTIONS.find((o) => o.id === watchValues.sortBy);
-      if (sortOption) {
-        filters.push(`Ordenar por: ${sortOption.label}`);
+    if (watchValues.status) {
+      const statusLabel = PROJECT_STATUS.find((s) => s.id === watchValues.status)?.label;
+      if (statusLabel) {
+        filters.push(`Estado: ${statusLabel}`);
       }
     }
 
+    if (watchValues.startDateFrom) {
+      filters.push(`Desde: ${new Date(watchValues.startDateFrom).toLocaleDateString()}`);
+    }
+
+    if (watchValues.startDateTo) {
+      filters.push(`Hasta: ${new Date(watchValues.startDateTo).toLocaleDateString()}`);
+    }
+
+    if (watchValues.endDateFrom) {
+      filters.push(`Fin desde: ${new Date(watchValues.endDateFrom).toLocaleDateString()}`);
+    }
+
+    if (watchValues.endDateTo) {
+      filters.push(`Fin hasta: ${new Date(watchValues.endDateTo).toLocaleDateString()}`);
+    }
+
+    if (watchValues.isActive === "false") {
+      filters.push("Inactivos");
+    }
+
+    if (watchValues.clientId) {
+      filters.push(`Cliente: ${watchValues.clientId}`);
+    }
+
     setAppliedFilters(filters);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultFormValues.sortBy]);
+  }, []);
 
   // Usamos el useEffect para actualizar los filtros cuando cambian los valores observados
   useEffect(() => {
@@ -152,7 +128,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   }, [updateFilters]);
 
   const handleSearch = (values: FormValues) => {
-    onSearch(values);
+    // Convertimos los valores a los filtros esperados por la API
+    const apiFilters: ProjectFilterValues = { ...values };
+
+    // Enviamos los filtros al componente padre
+    onSearch(apiFilters);
     setIsOpen(false);
   };
 
@@ -168,32 +148,33 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
         form.setValue("search", "", { shouldDirty: true });
         break;
       case "Estado":
-        form.setValue("status", [], { shouldDirty: true });
+        form.setValue("status", "", { shouldDirty: true });
         break;
       case "Tipo":
-        form.setValue("types", [], { shouldDirty: true });
+        form.setValue("typeProject", "", { shouldDirty: true });
         break;
-      case "Categoría":
-        form.setValue("categories", [], { shouldDirty: true });
+      case "Contrato":
+        form.setValue("typeContract", "", { shouldDirty: true });
         break;
       case "Desde":
-        form.setValue("startDate", undefined, { shouldDirty: true });
+        form.setValue("startDateFrom", "", { shouldDirty: true });
         break;
       case "Hasta":
-        form.setValue("endDate", undefined, { shouldDirty: true });
+        form.setValue("startDateTo", "", { shouldDirty: true });
         break;
-      case "Presupuesto mín":
-        form.setValue("minBudget", undefined, { shouldDirty: true });
+      case "Fin desde":
+        form.setValue("endDateFrom", "", { shouldDirty: true });
         break;
-      case "Presupuesto máx":
-        form.setValue("maxBudget", undefined, { shouldDirty: true });
+      case "Fin hasta":
+        form.setValue("endDateTo", "", { shouldDirty: true });
         break;
-      case "Ubicación":
-        form.setValue("location", "", { shouldDirty: true });
+      case "Cliente":
+        form.setValue("clientId", "", { shouldDirty: true });
         break;
-      case "Ordenar por":
-        form.setValue("sortBy", "newest", { shouldDirty: true });
-        break;
+    }
+
+    if (filter === "Inactivos") {
+      form.setValue("isActive", "true", { shouldDirty: true });
     }
 
     // Después de actualizar el form, ejecutamos la búsqueda con los nuevos valores
@@ -265,218 +246,22 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                 <div className="space-y-4">
                   <div>
                     <FormLabel htmlFor="status">Estado</FormLabel>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {PROJECT_STATUS.map((status) => (
-                        <FormField
-                          key={status.id}
-                          control={form.control}
-                          name="status"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(status.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([...(field.value || []), status.id]);
-                                    } else {
-                                      field.onChange(field.value?.filter((value) => value !== status.id) || []);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="cursor-pointer font-normal">{status.label}</FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <FormLabel htmlFor="types">Tipo de proyecto</FormLabel>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {PROJECT_TYPES.map((type) => (
-                        <FormField
-                          key={type.id}
-                          control={form.control}
-                          name="types"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(type.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([...(field.value || []), type.id]);
-                                    } else {
-                                      field.onChange(field.value?.filter((value) => value !== type.id) || []);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="cursor-pointer font-normal">{type.label}</FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <FormLabel htmlFor="categories">Categoría</FormLabel>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {PROJECT_CATEGORIES.map((category) => (
-                        <FormField
-                          key={category.id}
-                          control={form.control}
-                          name="categories"
-                          render={({ field }) => (
-                            <FormItem className="flex items-center space-x-2 space-y-0">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(category.id)}
-                                  onCheckedChange={(checked) => {
-                                    if (checked) {
-                                      field.onChange([...(field.value || []), category.id]);
-                                    } else {
-                                      field.onChange(field.value?.filter((value) => value !== category.id) || []);
-                                    }
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="cursor-pointer font-normal">{category.label}</FormLabel>
-                            </FormItem>
-                          )}
-                        />
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <FormLabel>Fecha inicio</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="startDate"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={field.value}
-                                onSelect={(day) => {
-                                  field.onChange(day);
-                                }}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>Fecha fin</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="endDate"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={field.value}
-                                onSelect={(day) => {
-                                  field.onChange(day);
-                                }}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <FormLabel htmlFor="minBudget">Presupuesto mín.</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="minBudget"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <Input
-                                id="minBudget"
-                                type="number"
-                                placeholder="Mínimo"
-                                {...field}
-                                onChange={(e) => {
-                                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                                  field.onChange(value);
-                                }}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel htmlFor="maxBudget">Presupuesto máx.</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="maxBudget"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <Input
-                                id="maxBudget"
-                                type="number"
-                                placeholder="Máximo"
-                                {...field}
-                                onChange={(e) => {
-                                  const value = e.target.value ? parseFloat(e.target.value) : undefined;
-                                  field.onChange(value);
-                                }}
-                                value={field.value || ""}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <FormLabel htmlFor="location">Ubicación</FormLabel>
                     <FormField
                       control={form.control}
-                      name="location"
-                      render={({ field }) => (
-                        <FormItem className="mt-2">
-                          <FormControl>
-                            <Input id="location" placeholder="Ubicación" {...field} />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div>
-                    <FormLabel htmlFor="sortBy">Ordenar por</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="sortBy"
+                      name="status"
                       render={({ field }) => (
                         <FormItem className="mt-2">
                           <Select value={field.value} onValueChange={field.onChange}>
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar orden" />
+                                <SelectValue placeholder="Seleccionar estado" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {SORT_OPTIONS.map((option) => (
-                                <SelectItem key={option.id} value={option.id}>
-                                  {option.label}
+                              <SelectItem value="hola">Todos</SelectItem>
+                              {PROJECT_STATUS.map((status) => (
+                                <SelectItem key={status.id} value={status.id}>
+                                  {status.label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -484,6 +269,89 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  <div>
+                    <FormLabel htmlFor="isActive">Estado activo</FormLabel>
+                    <FormField
+                      control={form.control}
+                      name="isActive"
+                      render={({ field }) => (
+                        <FormItem className="flex items-center space-x-2 space-y-0 mt-2">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value === "true"}
+                              onCheckedChange={(checked) => {
+                                field.onChange(checked ? "true" : "false");
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel className="cursor-pointer font-normal">Mostrar solo proyectos activos</FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <FormLabel>Fecha inicio (desde)</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="startDateFrom"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <FormLabel>Fecha inicio (hasta)</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="startDateTo"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <FormLabel>Fecha fin (desde)</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="endDateFrom"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div>
+                      <FormLabel>Fecha fin (hasta)</FormLabel>
+                      <FormField
+                        control={form.control}
+                        name="endDateTo"
+                        render={({ field }) => (
+                          <FormItem className="mt-2">
+                            <FormControl>
+                              <Input type="date" {...field} />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </div>
 
                   <div className="flex justify-between pt-2">
