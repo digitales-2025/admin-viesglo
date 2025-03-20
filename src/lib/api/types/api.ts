@@ -450,6 +450,203 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los proyectos */
+    get: operations["ProjectsController_getProjects_v1"];
+    put?: never;
+    /** Crear un nuevo proyecto */
+    post: operations["ProjectsController_createProject_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/projects/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un proyecto por su ID */
+    get: operations["ProjectsController_getProjectById_v1"];
+    /** Actualizar un proyecto */
+    put: operations["ProjectsController_updateProject_v1"];
+    post?: never;
+    /** Eliminar un proyecto */
+    delete: operations["ProjectsController_deleteProject_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-services": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los servicios de un proyecto */
+    get: operations["ProjectServicesController_getProjectServices_v1"];
+    put?: never;
+    /** Agregar un servicio a un proyecto */
+    post: operations["ProjectServicesController_addServiceToProject_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-services/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un servicio de proyecto por ID */
+    get: operations["ProjectServicesController_getProjectServiceById_v1"];
+    /** Actualizar un servicio de proyecto */
+    put: operations["ProjectServicesController_updateProjectService_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-services/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activar o desactivar un servicio de proyecto */
+    patch: operations["ProjectServicesController_toggleProjectServiceActive_v1"];
+    trace?: never;
+  };
+  "/api/v1/project-objectives": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los objetivos de un servicio de proyecto */
+    get: operations["ProjectObjectivesController_getProjectObjectives_v1"];
+    put?: never;
+    /** Agregar un objetivo a un servicio de proyecto */
+    post: operations["ProjectObjectivesController_addObjectiveToProjectService_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-objectives/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un objetivo de proyecto por ID */
+    get: operations["ProjectObjectivesController_getProjectObjectiveById_v1"];
+    /** Actualizar un objetivo de proyecto */
+    put: operations["ProjectObjectivesController_updateProjectObjective_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-objectives/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activar o desactivar un objetivo de proyecto */
+    patch: operations["ProjectObjectivesController_toggleProjectObjectiveActive_v1"];
+    trace?: never;
+  };
+  "/api/v1/project-activities": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las actividades de un objetivo de proyecto */
+    get: operations["ProjectActivitiesController_getProjectActivities_v1"];
+    put?: never;
+    /** Agregar una actividad a un objetivo de proyecto */
+    post: operations["ProjectActivitiesController_addActivityToProjectObjective_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener una actividad por su ID */
+    get: operations["ProjectActivitiesController_getProjectActivityById_v1"];
+    /** Actualizar una actividad de un objetivo de proyecto */
+    put: operations["ProjectActivitiesController_updateActivityToProjectObjective_v1"];
+    post?: never;
+    /** Eliminar una actividad de un objetivo de proyecto */
+    delete: operations["ProjectActivitiesController_deleteActivityToProjectObjective_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/upload-evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Subir evidencia de una actividad */
+    post: operations["ProjectActivitiesController_uploadEvidence_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -752,7 +949,14 @@ export interface components {
        * @example Descripción del servicio de ejemplo
        */
       description?: string;
-      objectives: string[][];
+      /**
+       * @description Los objetivos del servicio
+       * @example [
+       *       "Objetivo 1",
+       *       "Objetivo 2"
+       *     ]
+       */
+      objectives?: string[];
       /**
        * @description El estado del servicio
        * @example true
@@ -1252,6 +1456,418 @@ export interface components {
        *     ]
        */
       clinicIds?: string[];
+    };
+    CreateProjectDto: {
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /**
+       * @description ID del cliente asociado al proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      clientId: string;
+    };
+    ProjectResponseDto: {
+      /**
+       * @description ID único del proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /** @description Información completa del cliente */
+      client: components["schemas"]["ClientResponseDto"];
+      /**
+       * @description Indica si el proyecto está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    UpdateProjectDto: {
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract?: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /**
+       * @description ID del cliente asociado al proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      clientId?: string;
+      /**
+       * @description Indica si el proyecto está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    CreateProjectServiceDto: {
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del proyecto al que pertenece el servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectId: string;
+      /**
+       * @description ID del servicio al que pertenece el proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+    };
+    ProjectServiceResponseDto: {
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del proyecto al que pertenece el servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectId?: string;
+      /**
+       * @description ID del servicio al que pertenece el proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+      /**
+       * @description Indica si el servicio está activo
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateProjectServiceDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Consultoría estratégica
+       */
+      name?: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de consultoría para definir estrategias de negocio
+       */
+      description?: string;
+    };
+    CreateProjectObjectiveDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectServiceId: string;
+      /**
+       * Format: uuid
+       * @description ID del objetivo plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /**
+       * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
+       * @example Mejorar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+    };
+    ProjectObjectiveResponseDto: {
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del objetivo de proyecto
+       * @example Objetivo de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del objetivo de proyecto
+       * @example Objetivo de marketing para el proyecto de marketing
+       */
+      description: string;
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectServiceId: string;
+      /**
+       * @description ID del objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId: string;
+    };
+    UpdateProjectObjectiveDto: {
+      /**
+       * @description Nombre del objetivo
+       * @example Mejorar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+    };
+    CreateProjectActivityDto: {
+      /**
+       * Format: uuid
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectObjectiveId: string;
+      /**
+       * Format: uuid
+       * @description ID de la actividad plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description Nombre de la actividad (requerido si no se proporciona activityId)
+       * @example Documentar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Crear documentación detallada de los procesos operativos
+       */
+      description?: string;
+      /**
+       * Format: uuid
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-12-31T23:59:59Z
+       */
+      scheduledDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @default false
+       * @example true
+       */
+      evidenceRequired: boolean;
+    };
+    ProjectActivityResponseDto: {
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description: string;
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectObjectiveId: string;
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * Format: date-time
+       * @description Fecha programada
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      scheduledDate: string;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired: boolean;
+    };
+    UpdateProjectActivityDto: {
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      scheduledDate?: Record<string, never>;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired?: boolean;
+    };
+    UploadEvidenceDto: {
+      /**
+       * @description URL de la evidencia
+       * @example https://example.com/evidencia.jpg
+       */
+      url: string;
+    };
+    ProjectActivity: {
+      id: string;
+      projectObjectiveId: string;
+      activityId?: string;
+      name: string;
+      description?: string;
+      responsibleUserId: string;
+      scheduledDate?: Record<string, never>;
+      executionDate?: Record<string, never>;
+      evidenceRequired: boolean;
+      evidence?: string;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
     };
   };
   responses: never;
@@ -2308,6 +2924,626 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ClinicResponseDto"][];
+        };
+      };
+    };
+  };
+  ProjectsController_getProjects_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyectos obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"][];
+        };
+      };
+    };
+  };
+  ProjectsController_createProject_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectDto"];
+      };
+    };
+    responses: {
+      /** @description Proyecto creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectsController_getProjectById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyecto obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectsController_updateProject_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectDto"];
+      };
+    };
+    responses: {
+      /** @description Proyecto actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectsController_deleteProject_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyecto eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @example Project deleted successfully */
+            message?: string;
+          };
+        };
+      };
+    };
+  };
+  ProjectServicesController_getProjectServices_v1: {
+    parameters: {
+      query: {
+        projectId: string;
+        includeInactive: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de servicios del proyecto */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_addServiceToProject_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectServiceDto"];
+      };
+    };
+    responses: {
+      /** @description El servicio ha sido agregado exitosamente al proyecto */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto o servicio no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_getProjectServiceById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Servicio de proyecto encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"];
+        };
+      };
+      /** @description Servicio de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_updateProjectService_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectServiceDto"];
+      };
+    };
+    responses: {
+      /** @description Servicio de proyecto actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Servicio de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_toggleProjectServiceActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado del servicio de proyecto actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"];
+        };
+      };
+      /** @description Servicio de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectObjectivesController_getProjectObjectives_v1: {
+    parameters: {
+      query: {
+        projectServiceId: string;
+        includeInactive: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de objetivos del servicio de proyecto */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
+        };
+      };
+      /** @description Servicio de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectObjectivesController_addObjectiveToProjectService_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description El objetivo ha sido agregado exitosamente al servicio de proyecto */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Servicio de proyecto u Objetivo no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectObjectivesController_getProjectObjectiveById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Objetivo de proyecto encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
+        };
+      };
+      /** @description Objetivo de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectObjectivesController_updateProjectObjective_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectObjectiveDto"];
+      };
+    };
+    responses: {
+      /** @description Objetivo de proyecto actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Objetivo de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectObjectivesController_toggleProjectObjectiveActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado del objetivo de proyecto actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
+        };
+      };
+      /** @description Objetivo de proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_getProjectActivities_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectObjectiveId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Se han obtenido todas las actividades de un objetivo de proyecto */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_addActivityToProjectObjective_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectActivityDto"];
+      };
+    };
+    responses: {
+      /** @description La actividad ha sido agregada exitosamente al objetivo de proyecto */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Project objective, activity template or user not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_getProjectActivityById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Se ha obtenido la actividad exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+      /** @description Project activity not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_updateActivityToProjectObjective_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectActivityDto"];
+      };
+    };
+    responses: {
+      /** @description La actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_deleteActivityToProjectObjective_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La actividad ha sido eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_uploadEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UploadEvidenceDto"];
+      };
+    };
+    responses: {
+      /** @description La evidencia ha sido subida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivity"];
         };
       };
     };

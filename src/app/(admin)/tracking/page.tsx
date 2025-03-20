@@ -1,5 +1,5 @@
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
-import ProyectsContainer from "./_components/ProyectsContainer";
+import ProjectContainer from "./_components/ProjectContainer";
 
 export default function TrackingPage() {
   return (
@@ -7,7 +7,7 @@ export default function TrackingPage() {
       <ShellHeader>
         <ShellTitle title="Proyectos" description="Seguimiento de proyectos" />
       </ShellHeader>
-      <ProyectsContainer />
+      <ProjectContainer />
     </>
   );
 }
