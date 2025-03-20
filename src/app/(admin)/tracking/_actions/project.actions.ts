@@ -1,7 +1,7 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import { CreateProject, ProjectResponse, UpdateProject } from "../_types/tracking.types";
+import { CreateProject, ProjectFilters, ProjectResponse, UpdateProject } from "../_types/tracking.types";
 
 const API_ENDPOINT = "/projects";
 
@@ -89,5 +89,25 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
   } catch (error) {
     console.error("Error al eliminar proyecto", error);
     return { success: false, error: "Error al eliminar proyecto" };
+  }
+}
+
+/**
+ * Obtiene los proyectos segun filtros
+ */
+export async function getProjectsByFilters(
+  filters: ProjectFilters
+): Promise<{ data: ProjectResponse[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<ProjectResponse[]>(
+      `${API_ENDPOINT}/filters?${new URLSearchParams(filters).toString()}`
+    );
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener proyectos" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al obtener proyectos", error);
+    return { success: false, data: [], error: "Error al obtener proyectos" };
   }
 }

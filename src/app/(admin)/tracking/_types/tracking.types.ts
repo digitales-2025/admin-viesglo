@@ -21,3 +21,17 @@ export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivity
 
 // Upload evidencia
 export type UploadEvidence = components["schemas"]["UploadEvidenceDto"];
+
+// Filtros de proyectos
+export type ProjectFilters = {
+  typeContract?: string;
+  typeProject?: string;
+  startDateFrom?: string;
+  startDateTo?: string;
+  endDateFrom?: string;
+  endDateTo?: string;
+  status?: string;
+  search?: string;
+  clientId?: string;
+  isActive?: string;
+};

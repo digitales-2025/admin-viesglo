@@ -3,8 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createProject, deleteProject, getProjects, updateProject } from "../_actions/project.actions";
-import { CreateProject, UpdateProject } from "../_types/tracking.types";
+import {
+  createProject,
+  deleteProject,
+  getProjects,
+  getProjectsByFilters,
+  updateProject,
+} from "../_actions/project.actions";
+import { CreateProject, ProjectFilters, UpdateProject } from "../_types/tracking.types";
 
 export const PROJECT_KEYS = {
   all: ["projects"] as const,
@@ -97,6 +103,22 @@ export function useDeleteProject() {
     },
     onError: () => {
       toast.error("Error al eliminar proyecto");
+    },
+  });
+}
+
+/**
+ * Hook para obtener proyectos segun filtros
+ */
+export function useProjectsByFilters(filters: ProjectFilters) {
+  return useQuery({
+    queryKey: PROJECT_KEYS.list(JSON.stringify(filters)),
+    queryFn: async () => {
+      const response = await getProjectsByFilters(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener proyectos");
+      }
+      return response.data;
     },
   });
 }
