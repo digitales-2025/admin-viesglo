@@ -495,6 +495,48 @@ export interface components {
       fullName?: string;
       roles: string[][];
     };
+    RoleResponseDto: {
+      /**
+       * @description ID único del rol
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Nombre del rol
+       * @example admin
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Administrador del sistema con acceso completo
+       */
+      description?: string | null;
+      /**
+       * @description IDs de permisos asignados al rol
+       * @example [
+       *       "5f9d5e7b8e7a6c1d4c8e7a6c",
+       *       "5f9d5e7b8e7a6c1d4c8e7a6d"
+       *     ]
+       */
+      permissionIds?: string[];
+      /**
+       * @description Estado del rol (activo/inactivo)
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación del rol
+       * @example 2023-01-15T14:30:00Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización del rol
+       * @example 2023-01-20T10:15:00Z
+       */
+      updatedAt: string;
+    };
     UserResponseDto: {
       /**
        * @description ID único del usuario
@@ -521,12 +563,18 @@ export interface components {
        * @example 999 999 999
        */
       phone?: string;
-      roleIds: string[][];
+      /** @description Roles del usuario */
+      roles: components["schemas"]["RoleResponseDto"][];
       /**
        * @description Estado del usuario (activo/inactivo)
        * @example true
        */
       isActive: boolean;
+      /**
+       * @description Es super administrador
+       * @example false
+       */
+      isSuperAdmin: boolean;
     };
     CreateUserDto: {
       /**
@@ -555,7 +603,13 @@ export interface components {
        * @example Administrador
        */
       post?: string;
-      roleIds: string[][];
+      /**
+       * @description IDs de roles a asignar al usuario
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      roleIds?: string[];
     };
     UpdateUserDto: {
       /**
@@ -630,48 +684,6 @@ export interface components {
        */
       description?: string;
       permissionIds: string[][];
-    };
-    RoleResponseDto: {
-      /**
-       * @description ID único del rol
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Nombre del rol
-       * @example admin
-       */
-      name: string;
-      /**
-       * @description Descripción del rol
-       * @example Administrador del sistema con acceso completo
-       */
-      description?: string | null;
-      /**
-       * @description IDs de permisos asignados al rol
-       * @example [
-       *       "5f9d5e7b8e7a6c1d4c8e7a6c",
-       *       "5f9d5e7b8e7a6c1d4c8e7a6d"
-       *     ]
-       */
-      permissionIds?: string[];
-      /**
-       * @description Estado del rol (activo/inactivo)
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del rol
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del rol
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
     };
     AssignPermissionDto: {
       /**

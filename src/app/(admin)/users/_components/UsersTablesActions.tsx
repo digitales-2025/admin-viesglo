@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { User } from "../_types/user";
+import { User } from "../_types/user.types";
 
 interface UsersTableActionsProps {
   row: User;

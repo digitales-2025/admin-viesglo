@@ -1,7 +1,7 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import { User, UserCreate } from "../_types/user";
+import { User, UserCreate } from "../_types/user.types";
 
 const API_ENDPOINT = "/users";
 

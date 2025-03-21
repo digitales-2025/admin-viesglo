@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { createUser, deleteUser, getUser, getUsers, updateUser } from "../_actions/user.actions";
-import { UserCreate, UserUpdate } from "../_types/user";
+import { UserCreate, UserUpdate } from "../_types/user.types";
 
 export const USERS_KEYS = {
   all: ["User"] as const,

@@ -24,7 +24,7 @@ import {
 } from "@/shared/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateUser, useUpdateUser } from "../_hooks/useUsers";
-import { User } from "../_types/user";
+import { User } from "../_types/user.types";
 import { generateRandomPass } from "../_utils/generateRandomPass";
 import { useRoles } from "../../roles/_hooks/useRoles";
 
@@ -49,7 +49,7 @@ const formSchema = z.object({
     .optional()
     .refine((value) => value === "" || isValidPhoneNumber(value || ""), "Teléfono inválido."),
   post: z.string().optional(),
-  roleIds: z.array(z.string()).min(1, "El rol es requerido."),
+  roles: z.array(z.string()).min(1, "El rol es requerido."),
 });
 type UsersForm = z.infer<typeof formSchema>;
 
@@ -68,7 +68,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       password: "",
       phone: "",
       post: "",
-      roleIds: [],
+      roles: [],
     },
   });
 
@@ -79,7 +79,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
-        roleIds: [],
+        roles: currentRow.roles.map((role) => role.id),
       });
     }
   }, [isUpdate, currentRow?.id]);
@@ -96,7 +96,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             password: data.password,
             phone: data.phone,
             post: data.post,
-            roleIds: data.roleIds || [],
+            roleIds: data.roles,
           },
         },
         {
@@ -115,7 +115,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           password: data.password,
           phone: data.phone,
           post: data.post,
-          roleIds: data.roleIds || [],
+          roleIds: data.roles,
         },
         {
           onSuccess: () => {
@@ -134,7 +134,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
-        roleIds: [],
+        roles: currentRow.roles.map((role) => role.id),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -259,7 +259,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 />
                 <FormField
                   control={form.control}
-                  name="roleIds"
+                  name="roles"
                   render={({ field }) => (
                     <FormItem className="space-y-1">
                       <FormLabel>Rol</FormLabel>
