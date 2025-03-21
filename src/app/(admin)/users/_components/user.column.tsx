@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { Badge } from "@/shared/components/ui/badge";
 import { User } from "../_types/user.types";
 import { UsersTableActions } from "./UsersTablesActions";
 
@@ -39,6 +40,22 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
     cell: ({ row }) => {
       return <div className=" capitalize">{row.original.roles.map((role) => role.name).join(", ")}</div>;
+    },
+  },
+  {
+    id: "estado",
+    accessorKey: "isActive",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => {
+      return (
+        <div className="truncate max-w-[300px]">
+          {row.getValue("estado") ? (
+            <Badge variant="successOutline"> Activo</Badge>
+          ) : (
+            <Badge variant="errorOutline">Inactivo</Badge>
+          )}
+        </div>
+      );
     },
   },
   {

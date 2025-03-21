@@ -43,12 +43,12 @@ export default function UsersDialogs() {
         title={
           <div className="flex items-center gap-2">
             <Trash className="h-4 w-4 text-rose-500" />
-            Eliminar usuario <strong className=" uppercase ">{data?.fullname}</strong>
+            Eliminar usuario <strong className=" uppercase ">{data?.fullName}</strong>
           </div>
         }
         desc={
           <>
-            Estás a punto de eliminar el usuario <strong>{data?.fullname}</strong>. <br />
+            Estás a punto de eliminar el usuario <strong>{data?.fullName}</strong>. <br />
             Esta acción no se puede deshacer.
           </>
         }

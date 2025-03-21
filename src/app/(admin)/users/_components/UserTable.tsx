@@ -4,7 +4,7 @@ import { useMemo } from "react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { useUsers } from "../_hooks/useUsers";
-import { columnsUsers } from "./UsersColumn";
+import { columnsUsers } from "./user.column";
 
 export default function UsersTable() {
   const { data: roles, isLoading, error } = useUsers();
