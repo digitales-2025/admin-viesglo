@@ -79,7 +79,10 @@ export async function updateUser(
  */
 export async function deleteUser(id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    await http.delete(`${API_ENDPOINT}/${id}`);
+    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al eliminar usuario" };
+    }
     return { success: true };
   } catch (error: any) {
     console.error(`Error al eliminar usuario ${id}:`, error);

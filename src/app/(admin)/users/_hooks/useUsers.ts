@@ -108,7 +108,13 @@ export function useDeleteUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteUser(id),
+    mutationFn: async (id: string) => {
+      const response = await deleteUser(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al eliminar usuario");
+      }
+      return response;
+    },
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });

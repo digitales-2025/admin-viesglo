@@ -2,7 +2,7 @@ import { Metadata } from "next";
 
 import UsersDialogs from "./_components/UsersDialogs";
 import UsersPrimaryButtons from "./_components/UsersPrimaryButtons";
-import UsersTable from "./_components/UserTable";
+import UsersTable from "./_components/UsersTable";
 
 export const metadata: Metadata = {
   title: "Administrador de usuarios",
