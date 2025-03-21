@@ -81,7 +81,14 @@ export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<UserUpdate> }) => updateUser(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<UserUpdate> }) => {
+      const updateData = { ...data };
+      if (updateData.password === "") {
+        const { password: _, ...rest } = updateData;
+        return updateUser(id, rest);
+      }
+      return updateUser(id, updateData);
+    },
     onSuccess: (data, variables) => {
       // Invalida consultas para refrescar los datos
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });

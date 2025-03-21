@@ -24,7 +24,7 @@ import {
 } from "@/shared/components/ui/sheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateUser, useUpdateUser } from "../_hooks/useUsers";
-import { User } from "../_types/user.types";
+import { User, UserCreate } from "../_types/user.types";
 import { generateRandomPass } from "../_utils/generateRandomPass";
 import { useRoles } from "../../roles/_hooks/useRoles";
 
@@ -33,10 +33,19 @@ interface Props {
   onOpenChange: (open: boolean) => void;
   currentRow?: User;
 }
-
-const formSchema = z.object({
-  fullname: z.string().min(1, "El nombre es requerido."),
+const baseSchema = {
+  fullName: z.string().min(1, "El nombre es requerido."),
   email: z.string().min(1, "El email es requerido.").email("Email inválido."),
+  phone: z
+    .string()
+    .optional()
+    .refine((value) => value === "" || isValidPhoneNumber(value || ""), "Teléfono inválido."),
+  post: z.string().optional(),
+  roleIds: z.array(z.string()).min(1, "El rol es requerido."),
+};
+
+const createSchema = z.object({
+  ...baseSchema,
   password: z
     .string()
     .min(8, "La contraseña debe tener al menos 8 caracteres.")
@@ -44,14 +53,15 @@ const formSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
       "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
     ),
-  phone: z
-    .string()
-    .optional()
-    .refine((value) => value === "" || isValidPhoneNumber(value || ""), "Teléfono inválido."),
-  post: z.string().optional(),
-  roles: z.array(z.string()).min(1, "El rol es requerido."),
 });
-type UsersForm = z.infer<typeof formSchema>;
+
+const updateSchema = z.object({
+  ...baseSchema,
+});
+
+type UsersForm = z.infer<typeof createSchema> & {
+  password?: string;
+};
 
 export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isUpdate = !!currentRow?.id;
@@ -61,80 +71,73 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const isPending = isCreating || isUpdating;
 
   const form = useForm<UsersForm>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(isUpdate ? updateSchema : createSchema) as any,
     defaultValues: {
-      fullname: "",
+      fullName: "",
       email: "",
       password: "",
       phone: "",
       post: "",
-      roles: [],
+      roleIds: [],
     },
+    mode: "onChange",
   });
 
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
-        fullname: currentRow.fullName,
+        fullName: currentRow.fullName,
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
-        roles: currentRow.roles.map((role) => role.id),
+        roleIds: currentRow.roles.map((role) => role.id),
       });
     }
   }, [isUpdate, currentRow?.id]);
 
   const onSubmit = (data: UsersForm) => {
-    if (isUpdate && currentRow?.id) {
-      // Actualizar rol existente
-      updateUsereMutate(
-        {
-          id: currentRow.id,
-          data: {
-            fullName: data.fullname,
-            email: data.email,
-            password: data.password,
-            phone: data.phone,
-            post: data.post,
-            roleIds: data.roles,
-          },
-        },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          },
-        }
-      );
+    if (isUpdate) {
+      const updateData = { ...data };
+      if (updateData.password === "") {
+        const { password: _, ...rest } = updateData;
+        updateUsereMutate(
+          { id: currentRow.id, data: rest },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+          }
+        );
+      } else {
+        updateUsereMutate(
+          { id: currentRow.id, data: updateData },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+          }
+        );
+      }
     } else {
-      // Crear nuevo rol
-      createUserMutate(
-        {
-          fullName: data.fullname,
-          email: data.email,
-          password: data.password,
-          phone: data.phone,
-          post: data.post,
-          roleIds: data.roles,
+      createUserMutate(data as UserCreate, {
+        onSuccess: () => {
+          onOpenChange(false);
+          form.reset();
         },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          },
-        }
-      );
+      });
     }
   };
 
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
-        fullname: currentRow.fullName,
+        fullName: currentRow.fullName,
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
-        roles: currentRow.roles.map((role) => role.id),
+        roleIds: currentRow.roles.map((role) => role.id),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,7 +173,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
               <form id="tasks-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
                 <FormField
                   control={form.control}
-                  name="fullname"
+                  name="fullName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Nombre Completo</FormLabel>
@@ -259,7 +262,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 />
                 <FormField
                   control={form.control}
-                  name="roles"
+                  name="roleIds"
                   render={({ field }) => (
                     <FormItem className="space-y-1">
                       <FormLabel>Rol</FormLabel>
