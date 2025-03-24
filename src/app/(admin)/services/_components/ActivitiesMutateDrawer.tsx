@@ -108,8 +108,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         evidenceRequired: false,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id]);
+  }, [isUpdate, currentRow?.id, form]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
@@ -120,8 +119,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         evidenceRequired: false,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, form]);
 
   return (
     <Sheet

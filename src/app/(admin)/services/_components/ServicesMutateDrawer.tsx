@@ -83,8 +83,7 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
         objectives: [],
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id]);
+  }, [isUpdate, currentRow?.id, form]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
