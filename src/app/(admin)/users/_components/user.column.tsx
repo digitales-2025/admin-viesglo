@@ -57,8 +57,8 @@ export const columnsUsers = (): ColumnDef<User>[] => [
               key={role.id}
               className={
                 row.original.isSuperAdmin
-                  ? "bg-indigo-200 text-indigo-600 border-none"
-                  : "bg-cyan-200 text-cyan-600 border-none"
+                  ? "bg-indigo-50 text-indigo-500 border-none"
+                  : "bg-cyan-50 text-cyan-500 border-none"
               }
             >
               {role.name}
