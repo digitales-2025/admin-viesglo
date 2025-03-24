@@ -7,8 +7,8 @@ import { ExpandableDataTable } from "@/shared/components/data-table/ExpandableDa
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { useRoles } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
-import { columnsRoles } from "./column";
 import { RolePermissionsView } from "./RolePermissionsView";
+import { columnsRoles } from "./roles.column";
 
 export function RolesExpandableTable() {
   const { data: roles, isLoading, isError } = useRoles();

@@ -46,7 +46,13 @@ const baseSchema = {
 // Esquema para crear (contraseña requerida)
 const createSchema = z.object({
   ...baseSchema,
-  password: z.string().min(1, "La contraseña es requerida."),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+      "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
+    ),
 });
 
 // Esquema para actualizar (contraseña opcional)
@@ -308,7 +314,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormControl>
                       <div className="inline-flex gap-1">
                         <Input
-                          type="password"
+                          type="text"
                           placeholder={
                             isUpdate
                               ? "Dejar en blanco para mantener la contraseña actual"
