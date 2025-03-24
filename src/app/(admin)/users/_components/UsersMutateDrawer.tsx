@@ -92,6 +92,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         roleIds: currentRow.roles.map((role) => role.id),
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
 
   const onSubmit = (data: UsersForm) => {
