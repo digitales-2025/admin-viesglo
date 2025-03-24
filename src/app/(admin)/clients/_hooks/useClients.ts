@@ -58,14 +58,24 @@ export function useUpdateClient() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ClientUpdate> }) => {
-      const response = await updateClient(id, data);
-      if (!response.success) {
-        throw new Error(response.error || "Error al actualizar cliente");
+      const updateData = { ...data };
+      if (updateData.password === "") {
+        const { password: _, ...rest } = updateData;
+        const updateClientResponse = await updateClient(id, rest);
+        if (!updateClientResponse.success) {
+          throw new Error(updateClientResponse.error || "Error al actualizar cliente");
+        }
+        return updateClientResponse.data;
       }
-      return response.data;
+      const updateClientResponse = await updateClient(id, updateData);
+      if (!updateClientResponse.success) {
+        throw new Error(updateClientResponse.error || "Error al actualizar cliente");
+      }
+      return updateClientResponse.data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.detail(variables.id) });
       toast.success("Cliente actualizado exitosamente");
     },
     onError: (error: Error) => {
