@@ -81,13 +81,21 @@ export function useUpdateUser() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<UserUpdate> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: Partial<UserUpdate> }) => {
       const updateData = { ...data };
       if (updateData.password === "") {
         const { password: _, ...rest } = updateData;
-        return updateUser(id, rest);
+        const updateUserResponse = await updateUser(id, rest);
+        if (!updateUserResponse.success) {
+          throw new Error(updateUserResponse.error || "Error al actualizar usuario");
+        }
+        return updateUserResponse.data;
       }
-      return updateUser(id, updateData);
+      const updateUserResponse = await updateUser(id, updateData);
+      if (!updateUserResponse.success) {
+        throw new Error(updateUserResponse.error || "Error al actualizar usuario");
+      }
+      return updateUserResponse.data;
     },
     onSuccess: (data, variables) => {
       // Invalida consultas para refrescar los datos
