@@ -118,7 +118,8 @@ export interface paths {
     /** Actualizar un usuario existente */
     put: operations["UsersController_update_v1"];
     post?: never;
-    delete?: never;
+    /** Eliminar un usuario */
+    delete: operations["UsersController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -495,136 +496,6 @@ export interface components {
       fullName?: string;
       roles: string[][];
     };
-    UserResponseDto: {
-      /**
-       * @description ID único del usuario
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      roles: string[][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del usuario
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del usuario
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
-    };
-    CreateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      roleIds: string[][];
-    };
-    UpdateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email?: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password?: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName?: string;
-      roles: string[][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    PermissionResponseDto: {
-      /**
-       * @description ID único del permiso
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Nombre del permiso
-       * @example users:create
-       */
-      name: string;
-      /**
-       * @description Descripción del permiso
-       * @example Permite crear usuarios en el sistema
-       */
-      description?: string | null;
-      /**
-       * @description Recurso al que aplica el permiso
-       * @example users
-       */
-      resource: string;
-      /**
-       * @description Acción que permite el permiso
-       * @example create
-       */
-      action: string;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del permiso
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del permiso
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
-    };
-    CreateRoleDto: {
-      /**
-       * @description Nombre del rol
-       * @example admin
-       */
-      name: string;
-      /**
-       * @description Descripción del rol
-       * @example Rol de administrador con acceso completo
-       */
-      description?: string;
-      permissionIds: string[][];
-    };
     RoleResponseDto: {
       /**
        * @description ID único del rol
@@ -666,6 +537,154 @@ export interface components {
        * @example 2023-01-20T10:15:00Z
        */
       updatedAt: string;
+    };
+    UserResponseDto: {
+      /**
+       * @description ID único del usuario
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description Teléfono del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /** @description Roles del usuario */
+      roles: components["schemas"]["RoleResponseDto"][];
+      /**
+       * @description Estado del usuario (activo/inactivo)
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Es super administrador
+       * @example false
+       */
+      isSuperAdmin: boolean;
+    };
+    CreateUserDto: {
+      /**
+       * Format: email
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Contraseña del usuario
+       * @example password123
+       */
+      password: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description IDs de roles a asignar al usuario
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      roleIds?: string[];
+    };
+    UpdateUserDto: {
+      /**
+       * Format: email
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña del usuario
+       * @example password123
+       */
+      password?: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      roleIds: string[][];
+      /**
+       * @description Estado del usuario (activo/inactivo)
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    PermissionResponseDto: {
+      /**
+       * @description ID único del permiso
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Nombre del permiso
+       * @example users:create
+       */
+      name: string;
+      /**
+       * @description Descripción del permiso
+       * @example Permite crear usuarios en el sistema
+       */
+      description?: string | null;
+      /**
+       * @description Recurso al que aplica el permiso
+       * @example users
+       */
+      resource: string;
+      /**
+       * @description Acción que permite el permiso
+       * @example create
+       */
+      action: string;
+    };
+    CreateRoleDto: {
+      /**
+       * @description Nombre del rol
+       * @example admin
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Rol de administrador con acceso completo
+       */
+      description?: string;
+      permissionIds: string[][];
     };
     AssignPermissionDto: {
       /**
@@ -1471,6 +1490,26 @@ export interface operations {
       };
       /** @description Usuario no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Usuario eliminado con éxito */
+      200: {
         headers: {
           [name: string]: unknown;
         };
