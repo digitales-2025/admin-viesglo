@@ -1,5 +1,5 @@
 import React from "react";
-import { Edit, Mail, MoreHorizontal, RectangleEllipsis, Trash } from "lucide-react";
+import { Mail, MoreHorizontal, RectangleEllipsis } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -55,14 +55,8 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete}>
-            <Trash className="mr-2 h-4 w-4" />
-            Eliminar
-          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleEdit}>Editar</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDelete}>Eliminar</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
