@@ -35,7 +35,7 @@ export function DataTable<TData, TValue>({ columns, data, actions }: DataTablePr
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({
     left: ["select"],
-    right: ["actions"],
+    //right: ["actions"],
   });
 
   const table = useReactTable({

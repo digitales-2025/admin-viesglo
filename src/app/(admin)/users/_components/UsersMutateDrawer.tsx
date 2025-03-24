@@ -75,7 +75,6 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     defaultValues: {
       fullName: "",
       email: "",
-      password: "",
       phone: "",
       post: "",
       roleIds: [],
@@ -205,7 +204,15 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormLabel>Contraseña</FormLabel>
                       <FormControl>
                         <div className="inline-flex gap-1">
-                          <Input {...field} placeholder="Ingrese una contraseña" disabled={isPending} />
+                          <Input
+                            type="text"
+                            placeholder={
+                              isUpdate
+                                ? "Dejar en blanco para mantener la contraseña actual"
+                                : "Introduce la contraseña de la clínica"
+                            }
+                            {...field}
+                          />
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
