@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { Mail, Phone } from "lucide-react";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -22,10 +24,12 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     accessorKey: "email",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
     cell: ({ row }) => (
-      <Badge variant="outline">
-        <Mail className="w-4 h-4" />
-        {row.getValue("email")}
-      </Badge>
+      <Link href={`mailto:${row.getValue("email")}`}>
+        <Badge variant="outline">
+          <Mail className="w-4 h-4" />
+          {row.getValue("email")}
+        </Badge>
+      </Link>
     ),
   },
   {
@@ -33,10 +37,12 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     accessorKey: "phone",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
     cell: ({ row }) => (
-      <Badge variant="outline">
-        <Phone className="w-4 h-4" />
-        {row.getValue("Teléfono")}
-      </Badge>
+      <Link href={`tel:${row.getValue("Teléfono")}`}>
+        <Badge variant="outline">
+          <Phone className="w-4 h-4" />
+          {formatPhoneNumberIntl(row.getValue("Teléfono"))}
+        </Badge>
+      </Link>
     ),
   },
   {
