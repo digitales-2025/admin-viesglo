@@ -57,6 +57,19 @@ const createSchema = z.object({
 
 const updateSchema = z.object({
   ...baseSchema,
+  password: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true; // Si no hay valor, es válido (opcional)
+        return val.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(val);
+      },
+      {
+        message:
+          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número.",
+      }
+    ),
 });
 
 type UsersForm = z.infer<typeof createSchema> & {
@@ -176,62 +189,9 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   name="fullName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Nombre Completo</FormLabel>
+                      <FormLabel>Nombre completo</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese nombre completo" disabled={isPending} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input {...field} placeholder="Ingrese email" disabled={isPending} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem className="space-y-1">
-                      <FormLabel>Contraseña</FormLabel>
-                      <FormControl>
-                        <div className="inline-flex gap-1">
-                          <Input
-                            type="text"
-                            placeholder={
-                              isUpdate
-                                ? "Dejar en blanco para mantener la contraseña actual"
-                                : "Introduce la contraseña de la clínica"
-                            }
-                            {...field}
-                          />
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  type="button"
-                                  onClick={() => {
-                                    field.onChange(generateRandomPass());
-                                  }}
-                                >
-                                  <Bot />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>Generar una contraseña</TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
+                        <Input {...field} placeholder="Ingrese el nombre del usuario" disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -292,6 +252,62 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     </FormItem>
                   )}
                 />
+                <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
+                  <legend className="text-xs font-semibold text-muted-foreground">Credenciales</legend>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormLabel>Usuario (Correo electrónico)</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ingrese el email del usuario" disabled={isPending} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormLabel>Contraseña</FormLabel>
+                        <FormControl>
+                          <div className="inline-flex gap-1">
+                            <Input
+                              type="text"
+                              placeholder={
+                                isUpdate
+                                  ? "Dejar en blanco para mantener la contraseña actual"
+                                  : "Introduce la contraseña del usuario"
+                              }
+                              {...field}
+                            />
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="icon"
+                                    type="button"
+                                    onClick={() => {
+                                      field.onChange(generateRandomPass());
+                                    }}
+                                  >
+                                    <Bot />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Generar una contraseña</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </fieldset>
               </form>
             </Form>
           )}

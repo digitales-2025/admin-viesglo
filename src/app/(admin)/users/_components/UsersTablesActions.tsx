@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -32,12 +33,16 @@ export function UsersTableActions({ row }: UsersTableActionsProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => open(MODULE, "edit", row)}>
-          <Edit className="mr-2 h-4 w-4" />
-          <span>Editar</span>
+          Editar
+          <DropdownMenuShortcut>
+            <Edit className="size-4 mr-2" />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => open(MODULE, "delete", row)} disabled={!row.isActive}>
-          <Trash className="mr-2 h-4 w-4" />
-          <span>Eliminar</span>
+          Eliminar
+          <DropdownMenuShortcut>
+            <Trash className="size-4 mr-2" />
+          </DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -35,9 +35,13 @@ interface Props {
 
 const baseSchema = {
   name: z.string().min(1, "El nombre es requerido."),
-  ruc: z.string().min(1, "El RUC es requerido."),
+  ruc: z
+    .string()
+    .min(1, "El RUC es requerido.")
+    .regex(/^[0-9]+$/, "El RUC debe contener solo números.")
+    .regex(/^\d{11}$/, "El RUC debe tener 11 dígitos."),
   address: z.string().min(1, "La dirección es requerida."),
-  phone: z.string().refine(isValidPhoneNumber, "El teléfono es requerido."),
+  phone: z.string().refine(isValidPhoneNumber, "El teléfono debe ser un número válido."),
   email: z.string().email("El email no es válido."),
   department: z.string().optional(),
   province: z.string().optional(),
@@ -46,11 +50,30 @@ const baseSchema = {
 
 const createSchema = z.object({
   ...baseSchema,
-  password: z.string().min(1, "La contraseña es requerida."),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+      "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
+    ),
 });
 
 const updateSchema = z.object({
   ...baseSchema,
+  password: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true; // Si no hay valor, es válido (opcional)
+        return val.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(val);
+      },
+      {
+        message:
+          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número.",
+      }
+    ),
 });
 
 type FormValues = z.infer<typeof createSchema> & {
@@ -270,58 +293,61 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   district: (value) => form.setValue("district", value, { shouldValidate: true }),
                 }}
               />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Introduce el email del cliente" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
-                    <FormControl>
-                      <div className="inline-flex gap-1">
-                        <Input
-                          placeholder={
-                            isUpdate
-                              ? "Dejar en blanco para mantener la contraseña actual"
-                              : "Introduce la contraseña del cliente"
-                          }
-                          {...field}
-                        />
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => field.onChange(generateRandomPass())}
-                              >
-                                <Bot />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Generar contraseña aleatoria</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
+                <legend className="text-xs font-semibold text-muted-foreground">Credenciales</legend>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Usuario (Correo electrónico)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Introduce el email del cliente" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
+                      <FormControl>
+                        <div className="inline-flex gap-1">
+                          <Input
+                            placeholder={
+                              isUpdate
+                                ? "Dejar en blanco para mantener la contraseña actual"
+                                : "Introduce la contraseña del cliente"
+                            }
+                            {...field}
+                          />
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(generateRandomPass())}
+                                >
+                                  <Bot />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Generar contraseña aleatoria</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </fieldset>
             </form>
           </Form>
         </ScrollArea>

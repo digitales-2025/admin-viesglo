@@ -89,7 +89,8 @@ export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow 
         description: "",
       });
     }
-  }, [isUpdate, currentRow?.id, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUpdate, currentRow?.id]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
@@ -99,7 +100,8 @@ export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow 
         description: "",
       });
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Sheet
