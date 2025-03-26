@@ -52,6 +52,9 @@ export function useCreateCertificate() {
       queryClient.invalidateQueries({ queryKey: CERTIFICATES_KEYS.lists() });
       toast.success("Certificado creado correctamente");
     },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al crear certificado");
+    },
   });
 }
 
@@ -72,8 +75,8 @@ export function useUpdateCertificate() {
       queryClient.invalidateQueries({ queryKey: CERTIFICATES_KEYS.lists() });
       toast.success("Certificado actualizado correctamente");
     },
-    onError: () => {
-      toast.error("Error al actualizar certificado");
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al actualizar certificado");
     },
   });
 }

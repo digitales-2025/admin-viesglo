@@ -3,7 +3,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 import { Button } from "@/shared/components/ui/button";
@@ -71,18 +70,6 @@ const schema = z.object({
         message: "El correo electrónico del usuario debe ser un correo electrónico válido.",
       }
     ),
-  phoneUser: z
-    .string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true;
-        return isValidPhoneNumber(val);
-      },
-      {
-        message: "El teléfono del usuario debe ser un número válido.",
-      }
-    ),
   dateEmision: z.string().min(1, "La fecha de emisión es requerida."),
   dateExpiration: z.string().min(1, "La fecha de expiración es requerida."),
 }) satisfies z.ZodType<CreateCertificate>;
@@ -107,7 +94,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       nameUser: "",
       lastNameUser: "",
       emailUser: "",
-      phoneUser: "",
       dateEmision: new Date().toISOString(),
       dateExpiration: "",
     },
@@ -121,7 +107,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         nameUser: "",
         lastNameUser: "",
         emailUser: "",
-        phoneUser: "",
         dateEmision: "",
         dateExpiration: "",
       });
@@ -151,7 +136,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     formData.append("nameUser", data.nameUser);
     formData.append("lastNameUser", data.lastNameUser);
     formData.append("emailUser", data.emailUser || "");
-    formData.append("phoneUser", data.phoneUser || "");
     formData.append("dateEmision", data.dateEmision);
     formData.append("dateExpiration", data.dateExpiration);
     if (data.fileCertificate) {
@@ -184,7 +168,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         nameUser: currentRow.nameUser,
         lastNameUser: currentRow.lastNameUser,
         emailUser: currentRow.emailUser,
-        phoneUser: currentRow.phoneUser,
         dateEmision: currentRow.dateEmision,
         dateExpiration: currentRow.dateExpiration,
       });

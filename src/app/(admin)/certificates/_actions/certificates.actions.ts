@@ -46,7 +46,7 @@ export async function createCertificate(
   formData: FormData
 ): Promise<{ data: CertificateResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.post<CertificateResponse>(API_ENDPOINT, formData);
+    const [data, err] = await http.multipartPost<CertificateResponse>(API_ENDPOINT, formData);
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al crear certificado" };
     }
@@ -65,7 +65,7 @@ export async function updateCertificate(
   formData: FormData
 ): Promise<{ data: CertificateResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.put<CertificateResponse>(`${API_ENDPOINT}/${id}`, formData);
+    const [data, err] = await http.multipartPut<CertificateResponse>(`${API_ENDPOINT}/${id}`, formData);
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al actualizar certificado" };
     }

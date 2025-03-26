@@ -1427,11 +1427,6 @@ export interface components {
        */
       emailUser?: string;
       /**
-       * @description El telefono de la persona certificada
-       * @example 12345678901
-       */
-      phoneUser?: string;
-      /**
        * @description Url del archivo del certificado
        * @example https://www.google.com
        */
