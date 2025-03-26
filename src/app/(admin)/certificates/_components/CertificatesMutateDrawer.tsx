@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -7,7 +9,15 @@ import { z } from "zod";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { FileInput } from "@/shared/components/ui/file-input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import {
@@ -88,6 +98,13 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     },
   });
 
+  useEffect(() => {
+    if (form.getValues("dateEmision")) {
+      const expirationDate = new Date(form.getValues("dateEmision"));
+      expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+      form.setValue("dateExpiration", expirationDate.toISOString());
+    }
+  }, [form.watch("dateEmision")]);
   const onSubmit = (data: FormValues) => {
     const formData = new FormData();
     formData.append("ruc", data.ruc);
@@ -285,6 +302,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                         onSelect={(date) => field.onChange(date?.toISOString())}
                       />
                     </FormControl>
+                    <FormDescription>La fecha de expiración será el mismo día de aquí a un año.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
