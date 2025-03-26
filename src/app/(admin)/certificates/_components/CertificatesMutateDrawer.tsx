@@ -39,8 +39,23 @@ interface Props {
 }
 
 const schema = z.object({
-  ruc: z.string().min(1, "El RUC es requerido."),
-  businessName: z.string().min(1, "El nombre de la empresa es requerido."),
+  ruc: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        return z
+          .string()
+          .regex(/^[0-9]+$/)
+          .regex(/^\d{11}$/)
+          .safeParse(val).success;
+      },
+      {
+        message: "El RUC debe ser un número válido.",
+      }
+    ),
+  businessName: z.string().optional(),
   nameCapacitation: z.string().min(1, "El nombre de la capacitación es requerido."),
   nameUser: z.string().min(1, "El nombre del usuario es requerido."),
   lastNameUser: z.string().min(1, "El apellido del usuario es requerido."),
@@ -93,10 +108,32 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       lastNameUser: "",
       emailUser: "",
       phoneUser: "",
-      dateEmision: "",
+      dateEmision: new Date().toISOString(),
       dateExpiration: "",
     },
   });
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        ruc: "",
+        businessName: "",
+        nameCapacitation: "",
+        nameUser: "",
+        lastNameUser: "",
+        emailUser: "",
+        phoneUser: "",
+        dateEmision: "",
+        dateExpiration: "",
+      });
+    } else if (!isUpdate) {
+      const today = new Date().toISOString();
+      form.reset({
+        ...form.getValues(),
+        dateEmision: today,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, isUpdate]);
 
   useEffect(() => {
     if (form.getValues("dateEmision")) {
@@ -104,11 +141,12 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       expirationDate.setFullYear(expirationDate.getFullYear() + 1);
       form.setValue("dateExpiration", expirationDate.toISOString());
     }
-  }, [form.watch("dateEmision")]);
+  }, [form, form.watch("dateEmision")]);
+
   const onSubmit = (data: FormValues) => {
     const formData = new FormData();
-    formData.append("ruc", data.ruc);
-    formData.append("businessName", data.businessName);
+    formData.append("ruc", data.ruc || "");
+    formData.append("businessName", data.businessName || "");
     formData.append("nameCapacitation", data.nameCapacitation);
     formData.append("nameUser", data.nameUser);
     formData.append("lastNameUser", data.lastNameUser);
@@ -154,23 +192,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       form.reset();
     }
   }, [isUpdate, currentRow, form]);
-
-  useEffect(() => {
-    if (!open) {
-      form.reset({
-        ruc: "",
-        businessName: "",
-        nameCapacitation: "",
-        nameUser: "",
-        lastNameUser: "",
-        emailUser: "",
-        phoneUser: "",
-        dateEmision: "",
-        dateExpiration: "",
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
 
   useEffect(() => {
     form.clearErrors();
@@ -227,9 +248,9 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 name="nameCapacitation"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre de la capacitación</FormLabel>
+                    <FormLabel>Tema de la capacitación</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el nombre de la capacitación" {...field} />
+                      <Input placeholder="Introduce el tema de la capacitación" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
