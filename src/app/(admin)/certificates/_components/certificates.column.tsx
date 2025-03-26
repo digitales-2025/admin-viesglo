@@ -9,6 +9,7 @@ import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableC
 import { Badge } from "@/shared/components/ui/badge";
 import CopyButton from "@/shared/components/ui/button-copy";
 import { CertificateResponse } from "../_types/certificates.types";
+import CertificatesTableActions from "./CertificatesTableActions";
 
 export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
   {
@@ -93,5 +94,6 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
   {
     id: "actions",
     header: "Acciones",
+    cell: ({ row }) => <CertificatesTableActions certificate={row.original} />,
   },
 ];

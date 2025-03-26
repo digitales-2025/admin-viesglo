@@ -79,6 +79,7 @@ type FormValues = z.infer<typeof schema> & {
 };
 
 export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+  console.log("🚀 ~ CertificatesMutateDrawer ~ currentRow:", currentRow);
   const { mutate: createCertificate, isPending: isCreating } = useCreateCertificate();
   const { mutate: updateCertificate, isPending: isUpdating } = useUpdateCertificate();
 
@@ -97,6 +98,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       dateEmision: new Date().toISOString(),
       dateExpiration: "",
     },
+    mode: "onChange",
   });
   useEffect(() => {
     if (!open) {
