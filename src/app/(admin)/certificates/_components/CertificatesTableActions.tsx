@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -40,10 +40,10 @@ export default function CertificatesTableActions({ certificate }: CertificatesTa
         <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
           Editar
           <DropdownMenuShortcut>
-            <Pencil className="size-4 mr-2" />
+            <Edit className="size-4 mr-2" />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+        <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={!certificate.isActive}>
           Eliminar
           <DropdownMenuShortcut>
             <Trash className="size-4 mr-2" />
