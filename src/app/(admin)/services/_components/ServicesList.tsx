@@ -14,7 +14,7 @@ import CardItem from "./CardItem";
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
   const { open } = useDialogStore();
-  const { setSelectedService, selectedService } = useServiceStore();
+  const { setSelectedService, selectedService, setSelectedObjective, setSelectedActivity } = useServiceStore();
 
   if (error) return <div>Error: {error.message}</div>;
 
@@ -25,8 +25,12 @@ export default function ServicesList() {
   const handleServiceClick = (service: ServiceResponse) => {
     if (selectedService?.id === service.id) {
       setSelectedService(null);
+      setSelectedObjective(null);
+      setSelectedActivity(null);
     } else {
       setSelectedService(service);
+      setSelectedObjective(null);
+      setSelectedActivity(null);
     }
   };
 

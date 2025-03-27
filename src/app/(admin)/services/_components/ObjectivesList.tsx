@@ -10,17 +10,20 @@ import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ObjectivesList() {
-  const { selectedService, setSelectedObjective, selectedObjective, clearOnObjectiveDelete } = useServiceStore();
+  const { selectedService, setSelectedObjective, selectedObjective, clearOnObjectiveDelete, setSelectedActivity } =
+    useServiceStore();
 
   const { open } = useDialogStore();
 
   const handleObjectiveClick = (objective: any) => {
-    // Si ya está seleccionado, lo deseleccionamos
+    // Si ya está seleccionado, lo deseleccionamos y limpiamos la actividad
     if (selectedObjective?.id === objective.id) {
       setSelectedObjective(null);
+      setSelectedActivity(null);
     } else {
-      // Si no está seleccionado, lo seleccionamos
+      // Si seleccionamos un nuevo objetivo, limpiamos la actividad anterior
       setSelectedObjective(objective);
+      setSelectedActivity(null);
     }
   };
 
