@@ -1,3 +1,4 @@
+import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { CertificateResponse } from "../_types/certificates.types";
 
 interface CertificatesTableOptionsProps {
@@ -8,5 +9,13 @@ export default function CertificatesTableOptions({ certificate }: CertificatesTa
   console.log(certificate);
   //const MODULE = "certificates";
 
-  return <></>;
+  return (
+    <>
+      <DatePickerWithRange
+        onConfirm={(date) => {
+          console.log(date);
+        }}
+      />
+    </>
+  );
 }
