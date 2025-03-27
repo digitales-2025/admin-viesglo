@@ -391,6 +391,7 @@ function TreeItem({
                         size="sm"
                         className="h-6 w-6 p-0 group-hover:opacity-100 opacity-0 items-center justify-center"
                         onClick={(e) => e.stopPropagation()}
+                        type="button"
                       >
                         <Info className="h-4 w-4 text-muted-foreground" />
                       </Button>
