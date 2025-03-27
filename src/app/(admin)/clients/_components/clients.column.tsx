@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { ClientResponse } from "../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
 
@@ -63,10 +65,15 @@ export const columnsClients = (): ColumnDef<ClientResponse>[] => [
     accessorKey: "address",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Dirección" />,
     cell: ({ row }) => (
-      <div className="capitalize min-w-[150px]">
-        <Badge variant="outline" className="flex items-center gap-2 ">
-          {row.getValue("direccion")}
-        </Badge>
+      <div className="capitalize min-w-[150px] max-w-[200px]">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger className="w-full truncate">{row.getValue("direccion")}</TooltipTrigger>
+            <TooltipContent>
+              <p>{row.getValue("direccion")}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     ),
   },
@@ -76,11 +83,11 @@ export const columnsClients = (): ColumnDef<ClientResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
     cell: ({ row }) => (
       <div className="min-w-[150px]">
-        <Badge variant="outline" className="flex items-center gap-2">
-          <Link href={`mailto:${row.getValue("email")}`} className="flex items-center gap-2">
+        <Link href={`mailto:${row.getValue("email")}`} className="flex items-center gap-2">
+          <Badge variant="outline" className="flex items-center gap-2">
             <Mail className="size-3" /> {row.getValue("email")}
-          </Link>
-        </Badge>
+          </Badge>
+        </Link>
       </div>
     ),
   },
@@ -90,11 +97,11 @@ export const columnsClients = (): ColumnDef<ClientResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
     cell: ({ row }) => (
       <div className="min-w-[150px]">
-        <Badge variant="outline">
-          <Link href={`tel:${row.getValue("telefono")}`} className="flex items-center gap-2">
-            <Phone className="size-3" /> {row.getValue("telefono")}
-          </Link>
-        </Badge>
+        <Link href={`tel:${row.getValue("telefono")}`} className="flex items-center gap-2">
+          <Badge variant="outline">
+            <Phone className="size-3" /> {formatPhoneNumberIntl(row.getValue("telefono"))}
+          </Badge>
+        </Link>
       </div>
     ),
   },

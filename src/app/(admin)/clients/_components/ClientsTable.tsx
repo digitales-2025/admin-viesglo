@@ -13,14 +13,13 @@ export default function ClientsTable() {
 
   const columns = useMemo(() => columnsClients(), []);
 
-  if (isLoading) return <div className="text-center py-4">Cargando clientes...</div>;
-
   if (error) return <div className="text-center py-4">Error al cargar clientes</div>;
 
   return (
     <DataTable
       columns={columns}
       data={clients || []}
+      isLoading={isLoading}
       actions={
         <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
           <DownloadCloud /> Descargar

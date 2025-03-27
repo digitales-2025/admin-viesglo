@@ -118,7 +118,8 @@ export interface paths {
     /** Actualizar un usuario existente */
     put: operations["UsersController_update_v1"];
     post?: never;
-    delete?: never;
+    /** Eliminar un usuario */
+    delete: operations["UsersController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -647,6 +648,114 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/quotations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las cotizaciones */
+    get: operations["QuotationController_findAll_v1"];
+    put?: never;
+    /** Crear nueva cotización */
+    post: operations["QuotationController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/quotations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener cotización por ID */
+    get: operations["QuotationController_findById_v1"];
+    /** Actualizar cotización */
+    put: operations["QuotationController_update_v1"];
+    post?: never;
+    /** Eliminar cotización */
+    delete: operations["QuotationController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/quotations/{id}/concrete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar estado de concreción de la cotización */
+    patch: operations["QuotationController_concrete_v1"];
+    trace?: never;
+  };
+  "/api/v1/certificate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los certificados */
+    get: operations["CertificateController_findAll_v1"];
+    put?: never;
+    /** Crear un nuevo certificado */
+    post: operations["CertificateController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un certificado por id */
+    get: operations["CertificateController_findById_v1"];
+    /** Actualizar un certificado por id */
+    put: operations["CertificateController_update_v1"];
+    post?: never;
+    /** Eliminar un certificado por id */
+    delete: operations["CertificateController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/code/{code}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un certificado por codigo */
+    get: operations["CertificateController_findByCode_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -692,136 +801,6 @@ export interface components {
       fullName?: string;
       roles: string[][];
     };
-    UserResponseDto: {
-      /**
-       * @description ID único del usuario
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      roles: string[][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del usuario
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del usuario
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
-    };
-    CreateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      roleIds: string[][];
-    };
-    UpdateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email?: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password?: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName?: string;
-      roles: string[][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    PermissionResponseDto: {
-      /**
-       * @description ID único del permiso
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Nombre del permiso
-       * @example users:create
-       */
-      name: string;
-      /**
-       * @description Descripción del permiso
-       * @example Permite crear usuarios en el sistema
-       */
-      description?: string | null;
-      /**
-       * @description Recurso al que aplica el permiso
-       * @example users
-       */
-      resource: string;
-      /**
-       * @description Acción que permite el permiso
-       * @example create
-       */
-      action: string;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del permiso
-       * @example 2023-01-15T14:30:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del permiso
-       * @example 2023-01-20T10:15:00Z
-       */
-      updatedAt: string;
-    };
-    CreateRoleDto: {
-      /**
-       * @description Nombre del rol
-       * @example admin
-       */
-      name: string;
-      /**
-       * @description Descripción del rol
-       * @example Rol de administrador con acceso completo
-       */
-      description?: string;
-      permissionIds: string[][];
-    };
     RoleResponseDto: {
       /**
        * @description ID único del rol
@@ -863,6 +842,154 @@ export interface components {
        * @example 2023-01-20T10:15:00Z
        */
       updatedAt: string;
+    };
+    UserResponseDto: {
+      /**
+       * @description ID único del usuario
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description Teléfono del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /** @description Roles del usuario */
+      roles: components["schemas"]["RoleResponseDto"][];
+      /**
+       * @description Estado del usuario (activo/inactivo)
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Es super administrador
+       * @example false
+       */
+      isSuperAdmin: boolean;
+    };
+    CreateUserDto: {
+      /**
+       * Format: email
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Contraseña del usuario
+       * @example password123
+       */
+      password: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description IDs de roles a asignar al usuario
+       * @example [
+       *       "123e4567-e89b-12d3-a456-426614174000"
+       *     ]
+       */
+      roleIds?: string[];
+    };
+    UpdateUserDto: {
+      /**
+       * Format: email
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
+       */
+      email?: string;
+      /**
+       * @description Contraseña del usuario
+       * @example password123
+       */
+      password?: string;
+      /**
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Número del usuario
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Cargo del usuario
+       * @example Administrador
+       */
+      post?: string;
+      roleIds: string[][];
+      /**
+       * @description Estado del usuario (activo/inactivo)
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    PermissionResponseDto: {
+      /**
+       * @description ID único del permiso
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Nombre del permiso
+       * @example users:create
+       */
+      name: string;
+      /**
+       * @description Descripción del permiso
+       * @example Permite crear usuarios en el sistema
+       */
+      description?: string | null;
+      /**
+       * @description Recurso al que aplica el permiso
+       * @example users
+       */
+      resource: string;
+      /**
+       * @description Acción que permite el permiso
+       * @example create
+       */
+      action: string;
+    };
+    CreateRoleDto: {
+      /**
+       * @description Nombre del rol
+       * @example admin
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Rol de administrador con acceso completo
+       */
+      description?: string;
+      permissionIds: string[][];
     };
     AssignPermissionDto: {
       /**
@@ -1869,6 +1996,433 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
+    QuotationResponseDto: {
+      /**
+       * @description ID único de la cotización
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Código único de la cotización
+       * @example COT-202401-001
+       */
+      code: string;
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email: string;
+      /**
+       * @description Indica si la cotización es concreta
+       * @example false
+       */
+      isConcrete: boolean;
+    };
+    CreateQuotationDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email: string;
+    };
+    UpdateQuotationDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc?: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName?: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity?: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers?: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service?: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount?: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address?: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district?: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact?: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position?: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone?: string;
+      /**
+       * Format: email
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email?: string;
+      /**
+       * @description Indica si la cotización está activa
+       * @example true
+       */
+      isActive?: boolean;
+      /**
+       * @description Indica si la cotización es concreta
+       * @example true
+       */
+      isConcrete?: boolean;
+    };
+    ConcreteQuotationDto: {
+      /**
+       * @description Indica si la cotización es concreta
+       * @example true
+       */
+      isConcrete: boolean;
+    };
+    CreateCertificateDto: {
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * Format: date
+       * @description La fecha de emisión del certificado
+       * @example 2024-03-20
+       */
+      dateEmision?: string;
+      /**
+       * Format: date
+       * @description La fecha de expiración del certificado
+       * @example 2024-03-20
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * Format: binary
+       * @description Archivo del certificado
+       */
+      fileCertificate?: string;
+    };
+    CertificateResponseDto: {
+      /**
+       * @description El id del certificado
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El codigo del certificado
+       * @example 12345678901
+       */
+      code: string;
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * @description La fecha de emisión del certificado
+       * @example 2025-01-01
+       */
+      dateEmision?: string;
+      /**
+       * @description La fecha de expiración del certificado
+       * @example 2025-01-01
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser?: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser?: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * @description Url del archivo del certificado
+       * @example https://www.google.com
+       */
+      fileCertificate?: string;
+      /**
+       * @description El estado del certificado
+       * @example Activo
+       */
+      status?: string;
+      /**
+       * @description El tipo de certificado
+       * @example Certificado
+       */
+      type?: string;
+      /**
+       * @description El tipo de certificado
+       * @example Certificado
+       */
+      modality?: string;
+      /**
+       * @description La url del certificado
+       * @example https://www.google.com
+       */
+      urlCertificate?: string;
+      /** @description El estado del certificado */
+      isActive?: boolean;
+    };
+    UpdateCertificateDto: {
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * Format: date
+       * @description La fecha de emisión del certificado
+       * @example 2025-01-01
+       */
+      dateEmision?: string;
+      /**
+       * Format: date
+       * @description La fecha de expiración del certificado
+       * @example 2025-01-01
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser?: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser?: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * Format: binary
+       * @description Archivo del certificado
+       */
+      fileCertificate?: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -2087,6 +2641,26 @@ export interface operations {
       };
       /** @description Usuario no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Usuario eliminado con éxito */
+      200: {
         headers: {
           [name: string]: unknown;
         };
@@ -3545,6 +4119,322 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ProjectActivity"];
         };
+      };
+    };
+  };
+  QuotationController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotizaciones encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"][];
+        };
+      };
+    };
+  };
+  QuotationController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Cotización creada */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Solicitud incorrecta */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotización encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Cotización actualizada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Solicitud incorrecta */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotización eliminada */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_concrete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConcreteQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Estado de concreción actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificateController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Los certificados han sido recuperados exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["CreateCertificateDto"];
+      };
+    };
+    responses: {
+      /** @description El certificado ha sido creado exitosamente. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["UpdateCertificateDto"];
+      };
+    };
+    responses: {
+      /** @description El certificado ha sido actualizado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificateController_findByCode_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

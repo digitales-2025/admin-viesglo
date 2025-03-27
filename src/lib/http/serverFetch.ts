@@ -238,6 +238,29 @@ export const http = {
     });
   },
 
+  /**
+   * Realiza una petición PUT multipart/form-data
+   * @param url - La URL a la que se realizará la petición
+   * @param body - El cuerpo de la petición, debe ser un FormData
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa que resuelve con los datos de tipo T, o un error
+   * @example
+   * ```ts
+   * const [updatedUser, err] = await http.multipartPut<User>("/users/1", formData);
+   * ```
+   */
+  multipartPut<T>(url: string, body?: FormData, config?: RequestInit) {
+    return serverFetch<T>(url, {
+      ...config,
+      method: "PUT",
+      body: body,
+      headers: {
+        // No establecer Content-Type para multipart/form-data
+        ...config?.headers,
+      },
+    });
+  },
+
   multipartPatch<T>(url: string, body?: FormData, config?: RequestInit) {
     return serverFetch<T>(url, {
       ...config,

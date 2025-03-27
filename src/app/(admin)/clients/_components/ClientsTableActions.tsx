@@ -1,10 +1,11 @@
-import { Mail, MoreHorizontal, RectangleEllipsis } from "lucide-react";
+import { Edit, Mail, MoreHorizontal, RectangleEllipsis, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
@@ -56,9 +57,15 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
         <DropdownMenuContent>
           <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
             Editar
+            <DropdownMenuShortcut>
+              <Edit className="size-4 mr-2" />
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
             Eliminar
+            <DropdownMenuShortcut>
+              <Trash className="size-4 mr-2" />
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
