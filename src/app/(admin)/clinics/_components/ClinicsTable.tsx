@@ -13,14 +13,13 @@ export default function ClinicsTable() {
 
   const columns = useMemo(() => columnsClinics(), []);
 
-  if (isLoading) return <div className="text-center py-4">Cargando clínicas...</div>;
-
   if (error) return <div className="text-center py-4">Error al cargar clínicas</div>;
 
   return (
     <DataTable
       columns={columns}
       data={clinics || []}
+      isLoading={isLoading}
       actions={
         <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
           <DownloadCloud /> Descargar
