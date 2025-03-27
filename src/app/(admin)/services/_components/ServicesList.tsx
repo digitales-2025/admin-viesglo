@@ -22,6 +22,14 @@ export default function ServicesList() {
     open("services", "delete", service);
   };
 
+  const handleServiceClick = (service: ServiceResponse) => {
+    if (selectedService?.id === service.id) {
+      setSelectedService(null);
+    } else {
+      setSelectedService(service);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between min-h-3.5">
@@ -51,7 +59,7 @@ export default function ServicesList() {
                   badge={<Badge variant="outline">{service.objectives?.length ?? 0} Objetivos</Badge>}
                   onEdit={() => open("services", "edit", service)}
                   onDelete={() => handleDelete(service)}
-                  onClick={() => setSelectedService(service)}
+                  onClick={() => handleServiceClick(service)}
                   className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
                 />
               ))

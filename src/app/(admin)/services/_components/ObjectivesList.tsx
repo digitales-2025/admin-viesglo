@@ -14,6 +14,16 @@ export default function ObjectivesList() {
 
   const { open } = useDialogStore();
 
+  const handleObjectiveClick = (objective: any) => {
+    // Si ya está seleccionado, lo deseleccionamos
+    if (selectedObjective?.id === objective.id) {
+      setSelectedObjective(null);
+    } else {
+      // Si no está seleccionado, lo seleccionamos
+      setSelectedObjective(objective);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 h-full">
       <div className="flex items-center justify-between min-h-14">
@@ -36,7 +46,7 @@ export default function ObjectivesList() {
                   title={objective.name}
                   badge={<Badge variant="outline">{objective.activities?.length} Actividades</Badge>}
                   description={objective.description ?? ""}
-                  onClick={() => setSelectedObjective(objective)}
+                  onClick={() => handleObjectiveClick(objective)}
                   onEdit={() => open("objectives", "edit", objective)}
                   onDelete={() => {
                     clearOnObjectiveDelete(objective.id);

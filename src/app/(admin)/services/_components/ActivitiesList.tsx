@@ -10,11 +10,21 @@ import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ActivitiesList() {
-  const { selectedObjective, setSelectedActivity, clearOnActivityDelete } = useServiceStore();
+  const { selectedObjective, setSelectedActivity, selectedActivity, clearOnActivityDelete } = useServiceStore();
 
   const { data: activities, isLoading, error } = useActivitiesByObjectiveId(selectedObjective?.id || "");
 
   const { open } = useDialogStore();
+
+  const handleActivityClick = (activity: any) => {
+    // Si ya está seleccionada, la deseleccionamos
+    if (selectedActivity?.id === activity.id) {
+      setSelectedActivity(null);
+    } else {
+      // Si no está seleccionada, la seleccionamos
+      setSelectedActivity(activity);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4 h-full">
@@ -43,7 +53,7 @@ export default function ActivitiesList() {
                     key={activity.id}
                     title={activity.name}
                     description={activity.description ?? ""}
-                    onClick={() => setSelectedActivity(activity)}
+                    onClick={() => handleActivityClick(activity)}
                     onEdit={() => {
                       clearOnActivityDelete(activity.id);
                       open("activities", "edit", activity);
@@ -52,7 +62,11 @@ export default function ActivitiesList() {
                       clearOnActivityDelete(activity.id);
                       open("activities", "delete", activity);
                     }}
-                    className="hover:cursor-auto"
+                    className={
+                      activity.id === selectedActivity?.id
+                        ? "border-sky-400 outline-4 outline-sky-300/10"
+                        : "hover:cursor-pointer"
+                    }
                     badge={
                       activity.evidenceRequired && (
                         <Badge variant="infoOutline">
