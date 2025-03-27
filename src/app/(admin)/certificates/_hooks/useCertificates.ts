@@ -1,6 +1,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { format } from "date-fns";
 import { toast } from "sonner";
 
 import {
@@ -9,6 +10,7 @@ import {
   getCertificate,
   getCertificateByCode,
   getCertificates,
+  getCertificatesByDateRange,
   updateCertificate,
 } from "../_actions/certificates.actions";
 
@@ -129,6 +131,25 @@ export function useGetCertificateById(id: string) {
       const response = await getCertificate(id);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener certificado por ID");
+      }
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Hook para obtener certificados por rango de fechas
+ */
+export function useGetCertificatesByDateRange(startDate: string, endDate: string) {
+  return useQuery({
+    queryKey: CERTIFICATES_KEYS.list(`date=${startDate}&endDate=${endDate}`),
+    queryFn: async () => {
+      // Convertir las fechas a formato YYYY-MM-DD
+      const formattedStartDate = format(startDate, "yyyy-MM-dd");
+      const formattedEndDate = format(endDate, "yyyy-MM-dd");
+      const response = await getCertificatesByDateRange(formattedStartDate, formattedEndDate);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener certificados por rango de fechas");
       }
       return response.data;
     },

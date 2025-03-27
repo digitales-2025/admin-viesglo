@@ -109,3 +109,24 @@ export async function getCertificateByCode(
     return { success: false, data: null, error: "Error al obtener certificado por código" };
   }
 }
+
+/**
+ * Obtiene los certificados por rango de fechas
+ */
+export async function getCertificatesByDateRange(
+  startDate: string,
+  endDate: string
+): Promise<{ data: CertificateResponse[]; success: boolean; error?: string }> {
+  try {
+    const url = `${API_ENDPOINT}/filter/date?startDate=${startDate}&endDate=${endDate}`;
+    const [data, err] = await http.get<CertificateResponse[]>(url);
+
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener certificados por rango de fechas" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al obtener certificados por rango de fechas", error);
+    return { success: false, data: [], error: "Error al obtener certificados por rango de fechas" };
+  }
+}
