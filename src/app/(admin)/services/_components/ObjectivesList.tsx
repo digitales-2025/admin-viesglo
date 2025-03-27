@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus, SquareDashed } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
@@ -6,14 +8,47 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Separator } from "@/shared/components/ui/separator";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { SERVICES_KEYS, useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import CardItem from "./CardItem";
 
 export default function ObjectivesList() {
-  const { selectedService, setSelectedObjective, selectedObjective, clearOnObjectiveDelete, setSelectedActivity } =
-    useServiceStore();
+  const {
+    selectedService,
+    setSelectedObjective,
+    selectedObjective,
+    clearOnObjectiveDelete,
+    setSelectedActivity,
+    setSelectedService,
+  } = useServiceStore();
 
-  const { open } = useDialogStore();
+  const { open, isOpenForModule } = useDialogStore();
+  const queryClient = useQueryClient();
+  const { data: services } = useServices();
+
+  // Refrescar el servicio seleccionado cuando cambian los servicios
+  useEffect(() => {
+    if (selectedService && services) {
+      // Buscar el servicio actualizado en la lista
+      const updatedService = services.find((service) => service.id === selectedService.id);
+      if (updatedService) {
+        // Actualizar el servicio seleccionado con los datos más recientes
+        setSelectedService(updatedService);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [services, selectedService?.id, setSelectedService]);
+
+  // Escuchar los diálogos de objetivos para refrescar después de crear/editar/eliminar
+  useEffect(() => {
+    const isObjectiveDialogOpen = isOpenForModule("objectives");
+
+    // Cuando se cierra el diálogo de objetivos
+    if (!isObjectiveDialogOpen) {
+      // Refrescar los datos
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
+    }
+  }, [isOpenForModule, queryClient]);
 
   const handleObjectiveClick = (objective: any) => {
     // Si ya está seleccionado, lo deseleccionamos y limpiamos la actividad
