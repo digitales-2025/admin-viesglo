@@ -4,22 +4,6 @@
  */
 
 export interface paths {
-  "/api": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations["AppController_getHello"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/api/v1/auth/login": {
     parameters: {
       query?: never;
@@ -469,6 +453,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/projects/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Búsqueda avanzada de proyectos */
+    get: operations["ProjectsController_searchProjects_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/projects/{id}": {
     parameters: {
       query?: never;
@@ -748,6 +749,23 @@ export interface paths {
     };
     /** Obtener un certificado por codigo */
     get: operations["CertificateController_findByCode_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/filter/date": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Filtrar certificados por rango de fechas */
+    get: operations["CertificateController_filterByDateRange_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1060,6 +1078,57 @@ export interface components {
        */
       objectives?: string[];
     };
+    ActivityResponseDto: {
+      /**
+       * @description El ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El nombre de la actividad
+       * @example Activity 1
+       */
+      name: string;
+      /**
+       * @description La descripción de la actividad
+       * @example Descripción de la actividad
+       */
+      description: string;
+      /**
+       * @description Si la actividad requiere evidencia
+       * @example true
+       */
+      evidenceRequired: boolean;
+      /**
+       * @description El ID del objetivo al que pertenece la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId: string;
+    };
+    ObjectiveResponseDto: {
+      /**
+       * @description ID del objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del objetivo
+       * @example Objetivo de ejemplo
+       */
+      name: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Descripción del objetivo
+       */
+      description?: string;
+      /**
+       * @description ID del servicio al que pertenece el objetivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /** @description Actividades del objetivo */
+      activities?: components["schemas"]["ActivityResponseDto"][];
+    };
     ServiceResponseDto: {
       /**
        * @description El ID del servicio
@@ -1076,14 +1145,8 @@ export interface components {
        * @example Descripción del servicio de ejemplo
        */
       description?: string;
-      /**
-       * @description Los objetivos del servicio
-       * @example [
-       *       "Objetivo 1",
-       *       "Objetivo 2"
-       *     ]
-       */
-      objectives?: string[];
+      /** @description Los objetivos completos del servicio */
+      objectives?: components["schemas"]["ObjectiveResponseDto"][];
       /**
        * @description El estado del servicio
        * @example true
@@ -1111,35 +1174,6 @@ export interface components {
       objectives?: string[];
     };
     CreateObjectiveDto: {
-      /**
-       * @description Nombre de la objetivo
-       * @example Objetivo de ejemplo
-       */
-      name: string;
-      /**
-       * @description Descripción de la objetivo
-       * @example Descripción de la objetivo
-       */
-      description?: string;
-      /**
-       * @description ID del servicio al que pertenece la objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-      /**
-       * @description Actividades de la objetivo
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000"
-       *     ]
-       */
-      activities?: string[];
-    };
-    ObjectiveResponseDto: {
-      /**
-       * @description ID de la objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
       /**
        * @description Nombre de la objetivo
        * @example Objetivo de ejemplo
@@ -1201,33 +1235,6 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       objectiveId?: string;
-    };
-    ActivityResponseDto: {
-      /**
-       * @description El ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description El nombre de la actividad
-       * @example Activity 1
-       */
-      name: string;
-      /**
-       * @description La descripción de la actividad
-       * @example Descripción de la actividad
-       */
-      description: string;
-      /**
-       * @description Si la actividad requiere evidencia
-       * @example true
-       */
-      evidenceRequired: boolean;
-      /**
-       * @description El ID del objetivo al que pertenece la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId: string;
     };
     UpdateActivityDto: {
       /**
@@ -2432,25 +2439,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  AppController_getHello: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": string;
-        };
-      };
-    };
-  };
   AuthController_login_v1: {
     parameters: {
       query?: never;
@@ -3546,6 +3534,47 @@ export interface operations {
       };
     };
   };
+  ProjectsController_searchProjects_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de contrato */
+        typeContract?: string;
+        /** @description Filtrar por tipo de proyecto */
+        typeProject?: string;
+        /** @description Filtrar por fecha de inicio (desde) */
+        startDateFrom?: string;
+        /** @description Filtrar por fecha de inicio (hasta) */
+        startDateTo?: string;
+        /** @description Filtrar por fecha de finalización (desde) */
+        endDateFrom?: string;
+        /** @description Filtrar por fecha de finalización (hasta) */
+        endDateTo?: string;
+        /** @description Filtrar por estado del proyecto */
+        status?: string;
+        /** @description Filtrar por búsqueda en nombre o descripción */
+        search?: string;
+        /** @description Filtrar por ID de cliente */
+        clientId?: string;
+        /** @description Filtrar solo proyectos activos */
+        isActive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyectos obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"][];
+        };
+      };
+    };
+  };
   ProjectsController_getProjectById_v1: {
     parameters: {
       query?: never;
@@ -4257,7 +4286,7 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Cotización eliminada */
-      204: {
+      200: {
         headers: {
           [name: string]: unknown;
         };
@@ -4435,6 +4464,31 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  CertificateController_filterByDateRange_v1: {
+    parameters: {
+      query?: {
+        /** @description Fecha de inicio para filtrar por fecha de emisión */
+        startDate?: string;
+        /** @description Fecha de fin para filtrar por fecha de emisión */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Los certificados han sido filtrados exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"][];
+        };
       };
     };
   };
