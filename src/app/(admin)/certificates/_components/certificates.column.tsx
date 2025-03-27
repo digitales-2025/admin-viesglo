@@ -19,7 +19,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     cell: ({ row }) => <div className="font-semibold capitalize min-w-[50px] max-w-[150px]">{row.original.ruc}</div>,
   },
   {
-    id: "businessName",
+    id: "razón social",
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
     cell: ({ row }) => (
@@ -27,7 +27,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "code",
+    id: "código",
     accessorKey: "code",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Código" />,
     cell: ({ row }) => (
@@ -43,23 +43,19 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "nameUser",
+    id: "nombre del usuario",
     accessorKey: "nameUser",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del usuario" />,
-    cell: ({ row }) => (
-      <div className="font-semibold capitalize min-w-[150px] max-w-[150px]">{row.original.nameUser}</div>
-    ),
+    cell: ({ row }) => <div className="capitalize min-w-[150px] max-w-[150px]">{row.original.nameUser}</div>,
   },
   {
-    id: "lastNameUser",
+    id: "apellido del usuario",
     accessorKey: "lastNameUser",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Apellido del usuario" />,
-    cell: ({ row }) => (
-      <div className="font-semibold capitalize min-w-[150px] max-w-[150px]">{row.original.lastNameUser}</div>
-    ),
+    cell: ({ row }) => <div className="capitalize min-w-[150px] max-w-[150px]">{row.original.lastNameUser}</div>,
   },
   {
-    id: "nameCapacitation",
+    id: "tema de la capacitación",
     accessorKey: "nameCapacitation",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Tema de la capacitación" />,
     cell: ({ row }) => (
@@ -67,7 +63,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "dateEmision",
+    id: "fecha de emisión",
     accessorKey: "dateEmision",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de emisión" />,
     cell: ({ row }) => (
@@ -78,7 +74,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "status",
+    id: "estado",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     accessorKey: "status",
     cell: ({ row }) => (
