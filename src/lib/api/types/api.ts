@@ -451,6 +451,60 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/quotations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las cotizaciones */
+    get: operations["QuotationController_findAll_v1"];
+    put?: never;
+    /** Crear nueva cotización */
+    post: operations["QuotationController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/quotations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener cotización por ID */
+    get: operations["QuotationController_findById_v1"];
+    /** Actualizar cotización */
+    put: operations["QuotationController_update_v1"];
+    post?: never;
+    /** Eliminar cotización */
+    delete: operations["QuotationController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/quotations/{id}/concrete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar estado de concreción de la cotización */
+    patch: operations["QuotationController_concrete_v1"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1271,6 +1325,256 @@ export interface components {
        *     ]
        */
       clinicIds?: string[];
+    };
+    QuotationResponseDto: {
+      /**
+       * @description ID único de la cotización
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Código único de la cotización
+       * @example COT-202401-001
+       */
+      code: string;
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email: string;
+      /**
+       * @description Indica si la cotización es concreta
+       * @example false
+       */
+      isConcrete: boolean;
+    };
+    CreateQuotationDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email: string;
+    };
+    UpdateQuotationDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc?: string;
+      /**
+       * @description Razón social del cliente
+       * @example Empresa SAC
+       */
+      businessName?: string;
+      /**
+       * @description Actividad económica del cliente
+       * @example Servicios de consultoría médica
+       */
+      economicActivity?: string;
+      /**
+       * @description Número de trabajadores
+       * @example 50
+       */
+      numberOfWorkers?: number;
+      /**
+       * @description Servicio cotizado
+       * @example Consultoría médica
+       */
+      service?: string;
+      /**
+       * @description Monto de la cotización
+       * @example 1500
+       */
+      amount?: number;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address?: string;
+      /**
+       * @description Departamento
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito
+       * @example San Isidro
+       */
+      district?: string;
+      /**
+       * @description Nombre del contacto principal
+       * @example Juan Pérez
+       */
+      mainContact?: string;
+      /**
+       * @description Cargo del contacto principal
+       * @example Gerente
+       */
+      position?: string;
+      /**
+       * @description Teléfono del contacto principal
+       * @example +51987654321
+       */
+      phone?: string;
+      /**
+       * Format: email
+       * @description Email del contacto principal
+       * @example juan.perez@empresa.com
+       */
+      email?: string;
+      /**
+       * @description Indica si la cotización está activa
+       * @example true
+       */
+      isActive?: boolean;
+      /**
+       * @description Indica si la cotización es concreta
+       * @example true
+       */
+      isConcrete?: boolean;
+    };
+    ConcreteQuotationDto: {
+      /**
+       * @description Indica si la cotización es concreta
+       * @example true
+       */
+      isConcrete: boolean;
     };
   };
   responses: never;
@@ -2348,6 +2652,190 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ClinicResponseDto"][];
         };
+      };
+    };
+  };
+  QuotationController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotizaciones encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"][];
+        };
+      };
+    };
+  };
+  QuotationController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Cotización creada */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Solicitud incorrecta */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotización encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Cotización actualizada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Solicitud incorrecta */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotización eliminada */
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationController_concrete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ConcreteQuotationDto"];
+      };
+    };
+    responses: {
+      /** @description Estado de concreción actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationResponseDto"];
+        };
+      };
+      /** @description Cotización no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

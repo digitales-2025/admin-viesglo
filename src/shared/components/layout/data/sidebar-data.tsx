@@ -67,7 +67,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Cotizaciones",
           icon: Files,
-          url: "/quotes",
+          url: "/quotation",
         },
         {
           title: "Pagos",
