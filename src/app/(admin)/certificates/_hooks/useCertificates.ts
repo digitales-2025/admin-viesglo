@@ -140,18 +140,25 @@ export function useGetCertificateById(id: string) {
 /**
  * Hook para obtener certificados por rango de fechas
  */
-export function useGetCertificatesByDateRange(startDate: string, endDate: string) {
+export function useGetCertificatesByDateRange(startDate?: Date, endDate?: Date) {
   return useQuery({
-    queryKey: CERTIFICATES_KEYS.list(`date=${startDate}&endDate=${endDate}`),
+    queryKey: CERTIFICATES_KEYS.list(`date=${startDate?.toISOString() || ""}&endDate=${endDate?.toISOString() || ""}`),
     queryFn: async () => {
+      // Si alguna fecha no está definida, devolvemos un error
+      if (!startDate || !endDate) {
+        throw new Error("Debe seleccionar ambas fechas");
+      }
+
       // Convertir las fechas a formato YYYY-MM-DD
       const formattedStartDate = format(startDate, "yyyy-MM-dd");
       const formattedEndDate = format(endDate, "yyyy-MM-dd");
+
       const response = await getCertificatesByDateRange(formattedStartDate, formattedEndDate);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener certificados por rango de fechas");
       }
       return response.data;
     },
+    enabled: !!startDate && !!endDate, // Solo ejecutar si ambas fechas están definidas
   });
 }

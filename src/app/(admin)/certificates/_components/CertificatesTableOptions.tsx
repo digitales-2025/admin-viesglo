@@ -1,21 +1,30 @@
+import { FilterX } from "lucide-react";
+
+import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
-import { CertificateResponse } from "../_types/certificates.types";
+import { useCertificateFilterStore } from "../_hooks/useCertificateFilterStore";
 
-interface CertificatesTableOptionsProps {
-  certificate?: CertificateResponse;
-}
+//interface CertificatesTableOptionsProps {
+//  certificate?: CertificateResponse;
+//}
 
-export default function CertificatesTableOptions({ certificate }: CertificatesTableOptionsProps) {
-  console.log(certificate);
-  //const MODULE = "certificates";
+export default function CertificatesTableOptions() {
+  const { dateRange, setDateRange, clearDateRange } = useCertificateFilterStore();
 
   return (
-    <>
+    <div className="flex items-center gap-2">
       <DatePickerWithRange
         onConfirm={(date) => {
-          console.log(date);
+          setDateRange(date);
         }}
+        initialValue={dateRange}
+        placeholder="Filtrar por fecha"
       />
-    </>
+      {dateRange?.from && dateRange?.to && (
+        <Button variant="outline" size="icon" onClick={clearDateRange} title="Limpiar filtro">
+          <FilterX className="h-4 w-4" />
+        </Button>
+      )}
+    </div>
   );
 }
