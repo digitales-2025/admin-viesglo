@@ -36,6 +36,12 @@ export function DatePickerWithRange({
   // Estado para controlar la apertura del popover
   const [open, setOpen] = React.useState(false);
 
+  // Actualizar cuando initialValue cambie (importante para cuando se limpia el filtro)
+  React.useEffect(() => {
+    setDate(initialValue);
+    setTempDate(initialValue);
+  }, [initialValue]);
+
   // Actualizar tempDate cuando date cambia externamente
   React.useEffect(() => {
     if (!open) {

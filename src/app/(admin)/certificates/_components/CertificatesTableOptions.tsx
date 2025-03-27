@@ -11,6 +11,10 @@ import { useCertificateFilterStore } from "../_hooks/useCertificateFilterStore";
 export default function CertificatesTableOptions() {
   const { dateRange, setDateRange, clearDateRange } = useCertificateFilterStore();
 
+  const handleClearFilter = () => {
+    clearDateRange();
+  };
+
   return (
     <div className="flex items-center gap-2">
       <DatePickerWithRange
@@ -21,7 +25,7 @@ export default function CertificatesTableOptions() {
         placeholder="Filtrar por fecha"
       />
       {dateRange?.from && dateRange?.to && (
-        <Button variant="outline" size="icon" onClick={clearDateRange} title="Limpiar filtro">
+        <Button variant="outline" size="icon" onClick={handleClearFilter} title="Limpiar filtro">
           <FilterX className="h-4 w-4" />
         </Button>
       )}
