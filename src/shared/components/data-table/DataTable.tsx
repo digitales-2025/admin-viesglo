@@ -27,9 +27,16 @@ interface DataTableProps<TData, TValue> {
   data: TData[];
   actions?: React.ReactNode;
   isLoading?: boolean;
+  onClickRow?: (row: TData) => void;
 }
 
-export function DataTable<TData, TValue>({ columns, data, actions, isLoading = false }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  actions,
+  isLoading = false,
+  onClickRow,
+}: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -105,7 +112,11 @@ export function DataTable<TData, TValue>({ columns, data, actions, isLoading = f
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={onClickRow ? () => onClickRow(row.original) : undefined}
+                >
                   {row.getVisibleCells().map((cell) => {
                     const { column } = cell;
                     return (
