@@ -505,6 +505,60 @@ export interface paths {
     patch: operations["QuotationController_concrete_v1"];
     trace?: never;
   };
+  "/api/v1/certificate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los certificados */
+    get: operations["CertificateController_findAll_v1"];
+    put?: never;
+    /** Crear un nuevo certificado */
+    post: operations["CertificateController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un certificado por id */
+    get: operations["CertificateController_findById_v1"];
+    /** Actualizar un certificado por id */
+    put: operations["CertificateController_update_v1"];
+    post?: never;
+    /** Eliminar un certificado por id */
+    delete: operations["CertificateController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/code/{code}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un certificado por codigo */
+    get: operations["CertificateController_findByCode_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1575,6 +1629,183 @@ export interface components {
        * @example true
        */
       isConcrete: boolean;
+    };
+    CreateCertificateDto: {
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * Format: date
+       * @description La fecha de emisión del certificado
+       * @example 2024-03-20
+       */
+      dateEmision?: string;
+      /**
+       * Format: date
+       * @description La fecha de expiración del certificado
+       * @example 2024-03-20
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * Format: binary
+       * @description Archivo del certificado
+       */
+      fileCertificate?: string;
+    };
+    CertificateResponseDto: {
+      /**
+       * @description El id del certificado
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description El codigo del certificado
+       * @example 12345678901
+       */
+      code: string;
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * @description La fecha de emisión del certificado
+       * @example 2025-01-01
+       */
+      dateEmision?: string;
+      /**
+       * @description La fecha de expiración del certificado
+       * @example 2025-01-01
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser?: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser?: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * @description Url del archivo del certificado
+       * @example https://www.google.com
+       */
+      fileCertificate?: string;
+      /**
+       * @description El estado del certificado
+       * @example Activo
+       */
+      status?: string;
+      /**
+       * @description El tipo de certificado
+       * @example Certificado
+       */
+      type?: string;
+      /**
+       * @description El tipo de certificado
+       * @example Certificado
+       */
+      modality?: string;
+      /**
+       * @description La url del certificado
+       * @example https://www.google.com
+       */
+      urlCertificate?: string;
+      /** @description El estado del certificado */
+      isActive?: boolean;
+    };
+    UpdateCertificateDto: {
+      /**
+       * @description El RUC de la empresa certificada
+       * @example 12345678901
+       */
+      ruc?: string;
+      /**
+       * @description El nombre de la empresa certificada
+       * @example Empresa de prueba
+       */
+      businessName?: string;
+      /**
+       * @description El nombre de la capacitación
+       * @example Curso de capacitación
+       */
+      nameCapacitation?: string;
+      /**
+       * Format: date
+       * @description La fecha de emisión del certificado
+       * @example 2025-01-01
+       */
+      dateEmision?: string;
+      /**
+       * Format: date
+       * @description La fecha de expiración del certificado
+       * @example 2025-01-01
+       */
+      dateExpiration?: string;
+      /**
+       * @description Nombre de la persona certificada
+       * @example Juan
+       */
+      nameUser?: string;
+      /**
+       * @description Apellido de la persona certificada
+       * @example Perez
+       */
+      lastNameUser?: string;
+      /**
+       * @description El email de la persona certificada
+       * @example juan.perez@gmail.com
+       */
+      emailUser?: string;
+      /**
+       * Format: binary
+       * @description Archivo del certificado
+       */
+      fileCertificate?: string;
     };
   };
   responses: never;
@@ -2832,6 +3063,138 @@ export interface operations {
       };
       /** @description Cotización no encontrada */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificateController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Los certificados han sido recuperados exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["CreateCertificateDto"];
+      };
+    };
+    responses: {
+      /** @description El certificado ha sido creado exitosamente. */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": components["schemas"]["UpdateCertificateDto"];
+      };
+    };
+    responses: {
+      /** @description El certificado ha sido actualizado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificateController_findByCode_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
         headers: {
           [name: string]: unknown;
         };
