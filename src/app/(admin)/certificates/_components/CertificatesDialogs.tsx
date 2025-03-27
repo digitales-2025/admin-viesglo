@@ -5,6 +5,7 @@ import { Trash } from "lucide-react";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteCertificate } from "../_hooks/useCertificates";
+import CertificateDialogView from "./CertificateDialogView";
 import { CertificatesMutateDrawer } from "./CertificatesMutateDrawer";
 
 export default function CertificatesDialogs() {
@@ -57,6 +58,16 @@ export default function CertificatesDialogs() {
           </>
         }
       />
+
+      {data && (
+        <CertificateDialogView
+          open={isOpenForModule(MODULE, "view")}
+          onOpenChange={(open) => {
+            if (!open) close();
+          }}
+          currentRow={data}
+        />
+      )}
     </>
   );
 }

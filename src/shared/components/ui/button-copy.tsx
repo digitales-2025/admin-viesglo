@@ -24,7 +24,8 @@ export default function CopyButton({
 }: CopyButtonProps) {
   const [isCopied, setIsCopied] = useState(false);
 
-  const handleCopy = async () => {
+  const handleCopy = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
     try {
       await navigator.clipboard.writeText(content);
       setIsCopied(true);
@@ -69,10 +70,10 @@ export default function CopyButton({
           Copiado
         </>
       ) : (
-        <>
+        <span className="flex items-center gap-1 truncate">
           <Copy className="size-3  mr-2 text-slate-500" strokeWidth={1} />
           {label}
-        </>
+        </span>
       )}
     </Button>
   );

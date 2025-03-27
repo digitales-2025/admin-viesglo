@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useCertificateFilterStore } from "../_hooks/useCertificateFilterStore";
 import { useCertificates, useGetCertificatesByDateRange } from "../_hooks/useCertificates";
 import { CertificateResponse } from "../_types/certificates.types";
@@ -18,6 +19,8 @@ export default function CertificatesDataTable() {
     error: errorFiltered,
     isSuccess: isFilterSuccess,
   } = useGetCertificatesByDateRange(dateRange?.from, dateRange?.to);
+
+  const { open } = useDialogStore();
 
   const columns = useMemo(() => columnsCertificates(), []);
 
@@ -43,6 +46,9 @@ export default function CertificatesDataTable() {
         data={certificates || []}
         actions={<CertificatesTableOptions />}
         isLoading={isLoading}
+        onClickRow={(row) => {
+          open("certificates", "view", row);
+        }}
       />
     </div>
   );

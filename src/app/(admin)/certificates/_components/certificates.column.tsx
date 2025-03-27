@@ -46,14 +46,13 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     id: "nombre del usuario",
     accessorKey: "nameUser",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del usuario" />,
-    cell: ({ row }) => <div className="capitalize min-w-[150px] max-w-[150px]">{row.original.nameUser}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize min-w-[150px] max-w-[150px]">
+        {row.original.nameUser} {row.original.lastNameUser}
+      </div>
+    ),
   },
-  {
-    id: "apellido del usuario",
-    accessorKey: "lastNameUser",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Apellido del usuario" />,
-    cell: ({ row }) => <div className="capitalize min-w-[150px] max-w-[150px]">{row.original.lastNameUser}</div>,
-  },
+
   {
     id: "tema de la capacitación",
     accessorKey: "nameCapacitation",
@@ -71,6 +70,28 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
         <Calendar className="w-4 h-4" />
         {format(new TZDate(row.original.dateEmision ?? "", "America/Lima"), "dd-MM-yyyy")}
       </Badge>
+    ),
+  },
+  {
+    id: "url del certificado",
+    accessorKey: "urlCertificate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="URL del certificado" />,
+    cell: ({ row }) => (
+      <div className="min-w-[150px] max-w-[150px]">
+        {row.original.urlCertificate ? (
+          <CopyButton
+            variant="outline"
+            size="sm"
+            className="max-w-[150px]"
+            content={row.original.urlCertificate}
+            label={row.original.urlCertificate}
+          />
+        ) : (
+          <Badge variant="outline" className="text-slate-600 font-normal capitalize">
+            No tiene URL
+          </Badge>
+        )}
+      </div>
     ),
   },
   {
