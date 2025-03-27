@@ -18,6 +18,7 @@ export default function CertificatesTableOptions() {
   return (
     <div className="flex items-center gap-2">
       <DatePickerWithRange
+        size="sm"
         onConfirm={(date) => {
           setDateRange(date);
         }}
@@ -25,7 +26,7 @@ export default function CertificatesTableOptions() {
         placeholder="Filtrar por fecha"
       />
       {dateRange?.from && dateRange?.to && (
-        <Button variant="outline" size="icon" onClick={handleClearFilter} title="Limpiar filtro">
+        <Button variant="outline" size="sm" onClick={handleClearFilter} title="Limpiar filtro">
           <FilterX className="h-4 w-4" />
         </Button>
       )}

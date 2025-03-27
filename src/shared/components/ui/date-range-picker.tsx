@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -17,6 +18,7 @@ interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElem
   placeholder?: string;
   confirmText?: string;
   cancelText?: string;
+  size?: "default" | "sm" | "lg" | "icon";
 }
 
 export function DatePickerWithRange({
@@ -27,6 +29,7 @@ export function DatePickerWithRange({
   placeholder = "Seleccionar fechas",
   confirmText = "Aceptar",
   cancelText = "Cancelar",
+  size = "default",
   ...props
 }: DatePickerWithRangeProps) {
   // Estado principal para almacenar el valor final seleccionado
@@ -84,6 +87,7 @@ export function DatePickerWithRange({
         <PopoverTrigger asChild>
           <Button
             id="date"
+            size={size}
             variant={"outline"}
             className={cn("w-[300px] justify-start text-left font-normal", !date && "text-muted-foreground")}
           >
@@ -91,10 +95,10 @@ export function DatePickerWithRange({
             {date?.from ? (
               date.to ? (
                 <>
-                  {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                  {format(date.from, "LLL dd, y", { locale: es })} - {format(date.to, "LLL dd, y", { locale: es })}
                 </>
               ) : (
-                format(date.from, "LLL dd, y")
+                format(date.from, "LLL dd, y", { locale: es })
               )
             ) : (
               <span>{placeholder}</span>
@@ -110,6 +114,7 @@ export function DatePickerWithRange({
               selected={tempDate}
               onSelect={handleSelect}
               numberOfMonths={2}
+              locale={es}
             />
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
               <Button variant="outline" size="sm" onClick={handleCancel}>
