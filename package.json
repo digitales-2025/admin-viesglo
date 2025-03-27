@@ -89,5 +89,10 @@
     "prettier-plugin-sort-json": "4.1.1",
     "tailwindcss": "4",
     "typescript": "5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }
