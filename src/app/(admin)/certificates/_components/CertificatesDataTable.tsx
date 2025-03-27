@@ -34,13 +34,16 @@ export default function CertificatesDataTable() {
     }
   }, [allCertificates, filteredCertificates, dateRange, isFilterSuccess]);
 
-  if (isLoading) return <div className="text-center py-4">Cargando certificados...</div>;
-
-  if (error) return <div className="text-center py-4">Error al cargar certificados {error.message}</div>;
+  if (error) return <div className="text-center py-4">Error al cargar certificados: {error.message}</div>;
 
   return (
     <div className="space-y-4">
-      <DataTable columns={columns} data={certificates} actions={<CertificatesTableOptions />} />
+      <DataTable
+        columns={columns}
+        data={certificates || []}
+        actions={<CertificatesTableOptions />}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
