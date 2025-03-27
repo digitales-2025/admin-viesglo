@@ -46,7 +46,14 @@ export default function CertificatesDialogs() {
         }
         desc={
           <>
-            Estás a punto de eliminar el certificado <strong className="uppercase text-wrap">{data?.id}</strong>.
+            Estás a punto de eliminar el certificado <strong className="uppercase text-wrap">{data?.code}</strong>
+            <br />
+            <span className="text-sm text-muted-foreground">
+              Este certificado fue emitido para el usuario{" "}
+              <strong className="text-foreground capitalize">
+                {data?.nameUser} {data?.lastNameUser}
+              </strong>
+            </span>
           </>
         }
       />
