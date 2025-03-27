@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle2, DollarSign, Mail, XCircle } from "lucide-react";
+import { Banknote, CheckCircle2, Mail, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -71,7 +71,7 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
     cell: ({ row }) => (
       <div className="min-w-[150px]">
         <Badge variant="outline" className="flex items-center gap-2">
-          <DollarSign className="size-3" />
+          <Banknote className="size-3" />
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
