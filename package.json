@@ -44,6 +44,7 @@
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.0.0",
+    "date-fns": "^4.1.0",
     "generate-password": "1.7.1",
     "js-cookie": "3.0.5",
     "jwt-decode": "4.0.0",
@@ -86,5 +87,10 @@
     "prettier-plugin-sort-json": "4.1.1",
     "tailwindcss": "4",
     "typescript": "5"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "sharp"
+    ]
   }
 }
