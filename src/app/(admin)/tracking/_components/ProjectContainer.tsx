@@ -15,7 +15,7 @@ export default function ProjectsContainer() {
       <ProjectsDialogs />
       <ResizablePanelGroup
         direction="horizontal"
-        className="h-full max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full space-x-4"
+        className="h-full max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full space-x-4 border-y"
       >
         <ResizablePanel defaultSize={40} minSize={30} className="py-4 flex flex-col">
           <ProjectList />
