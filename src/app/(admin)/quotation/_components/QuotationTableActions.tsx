@@ -43,7 +43,11 @@ export default function QuotationTableActions({ quotation }: QuotationTableActio
             <Edit className="size-4 mr-2" />
             Editar
           </DropdownMenuItem>
-          <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleDelete}>
+          <DropdownMenuItem
+            className="cursor-pointer text-destructive"
+            onClick={handleDelete}
+            disabled={quotation.isConcrete}
+          >
             <Trash className="size-4 mr-2" />
             Eliminar
           </DropdownMenuItem>
