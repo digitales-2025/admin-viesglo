@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -18,6 +19,7 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/components/ui/sheet";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
 import { CreateProject, ProjectResponse } from "../_types/tracking.types";
+import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
 
 interface Props {
@@ -35,6 +37,7 @@ const formSchema = z.object({
   endDate: z.string().min(1, "La fecha de fin es requerida."),
   status: z.string().min(1, "El estado es requerido."),
   clientId: z.string().min(1, "El cliente es requerido."),
+  services: z.array(z.string()).optional(),
 }) satisfies z.ZodType<CreateProject>;
 
 type ProjectsForm = z.infer<typeof formSchema>;
@@ -42,6 +45,7 @@ type ProjectsForm = z.infer<typeof formSchema>;
 export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
+  const { data: services, isLoading, error } = useServices();
 
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
@@ -59,6 +63,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       clientId: "",
     },
   });
+  console.log("🚀 ~ ProjectsMutateDrawer ~ form:", form.watch());
 
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
@@ -202,7 +207,19 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                   </FormItem>
                 )}
               />
-              <TreeServices />
+              {isLoading && (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </div>
+              )}
+              {error && <div>Error: {error.message}</div>}
+              {services && (
+                <FormField
+                  control={form.control}
+                  name="services"
+                  render={({ field }) => <TreeServices services={services} onChange={field.onChange} />}
+                />
+              )}
             </form>
           </Form>
         </ScrollArea>
