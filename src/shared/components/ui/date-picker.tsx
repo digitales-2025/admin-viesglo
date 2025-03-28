@@ -13,6 +13,7 @@ export interface DatePickerProps {
   onSelect: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 export function DatePicker({
@@ -20,6 +21,7 @@ export function DatePicker({
   onSelect,
   placeholder = "Seleccionar fecha",
   disabled = false,
+  className,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -33,7 +35,11 @@ export function DatePicker({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          className={cn("w-full justify-between text-left font-normal", !selected && "text-muted-foreground")}
+          className={cn(
+            "w-full justify-between text-left font-normal",
+            !selected && "text-muted-foreground",
+            className
+          )}
           disabled={disabled}
         >
           {selected ? format(selected, "PPP", { locale: es }) : <span>{placeholder}</span>}

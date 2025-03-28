@@ -12,6 +12,7 @@ import {
   updateQuotation,
 } from "../_actions/quotation.action";
 import { QuotationConcrete, QuotationCreate, QuotationUpdate } from "../_types/quotation.types";
+import { PAYMENTS_KEYS } from "../../payment/_hooks/usePayments";
 
 export const QUOTATIONS_KEYS = {
   all: ["quotations"] as const,
@@ -136,6 +137,7 @@ export function useConcreteQuotation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.all });
       toast.success("Cotización concretada exitosamente");
     },
     onError: (error: Error) => {

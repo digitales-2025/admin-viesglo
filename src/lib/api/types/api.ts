@@ -774,6 +774,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all payments */
+    get: operations["PaymentController_findAll_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get payment by ID */
+    get: operations["PaymentController_findById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update payment status */
+    patch: operations["PaymentController_updateStatus_v1"];
+    trace?: never;
+  };
+  "/api/v1/payments/{id}/mark-status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Mark payment as paid or unpaid */
+    patch: operations["PaymentController_markStatus_v1"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2429,6 +2497,93 @@ export interface components {
        * @description Archivo del certificado
        */
       fileCertificate?: string;
+    };
+    PaymentResponseDto: {
+      /**
+       * @description Payment ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Payment code
+       * @example PAY-COT-202401-001
+       */
+      code: string;
+      /**
+       * @description Client RUC
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Client business name
+       * @example Empresa SAC
+       */
+      businessName: string;
+      /**
+       * @description Service name
+       * @example Consultoría médica
+       */
+      service: string;
+      /**
+       * @description Payment amount
+       * @example 1500
+       */
+      amount: number;
+      /**
+       * @description Client email
+       * @example juan.perez@empresa.com
+       */
+      email: string;
+      /**
+       * Format: date-time
+       * @description Payment date
+       * @example 2024-01-15T10:00:00Z
+       */
+      paymentDate: string | null;
+      /**
+       * @description Billing code
+       * @example F001-000001
+       */
+      billingCode: string | null;
+      /**
+       * @description Payment status
+       * @example false
+       */
+      isPaid: boolean;
+      /**
+       * @description Associated quotation ID
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      quotationId: string;
+    };
+    UpdatePaymentStatusDto: {
+      /**
+       * @description Payment date
+       * @example 2024-01-15T10:00:00Z
+       */
+      paymentDate: string;
+      /**
+       * @description Billing code
+       * @example F001-000001
+       */
+      billingCode: string;
+    };
+    MarkPaymentStatusDto: {
+      /**
+       * @description Indica si el pago fue realizado
+       * @example true
+       */
+      isPaid: boolean;
+      /**
+       * @description Fecha del pago
+       * @example 2024-01-15T10:00:00Z
+       */
+      paymentDate: string;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode: string;
     };
   };
   responses: never;
@@ -4489,6 +4644,131 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["CertificateResponseDto"][];
         };
+      };
+    };
+  };
+  PaymentController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Payments found */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentResponseDto"][];
+        };
+      };
+    };
+  };
+  PaymentController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Payment ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Payment found */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentResponseDto"];
+        };
+      };
+      /** @description Payment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PaymentController_updateStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Payment ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePaymentStatusDto"];
+      };
+    };
+    responses: {
+      /** @description Payment status updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentResponseDto"];
+        };
+      };
+      /** @description Payment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PaymentController_markStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Payment ID */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MarkPaymentStatusDto"];
+      };
+    };
+    responses: {
+      /** @description Payment status marked */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentResponseDto"];
+        };
+      };
+      /** @description Cannot mark as paid without payment date and billing code */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Payment not found */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
