@@ -73,9 +73,8 @@ export default function ProjectList() {
           </p>
         </div>
       )}
-
       {projects && projects.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-4 h-[calc(100vh-20rem)] overflow-y-auto">
           {projects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}

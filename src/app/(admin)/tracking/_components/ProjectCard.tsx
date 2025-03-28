@@ -31,7 +31,7 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
   return (
     <Card
       className={cn(
-        "h-full shadow-none cursor-pointer select-none",
+        "h-fit shadow-none cursor-pointer select-none",
         selectedProject?.id === project.id && "border-sky-500",
         className
       )}
