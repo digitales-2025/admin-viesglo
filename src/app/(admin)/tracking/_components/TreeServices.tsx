@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, CheckSquare, ChevronDown, ChevronDownSquare, ChevronRight, Folder, Search, X } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
@@ -9,110 +9,59 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
+import { ActivityResponse, ObjectiveResponse, ServiceResponse } from "../../services/_types/services.types";
 
-// Define the data structure types
-type Activity = {
-  id: string;
-  name: string;
+const initialServices: ServiceResponse[] = [];
+
+// Tipos para las selecciones
+type SelectionState = {
+  services: Set<string>;
+  objectives: Set<string>;
+  activities: Set<string>;
 };
 
-type Objective = {
-  id: string;
-  name: string;
-  activities: Activity[];
-};
+// Props para el componente
+interface TreeServicesProps {
+  services: ServiceResponse[];
+  onChange: (selection: any) => void;
+  initialSelection?: SelectionState;
+}
 
-type Service = {
-  id: string;
-  name: string;
-  objectives: Objective[];
-};
-
-// Sample data
-const initialServices: Service[] = [
-  {
-    id: "s1",
-    name: "Consultoría",
-    objectives: [
-      {
-        id: "o1",
-        name: "Mejorar procesos",
-        activities: [
-          { id: "a1", name: "Análisis de procesos actuales" },
-          { id: "a2", name: "Propuesta de mejoras" },
-        ],
-      },
-      {
-        id: "o2",
-        name: "Reducir costos",
-        activities: [
-          { id: "a3", name: "Auditoría de gastos" },
-          { id: "a4", name: "Plan de optimización" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "s2",
-    name: "Desarrollo",
-    objectives: [
-      {
-        id: "o3",
-        name: "Crear aplicaciones",
-        activities: [
-          { id: "a5", name: "Diseño de UI/UX" },
-          { id: "a6", name: "Programación" },
-        ],
-      },
-      {
-        id: "o4",
-        name: "Mantenimiento",
-        activities: [
-          { id: "a7", name: "Corrección de errores" },
-          { id: "a8", name: "Actualizaciones" },
-        ],
-      },
-    ],
-  },
-  {
-    id: "s3",
-    name: "Capacitación",
-    objectives: [
-      {
-        id: "o5",
-        name: "Formar personal",
-        activities: [
-          { id: "a9", name: "Talleres presenciales" },
-          { id: "a10", name: "Cursos online" },
-        ],
-      },
-    ],
-  },
-];
-
-export default function FolderTree() {
-  const [services] = useState<Service[]>(initialServices);
+export default function TreeServices({ services: externalServices, onChange, initialSelection }: TreeServicesProps) {
+  // Usar datos externos si están disponibles, o usar los de muestra si no
+  const [services] = useState<ServiceResponse[]>(externalServices || initialServices);
   const [expandedServices, setExpandedServices] = useState<Set<string>>(new Set());
   const [expandedObjectives, setExpandedObjectives] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredServices, setFilteredServices] = useState<Service[]>(services);
 
   // Track selected items
-  const [selectedServices, setSelectedServices] = useState<Set<string>>(new Set());
-  const [selectedObjectives, setSelectedObjectives] = useState<Set<string>>(new Set());
-  const [selectedActivities, setSelectedActivities] = useState<Set<string>>(new Set());
+  const [selectedServices, setSelectedServices] = useState<Set<string>>(initialSelection?.services || new Set());
+  const [selectedObjectives, setSelectedObjectives] = useState<Set<string>>(initialSelection?.objectives || new Set());
+  const [selectedActivities, setSelectedActivities] = useState<Set<string>>(initialSelection?.activities || new Set());
 
-  // Count selected items
-  const selectedServicesCount = selectedServices.size;
-  const selectedObjectivesCount = selectedObjectives.size;
-  const selectedActivitiesCount = selectedActivities.size;
-  const totalSelectedCount = selectedServicesCount + selectedObjectivesCount + selectedActivitiesCount;
+  // Helpers
+  const setsAreEqual = useCallback((a: Set<string>, b: Set<string>) => {
+    if (a.size !== b.size) return false;
+    for (const item of a) {
+      if (!b.has(item)) return false;
+    }
+    return true;
+  }, []);
 
-  // Filter services based on search term
-  useEffect(() => {
+  // Memoized counts
+  const stats = useMemo(() => {
+    return {
+      selectedServicesCount: selectedServices.size,
+      selectedObjectivesCount: selectedObjectives.size,
+      selectedActivitiesCount: selectedActivities.size,
+      totalSelectedCount: selectedServices.size + selectedObjectives.size + selectedActivities.size,
+    };
+  }, [selectedServices, selectedObjectives, selectedActivities]);
+
+  // Filtrado de servicios memoizado
+  const filteredServices = useMemo(() => {
     if (!searchTerm.trim()) {
-      setFilteredServices(services);
-      return;
+      return services;
     }
 
     const searchTermLower = searchTerm.toLowerCase();
@@ -123,7 +72,7 @@ export default function FolderTree() {
         const serviceMatches = service.name.toLowerCase().includes(searchTermLower);
 
         // Filter objectives
-        const filteredObjectives = service.objectives.filter((objective) => {
+        const filteredObjectives = (service.objectives ?? []).filter((objective) => {
           // Check if objective name matches
           const objectiveMatches = objective.name.toLowerCase().includes(searchTermLower);
 
@@ -132,19 +81,9 @@ export default function FolderTree() {
             activity.name.toLowerCase().includes(searchTermLower)
           );
 
-          // If any activities match, expand this objective
-          if (filteredActivities.length > 0 && !expandedObjectives.has(objective.id)) {
-            setExpandedObjectives((prev) => new Set(prev).add(objective.id));
-          }
-
-          // Include this objective if it matches or has matching activities
+          // If any activities match, include this objective
           return objectiveMatches || filteredActivities.length > 0;
         });
-
-        // If any objectives match, expand this service
-        if (filteredObjectives.length > 0 && !expandedServices.has(service.id)) {
-          setExpandedServices((prev) => new Set(prev).add(service.id));
-        }
 
         // Include this service if it matches or has matching objectives
         if (serviceMatches || filteredObjectives.length > 0) {
@@ -156,168 +95,236 @@ export default function FolderTree() {
 
         return null;
       })
-      .filter(Boolean) as Service[];
+      .filter(Boolean) as ServiceResponse[];
 
-    setFilteredServices(filtered);
-  }, [searchTerm, services]);
+    // Auto-expand matched items
+    if (searchTerm.trim()) {
+      const newExpandedServices = new Set(expandedServices);
+      const newExpandedObjectives = new Set(expandedObjectives);
+
+      filtered.forEach((service) => {
+        newExpandedServices.add(service.id);
+        (service.objectives ?? []).forEach((objective) => {
+          newExpandedObjectives.add(objective.id);
+        });
+      });
+
+      // Solo actualizar si hay cambios para evitar re-renders innecesarios
+      if (!setsAreEqual(newExpandedServices, expandedServices)) {
+        setExpandedServices(newExpandedServices);
+      }
+
+      if (!setsAreEqual(newExpandedObjectives, expandedObjectives)) {
+        setExpandedObjectives(newExpandedObjectives);
+      }
+    }
+
+    return filtered;
+  }, [searchTerm, services, expandedServices, expandedObjectives, setsAreEqual]);
 
   // Toggle service expansion
-  const toggleService = (serviceId: string) => {
-    const newExpanded = new Set(expandedServices);
-    if (newExpanded.has(serviceId)) {
-      newExpanded.delete(serviceId);
-    } else {
-      newExpanded.add(serviceId);
-    }
-    setExpandedServices(newExpanded);
-  };
+  const toggleService = useCallback((serviceId: string) => {
+    setExpandedServices((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(serviceId)) {
+        newExpanded.delete(serviceId);
+      } else {
+        newExpanded.add(serviceId);
+      }
+      return newExpanded;
+    });
+  }, []);
 
   // Toggle objective expansion
-  const toggleObjective = (objectiveId: string) => {
-    const newExpanded = new Set(expandedObjectives);
-    if (newExpanded.has(objectiveId)) {
-      newExpanded.delete(objectiveId);
-    } else {
-      newExpanded.add(objectiveId);
-    }
-    setExpandedObjectives(newExpanded);
-  };
+  const toggleObjective = useCallback((objectiveId: string) => {
+    setExpandedObjectives((prev) => {
+      const newExpanded = new Set(prev);
+      if (newExpanded.has(objectiveId)) {
+        newExpanded.delete(objectiveId);
+      } else {
+        newExpanded.add(objectiveId);
+      }
+      return newExpanded;
+    });
+  }, []);
 
   // Expand all folders
-  const expandAll = () => {
+  const expandAll = useCallback(() => {
     const allServices = new Set<string>();
     const allObjectives = new Set<string>();
 
     services.forEach((service) => {
       allServices.add(service.id);
-      service.objectives.forEach((objective) => {
+      (service.objectives ?? []).forEach((objective) => {
         allObjectives.add(objective.id);
       });
     });
 
     setExpandedServices(allServices);
     setExpandedObjectives(allObjectives);
-  };
+  }, [services]);
 
   // Collapse all folders
-  const collapseAll = () => {
+  const collapseAll = useCallback(() => {
     setExpandedServices(new Set());
     setExpandedObjectives(new Set());
-  };
+  }, []);
 
   // Clear all selections
-  const clearSelections = () => {
+  const clearSelections = useCallback(() => {
     setSelectedServices(new Set());
     setSelectedObjectives(new Set());
     setSelectedActivities(new Set());
-  };
+
+    // Notificar cambio si hay un callback
+    if (onChange) {
+      onChange([]);
+    }
+  }, [onChange]);
 
   // Toggle activity selection
-  const toggleActivitySelection = (
-    serviceId: string,
-    objectiveId: string,
-    activityId: string,
-    e?: React.MouseEvent
-  ) => {
-    if (e) e.stopPropagation();
+  const toggleActivitySelection = useCallback(
+    (serviceId: string, objectiveId: string, activityId: string, e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
 
-    const newSelected = new Set(selectedActivities);
+      setSelectedActivities((prev) => {
+        const newSelected = new Set(prev);
+        if (newSelected.has(activityId)) {
+          newSelected.delete(activityId);
+        } else {
+          newSelected.add(activityId);
 
-    if (newSelected.has(activityId)) {
-      newSelected.delete(activityId);
-    } else {
-      newSelected.add(activityId);
+          // Cuando seleccionamos una actividad, seleccionamos automáticamente sus padres
+          setSelectedServices((prev) => new Set(prev).add(serviceId));
+          setSelectedObjectives((prev) => new Set(prev).add(objectiveId));
+        }
+        return newSelected;
+      });
 
-      // Cuando seleccionamos una actividad, seleccionamos automáticamente sus padres
-      setSelectedServices((prev) => new Set(prev).add(serviceId));
-      setSelectedObjectives((prev) => new Set(prev).add(objectiveId));
-    }
-
-    setSelectedActivities(newSelected);
-  };
+      // Notificar el cambio después de que se actualice el estado
+      setTimeout(() => {
+        if (onChange) {
+          onChange(getSelectionStructure());
+        }
+      }, 0);
+    },
+    []
+  );
 
   // Toggle objective selection
-  const toggleObjectiveSelection = (serviceId: string, objectiveId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const toggleObjectiveSelection = useCallback(
+    (serviceId: string, objectiveId: string, e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
 
-    const newSelected = new Set(selectedObjectives);
+      let shouldUpdateActivities = false;
+      let newActivities = new Set<string>();
 
-    if (newSelected.has(objectiveId)) {
-      newSelected.delete(objectiveId);
+      setSelectedObjectives((prev) => {
+        const newSelected = new Set(prev);
+        if (newSelected.has(objectiveId)) {
+          newSelected.delete(objectiveId);
 
-      // Si deseleccionamos un objetivo, deseleccionamos sus actividades
-      const newActivities = new Set(selectedActivities);
-      services.forEach((service) => {
-        if (service.id === serviceId) {
-          service.objectives.forEach((objective) => {
-            if (objective.id === objectiveId) {
-              objective.activities.forEach((activity) => {
-                newActivities.delete(activity.id);
+          // Si deseleccionamos un objetivo, deseleccionamos sus actividades
+          shouldUpdateActivities = true;
+          newActivities = new Set(selectedActivities);
+          services.forEach((service) => {
+            if (service.id === serviceId) {
+              (service.objectives ?? []).forEach((objective) => {
+                if (objective.id === objectiveId) {
+                  objective.activities.forEach((activity) => {
+                    newActivities.delete(activity.id);
+                  });
+                }
               });
             }
           });
+        } else {
+          newSelected.add(objectiveId);
+
+          // Cuando seleccionamos un objetivo, seleccionamos automáticamente su servicio padre
+          setSelectedServices((prev) => new Set(prev).add(serviceId));
         }
+        return newSelected;
       });
-      setSelectedActivities(newActivities);
-    } else {
-      newSelected.add(objectiveId);
 
-      // Cuando seleccionamos un objetivo, seleccionamos automáticamente su servicio padre
-      setSelectedServices((prev) => new Set(prev).add(serviceId));
-    }
+      // Actualizar actividades si es necesario
+      if (shouldUpdateActivities) {
+        setSelectedActivities(newActivities);
+      }
 
-    setSelectedObjectives(newSelected);
+      // Auto-expand when selecting an objective
+      if (!expandedObjectives.has(objectiveId)) {
+        setExpandedObjectives((prev) => new Set(prev).add(objectiveId));
+      }
 
-    // Auto-expand when selecting an objective
-    if (!expandedObjectives.has(objectiveId) && !newSelected.has(objectiveId)) {
-      const newExpanded = new Set(expandedObjectives);
-      newExpanded.add(objectiveId);
-      setExpandedObjectives(newExpanded);
-    }
-  };
+      // Notificar el cambio después de que se actualice el estado
+      setTimeout(() => {
+        if (onChange) {
+          onChange(getSelectionStructure());
+        }
+      }, 0);
+    },
+    [expandedObjectives, selectedActivities, services]
+  );
 
   // Toggle service selection
-  const toggleServiceSelection = (serviceId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const toggleServiceSelection = useCallback(
+    (serviceId: string, e?: React.MouseEvent) => {
+      if (e) e.stopPropagation();
 
-    const newSelected = new Set(selectedServices);
+      let shouldUpdateChildren = false;
+      let newObjectives = new Set<string>();
+      let newActivities = new Set<string>();
 
-    if (newSelected.has(serviceId)) {
-      newSelected.delete(serviceId);
+      setSelectedServices((prev) => {
+        const newSelected = new Set(prev);
+        if (newSelected.has(serviceId)) {
+          newSelected.delete(serviceId);
 
-      // Si deseleccionamos un servicio, deseleccionamos sus objetivos y actividades
-      const newObjectives = new Set(selectedObjectives);
-      const newActivities = new Set(selectedActivities);
+          // Si deseleccionamos un servicio, deseleccionamos sus objetivos y actividades
+          shouldUpdateChildren = true;
+          newObjectives = new Set(selectedObjectives);
+          newActivities = new Set(selectedActivities);
 
-      services.forEach((service) => {
-        if (service.id === serviceId) {
-          service.objectives.forEach((objective) => {
-            newObjectives.delete(objective.id);
-            objective.activities.forEach((activity) => {
-              newActivities.delete(activity.id);
-            });
+          services.forEach((service) => {
+            if (service.id === serviceId) {
+              (service.objectives ?? []).forEach((objective) => {
+                newObjectives.delete(objective.id);
+                objective.activities.forEach((activity) => {
+                  newActivities.delete(activity.id);
+                });
+              });
+            }
           });
+        } else {
+          newSelected.add(serviceId);
         }
+        return newSelected;
       });
 
-      setSelectedObjectives(newObjectives);
-      setSelectedActivities(newActivities);
-    } else {
-      newSelected.add(serviceId);
-    }
+      // Actualizar hijos si es necesario
+      if (shouldUpdateChildren) {
+        setSelectedObjectives(newObjectives);
+        setSelectedActivities(newActivities);
+      }
 
-    setSelectedServices(newSelected);
+      // Auto-expand when selecting a service
+      if (!expandedServices.has(serviceId)) {
+        setExpandedServices((prev) => new Set(prev).add(serviceId));
+      }
 
-    // Auto-expand when selecting a service
-    if (!expandedServices.has(serviceId) && !newSelected.has(serviceId)) {
-      const newExpanded = new Set(expandedServices);
-      newExpanded.add(serviceId);
-      setExpandedServices(newExpanded);
-    }
-  };
+      // Notificar el cambio después de que se actualice el estado
+      setTimeout(() => {
+        if (onChange) {
+          onChange(getSelectionStructure());
+        }
+      }, 0);
+    },
+    [expandedServices, selectedObjectives, selectedActivities, services, onChange]
+  );
 
   // Get the current selection structure
-  const getSelectionStructure = () => {
+  const getSelectionStructure = useCallback(() => {
     const result: any[] = [];
 
     services.forEach((service) => {
@@ -329,7 +336,7 @@ export default function FolderTree() {
         };
 
         // Add objectives if any are selected
-        service.objectives.forEach((objective) => {
+        (service.objectives ?? []).forEach((objective) => {
           if (selectedObjectives.has(objective.id)) {
             const objectiveObj = {
               id: objective.id,
@@ -356,7 +363,179 @@ export default function FolderTree() {
     });
 
     return result;
-  };
+  }, [services, selectedServices, selectedObjectives, selectedActivities]);
+
+  // Componentes memoizados para evitar re-renders
+  const SearchBar = useMemo(
+    () => (
+      <div className="relative flex-1">
+        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="pl-8"
+        />
+        {searchTerm && (
+          <button onClick={() => setSearchTerm("")} className="absolute right-2 top-2.5">
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        )}
+      </div>
+    ),
+    [searchTerm]
+  );
+
+  const ToolbarButtons = useMemo(
+    () => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button type="button" variant="outline" size="sm" onClick={expandAll}>
+              <ChevronDownSquare className="h-4 w-4 mr-1" />
+              Expandir
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Expandir todos los niveles</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button type="button" variant="outline" size="sm" onClick={collapseAll}>
+              <ChevronRight className="h-4 w-4 mr-1" />
+              Contraer
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Contraer todos los niveles</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button type="button" variant="outline" size="sm" onClick={clearSelections}>
+              <X className="h-4 w-4 mr-1" />
+              Limpiar
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Limpiar todas las selecciones</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
+    [expandAll, collapseAll, clearSelections]
+  );
+
+  // Renderizado optimizado de actividades
+  const renderActivity = useCallback(
+    (service: ServiceResponse, objective: ObjectiveResponse, activity: ActivityResponse) => (
+      <div
+        key={activity.id}
+        className={cn(
+          "flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors ml-4",
+          selectedActivities.has(activity.id) && "bg-accent/40"
+        )}
+        onClick={(e) => toggleActivitySelection(service.id, objective.id, activity.id, e)}
+      >
+        <button
+          type="button"
+          className={cn(
+            "flex items-center justify-center w-5 h-5 border rounded transition-colors",
+            selectedActivities.has(activity.id) && "bg-primary border-primary"
+          )}
+          onClick={(e) => toggleActivitySelection(service.id, objective.id, activity.id, e)}
+        >
+          {selectedActivities.has(activity.id) ? <Check size={14} className="text-primary-foreground" /> : null}
+        </button>
+        <Folder size={18} className="text-green-500" />
+        <span className="flex-1">{activity.name}</span>
+      </div>
+    ),
+    [selectedActivities, toggleActivitySelection]
+  );
+
+  // Renderizado optimizado de objetivos
+  const renderObjective = useCallback(
+    (service: ServiceResponse, objective: ObjectiveResponse) => (
+      <div key={objective.id} className="space-y-1 mt-1">
+        <div
+          className={cn(
+            "flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors",
+            selectedObjectives.has(objective.id) && "bg-accent/40"
+          )}
+          onClick={() => toggleObjective(objective.id)}
+        >
+          <button
+            type="button"
+            className="p-1 rounded-full hover:bg-muted"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleObjective(objective.id);
+            }}
+          >
+            {expandedObjectives.has(objective.id) ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+          </button>
+          <button
+            type="button"
+            className={cn(
+              "flex items-center justify-center w-5 h-5 border rounded transition-colors",
+              selectedObjectives.has(objective.id) && "bg-primary border-primary"
+            )}
+            onClick={(e) => toggleObjectiveSelection(service.id, objective.id, e)}
+          >
+            {selectedObjectives.has(objective.id) ? <Check size={14} className="text-primary-foreground" /> : null}
+          </button>
+          <Folder size={18} className="text-yellow-500" />
+          <span
+            className="flex-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleObjectiveSelection(service.id, objective.id);
+            }}
+          >
+            {objective.name}
+          </span>
+
+          {/* Show count of selected activities */}
+          {objective.activities.some((act) => selectedActivities.has(act.id)) && (
+            <Badge variant="outline" className="ml-auto">
+              {objective.activities.filter((act) => selectedActivities.has(act.id)).length}/
+              {objective.activities.length}
+            </Badge>
+          )}
+        </div>
+
+        {expandedObjectives.has(objective.id) && (
+          <div className="ml-6 pl-2 border-l-2 border-muted">
+            {objective.activities.map((activity) => renderActivity(service, objective, activity))}
+          </div>
+        )}
+      </div>
+    ),
+    [
+      selectedObjectives,
+      expandedObjectives,
+      toggleObjective,
+      toggleObjectiveSelection,
+      selectedActivities,
+      renderActivity,
+    ]
+  );
+
+  // Efecto para actualizar las selecciones si cambian desde fuera
+  useEffect(() => {
+    if (initialSelection) {
+      setSelectedServices(new Set(initialSelection.services));
+      setSelectedObjectives(new Set(initialSelection.objectives));
+      setSelectedActivities(new Set(initialSelection.activities));
+    }
+  }, [initialSelection]);
+
+  // Efecto para actualizar si cambian los datos externos
+  useEffect(() => {
+    if (externalServices) {
+      // Resetear expansiones al cambiar los datos
+      setExpandedServices(new Set());
+      setExpandedObjectives(new Set());
+    }
+  }, [externalServices]);
 
   return (
     <fieldset className="flex flex-col border rounded-lg p-4">
@@ -365,68 +544,21 @@ export default function FolderTree() {
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {totalSelectedCount > 0 && (
+              {stats.totalSelectedCount > 0 && (
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline">Servicios: {selectedServicesCount}</Badge>
-                  <Badge variant="outline">Objetivos: {selectedObjectivesCount}</Badge>
-                  <Badge variant="outline">Actividades: {selectedActivitiesCount}</Badge>
+                  <Badge variant="outline">Servicios: {stats.selectedServicesCount}</Badge>
+                  <Badge variant="outline">Objetivos: {stats.selectedObjectivesCount}</Badge>
+                  <Badge variant="outline">Actividades: {stats.selectedActivitiesCount}</Badge>
                 </div>
               )}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Buscar..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-8"
-              />
-              {searchTerm && (
-                <button onClick={() => setSearchTerm("")} className="absolute right-2 top-2.5">
-                  <X className="h-4 w-4 text-muted-foreground" />
-                </button>
-              )}
-            </div>
-          </div>
+          <div className="flex items-center gap-2">{SearchBar}</div>
 
-          <div className="flex flex-wrap gap-2 justify-end">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" onClick={expandAll}>
-                    <ChevronDownSquare className="h-4 w-4 mr-1" />
-                    Expandir
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Expandir todos los niveles</TooltipContent>
-              </Tooltip>
+          <div className="flex flex-wrap gap-2 justify-end">{ToolbarButtons}</div>
 
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" onClick={collapseAll}>
-                    <ChevronRight className="h-4 w-4 mr-1" />
-                    Contraer
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Contraer todos los niveles</TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button type="button" variant="outline" size="sm" onClick={clearSelections}>
-                    <X className="h-4 w-4 mr-1" />
-                    Limpiar
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Limpiar todas las selecciones</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-
-          <div className="space-y-2 overflow-auto pr-2">
+          <div className="space-y-2 overflow-auto pr-2 max-h-[600px]">
             {filteredServices.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">No se encontraron resultados</div>
             ) : (
@@ -473,102 +605,17 @@ export default function FolderTree() {
                     </span>
 
                     {/* Show count of selected objectives */}
-                    {service.objectives.some((obj) => selectedObjectives.has(obj.id)) && (
+                    {(service.objectives ?? []).some((obj) => selectedObjectives.has(obj.id)) && (
                       <Badge variant="outline" className="ml-auto">
-                        {service.objectives.filter((obj) => selectedObjectives.has(obj.id)).length}/
-                        {service.objectives.length}
+                        {(service.objectives ?? []).filter((obj) => selectedObjectives.has(obj.id)).length}/
+                        {(service.objectives ?? []).length}
                       </Badge>
                     )}
                   </div>
 
                   {expandedServices.has(service.id) && (
                     <div className="ml-6 pl-2 border-l-2 border-muted">
-                      {service.objectives.map((objective) => (
-                        <div key={objective.id} className="space-y-1 mt-1">
-                          <div
-                            className={cn(
-                              "flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors",
-                              selectedObjectives.has(objective.id) && "bg-accent/40"
-                            )}
-                            onClick={() => toggleObjective(objective.id)}
-                          >
-                            <button
-                              type="button"
-                              className="p-1 rounded-full hover:bg-muted"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleObjective(objective.id);
-                              }}
-                            >
-                              {expandedObjectives.has(objective.id) ? (
-                                <ChevronDown size={16} />
-                              ) : (
-                                <ChevronRight size={16} />
-                              )}
-                            </button>
-                            <button
-                              type="button"
-                              className={cn(
-                                "flex items-center justify-center w-5 h-5 border rounded transition-colors",
-                                selectedObjectives.has(objective.id) && "bg-primary border-primary"
-                              )}
-                              onClick={(e) => toggleObjectiveSelection(service.id, objective.id, e)}
-                            >
-                              {selectedObjectives.has(objective.id) ? (
-                                <Check size={14} className="text-primary-foreground" />
-                              ) : null}
-                            </button>
-                            <Folder size={18} className="text-yellow-500" />
-                            <span
-                              className="flex-1"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleObjectiveSelection(service.id, objective.id);
-                              }}
-                            >
-                              {objective.name}
-                            </span>
-
-                            {/* Show count of selected activities */}
-                            {objective.activities.some((act) => selectedActivities.has(act.id)) && (
-                              <Badge variant="outline" className="ml-auto">
-                                {objective.activities.filter((act) => selectedActivities.has(act.id)).length}/
-                                {objective.activities.length}
-                              </Badge>
-                            )}
-                          </div>
-
-                          {expandedObjectives.has(objective.id) && (
-                            <div className="ml-6 pl-2 border-l-2 border-muted">
-                              {objective.activities.map((activity) => (
-                                <div
-                                  key={activity.id}
-                                  className={cn(
-                                    "flex items-center gap-2 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors ml-4",
-                                    selectedActivities.has(activity.id) && "bg-accent/40"
-                                  )}
-                                  onClick={(e) => toggleActivitySelection(service.id, objective.id, activity.id, e)}
-                                >
-                                  <button
-                                    type="button"
-                                    className={cn(
-                                      "flex items-center justify-center w-5 h-5 border rounded transition-colors",
-                                      selectedActivities.has(activity.id) && "bg-primary border-primary"
-                                    )}
-                                    onClick={(e) => toggleActivitySelection(service.id, objective.id, activity.id, e)}
-                                  >
-                                    {selectedActivities.has(activity.id) ? (
-                                      <Check size={14} className="text-primary-foreground" />
-                                    ) : null}
-                                  </button>
-                                  <Folder size={18} className="text-green-500" />
-                                  <span className="flex-1">{activity.name}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                      {(service.objectives ?? []).map((objective) => renderObjective(service, objective))}
                     </div>
                   )}
                 </div>
@@ -577,36 +624,32 @@ export default function FolderTree() {
           </div>
         </div>
 
-        <pre className="whitespace-pre-wrap overflow-auto max-h-[500px]">
-          {JSON.stringify(getSelectionStructure(), null, 2)}
-        </pre>
-      </div>
-
-      <div className="bg-muted p-4 text-muted-foreground text-xs space-y-2">
-        <p className="text-sm font-bold">Guía de Uso</p>
-        <div className="flex items-center gap-2">
-          <CheckSquare className="size-3 text-primary" />
-          <span>Haz clic en el checkbox para seleccionar un elemento</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ChevronDown className="size-3 text-primary" />
-          <span>Haz clic en las flechas para expandir/contraer carpetas</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ChevronDownSquare className="size-3 text-primary" />
-          <span>Usa "Expandir" para abrir todas las carpetas</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <ChevronRight className="size-3 text-primary" />
-          <span>Usa "Contraer" para cerrar todas las carpetas</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <X className="size-3 text-primary" />
-          <span>Usa "Limpiar" para deseleccionar todo</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Search className="size-3 text-primary" />
-          <span>Usa la búsqueda para encontrar elementos rápidamente</span>
+        <div className="bg-muted p-4 text-muted-foreground text-xs space-y-2">
+          <p className="text-sm font-bold">Guía de Uso</p>
+          <div className="flex items-center gap-2">
+            <CheckSquare className="size-3 text-primary" />
+            <span>Haz clic en el checkbox para seleccionar un elemento</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ChevronDown className="size-3 text-primary" />
+            <span>Haz clic en las flechas para expandir/contraer carpetas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ChevronDownSquare className="size-3 text-primary" />
+            <span>Usa "Expandir" para abrir todas las carpetas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ChevronRight className="size-3 text-primary" />
+            <span>Usa "Contraer" para cerrar todas las carpetas</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <X className="size-3 text-primary" />
+            <span>Usa "Limpiar" para deseleccionar todo</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Search className="size-3 text-primary" />
+            <span>Usa la búsqueda para encontrar elementos rápidamente</span>
+          </div>
         </div>
       </div>
     </fieldset>
