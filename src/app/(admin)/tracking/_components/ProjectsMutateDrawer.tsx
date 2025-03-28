@@ -63,8 +63,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       clientId: "",
     },
   });
-  console.log("🚀 ~ ProjectsMutateDrawer ~ form:", form.watch());
-
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
       updateProject(
