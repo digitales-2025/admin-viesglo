@@ -72,7 +72,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Pagos",
           icon: Banknote,
-          url: "/payments",
+          url: "/payment",
         },
       ],
     },
