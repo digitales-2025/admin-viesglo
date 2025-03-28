@@ -1,6 +1,16 @@
 import { create } from "zustand";
 
-export type DialogType = "create" | "edit" | "delete" | "view" | "import" | "export" | "details" | "concrete" | null;
+export type DialogType =
+  | "create"
+  | "edit"
+  | "delete"
+  | "view"
+  | "import"
+  | "export"
+  | "details"
+  | "concrete"
+  | "update"
+  | null;
 
 interface DialogState<T = any> {
   // Estado
