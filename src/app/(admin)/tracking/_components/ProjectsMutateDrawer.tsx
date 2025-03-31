@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import {
   Form,
@@ -19,6 +20,7 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/shared/components/ui/sheet";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
 import { CreateProject, ProjectResponse } from "../_types/tracking.types";
+import { searchClients } from "../../clients/_actions/clients.actions";
 import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
 
@@ -46,6 +48,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { data: services, isLoading, error } = useServices();
+  const [selectedClient, setSelectedClient] = useState<AutocompleteItem | null>(null);
 
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
@@ -63,6 +66,42 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       clientId: "",
     },
   });
+
+  // Función para buscar clientes optimizada con debounce incorporado en el Autocomplete
+  const fetchClients = useCallback(async (query: string): Promise<AutocompleteItem[]> => {
+    if (!query || query.length < 2) return [];
+
+    try {
+      const response = await searchClients(query);
+      if (!response.success) {
+        throw new Error(response.error || "Error al buscar clientes");
+      }
+
+      return response.data.map((client) => ({
+        id: client.id,
+        name: client.name,
+        ruc: client.ruc,
+        email: client.email,
+      }));
+    } catch (error) {
+      console.error("Error al buscar clientes:", error);
+      return [];
+    }
+  }, []);
+
+  // Efecto para establecer el cliente seleccionado cuando se edita
+  useEffect(() => {
+    if (isUpdate && currentRow?.id && currentRow.client) {
+      const client: AutocompleteItem = {
+        id: currentRow.client.id,
+        name: currentRow.client.name,
+      };
+      setSelectedClient(client);
+    } else {
+      setSelectedClient(null);
+    }
+  }, [isUpdate, currentRow]);
+
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
       updateProject(
@@ -154,8 +193,22 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                   <FormItem className="space-y-1">
                     <FormLabel>Buscar cliente</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
+                      <Autocomplete
+                        value={selectedClient}
+                        onChange={(client) => {
+                          setSelectedClient(client);
+                          field.onChange(client ? client.id : "");
+                        }}
+                        onSearch={fetchClients}
+                        placeholder="Buscar cliente por nombre, RUC o email"
+                        minChars={2}
+                        debounceTime={300}
+                        noResultsText="No se encontraron clientes"
+                        loadingText="Buscando clientes..."
+                        disabled={isPending}
+                      />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
