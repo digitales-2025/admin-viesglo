@@ -27,6 +27,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
 import { CreateProject, ProjectResponse } from "../_types/tracking.types";
 import { searchClients } from "../../clients/_actions/clients.actions";
@@ -46,8 +47,8 @@ interface ExtendedProjectResponse extends ProjectResponse {
 }
 
 const formSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido."),
   typeContract: z.string().min(1, "El tipo de contrato es requerido."),
+  description: z.string().optional(),
   startDate: z.string().optional(),
   clientId: z.string().min(1, "El cliente es requerido."),
   services: z
@@ -86,8 +87,8 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const form = useForm<ProjectsForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       typeContract: "",
+      description: "",
       startDate: "",
       clientId: "",
       services: [],
@@ -158,16 +159,16 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         })) || [];
 
       form.reset({
-        name: extendedCurrentRow.name || "",
         typeContract: extendedCurrentRow.typeContract || "",
+        description: extendedCurrentRow.description || "",
         startDate: extendedCurrentRow.startDate || "",
         clientId: extendedCurrentRow.client?.id || "",
         services: serviceSelection,
       });
     } else {
       form.reset({
-        name: "",
         typeContract: "",
+        description: "",
         startDate: "",
         clientId: "",
         services: [],
@@ -179,8 +180,8 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   useEffect(() => {
     if (!open) {
       form.reset({
-        name: "",
         typeContract: "",
+        description: "",
         startDate: "",
         clientId: "",
         services: [],
@@ -251,23 +252,21 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                     <FormControl>
                       <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
                     </FormControl>
-                    <FormDescription>
-                      El tipo de contrato es el tipo de contrato que se le otorga al proyecto.
-                    </FormDescription>
+                    <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
                 control={form.control}
-                name="name"
+                name="description"
                 render={({ field }) => (
                   <FormItem className="space-y-1">
-                    <FormLabel>Nombre</FormLabel>
+                    <FormLabel>Descripción</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
+                      <Textarea {...field} placeholder="Ingrese una descripción" disabled={isPending} />
                     </FormControl>
-                    <FormDescription>El nombre es el nombre del proyecto.</FormDescription>
+                    <FormDescription>Una descripción breve del proyecto.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
