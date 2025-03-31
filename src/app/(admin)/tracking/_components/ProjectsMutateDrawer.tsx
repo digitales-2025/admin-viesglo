@@ -50,44 +50,32 @@ const formSchema = z.object({
   typeContract: z.string().min(1, "El tipo de contrato es requerido."),
   startDate: z.string().optional(),
   clientId: z.string().min(1, "El cliente es requerido."),
-  services: z.array(z.string()).min(1, "Debe seleccionar al menos un servicio."),
+  services: z
+    .array(
+      z.object({
+        serviceId: z.string(),
+        objectives: z.array(
+          z.object({
+            objectiveId: z.string(),
+            activities: z.array(
+              z.object({
+                activityId: z.string(),
+              })
+            ),
+          })
+        ),
+      })
+    )
+    .optional(),
 }) satisfies z.ZodType<CreateProject>;
 
 type ProjectsForm = z.infer<typeof formSchema>;
-
-// Tipo para el estado de selección en TreeServices
-interface SelectionState {
-  services: Set<string>;
-  objectives: Set<string>;
-  activities: Set<string>;
-}
-
-// Tipo para la estructura de datos del TreeServices
-interface TreeServiceData {
-  id: string;
-  name: string;
-  objectives?: Array<{
-    id: string;
-    name: string;
-    activities: Array<{
-      id: string;
-      name: string;
-    }>;
-  }>;
-}
 
 export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { data: services, isLoading, error } = useServices();
   const [selectedClient, setSelectedClient] = useState<AutocompleteItem | null>(null);
-
-  // Estado para manejar las selecciones del árbol de servicios
-  const [selectionState, setSelectionState] = useState<SelectionState>({
-    services: new Set<string>(),
-    objectives: new Set<string>(),
-    activities: new Set<string>(),
-  });
 
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
@@ -105,7 +93,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       services: [],
     },
   });
-
   // Función para buscar clientes optimizada con debounce incorporado en el Autocomplete
   const fetchClients = useCallback(async (query: string): Promise<AutocompleteItem[]> => {
     if (!query || query.length < 2) return [];
@@ -128,61 +115,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
     }
   }, []);
 
-  // Procesador para convertir la estructura anidada del TreeServices a un array de IDs
-  const processTreeSelection = useCallback((treeData: TreeServiceData[]) => {
-    // Extraer solo los IDs de los servicios seleccionados
-    const serviceIds = treeData.map((service) => service.id);
-    return serviceIds;
-  }, []);
-
-  // Manejador de cambios del TreeServices
-  const handleServicesChange = useCallback(
-    (treeData: TreeServiceData[]) => {
-      // Procesar la estructura del árbol para obtener solo los IDs
-      const serviceIds = processTreeSelection(treeData);
-
-      // Actualizar el formulario con los IDs de servicios
-      form.setValue("services", serviceIds, {
-        shouldValidate: true,
-        shouldDirty: true,
-        shouldTouch: true,
-      });
-
-      // También almacenar el estado completo de selección si es necesario
-      if (treeData && treeData.length > 0) {
-        // Extraer los conjuntos de IDs de servicios, objetivos y actividades
-        const servicesSet = new Set<string>(serviceIds);
-        const objectivesSet = new Set<string>();
-        const activitiesSet = new Set<string>();
-
-        // Recorrer la estructura para extraer objetivos y actividades
-        treeData.forEach((service) => {
-          (service.objectives || []).forEach((objective) => {
-            objectivesSet.add(objective.id);
-
-            (objective.activities || []).forEach((activity) => {
-              activitiesSet.add(activity.id);
-            });
-          });
-        });
-
-        setSelectionState({
-          services: servicesSet,
-          objectives: objectivesSet,
-          activities: activitiesSet,
-        });
-      } else {
-        // Resetear el estado si no hay selecciones
-        setSelectionState({
-          services: new Set<string>(),
-          objectives: new Set<string>(),
-          activities: new Set<string>(),
-        });
-      }
-    },
-    [form, processTreeSelection]
-  );
-
   // Efecto para establecer el cliente seleccionado cuando se edita
   useEffect(() => {
     if (isUpdate && currentRow?.id && currentRow.client) {
@@ -195,30 +127,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       setSelectedClient(null);
     }
   }, [isUpdate, currentRow]);
-
-  // Inicializar el estado de selección desde los servicios actuales del proyecto
-  useEffect(() => {
-    if (isUpdate && extendedCurrentRow?.id && extendedCurrentRow.services && services) {
-      // Mapear los IDs de los servicios del proyecto actual
-      const projectServiceIds = extendedCurrentRow.services.map((service) => service.id);
-
-      // Actualizar el formulario con los IDs
-      form.setValue("services", projectServiceIds, { shouldValidate: true });
-
-      // También actualizar el estado de selección para el TreeServices
-      const servicesSet = new Set<string>(projectServiceIds);
-
-      // Aquí deberías reconstruir también los sets de objetivos y actividades
-      // basándote en los servicios seleccionados, pero necesitarías
-      // más información de la estructura completa
-
-      setSelectionState({
-        services: servicesSet,
-        objectives: new Set<string>(),
-        activities: new Set<string>(),
-      });
-    }
-  }, [isUpdate, extendedCurrentRow, services, form]);
 
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
@@ -243,12 +151,18 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
 
   useEffect(() => {
     if (isUpdate && extendedCurrentRow?.id) {
+      const serviceSelection =
+        extendedCurrentRow.services?.map((s) => ({
+          serviceId: s.id,
+          objectives: [],
+        })) || [];
+
       form.reset({
         name: extendedCurrentRow.name || "",
         typeContract: extendedCurrentRow.typeContract || "",
         startDate: extendedCurrentRow.startDate || "",
         clientId: extendedCurrentRow.client?.id || "",
-        services: extendedCurrentRow.services?.map((s) => s.id) || [],
+        services: serviceSelection,
       });
     } else {
       form.reset({
@@ -270,13 +184,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         startDate: "",
         clientId: "",
         services: [],
-      });
-
-      // Resetear también el estado de selección
-      setSelectionState({
-        services: new Set<string>(),
-        objectives: new Set<string>(),
-        activities: new Set<string>(),
       });
     }
   }, [open, form]);
@@ -395,16 +302,13 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                 <FormField
                   control={form.control}
                   name="services"
-                  render={({}) => (
+                  render={({ field }) => (
                     <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
+                      <FormLabel>Servicios del proyecto</FormLabel>
                       <FormControl>
-                        <TreeServices
-                          services={services}
-                          onChange={handleServicesChange}
-                          initialSelection={selectionState}
-                        />
+                        <TreeServices services={services} value={field.value} onChange={field.onChange} />
                       </FormControl>
-                      <FormMessage className="mt-2" />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
