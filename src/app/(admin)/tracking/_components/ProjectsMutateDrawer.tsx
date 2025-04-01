@@ -40,12 +40,6 @@ interface Props {
   currentRow?: ProjectResponse;
 }
 
-// Ampliar el tipo ProjectResponse para incluir servicios
-interface ExtendedProjectResponse extends ProjectResponse {
-  name?: string;
-  services?: Array<{ id: string; name?: string }>;
-}
-
 const formSchema = z.object({
   typeContract: z.string().min(1, "El tipo de contrato es requerido."),
   description: z.string().optional(),
@@ -68,7 +62,7 @@ const formSchema = z.object({
       })
     )
     .optional(),
-}) satisfies z.ZodType<CreateProject>;
+});
 
 type ProjectsForm = z.infer<typeof formSchema>;
 
@@ -82,7 +76,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const isPending = isCreating || isUpdating;
 
   // Cast currentRow a ExtendedProjectResponse para acceder a services
-  const extendedCurrentRow = currentRow as ExtendedProjectResponse | undefined;
+  const extendedCurrentRow = currentRow as ProjectResponse | undefined;
 
   const form = useForm<ProjectsForm>({
     resolver: zodResolver(formSchema),
@@ -141,7 +135,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         }
       );
     } else {
-      createProject(data, {
+      createProject(data as CreateProject, {
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
