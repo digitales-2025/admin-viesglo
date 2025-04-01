@@ -10,6 +10,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import { ProjectResponse } from "../_types/tracking.types";
+import { calculatePercentageProject } from "../_utils/calculateTracking";
 
 interface ProjectCardProps {
   className?: string;
@@ -19,6 +20,7 @@ interface ProjectCardProps {
 export default function ProjectCard({ className, project }: ProjectCardProps) {
   const { setSelectedProject, selectedProject } = useProjectStore();
 
+  const percentageProject = calculatePercentageProject(project);
   const handleClick = () => {
     if (selectedProject?.id === project.id) {
       setSelectedProject(null);
@@ -41,8 +43,21 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
         <CardTitle className="first-letter:uppercase">{project.typeContract}</CardTitle>
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
-      <CardContent>
-        <Progress value={project.status === "active" ? 50 : 20} color="bg-emerald-500" className="bg-emerald-500/10" />
+      <CardContent className="grid grid-cols-[1fr_auto] gap-4 items-center">
+        <Progress
+          value={percentageProject}
+          color={cn(
+            percentageProject >= 90 && "bg-teal-500",
+            percentageProject >= 100 && "bg-emerald-500",
+            percentageProject >= 50 && "bg-yellow-500",
+            percentageProject < 50 && "bg-orange-500"
+          )}
+          className="bg-slate-500/10"
+        />
+        <div className="flex flex-row gap-2 items-center">
+          <span className="text-sm font-medium">{percentageProject}%</span>
+          <span className="text-xs text-muted-foreground">Completado</span>
+        </div>
       </CardContent>
       <CardFooter className="flex items-center gap-4">
         <Badge variant="outline" className="flex items-center gap-2 text-muted-foreground ">

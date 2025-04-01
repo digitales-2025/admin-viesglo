@@ -3,18 +3,15 @@ import { Plus } from "lucide-react";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { useServicesProject } from "../_hooks/useServicesProject";
+import { ProjectResponse } from "../_types/tracking.types";
 import ProjectServiceCard from "./ProjectServiceCard";
 
 interface ProjectServicesProps {
-  projectId: string;
+  project: ProjectResponse;
 }
 
-export default function ProjectServices({ projectId }: ProjectServicesProps) {
-  const { data: services, isLoading, error } = useServicesProject(projectId);
-  if (isLoading) return <div>Cargando...</div>;
-  if (error) return <AlertMessage title="Error" description={error.message} variant="destructive" />;
-  if (!services)
+export default function ProjectServices({ project }: ProjectServicesProps) {
+  if (!project)
     return (
       <AlertMessage
         title="No hay servicios"
@@ -26,7 +23,7 @@ export default function ProjectServices({ projectId }: ProjectServicesProps) {
     <div className="flex flex-col gap-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-bold flex items-center gap-2">
-          Servicios <Badge variant="outline">{services.length}</Badge>
+          Servicios <Badge variant="outline">{project.services.length}</Badge>
         </h3>
         <Button variant="outline" onClick={() => open("services", "create")}>
           <Plus className="size-4 mr-2" />
@@ -34,8 +31,8 @@ export default function ProjectServices({ projectId }: ProjectServicesProps) {
         </Button>
       </div>
       <div className="flex flex-col gap-4">
-        {services.length > 0 ? (
-          services.map((service) => <ProjectServiceCard key={service.id} service={service} />)
+        {project.services.length > 0 ? (
+          project.services.map((service) => <ProjectServiceCard key={service.id} service={service} />)
         ) : (
           <AlertMessage
             title="No hay servicios"

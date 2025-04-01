@@ -1,20 +1,20 @@
 import { components } from "@/lib/api/types/api";
 
-export type ProjectResponse = components["schemas"]["ProjectResponseDto"] & {
+export type ProjectResponse = Omit<components["schemas"]["ProjectResponseDto"], "services"> & {
   services: ProjectServiceResponse[];
 };
 export type CreateProject = components["schemas"]["CreateProjectDto"];
 export type UpdateProject = components["schemas"]["UpdateProjectDto"];
 
 // Servicios de un proyecto
-export type ProjectServiceResponse = components["schemas"]["ProjectServiceResponseDto"] & {
+export type ProjectServiceResponse = Omit<components["schemas"]["ProjectServiceResponseDto"], "objectives"> & {
   objectives: ProjectObjectiveResponse[];
 };
 export type CreateProjectService = components["schemas"]["CreateProjectServiceDto"];
 export type UpdateProjectService = components["schemas"]["UpdateProjectServiceDto"];
 
 // Objetivos de un proyecto
-export type ProjectObjectiveResponse = components["schemas"]["ProjectObjectiveResponseDto"] & {
+export type ProjectObjectiveResponse = Omit<components["schemas"]["ProjectObjectiveResponseDto"], "activities"> & {
   activities: ProjectActivityResponse[];
 };
 export type CreateProjectObjective = components["schemas"]["CreateProjectObjectiveDto"];

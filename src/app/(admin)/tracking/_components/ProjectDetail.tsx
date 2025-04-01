@@ -4,7 +4,7 @@ import { es } from "date-fns/locale";
 import { ClockArrowUp, User } from "lucide-react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import ProjectServices from "./ProjectServices";
 
@@ -44,12 +44,9 @@ export default function ProjectDetail() {
               </strong>
             </div>
           </div>
-          <ProjectServices projectId={selectedProject?.id} />
+          <ProjectServices project={selectedProject} />
         </div>
       </CardContent>
-      <CardFooter>
-        <p>Card Footer</p>
-      </CardFooter>
     </Card>
   );
 }

@@ -1865,6 +1865,12 @@ export interface components {
        */
       isActive: boolean;
       /**
+       * @description Estado de la actividad
+       * @example PENDING
+       * @enum {string}
+       */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+      /**
        * Format: date-time
        * @description Fecha de creación
        * @example 2023-01-01T00:00:00.000Z
@@ -2154,6 +2160,8 @@ export interface components {
       evidenceRequired: boolean;
       evidence?: string;
       isActive: boolean;
+      /** @enum {string} */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
