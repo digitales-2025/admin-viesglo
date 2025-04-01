@@ -38,7 +38,7 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
       onClick={handleClick}
     >
       <CardHeader>
-        <CardTitle>{project.typeContract}</CardTitle>
+        <CardTitle className="first-letter:uppercase">{project.typeContract}</CardTitle>
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
       <CardContent>
