@@ -7,6 +7,7 @@ import { z } from "zod";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
@@ -67,7 +68,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
   const defaultFormValues: FormValues = {
     search: "",
-    status: "",
+    status: "all",
     typeProject: "",
     typeContract: "",
     startDateFrom: "",
@@ -126,7 +127,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       // Agregar cada filtro solo si es válido
       addFilter(!!values.search, `Búsqueda: ${values.search}`);
 
-      if (values.status) {
+      if (values.status && values.status !== "all") {
         const statusLabel = PROJECT_STATUS.find((s) => s.id === values.status)?.label;
         addFilter(!!statusLabel, `Estado: ${statusLabel}`);
       }
@@ -169,13 +170,25 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
     // Convertimos los valores a los filtros esperados por la API
     const apiFilters: ProjectFilterValues = { ...values };
 
+    // Si el status es "all", lo eliminamos para no enviarlo al backend
+    if (apiFilters.status === "all") {
+      apiFilters.status = "";
+    }
+
     // Enviamos los filtros al componente padre
     onSearch(apiFilters);
     setIsOpen(false);
   };
 
   const handleSimpleSearch = () => {
-    onSearch(form.getValues());
+    const values = form.getValues();
+
+    // Si el status es "all", lo eliminamos para no enviarlo al backend
+    if (values.status === "all") {
+      values.status = "";
+    }
+
+    onSearch(values);
   };
 
   // Función para establecer la misma fecha en "desde" y "hasta"
@@ -185,8 +198,14 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
     date: string
   ) => {
     if (date) {
-      form.setValue(fieldNameFrom, date, { shouldDirty: true });
-      form.setValue(fieldNameTo, date, { shouldDirty: true });
+      // Actualizar ambos campos con la misma fecha
+      form.setValue(fieldNameFrom, date, { shouldDirty: true, shouldTouch: true });
+      form.setValue(fieldNameTo, date, { shouldDirty: true, shouldTouch: true });
+
+      // Actualizar los filtros inmediatamente después de cambiar los valores
+      setTimeout(() => {
+        updateFilters();
+      }, 0);
     }
   };
 
@@ -198,7 +217,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
         form.setValue("search", "", { shouldDirty: true });
         break;
       case "Estado":
-        form.setValue("status", "", { shouldDirty: true });
+        form.setValue("status", "all", { shouldDirty: true });
         break;
       case "Tipo":
         form.setValue("typeProject", "", { shouldDirty: true });
@@ -229,7 +248,14 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
     // Después de actualizar el form, ejecutamos la búsqueda con los nuevos valores
     setTimeout(() => {
-      onSearch(form.getValues());
+      const values = form.getValues();
+
+      // Si el status es "all", lo eliminamos para no enviarlo al backend
+      if (values.status === "all") {
+        values.status = "";
+      }
+
+      onSearch(values);
     }, 0);
   };
 
@@ -242,8 +268,27 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
     // Ejecutar la búsqueda con los valores predeterminados
     setTimeout(() => {
-      onSearch(defaultFormValues);
+      const values = { ...defaultFormValues };
+
+      // Si el status es "all", lo eliminamos para no enviarlo al backend
+      if (values.status === "all") {
+        values.status = "";
+      }
+
+      onSearch(values);
     }, 0);
+  };
+
+  // Función para crear un objeto Date de forma segura o undefined si la fecha es inválida
+  const safeDate = (dateStr: string | undefined) => {
+    if (!dateStr) return undefined;
+
+    try {
+      const date = new Date(dateStr);
+      return !isNaN(date.getTime()) ? date : undefined;
+    } catch {
+      return undefined;
+    }
   };
 
   return (
@@ -313,7 +358,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="">Todos</SelectItem>
+                              <SelectItem value="all">Todos</SelectItem>
                               {PROJECT_STATUS.map((status) => (
                                 <SelectItem key={status.id} value={status.id}>
                                   {status.label}
@@ -366,7 +411,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <DatePicker
+                                selected={safeDate(field.value)}
+                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                                placeholder="Seleccionar fecha"
+                              />
                             </FormControl>
                           </FormItem>
                         )}
@@ -380,7 +429,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <DatePicker
+                                selected={safeDate(field.value)}
+                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                                placeholder="Seleccionar fecha"
+                              />
                             </FormControl>
                           </FormItem>
                         )}
@@ -412,7 +465,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <DatePicker
+                                selected={safeDate(field.value)}
+                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                                placeholder="Seleccionar fecha"
+                              />
                             </FormControl>
                           </FormItem>
                         )}
@@ -426,7 +483,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         render={({ field }) => (
                           <FormItem className="mt-2">
                             <FormControl>
-                              <Input type="date" {...field} />
+                              <DatePicker
+                                selected={safeDate(field.value)}
+                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
+                                placeholder="Seleccionar fecha"
+                              />
                             </FormControl>
                           </FormItem>
                         )}
