@@ -21,8 +21,6 @@ export default function ProjectList() {
   );
   // Aplanar los datos paginados en una sola lista de proyectos
   const projects = data?.pages.flatMap((page) => page.data) || [];
-  console.log("🚀 ~ ProjectList ~ projects:", projects);
-
   // Estado para rastrear si estamos cerca del final
   const [isNearBottom, setIsNearBottom] = useState(false);
 
