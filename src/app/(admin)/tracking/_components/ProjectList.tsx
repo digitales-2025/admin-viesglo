@@ -43,7 +43,7 @@ export default function ProjectList() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end items-center">
-        <Button variant="outline" onClick={() => open("projects", "create")}>
+        <Button onClick={() => open("projects", "create")}>
           <Plus className="size-4 mr-2" />
           Agregar proyecto
         </Button>

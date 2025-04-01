@@ -367,7 +367,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
             </PopoverContent>
           </Popover>
 
-          <Button type="button" onClick={handleSimpleSearch}>
+          <Button type="button" variant="outline" onClick={handleSimpleSearch}>
             Buscar
           </Button>
         </div>
