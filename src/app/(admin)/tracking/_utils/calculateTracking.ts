@@ -1,6 +1,11 @@
 import { ProjectResponse, ProjectServiceResponse } from "../_types/tracking.types";
 
 function calculatePercentageProject(project: ProjectResponse) {
+  // Si no hay servicios o es undefined, devolver 0%
+  if (!project.services || project.services.length === 0) {
+    return 0;
+  }
+
   const totalActivities = project.services.reduce((acc, service) => {
     return (
       acc +

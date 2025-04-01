@@ -414,6 +414,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients/search/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar un cliente por RUC, email o nombre con paginación */
+    get: operations["ClientsController_findByFiltersPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/clients/{id}": {
     parameters: {
       query?: never;
@@ -479,6 +496,23 @@ export interface paths {
     };
     /** Búsqueda avanzada de proyectos */
     get: operations["ProjectsController_searchProjects_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/projects/search/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar proyectos con paginación */
+    get: operations["ProjectsController_searchProjectsPaginated_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2034,6 +2068,33 @@ export interface components {
       updatedAt: string;
       /** @description Servicios asociados al proyecto */
       services?: components["schemas"]["ProjectServiceResponseDto"][];
+    };
+    PaginatedProjectResponseDto: {
+      /** @description Lista de proyectos paginados */
+      data: components["schemas"]["ProjectResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     UpdateProjectActivityDto: {
       /**
@@ -3611,6 +3672,41 @@ export interface operations {
       };
     };
   };
+  ClientsController_findByFiltersPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtros para buscar un cliente por RUC, email o nombre */
+        filter?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            data?: components["schemas"]["ClientResponseDto"][];
+            meta?: {
+              currentPage?: number;
+              itemsPerPage?: number;
+              totalItems?: number;
+              totalPages?: number;
+            };
+          };
+        };
+      };
+    };
+  };
   ClientsController_getClientById_v1: {
     parameters: {
       query?: never;
@@ -3845,6 +3941,51 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ProjectResponseDto"][];
+        };
+      };
+    };
+  };
+  ProjectsController_searchProjectsPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de contrato */
+        typeContract?: string;
+        /** @description Filtrar por tipo de proyecto */
+        typeProject?: string;
+        /** @description Filtrar por fecha de inicio (desde) */
+        startDateFrom?: string;
+        /** @description Filtrar por fecha de inicio (hasta) */
+        startDateTo?: string;
+        /** @description Filtrar por fecha de finalización (desde) */
+        endDateFrom?: string;
+        /** @description Filtrar por fecha de finalización (hasta) */
+        endDateTo?: string;
+        /** @description Filtrar por estado del proyecto */
+        status?: string;
+        /** @description Filtrar por búsqueda en nombre o descripción */
+        search?: string;
+        /** @description Filtrar por ID de cliente */
+        clientId?: string;
+        /** @description Filtrar solo proyectos activos */
+        isActive?: boolean;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyectos encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedProjectResponseDto"];
         };
       };
     };

@@ -28,6 +28,11 @@ export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivity
 // Upload evidencia
 export type UploadEvidence = components["schemas"]["UploadEvidenceDto"];
 
+// Paginación
+export type ProjectPaginationResponse = Omit<components["schemas"]["PaginatedProjectResponseDto"], "data"> & {
+  data: ProjectResponse[];
+};
+
 // Filtros de proyectos
 export type ProjectFilters = {
   typeContract?: string;

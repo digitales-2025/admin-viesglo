@@ -1,43 +1,68 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useProjects, useProjectsByFilters } from "../_hooks/useProject";
+import { useProjectsPaginated } from "../_hooks/useProject";
 import ProjectCard from "./ProjectCard";
 import { ProjectFilterValues, ProjectsAdvancedSearch } from "./ProjectsAdvancedSearch";
 
 export default function ProjectList() {
   const { open } = useDialogStore();
   const [filters, setFilters] = useState<ProjectFilterValues>({});
-  const [isFiltering, setIsFiltering] = useState(false);
+  const listContainerRef = useRef<HTMLDivElement>(null);
 
-  // Consulta inicial para todos los proyectos (sin filtros)
-  const { data: allProjects, isLoading: isLoadingAll, error: errorAll, refetch: refetchAll } = useProjects();
+  // Usar la consulta paginada con InfiniteQuery con un límite de 10 elementos por página
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useProjectsPaginated(
+    filters,
+    10
+  );
+  // Aplanar los datos paginados en una sola lista de proyectos
+  const projects = data?.pages.flatMap((page) => page.data) || [];
+  console.log("🚀 ~ ProjectList ~ projects:", projects);
 
-  // Consulta para proyectos filtrados
-  const {
-    data: filteredProjects,
-    isLoading: isLoadingFiltered,
-    error: errorFiltered,
-    refetch: refetchFiltered,
-  } = useProjectsByFilters(isFiltering ? filters : {});
+  // Estado para rastrear si estamos cerca del final
+  const [isNearBottom, setIsNearBottom] = useState(false);
 
-  // Determinar qué datos, estado de carga y error mostrar
-  const projects = isFiltering ? filteredProjects : allProjects;
-  const isLoading = isFiltering ? isLoadingFiltered : isLoadingAll;
-  const error = isFiltering ? errorFiltered : errorAll;
-  const refetch = isFiltering ? refetchFiltered : refetchAll;
+  // Referencia al observador de Intersection Observer
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
-  const handleSearch = (newFilters: ProjectFilterValues) => {
-    const hasActiveFilters = Object.values(newFilters).some(
-      (value) => value !== undefined && value !== "" && value !== null
+  // Configurar Intersection Observer para detectar cuando estamos cerca del final
+  useEffect(() => {
+    if (!loadingRef.current) return;
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        setIsNearBottom(entry.isIntersecting);
+      },
+      {
+        root: listContainerRef.current,
+        threshold: 0.1,
+      }
     );
 
+    observerRef.current.observe(loadingRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, []);
+
+  // Cargar más proyectos cuando estamos cerca del final
+  useEffect(() => {
+    if (isNearBottom && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isNearBottom, hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  const handleSearch = (newFilters: ProjectFilterValues) => {
     setFilters(newFilters);
-    setIsFiltering(hasActiveFilters);
   };
 
   return (
@@ -51,7 +76,7 @@ export default function ProjectList() {
 
       <ProjectsAdvancedSearch onSearch={handleSearch} defaultValues={filters} />
 
-      {isLoading && (
+      {isLoading && !isFetchingNextPage && (
         <div className="flex justify-center items-center my-8">
           <Loader2 className="size-6 animate-spin text-primary" />
         </div>
@@ -59,25 +84,38 @@ export default function ProjectList() {
 
       {error && (
         <div className="p-4 bg-destructive/10 text-destructive rounded-md">
-          <p>Error: {error.message}</p>
+          <p>Error: {(error as Error).message}</p>
           <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-2">
             Reintentar
           </Button>
         </div>
       )}
 
-      {projects && projects.length === 0 && !isLoading && (
+      {projects.length === 0 && !isLoading && (
         <div className="p-8 text-center border rounded-md bg-muted/10">
           <p className="text-muted-foreground">
-            {isFiltering ? "No se encontraron proyectos con los filtros seleccionados" : "No hay proyectos disponibles"}
+            {Object.keys(filters).length > 0
+              ? "No se encontraron proyectos con los filtros seleccionados"
+              : "No hay proyectos disponibles"}
           </p>
         </div>
       )}
-      {projects && projects.length > 0 && (
-        <div className="space-y-4 h-[calc(100vh-20rem)] overflow-y-auto">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+
+      {projects.length > 0 && (
+        <div ref={listContainerRef} className="space-y-4 h-[calc(100vh-20rem)] overflow-y-auto">
+          {projects.map((project) => {
+            return <ProjectCard key={project.id} project={project} />;
+          })}
+
+          {/* Componente de carga que es detectado por Intersection Observer */}
+          <div ref={loadingRef} className="py-4">
+            {isFetchingNextPage && (
+              <div className="flex justify-center items-center">
+                <Loader2 className="size-5 animate-spin text-primary" />
+                <span className="ml-2 text-sm text-muted-foreground">Cargando más proyectos...</span>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

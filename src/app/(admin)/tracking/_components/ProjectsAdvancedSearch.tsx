@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -59,6 +59,12 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   const [isOpen, setIsOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
 
+  // Referencia para almacenar el último estado de filtros y evitar renderizados innecesarios
+  const lastAppliedFiltersRef = useRef<string>("");
+
+  // Ref para controlar el debounce
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   const defaultFormValues: FormValues = {
     search: "",
     status: "",
@@ -78,54 +84,86 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
     defaultValues: defaultFormValues,
   });
 
-  const watchValues = form.watch();
-
-  // Memoizamos la función updateFilters para evitar recrearla en cada renderizado
+  // Función para generar los filtros aplicados basados en los valores actuales del formulario
   const updateFilters = useCallback(() => {
-    const filters: string[] = [];
-
-    if (watchValues.search) {
-      filters.push(`Búsqueda: ${watchValues.search}`);
+    // Limpiar cualquier timer pendiente
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
     }
 
-    if (watchValues.status) {
-      const statusLabel = PROJECT_STATUS.find((s) => s.id === watchValues.status)?.label;
-      if (statusLabel) {
-        filters.push(`Estado: ${statusLabel}`);
+    // Crear un nuevo timer con debounce
+    debounceTimerRef.current = setTimeout(() => {
+      const filters: string[] = [];
+      const values = form.getValues();
+
+      // Procesar cada filtro de forma segura
+      const addFilter = (condition: boolean, filterText: string) => {
+        if (condition) {
+          filters.push(filterText);
+        }
+      };
+
+      // Verificar si una fecha es válida
+      const isValidDate = (dateStr?: string): boolean => {
+        if (!dateStr) return false;
+        try {
+          const date = new Date(dateStr);
+          return !isNaN(date.getTime());
+        } catch {
+          return false;
+        }
+      };
+
+      // Formatear una fecha para mostrar
+      const formatDate = (dateStr: string): string => {
+        try {
+          return new Date(dateStr).toLocaleDateString();
+        } catch {
+          return dateStr;
+        }
+      };
+
+      // Agregar cada filtro solo si es válido
+      addFilter(!!values.search, `Búsqueda: ${values.search}`);
+
+      if (values.status) {
+        const statusLabel = PROJECT_STATUS.find((s) => s.id === values.status)?.label;
+        addFilter(!!statusLabel, `Estado: ${statusLabel}`);
       }
-    }
 
-    if (watchValues.startDateFrom) {
-      filters.push(`Desde: ${new Date(watchValues.startDateFrom).toLocaleDateString()}`);
-    }
+      addFilter(isValidDate(values.startDateFrom), `Desde: ${formatDate(values.startDateFrom!)}`);
+      addFilter(isValidDate(values.startDateTo), `Hasta: ${formatDate(values.startDateTo!)}`);
+      addFilter(isValidDate(values.endDateFrom), `Fin desde: ${formatDate(values.endDateFrom!)}`);
+      addFilter(isValidDate(values.endDateTo), `Fin hasta: ${formatDate(values.endDateTo!)}`);
 
-    if (watchValues.startDateTo) {
-      filters.push(`Hasta: ${new Date(watchValues.startDateTo).toLocaleDateString()}`);
-    }
+      addFilter(values.isActive === "false", "Inactivos");
+      addFilter(!!values.clientId, `Cliente: ${values.clientId}`);
 
-    if (watchValues.endDateFrom) {
-      filters.push(`Fin desde: ${new Date(watchValues.endDateFrom).toLocaleDateString()}`);
-    }
+      // Convertir a JSON para comparación
+      const newFiltersJSON = JSON.stringify(filters);
 
-    if (watchValues.endDateTo) {
-      filters.push(`Fin hasta: ${new Date(watchValues.endDateTo).toLocaleDateString()}`);
-    }
+      // Solo actualizar si han cambiado los filtros
+      if (newFiltersJSON !== lastAppliedFiltersRef.current) {
+        lastAppliedFiltersRef.current = newFiltersJSON;
+        setAppliedFilters(filters);
+      }
+    }, 150); // Pequeño debounce para evitar actualizaciones excesivas
+  }, [form]);
 
-    if (watchValues.isActive === "false") {
-      filters.push("Inactivos");
-    }
-
-    if (watchValues.clientId) {
-      filters.push(`Cliente: ${watchValues.clientId}`);
-    }
-
-    setAppliedFilters(filters);
-  }, []);
-
-  // Usamos el useEffect para actualizar los filtros cuando cambian los valores observados
+  // Suscribirse a cambios en el formulario
   useEffect(() => {
-    updateFilters();
-  }, [updateFilters]);
+    const subscription = form.watch(() => {
+      updateFilters();
+    });
+
+    // Limpiar suscripción al desmontar
+    return () => {
+      subscription.unsubscribe();
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, [form, updateFilters]);
 
   const handleSearch = (values: FormValues) => {
     // Convertimos los valores a los filtros esperados por la API
@@ -138,6 +176,18 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
   const handleSimpleSearch = () => {
     onSearch(form.getValues());
+  };
+
+  // Función para establecer la misma fecha en "desde" y "hasta"
+  const setExactDateRange = (
+    fieldNameFrom: "startDateFrom" | "endDateFrom",
+    fieldNameTo: "startDateTo" | "endDateTo",
+    date: string
+  ) => {
+    if (date) {
+      form.setValue(fieldNameFrom, date, { shouldDirty: true });
+      form.setValue(fieldNameTo, date, { shouldDirty: true });
+    }
   };
 
   const removeFilter = (filter: string) => {
@@ -200,17 +250,17 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
     <div className={cn("space-y-4", className)}>
       <Form {...form}>
         <div className="flex gap-2">
-          <div className="relative flex-1">
+          <div className="flex-1">
             <FormField
               control={form.control}
               name="search"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex-1">
                   <FormControl>
                     <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Buscar proyectos..."
+                        placeholder="Buscar por nombre o descripción..."
                         className="pl-8"
                         {...field}
                         onKeyDown={(e) => {
@@ -229,36 +279,41 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
           <Popover open={isOpen} onOpenChange={setIsOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2" aria-label="Filtros avanzados">
-                <SlidersHorizontal className="h-4 w-4" />
-                <span className="hidden sm:inline">Filtros</span>
-                {appliedFilters.length > 0 && (
-                  <Badge variant="secondary" className="ml-1 h-5 px-1">
-                    {appliedFilters.length}
-                  </Badge>
-                )}
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={isOpen}
+                className="rounded-lg border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+              >
+                <SlidersHorizontal className="mr-1 h-4 w-4" />
+                Filtros avanzados
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[340px] sm:w-[400px] p-4">
-              <div className="space-y-4">
-                <h3 className="font-medium">Filtros avanzados</h3>
+            <PopoverContent className="w-max p-0" align="start">
+              <div className="p-4 pt-2">
+                <div className="grid gap-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium leading-none">Filtros avanzados</h4>
+                    <p className="text-muted-foreground text-sm">
+                      Aplica filtros adicionales para refinar tu búsqueda.
+                    </p>
+                  </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <FormLabel htmlFor="status">Estado</FormLabel>
+                  <div className="space-y-2">
+                    <FormLabel>Estado del proyecto</FormLabel>
                     <FormField
                       control={form.control}
                       name="status"
                       render={({ field }) => (
-                        <FormItem className="mt-2">
-                          <Select value={field.value} onValueChange={field.onChange}>
+                        <FormItem>
+                          <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Seleccionar estado" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="hola">Todos</SelectItem>
+                              <SelectItem value="">Todos</SelectItem>
                               {PROJECT_STATUS.map((status) => (
                                 <SelectItem key={status.id} value={status.id}>
                                   {status.label}
@@ -271,25 +326,35 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                     />
                   </div>
 
-                  <div>
-                    <FormLabel htmlFor="isActive">Estado activo</FormLabel>
+                  <div className="space-y-2">
+                    <FormLabel>Mostrar proyectos inactivos</FormLabel>
                     <FormField
                       control={form.control}
                       name="isActive"
                       render={({ field }) => (
-                        <FormItem className="flex items-center space-x-2 space-y-0 mt-2">
+                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
                           <FormControl>
                             <Checkbox
-                              checked={field.value === "true"}
+                              checked={field.value === "false"}
                               onCheckedChange={(checked) => {
-                                field.onChange(checked ? "true" : "false");
+                                field.onChange(checked ? "false" : "true");
                               }}
                             />
                           </FormControl>
-                          <FormLabel className="cursor-pointer font-normal">Mostrar solo proyectos activos</FormLabel>
+                          <div className="text-sm leading-none">Incluir proyectos inactivos</div>
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <FormLabel>Búsqueda por fechas</FormLabel>
+                    <div className="text-xs text-muted-foreground mb-2">
+                      <p>
+                        Si seleccionas la misma fecha en "desde" y "hasta", se mostrarán proyectos que coincidan
+                        exactamente con ese día.
+                      </p>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -323,6 +388,21 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                     </div>
                   </div>
 
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs text-muted-foreground">Para búsqueda por día exacto:</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const today = new Date().toISOString().split("T")[0];
+                        setExactDateRange("startDateFrom", "startDateTo", today);
+                      }}
+                    >
+                      Usar fecha de hoy
+                    </Button>
+                  </div>
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <FormLabel>Fecha fin (desde)</FormLabel>
@@ -352,6 +432,21 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                         )}
                       />
                     </div>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs text-muted-foreground">Para búsqueda por día exacto:</span>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const today = new Date().toISOString().split("T")[0];
+                        setExactDateRange("endDateFrom", "endDateTo", today);
+                      }}
+                    >
+                      Usar fecha de hoy
+                    </Button>
                   </div>
 
                   <div className="flex justify-between pt-2">

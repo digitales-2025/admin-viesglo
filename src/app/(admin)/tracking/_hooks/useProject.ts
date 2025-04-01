@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
@@ -8,6 +8,7 @@ import {
   deleteProject,
   getProjects,
   getProjectsByFilters,
+  getProjectsPaginated,
   updateProject,
 } from "../_actions/project.actions";
 import { CreateProject, ProjectFilters, UpdateProject } from "../_types/tracking.types";
@@ -16,6 +17,7 @@ export const PROJECT_KEYS = {
   all: ["projects"] as const,
   lists: () => [...PROJECT_KEYS.all, "list"] as const,
   list: (filters: string) => [...PROJECT_KEYS.lists(), { filters }] as const,
+  paginated: (filters: string) => [...PROJECT_KEYS.lists(), "paginated", { filters }] as const,
   detail: (id: string) => [...PROJECT_KEYS.all, id] as const,
 };
 
@@ -119,6 +121,38 @@ export function useProjectsByFilters(filters: ProjectFilters) {
         throw new Error(response.error || "Error al obtener proyectos");
       }
       return response.data;
+    },
+  });
+}
+
+/**
+ * Hook para obtener proyectos paginados según filtros
+ * @param filters Filtros de búsqueda
+ * @param initialLimit Número de resultados por página
+ * @returns Query infinita con los proyectos paginados
+ */
+export function useProjectsPaginated(filters: ProjectFilters, initialLimit: number = 10) {
+  return useInfiniteQuery({
+    queryKey: PROJECT_KEYS.paginated(JSON.stringify(filters)),
+    queryFn: async ({ pageParam = 1 }) => {
+      // Llamar a la función de acción con los filtros y la paginación por separado
+      const response = await getProjectsPaginated(filters, pageParam, initialLimit);
+      if (!response.success || !response.data) {
+        throw new Error(response.error || "Error al obtener proyectos paginados");
+      }
+      return response.data;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      // Si la página actual es menor que el total de páginas, devolver la siguiente página
+      const currentPage = lastPage.meta?.currentPage ?? 0;
+      const totalPages = lastPage.meta?.totalPages ?? 0;
+
+      if (currentPage < totalPages) {
+        return currentPage + 1;
+      }
+      // Si no hay más páginas, devolver undefined para indicar que no hay más datos
+      return undefined;
     },
   });
 }

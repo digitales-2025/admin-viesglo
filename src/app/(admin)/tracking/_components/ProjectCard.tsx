@@ -18,6 +18,7 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ className, project }: ProjectCardProps) {
+  console.log("🚀 ~ ProjectCard ~ project:", project);
   const { setSelectedProject, selectedProject } = useProjectStore();
 
   const percentageProject = calculatePercentageProject(project);
