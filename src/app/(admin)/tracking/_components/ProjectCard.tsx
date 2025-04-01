@@ -52,7 +52,7 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
         {project.startDate && (
           <Badge variant="successOutline" className="flex items-center gap-2">
             <CalendarCheck className="w-4 h-4" />
-            <strong>{format(new TZDate(project.startDate, "America/Lima"), "dd-MM-yyyy")}</strong>
+            <strong>Inicio: {format(new TZDate(project.startDate, "America/Lima"), "dd-MM-yyyy")}</strong>
           </Badge>
         )}
       </CardFooter>
