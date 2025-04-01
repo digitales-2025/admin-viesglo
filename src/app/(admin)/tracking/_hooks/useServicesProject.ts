@@ -37,10 +37,10 @@ export function useServicesProject(projectId: string) {
 /**
  * Hook para crear un servicio asignado a un proyecto
  */
-export function useCreateServiceProject(projectId: string) {
+export function useCreateServiceProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (service: CreateProjectService) => {
+    mutationFn: async ({ projectId, service }: { projectId: string; service: CreateProjectService }) => {
       const response = await createServiceProject(projectId, service);
       if (!response.success) {
         throw new Error(response.error || "Error al crear servicio del proyecto");
@@ -48,7 +48,7 @@ export function useCreateServiceProject(projectId: string) {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(projectId) });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Servicio creado correctamente");
     },
     onError: () => {
@@ -60,10 +60,18 @@ export function useCreateServiceProject(projectId: string) {
 /**
  * Hook para actualizar un servicio asignado a un proyecto
  */
-export function useUpdateServiceProject(projectId: string, serviceId: string) {
+export function useUpdateServiceProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (service: UpdateProjectService) => {
+    mutationFn: async ({
+      projectId,
+      serviceId,
+      service,
+    }: {
+      projectId: string;
+      serviceId: string;
+      service: UpdateProjectService;
+    }) => {
       const response = await updateServiceProject(projectId, serviceId, service);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar servicio del proyecto");
@@ -71,7 +79,7 @@ export function useUpdateServiceProject(projectId: string, serviceId: string) {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(projectId) });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Servicio actualizado correctamente");
     },
     onError: () => {

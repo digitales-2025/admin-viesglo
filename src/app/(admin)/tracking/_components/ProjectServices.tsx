@@ -1,8 +1,9 @@
-import { Plus } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectResponse } from "../_types/tracking.types";
 import ProjectServiceCard from "./ProjectServiceCard";
 
@@ -11,6 +12,8 @@ interface ProjectServicesProps {
 }
 
 export default function ProjectServices({ project }: ProjectServicesProps) {
+  const { open } = useDialogStore();
+
   if (!project)
     return (
       <AlertMessage
@@ -25,9 +28,9 @@ export default function ProjectServices({ project }: ProjectServicesProps) {
         <h3 className="text-lg font-bold flex items-center gap-2">
           Servicios <Badge variant="outline">{project.services.length}</Badge>
         </h3>
-        <Button variant="outline" onClick={() => open("services", "create")}>
-          <Plus className="size-4 mr-2" />
-          Agregar servicio
+        <Button variant="outline" onClick={() => open("project-services", "create")}>
+          <PlusCircle className="size-4 mr-2" />
+          Seleccionar o crear servicio
         </Button>
       </div>
       <div className="flex flex-col gap-4">

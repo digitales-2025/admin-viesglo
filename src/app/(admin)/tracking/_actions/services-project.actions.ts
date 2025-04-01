@@ -41,11 +41,12 @@ export async function createServiceProject(
   try {
     const [data, err] = await http.post<ProjectServiceResponse>(`${API_ENDPOINT}/${projectId}`, service);
     if (err !== null) {
+      console.error("❌ Error al crear servicio del proyecto", err);
       throw new Error(err.message || "Error al crear servicio del proyecto");
     }
     return { success: true, data };
   } catch (error) {
-    console.error("Error al crear servicio del proyecto", error);
+    console.error("❌ Error al crear servicio del proyecto", error);
     return { success: false, data: null, error: "Error al crear servicio del proyecto" };
   }
 }

@@ -30,10 +30,15 @@ function calculatePercentageProject(project: ProjectResponse) {
 
 function calculatePercentageService(service: ProjectServiceResponse) {
   const totalActivities = service.objectives.reduce((acc, objective) => acc + (objective.activities ?? []).length, 0);
+
+  // Si no hay actividades, devolver 0 para evitar NaN
+  if (totalActivities === 0) return 0;
+
   const completedActivities = service.objectives.reduce(
     (acc, objective) => acc + (objective.activities ?? []).filter((activity) => activity.status === "COMPLETED").length,
     0
   );
+
   return (completedActivities / totalActivities) * 100;
 }
 
