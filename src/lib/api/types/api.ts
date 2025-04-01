@@ -397,6 +397,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar un cliente por RUC, email o nombre */
+    get: operations["ClientsController_findByFilters_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/clients/{id}": {
     parameters: {
       query?: never;
@@ -1659,6 +1676,97 @@ export interface components {
        */
       clinicIds?: string[];
     };
+    CreateProjectActivityDto: {
+      /**
+       * Format: uuid
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectObjectiveId: string;
+      /**
+       * Format: uuid
+       * @description ID de la actividad plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description Nombre de la actividad (requerido si no se proporciona activityId)
+       * @example Documentar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Crear documentación detallada de los procesos operativos
+       */
+      description?: string;
+      /**
+       * Format: uuid
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-12-31T23:59:59Z
+       */
+      scheduledDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @default false
+       * @example true
+       */
+      evidenceRequired: boolean;
+    };
+    CreateProjectObjectiveDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectServiceId: string;
+      /**
+       * Format: uuid
+       * @description ID del objetivo plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /**
+       * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
+       * @example Mejorar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+      /** @description Actividades del objetivo */
+      activities?: components["schemas"]["CreateProjectActivityDto"][];
+    };
+    CreateProjectServiceDto: {
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del proyecto al que pertenece el servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectId: string;
+      /**
+       * @description ID del servicio al que pertenece el proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /** @description Objetivos del servicio */
+      objectives?: components["schemas"]["CreateProjectObjectiveDto"][];
+    };
     CreateProjectDto: {
       /**
        * @description Tipo de contrato del proyecto
@@ -1695,6 +1803,171 @@ export interface components {
        * @example 5f9d5e7b8e7a6c1d4c8e7a6c
        */
       clientId: string;
+      /** @description Servicios del proyecto */
+      services?: components["schemas"]["CreateProjectServiceDto"][];
+    };
+    ProjectActivityResponseDto: {
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectObjectiveId: string;
+      /**
+       * @description ID de la actividad plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * Format: date-time
+       * @description Fecha programada
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      scheduledDate?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de ejecución
+       * @example 2023-01-15T00:00:00.000Z
+       */
+      executionDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired: boolean;
+      /**
+       * @description URL de la evidencia (si está disponible)
+       * @example https://example.com/evidence/123.jpg
+       */
+      evidence?: string;
+      /**
+       * @description Indica si la actividad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      updatedAt: string;
+    };
+    ProjectObjectiveResponseDto: {
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del objetivo de proyecto
+       * @example Objetivo de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del objetivo de proyecto
+       * @example Objetivo de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectServiceId: string;
+      /**
+       * @description ID del objetivo plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /**
+       * @description Indica si el objetivo está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      updatedAt: string;
+      /** @description Actividades asociadas al objetivo */
+      activities?: components["schemas"]["ProjectActivityResponseDto"][];
+    };
+    ProjectServiceResponseDto: {
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del proyecto al que pertenece el servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectId: string;
+      /**
+       * @description ID del servicio plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+      /**
+       * @description Indica si el servicio está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      updatedAt: string;
+      /** @description Objetivos asociados al servicio */
+      objectives?: components["schemas"]["ProjectObjectiveResponseDto"][];
     };
     ProjectResponseDto: {
       /**
@@ -1753,6 +2026,70 @@ export interface components {
        * @example 2023-01-01T00:00:00.000Z
        */
       updatedAt: string;
+      /** @description Servicios asociados al proyecto */
+      services?: components["schemas"]["ProjectServiceResponseDto"][];
+    };
+    UpdateProjectActivityDto: {
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      scheduledDate?: Record<string, never>;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired?: boolean;
+    };
+    UpdateProjectObjectiveDto: {
+      /**
+       * @description Nombre del objetivo
+       * @example Mejorar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+    };
+    UpdateProjectServiceDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio plantilla (opcional)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Consultoría estratégica
+       */
+      name?: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de consultoría para definir estrategias de negocio
+       */
+      description?: string;
     };
     UpdateProjectDto: {
       /**
@@ -1795,257 +2132,8 @@ export interface components {
        * @example true
        */
       isActive?: boolean;
-    };
-    CreateProjectServiceDto: {
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Servicio de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de marketing para el proyecto de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del proyecto al que pertenece el servicio
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectId: string;
-      /**
-       * @description ID del servicio al que pertenece el proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-    };
-    ProjectServiceResponseDto: {
-      /**
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Servicio de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de marketing para el proyecto de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del proyecto al que pertenece el servicio
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectId?: string;
-      /**
-       * @description ID del servicio al que pertenece el proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId?: string;
-      /**
-       * @description Indica si el servicio está activo
-       * @example true
-       */
-      isActive: boolean;
-    };
-    UpdateProjectServiceDto: {
-      /**
-       * Format: uuid
-       * @description ID del servicio plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId?: string;
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Consultoría estratégica
-       */
-      name?: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de consultoría para definir estrategias de negocio
-       */
-      description?: string;
-    };
-    CreateProjectObjectiveDto: {
-      /**
-       * Format: uuid
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectServiceId: string;
-      /**
-       * Format: uuid
-       * @description ID del objetivo plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-      /**
-       * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
-       * @example Mejorar procesos internos
-       */
-      name?: string;
-      /**
-       * @description Descripción del objetivo
-       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
-       */
-      description?: string;
-    };
-    ProjectObjectiveResponseDto: {
-      /**
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del objetivo de proyecto
-       * @example Objetivo de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del objetivo de proyecto
-       * @example Objetivo de marketing para el proyecto de marketing
-       */
-      description: string;
-      /**
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectServiceId: string;
-      /**
-       * @description ID del objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId: string;
-    };
-    UpdateProjectObjectiveDto: {
-      /**
-       * @description Nombre del objetivo
-       * @example Mejorar procesos internos
-       */
-      name?: string;
-      /**
-       * @description Descripción del objetivo
-       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
-       */
-      description?: string;
-    };
-    CreateProjectActivityDto: {
-      /**
-       * Format: uuid
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectObjectiveId: string;
-      /**
-       * Format: uuid
-       * @description ID de la actividad plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-      /**
-       * @description Nombre de la actividad (requerido si no se proporciona activityId)
-       * @example Documentar procesos internos
-       */
-      name?: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Crear documentación detallada de los procesos operativos
-       */
-      description?: string;
-      /**
-       * Format: uuid
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId: string;
-      /**
-       * @description Fecha programada
-       * @example 2023-12-31T23:59:59Z
-       */
-      scheduledDate?: string;
-      /**
-       * @description Requiere evidencia
-       * @default false
-       * @example true
-       */
-      evidenceRequired: boolean;
-    };
-    ProjectActivityResponseDto: {
-      /**
-       * @description ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre de la actividad
-       * @example Actividad de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Descripción de la actividad de marketing
-       */
-      description: string;
-      /**
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectObjectiveId: string;
-      /**
-       * @description ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId: string;
-      /**
-       * Format: date-time
-       * @description Fecha programada
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      scheduledDate: string;
-      /**
-       * @description Requiere evidencia
-       * @example true
-       */
-      evidenceRequired: boolean;
-    };
-    UpdateProjectActivityDto: {
-      /**
-       * @description ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-      /**
-       * @description Nombre de la actividad
-       * @example Actividad de marketing
-       */
-      name?: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Descripción de la actividad de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string;
-      /**
-       * @description Fecha programada
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      scheduledDate?: Record<string, never>;
-      /**
-       * @description Requiere evidencia
-       * @example true
-       */
-      evidenceRequired?: boolean;
+      /** @description Servicios del proyecto */
+      services?: components["schemas"]["UpdateProjectServiceDto"][];
     };
     UploadEvidenceDto: {
       /**
@@ -3488,6 +3576,29 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ClientResponseDto"];
+        };
+      };
+    };
+  };
+  ClientsController_findByFilters_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtros para buscar un cliente por RUC, email o nombre */
+        filter?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes encontrados exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"][];
         };
       };
     };

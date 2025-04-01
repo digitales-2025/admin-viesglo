@@ -2,7 +2,7 @@
 
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { CalendarCheck, User } from "lucide-react";
+import { ClockArrowUp, User } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -42,17 +42,17 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
       <CardContent>
-        <Progress value={project.status === "active" ? 50 : 20} color="bg-sky-500" />
+        <Progress value={project.status === "active" ? 50 : 20} color="bg-emerald-500" className="bg-emerald-500/10" />
       </CardContent>
       <CardFooter className="flex items-center gap-4">
-        <Badge variant="infoOutline" className="flex items-center gap-2">
+        <Badge variant="outline" className="flex items-center gap-2 text-muted-foreground ">
           <User className="w-4 h-4" />
-          <strong>{project.client.name}</strong>
+          <strong className="first-letter:uppercase">{project.client.name}</strong>
         </Badge>
         {project.startDate && (
-          <Badge variant="successOutline" className="flex items-center gap-2">
-            <CalendarCheck className="w-4 h-4" />
-            <strong>Inicio: {format(new TZDate(project.startDate, "America/Lima"), "dd-MM-yyyy")}</strong>
+          <Badge variant="outline" className="flex items-center gap-2 text-muted-foreground">
+            <ClockArrowUp className="w-4 h-4" />
+            <strong>Fecha de inicio: {format(new TZDate(project.startDate, "America/Lima"), "dd-MM-yyyy")}</strong>
           </Badge>
         )}
       </CardFooter>
