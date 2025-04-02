@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { PlusCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -120,16 +121,26 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
         }
       }}
     >
-      <SheetContent className="flex flex-col ">
+      <SheetContent className="flex flex-col">
         <SheetHeader className="text-left">
           <SheetTitle className="text-2xl font-bold capitalize">
             {isUpdate ? "Actualizar" : "Crear"} servicio
           </SheetTitle>
-          <SheetDescription>
-            {isUpdate
-              ? "Actualiza el servicio proporcionando la información necesaria."
-              : "Agrega un nuevo servicio proporcionando la información necesaria."}{" "}
-            Haz clic en guardar cuando hayas terminado.
+          <SheetDescription className="space-y-4" asChild>
+            <div>
+              <p>
+                {isUpdate
+                  ? "Actualiza el servicio proporcionando la información necesaria."
+                  : "Puedes crear un nuevo servicio desde cero o seleccionar uno existente."}
+              </p>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>¿Ya tienes un servicio creado?</span>
+                <Button variant="ghost" size="sm" className="">
+                  <PlusCircle className="mr-2 size-4 text-primary" />
+                  Seleccionar servicio existente
+                </Button>
+              </div>
+            </div>
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-250px)]">
