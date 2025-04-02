@@ -50,8 +50,7 @@ export function useCreateServiceProject() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
-      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.paginated(variables.projectId) });
       toast.success("Servicio creado correctamente");
     },
     onError: () => {
