@@ -10,6 +10,7 @@ import {
   updateServiceProject,
 } from "../_actions/services-project.actions";
 import { CreateProjectService, UpdateProjectService } from "../_types/tracking.types";
+import { PROJECT_KEYS } from "./useProject";
 
 export const SERVICES_PROJECT_KEYS = {
   all: ["services-project"] as const,
@@ -47,8 +48,10 @@ export function useCreateServiceProject() {
       }
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.projectId) });
       toast.success("Servicio creado correctamente");
     },
     onError: () => {
@@ -78,8 +81,10 @@ export function useUpdateServiceProject() {
       }
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.projectId) });
       toast.success("Servicio actualizado correctamente");
     },
     onError: () => {
@@ -103,6 +108,8 @@ export function useDeleteServiceProject(projectId: string, serviceId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(projectId) });
       toast.success("Servicio eliminado correctamente");
     },
     onError: () => {
