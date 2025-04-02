@@ -1,4 +1,4 @@
-import { Trash } from "lucide-react";
+import { CheckCircle, Circle, Clock, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -23,7 +23,12 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
       <CardHeader>
         <CardTitle className="grid grid-cols-[1fr_auto] justify-between items-center gap-4">
           <div className="inline-flex gap-2 items-center justify-between">
-            <span className="first-letter:uppercase">{service.name}</span>
+            <div className="flex items-center gap-2">
+              {percentageService === 100 && <CheckCircle className="w-4 h-4 text-emerald-500" />}
+              {percentageService < 100 && percentageService > 0 && <Clock className="w-4 h-4 text-yellow-500" />}
+              {percentageService === 0 && <Circle className="w-4 h-4 text-red-500" />}
+              <span className="first-letter:uppercase">{service.name}</span>
+            </div>
             <div className="flex items-center gap-2">
               <CircularProgress size={50} progress={percentageService} strokeWidth={3} />
             </div>
