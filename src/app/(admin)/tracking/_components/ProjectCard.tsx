@@ -2,9 +2,10 @@
 
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, User } from "lucide-react";
+import { ClockArrowUp, Edit, User } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
@@ -33,14 +34,20 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
   return (
     <Card
       className={cn(
-        "h-fit shadow-none cursor-pointer select-none",
+        "h-fit shadow-none cursor-pointer select-none group/project-card",
         selectedProject?.id === project.id && "border-sky-500",
         className
       )}
       onClick={handleClick}
     >
       <CardHeader>
-        <CardTitle className="first-letter:uppercase">{project.typeContract}</CardTitle>
+        <CardTitle className="grid grid-cols-[1fr_auto] gap-2 min-h-10 justify-center items-center">
+          <span className="first-letter:uppercase text-wrap">{project.typeContract}</span>
+          <Button variant="ghost" size="icon" className="group-hover/project-card:flex hidden">
+            <Edit className="w-4 h-4" />
+            <span className="sr-only">Editar</span>
+          </Button>
+        </CardTitle>
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
       <CardContent className="grid grid-cols-[1fr_auto] gap-4 items-center">
