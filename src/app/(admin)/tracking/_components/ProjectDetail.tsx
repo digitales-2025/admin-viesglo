@@ -15,24 +15,24 @@ export default function ProjectDetail() {
       <AlertMessage title="No hay proyecto seleccionado" description="No hay proyecto seleccionado" variant="default" />
     );
   return (
-    <Card className="shadow-none border-none">
-      <CardHeader>
+    <Card className="shadow-none border-none h-full flex flex-col">
+      <CardHeader className="flex-shrink-0 pb-3">
         <CardTitle className="text-2xl font-bold first-letter:uppercase">{selectedProject?.typeContract}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground text-balance">
           {selectedProject?.description}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-2">
-            <div className="text-sm text-muted-foreground grid-cols-[200px_1fr] w-full grid">
+      <CardContent className="flex-grow flex flex-col min-h-0">
+        <div className="flex flex-col gap-6 h-full">
+          <div className="flex flex-col gap-2 flex-shrink-0">
+            <div className="text-sm text-muted-foreground grid grid-cols-1 sm:grid-cols-[200px_1fr] w-full">
               <span className="flex items-center gap-2">
                 <User className="size-4 shrink-0" />
                 Cliente:
               </span>{" "}
               <strong>{selectedProject?.client.name}</strong>
             </div>
-            <div className="text-sm text-muted-foreground grid-cols-[200px_1fr] w-full grid">
+            <div className="text-sm text-muted-foreground grid grid-cols-1 sm:grid-cols-[200px_1fr] w-full">
               <span className="flex items-center gap-2">
                 <ClockArrowUp className="size-4 shrink-0" />
                 Fecha de inicio:
@@ -44,7 +44,9 @@ export default function ProjectDetail() {
               </strong>
             </div>
           </div>
-          <ProjectServices project={selectedProject} />
+          <div className="flex-grow flex flex-col min-h-0">
+            <ProjectServices project={selectedProject} />
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -15,17 +15,18 @@ export default function ProjectsContainer() {
       <ProjectsDialogs />
       <ResizablePanelGroup
         direction="horizontal"
-        className="h-full max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full space-x-4 border-y"
+        className="h-full w-full border-y"
+        style={{ minHeight: "calc(100vh - 160px)", maxHeight: "calc(100vh - 160px)" }}
       >
-        <ResizablePanel defaultSize={40} minSize={30} className="py-4 flex flex-col">
+        <ResizablePanel defaultSize={50} minSize={25} maxSize={45} className="py-4 flex flex-col">
           <ProjectList />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={50} minSize={20} className="p-4">
+        <ResizablePanel defaultSize={50} minSize={55} className="p-4 flex flex-col">
           {selectedProject ? (
             <ProjectDetail />
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center text-center p-6">
+            <div className="h-full flex flex-col items-center justify-center text-center p-6">
               <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">
                 <Briefcase className="h-6 w-6 text-muted-foreground" />
               </div>
