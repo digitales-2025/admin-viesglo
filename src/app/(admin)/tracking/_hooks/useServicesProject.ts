@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  createServiceFromTemplate,
   createServiceProject,
   deleteServiceProject,
   getServicesProject,
@@ -113,6 +114,44 @@ export function useDeleteServiceProject(projectId: string, serviceId: string) {
     },
     onError: () => {
       toast.error("Error al eliminar servicio del proyecto");
+    },
+  });
+}
+
+/**
+ * Hook para crear servicios desde plantillas para un proyecto
+ */
+export function useCreateServiceFromTemplate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      services,
+    }: {
+      projectId: string;
+      services: {
+        serviceId: string;
+        objectives?: {
+          objectiveId?: string;
+          activities?: {
+            activityId?: string;
+          }[];
+        }[];
+      }[];
+    }) => {
+      const response = await createServiceFromTemplate(projectId, services);
+      if (!response.success) {
+        throw new Error(response.error || "Error al crear servicios desde plantilla");
+      }
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.paginated(variables.projectId) });
+      toast.success("Servicios creados correctamente");
+    },
+    onError: () => {
+      toast.error("Error al crear servicios desde plantilla");
     },
   });
 }

@@ -7,6 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/ui/form";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { SheetClose, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/shared/components/ui/sheet";
+import { useCreateServiceFromTemplate } from "../_hooks/useServicesProject";
 import { ProjectServiceResponse } from "../_types/tracking.types";
 import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
@@ -14,6 +15,8 @@ import TreeServices from "./TreeServices";
 interface Props {
   setIsSelectingExisting: (isSelectingExisting: boolean) => void;
   currentRow?: ProjectServiceResponse;
+  projectId: string;
+  onOpenChange: (open: boolean) => void;
 }
 
 const serviceFormSchema = z.object({
@@ -33,16 +36,15 @@ const serviceFormSchema = z.object({
         ),
       })
     )
-    .optional(),
+    .min(1, "Debes seleccionar al menos un servicio"),
 });
 type ServiceForm = z.infer<typeof serviceFormSchema>;
 
-export default function ProjectServicesSelecteMutateDrawer({ setIsSelectingExisting, currentRow }: Props) {
+export default function ProjectServicesSelecteMutateDrawer({ setIsSelectingExisting, projectId, onOpenChange }: Props) {
   const { data: services, isLoading, error } = useServices();
+  const { mutate: createFromTemplate, isPending } = useCreateServiceFromTemplate();
 
-  const isUpdate = !!currentRow?.id;
-  // const isPending = isCreating || isUpdating;
-  const isPending = false;
+  //const isUpdate = !!currentRow?.id;
 
   const form = useForm<ServiceForm>({
     resolver: zodResolver(serviceFormSchema),
@@ -52,7 +54,19 @@ export default function ProjectServicesSelecteMutateDrawer({ setIsSelectingExist
   });
 
   const onSubmit = (data: ServiceForm) => {
-    console.log(data);
+    createFromTemplate(
+      {
+        projectId,
+        services: data.services,
+      },
+      {
+        onSuccess: () => {
+          setIsSelectingExisting(false);
+          onOpenChange(false);
+          form.reset();
+        },
+      }
+    );
   };
 
   return (
@@ -77,7 +91,8 @@ export default function ProjectServicesSelecteMutateDrawer({ setIsSelectingExist
               <SheetTitle className="text-2xl font-bold">Seleccionar servicio existente</SheetTitle>
             </div>
             <SheetDescription className="mt-4">
-              Selecciona un servicio predefinido de la lista o utiliza la búsqueda para encontrarlo.
+              Selecciona uno o varios servicios predefinidos y personaliza los objetivos y actividades que deseas
+              incluir.
             </SheetDescription>
           </SheetHeader>
           <ScrollArea className="h-[calc(100vh-250px)]">
@@ -99,8 +114,8 @@ export default function ProjectServicesSelecteMutateDrawer({ setIsSelectingExist
             </Form>
           </ScrollArea>
           <SheetFooter className="gap-2">
-            <Button form="services-form" type="submit" disabled={isPending}>
-              {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            <Button form="services-form" type="submit" disabled={isPending || form.watch("services").length === 0}>
+              {isPending ? "Guardando..." : "Agregar servicios seleccionados"}
             </Button>
             <SheetClose asChild>
               <Button variant="outline" disabled={isPending}>

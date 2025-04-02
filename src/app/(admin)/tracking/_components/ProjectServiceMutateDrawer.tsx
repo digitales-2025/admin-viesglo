@@ -181,7 +181,11 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
   );
 
   const renderServiceSelector = () => (
-    <ProjectServicesSelecteMutateDrawer setIsSelectingExisting={setIsSelectingExisting} />
+    <ProjectServicesSelecteMutateDrawer
+      setIsSelectingExisting={setIsSelectingExisting}
+      projectId={projectId}
+      onOpenChange={onOpenChange}
+    />
   );
 
   return (

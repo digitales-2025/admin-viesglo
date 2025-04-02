@@ -83,3 +83,30 @@ export async function deleteServiceProject(
     return { success: false, error: "Error al eliminar servicio del proyecto" };
   }
 }
+
+export async function createServiceFromTemplate(
+  projectId: string,
+  services: {
+    serviceId: string;
+    objectives?: {
+      objectiveId?: string;
+      activities?: {
+        activityId?: string;
+      }[];
+    }[];
+  }[]
+): Promise<{ data: ProjectServiceResponse[] | null; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.post<ProjectServiceResponse[]>(`${API_ENDPOINT}/template/${projectId}`, {
+      services,
+    });
+    if (err !== null) {
+      console.error("❌ Error al crear servicios desde plantilla", err);
+      throw new Error(err.message || "Error al crear servicios desde plantilla");
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al crear servicios desde plantilla", error);
+    return { success: false, data: null, error: "Error al crear servicios desde plantilla" };
+  }
+}

@@ -540,6 +540,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/project-services/{projectId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar un servicio a un proyecto */
+    post: operations["ProjectServicesController_addServiceToProject_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-services/template/{projectId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar servicios a un proyecto desde plantillas */
+    post: operations["ProjectServicesController_addServiceToProjectFromTemplate_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/project-services": {
     parameters: {
       query?: never;
@@ -550,8 +584,7 @@ export interface paths {
     /** Obtener todos los servicios de un proyecto */
     get: operations["ProjectServicesController_getProjectServices_v1"];
     put?: never;
-    /** Agregar un servicio a un proyecto */
-    post: operations["ProjectServicesController_addServiceToProject_v1"];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1788,18 +1821,6 @@ export interface components {
        * @example Servicio de marketing para el proyecto de marketing
        */
       description?: string;
-      /**
-       * @description ID del proyecto al que pertenece el servicio
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectId: string;
-      /**
-       * @description ID del servicio al que pertenece el proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-      /** @description Objetivos del servicio */
-      objectives?: components["schemas"]["CreateProjectObjectiveDto"][];
     };
     CreateProjectDto: {
       /**
@@ -2201,6 +2222,38 @@ export interface components {
       isActive?: boolean;
       /** @description Servicios del proyecto */
       services?: components["schemas"]["UpdateProjectServiceDto"][];
+    };
+    CreateServiceActivityFromTemplateDto: {
+      /**
+       * Format: uuid
+       * @description ID de la actividad de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+    };
+    CreateServiceObjectiveFromTemplateDto: {
+      /**
+       * Format: uuid
+       * @description ID del objetivo de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /** @description Actividades específicas a incluir del objetivo (opcional) */
+      activities?: components["schemas"]["CreateServiceActivityFromTemplateDto"][];
+    };
+    ProjectServiceTemplateItemDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /** @description Objetivos específicos a incluir del servicio (opcional) */
+      objectives?: components["schemas"]["CreateServiceObjectiveFromTemplateDto"][];
+    };
+    CreateProjectServiceTemplateDto: {
+      /** @description Lista de servicios desde plantillas para agregar */
+      services: components["schemas"]["ProjectServiceTemplateItemDto"][];
     };
     UploadEvidenceDto: {
       /**
@@ -4063,41 +4116,13 @@ export interface operations {
       };
     };
   };
-  ProjectServicesController_getProjectServices_v1: {
-    parameters: {
-      query: {
-        projectId: string;
-        includeInactive: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de servicios del proyecto */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
-        };
-      };
-      /** @description Proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
   ProjectServicesController_addServiceToProject_v1: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        projectId: string;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -4123,6 +4148,76 @@ export interface operations {
         content?: never;
       };
       /** @description Proyecto o servicio no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_addServiceToProjectFromTemplate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectServiceTemplateDto"];
+      };
+    };
+    responses: {
+      /** @description Los servicios han sido agregados exitosamente al proyecto */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto o servicio no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectServicesController_getProjectServices_v1: {
+    parameters: {
+      query: {
+        projectId: string;
+        includeInactive: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de servicios del proyecto */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
+        };
+      };
+      /** @description Proyecto no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
