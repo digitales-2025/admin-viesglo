@@ -14,6 +14,7 @@ import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectServiceResponse } from "../_types/tracking.types";
 import { calculatePercentageService, calculateTotalActivitiesCompleted } from "../_utils/calculateTracking";
+import { PROJECT_SERVICE_MODULE } from "./ProjectsDialogs";
 
 interface ProjectServiceCardProps {
   service: ProjectServiceResponse;
@@ -26,8 +27,6 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
 
   const percentageService = calculatePercentageService(service);
   const totalActivitiesCompleted = calculateTotalActivitiesCompleted(service);
-
-  const PROJECT_SERVICE_MODULE = "project-services";
 
   const { open } = useDialogStore();
 

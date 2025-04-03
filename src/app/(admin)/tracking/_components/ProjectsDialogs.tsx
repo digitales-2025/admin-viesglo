@@ -10,13 +10,13 @@ import { useDeleteServiceProject } from "../_hooks/useServicesProject";
 import ProjectServiceMutateDrawer from "./ProjectServiceMutateDrawer";
 import ProjectsMutateDrawer from "./ProjectsMutateDrawer";
 
+export const PROJECT_SERVICE_MODULE = "project-services";
 export default function ProjectsDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
   const { selectedProject } = useProjectStore();
   const { mutate: deleteProject } = useDeleteProject();
   const { mutate: deleteServiceProject } = useDeleteServiceProject();
   const MODULE = "projects";
-  const PROJECT_SERVICE_MODULE = "project-services";
 
   return (
     <>
@@ -31,7 +31,7 @@ export default function ProjectsDialogs() {
       {selectedProject && (
         <ProjectServiceMutateDrawer
           key="project-services"
-          open={isOpenForModule(PROJECT_SERVICE_MODULE, "create")}
+          open={isOpenForModule(PROJECT_SERVICE_MODULE, "create") || isOpenForModule(PROJECT_SERVICE_MODULE, "edit")}
           onOpenChange={(open) => {
             if (!open) close();
           }}

@@ -66,7 +66,15 @@ export function useCreateServiceProject() {
 export function useUpdateServiceProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ serviceId, service }: { serviceId: string; service: UpdateProjectService }) => {
+    mutationFn: async ({
+      serviceId,
+      service,
+      projectId: _,
+    }: {
+      serviceId: string;
+      service: UpdateProjectService;
+      projectId: string;
+    }) => {
       const response = await updateServiceProject(serviceId, service);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar servicio del proyecto");
@@ -74,9 +82,10 @@ export function useUpdateServiceProject() {
       return response.data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.serviceId) });
+      // Invalidar la lista de servicios del proyecto usando projectId
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
+      // También invalidamos las listas de proyectos para reflejar cambios en los conteos
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.serviceId) });
       toast.success("Servicio actualizado correctamente");
     },
     onError: () => {

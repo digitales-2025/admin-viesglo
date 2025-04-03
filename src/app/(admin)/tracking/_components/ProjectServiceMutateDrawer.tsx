@@ -20,7 +20,7 @@ import {
 } from "@/shared/components/ui/sheet";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateServiceProject, useUpdateServiceProject } from "../_hooks/useServicesProject";
-import { CreateProjectService, ProjectServiceResponse } from "../_types/tracking.types";
+import { CreateProjectService, ProjectServiceResponse, UpdateProjectService } from "../_types/tracking.types";
 import ProjectServicesSelecteMutateDrawer from "./ProjectServicesSelectedMutateDrawer";
 
 interface Props {
@@ -30,12 +30,13 @@ interface Props {
   projectId: string;
 }
 
+// Este esquema se alinea con los campos requeridos en UpdateProjectServiceDto
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().optional(),
 });
 
-type ServicesForm = z.infer<typeof formSchema>;
+type ServiceFormValues = z.infer<typeof formSchema>;
 
 export default function ProjectServicesMutateDrawer({ open, onOpenChange, currentRow, projectId }: Props) {
   const { mutate: createService, isPending: isCreating } = useCreateServiceProject();
@@ -44,7 +45,8 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
 
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
-  const form = useForm<ServicesForm>({
+
+  const form = useForm<ServiceFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -52,46 +54,70 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
     },
   });
 
-  const onSubmit = (data: ServicesForm) => {
-    if (isUpdate && currentRow?.id) {
-      updateService(
-        { projectId: currentRow.projectId, serviceId: currentRow.id, service: data as any },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          },
-        }
-      );
-    } else if (currentRow?.projectId || projectId) {
-      const targetProjectId = currentRow?.projectId || projectId;
+  const onSubmit = (data: ServiceFormValues) => {
+    try {
+      if (isUpdate && currentRow?.id) {
+        // Para actualizar, convertimos los datos del formulario al tipo UpdateProjectService
+        const serviceData: UpdateProjectService = {
+          name: data.name,
+          description: data.description,
+        };
 
-      if (!targetProjectId) {
-        toast.error("No se pudo determinar el projectId");
-        return;
+        // Obtenemos el projectId del servicio para poder invalidar correctamente la caché
+        const serviceProjectId = currentRow.projectId || projectId;
+
+        updateService(
+          {
+            serviceId: currentRow.id,
+            service: serviceData,
+            projectId: serviceProjectId, // Pasamos el projectId para invalidación
+          },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+            onError: (error) => {
+              toast.error(`Error al actualizar el servicio: ${error.message}`);
+            },
+          }
+        );
+      } else if (projectId) {
+        // Para crear, convertimos los datos del formulario al tipo CreateProjectService
+        const serviceData: CreateProjectService = {
+          name: data.name,
+          description: data.description,
+        };
+
+        createService(
+          {
+            projectId: projectId,
+            service: serviceData,
+          },
+          {
+            onSuccess: () => {
+              onOpenChange(false);
+              form.reset();
+            },
+            onError: (error) => {
+              toast.error(`Error al crear el servicio: ${error.message}`);
+            },
+          }
+        );
+      } else {
+        toast.error("No se pudo determinar el ID del proyecto");
       }
-
-      createService(
-        {
-          projectId: targetProjectId,
-          service: data as CreateProjectService,
-        },
-        {
-          onSuccess: () => {
-            onOpenChange(false);
-            form.reset();
-          },
-        }
-      );
-    } else {
-      toast.error("No se pudo determinar el projectId");
+    } catch (error) {
+      console.error("Error en el envío del formulario:", error);
+      toast.error("Ocurrió un error al procesar la solicitud");
     }
   };
 
+  // Cargar datos existentes cuando se está editando
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
-        name: currentRow.name,
+        name: currentRow.name || "",
         description: currentRow.description || "",
       });
     } else {
@@ -100,19 +126,15 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
         description: "",
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id]);
+  }, [isUpdate, currentRow, form]);
 
+  // Limpiar formulario al cerrar
   useEffect(() => {
     if (!open) {
-      form.reset({
-        name: "",
-        description: "",
-      });
+      form.reset();
       setIsSelectingExisting(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  }, [open, form]);
 
   const renderManualForm = () => (
     <>
@@ -125,13 +147,15 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
                 ? "Actualiza el servicio proporcionando la información necesaria."
                 : "Puedes crear un nuevo servicio desde cero o seleccionar uno existente."}
             </p>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span>¿Ya tienes un servicio creado?</span>
-              <Button variant="ghost" size="sm" onClick={() => setIsSelectingExisting(true)}>
-                <PlusCircle className="mr-2 size-4 text-primary" />
-                Seleccionar servicio existente
-              </Button>
-            </div>
+            {!isUpdate && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span>¿Ya tienes un servicio creado?</span>
+                <Button variant="ghost" size="sm" onClick={() => setIsSelectingExisting(true)}>
+                  <PlusCircle className="mr-2 size-4 text-primary" />
+                  Seleccionar servicio existente
+                </Button>
+              </div>
+            )}
           </div>
         </SheetDescription>
       </SheetHeader>
@@ -169,7 +193,7 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
       </ScrollArea>
       <SheetFooter className="gap-2">
         <Button form="services-form" type="submit" disabled={isPending}>
-          {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+          {isPending ? (isUpdate ? "Actualizando..." : "Creando...") : isUpdate ? "Actualizar" : "Crear"}
         </Button>
         <SheetClose asChild>
           <Button variant="outline" disabled={isPending}>
