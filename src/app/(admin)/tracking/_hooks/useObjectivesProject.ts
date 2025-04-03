@@ -21,11 +21,11 @@ export const OBJECTIVES_PROJECT_KEYS = {
 /**
  * Hook para obtener los objetivos de un proyecto
  */
-export function useObjectivesProject(projectId: string) {
+export function useObjectivesProject(serviceId: string) {
   return useQuery({
-    queryKey: OBJECTIVES_PROJECT_KEYS.list(projectId),
+    queryKey: OBJECTIVES_PROJECT_KEYS.list(serviceId),
     queryFn: async () => {
-      const response = await getObjectivesProject(projectId);
+      const response = await getObjectivesProject(serviceId);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener objetivos del proyecto");
       }
@@ -37,18 +37,18 @@ export function useObjectivesProject(projectId: string) {
 /**
  * Hook para crear un objetivo de un proyecto
  */
-export function useCreateObjectiveProject(projectId: string) {
+export function useCreateObjectiveProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (objective: CreateProjectObjective) => {
-      const response = await createObjectiveProject(projectId, objective);
+    mutationFn: async ({ serviceId, objective }: { serviceId: string; objective: CreateProjectObjective }) => {
+      const response = await createObjectiveProject(serviceId, objective);
       if (!response.success) {
         throw new Error(response.error || "Error al crear objetivo del proyecto");
       }
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(projectId) });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.serviceId) });
       toast.success("Objetivo creado correctamente");
     },
     onError: () => {
@@ -60,18 +60,26 @@ export function useCreateObjectiveProject(projectId: string) {
 /**
  * Hook para actualizar un objetivo de un proyecto
  */
-export function useUpdateObjectiveProject(projectId: string, objectiveId: string) {
+export function useUpdateObjectiveProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (objective: UpdateProjectObjective) => {
-      const response = await updateObjectiveProject(projectId, objectiveId, objective);
+    mutationFn: async ({
+      serviceId,
+      objectiveId,
+      objective,
+    }: {
+      serviceId: string;
+      objectiveId: string;
+      objective: UpdateProjectObjective;
+    }) => {
+      const response = await updateObjectiveProject(serviceId, objectiveId, objective);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar objetivo del proyecto");
       }
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(projectId) });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.serviceId) });
       toast.success("Objetivo actualizado correctamente");
     },
     onError: () => {

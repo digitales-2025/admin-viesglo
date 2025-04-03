@@ -625,7 +625,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/project-services/{id}/toggle-active": {
+  "/api/v1/project-services/{serviceId}/toggle-active": {
     parameters: {
       query?: never;
       header?: never;
@@ -1802,29 +1802,15 @@ export interface components {
     };
     CreateProjectObjectiveDto: {
       /**
-       * Format: uuid
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectServiceId: string;
-      /**
-       * Format: uuid
-       * @description ID del objetivo plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-      /**
        * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
        * @example Mejorar procesos internos
        */
-      name?: string;
+      name: string;
       /**
        * @description Descripción del objetivo
        * @example Optimizar los flujos de trabajo para aumentar la eficiencia
        */
       description?: string;
-      /** @description Actividades del objetivo */
-      activities?: components["schemas"]["CreateProjectActivityDto"][];
     };
     CreateProjectServiceDto: {
       /**
@@ -1985,18 +1971,6 @@ export interface components {
        * @example true
        */
       isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      updatedAt: string;
       /** @description Actividades asociadas al objetivo */
       activities?: components["schemas"]["ProjectActivityResponseDto"][];
     };
@@ -4337,8 +4311,7 @@ export interface operations {
   ProjectObjectivesController_getProjectObjectives_v1: {
     parameters: {
       query: {
-        projectServiceId: string;
-        includeInactive: boolean;
+        serviceId: string;
       };
       header?: never;
       path?: never;
@@ -4366,7 +4339,9 @@ export interface operations {
   };
   ProjectObjectivesController_addObjectiveToProjectService_v1: {
     parameters: {
-      query?: never;
+      query: {
+        serviceId: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;

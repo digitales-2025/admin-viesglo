@@ -6,10 +6,10 @@ import { CreateProjectObjective, ProjectObjectiveResponse, UpdateProjectObjectiv
 const API_ENDPOINT = "/project-objectives";
 
 export async function getObjectivesProject(
-  projectId: string
+  serviceId: string
 ): Promise<{ data: ProjectObjectiveResponse[]; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<ProjectObjectiveResponse[]>(`${API_ENDPOINT}/${projectId}`);
+    const [data, err] = await http.get<ProjectObjectiveResponse[]>(`${API_ENDPOINT}?serviceId=${serviceId}`);
     if (err !== null) {
       throw new Error(err.message || "Error al obtener objetivos del proyecto");
     }
@@ -21,11 +21,11 @@ export async function getObjectivesProject(
 }
 
 export async function createObjectiveProject(
-  projectId: string,
+  serviceId: string,
   objective: CreateProjectObjective
 ): Promise<{ data: ProjectObjectiveResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.post<ProjectObjectiveResponse>(`${API_ENDPOINT}/${projectId}`, objective);
+    const [data, err] = await http.post<ProjectObjectiveResponse>(`${API_ENDPOINT}?serviceId=${serviceId}`, objective);
     if (err !== null) {
       throw new Error(err.message || "Error al crear objetivo del proyecto");
     }
