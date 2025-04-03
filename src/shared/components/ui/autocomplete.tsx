@@ -270,7 +270,7 @@ export default function Autocomplete({
             className={cn(
               "pl-10 pr-10 py-3 h-9 text-base rounded-md transition-all duration-200",
               focused ? "" : "",
-              value ? "bg-primary/5" : "",
+              value ? "bg-muted/50" : "",
               error && "border-red-500 focus-visible:ring-red-500",
               inputClassName
             )}
@@ -284,9 +284,9 @@ export default function Autocomplete({
           {(query || value) && !disabled && (
             <Button
               type="button"
-              variant="ghost"
               size="icon"
-              className="absolute inset-y-0 right-0 flex items-center pr-3 h-full"
+              tabIndex={-1}
+              className="absolute inset-y-0 right-0 flex items-center h-full bg-transparent shadow-none text-muted-foreground hover:text-foreground hover:bg-transparent"
               onClick={clearSelection}
             >
               <X className="h-4 w-4" />

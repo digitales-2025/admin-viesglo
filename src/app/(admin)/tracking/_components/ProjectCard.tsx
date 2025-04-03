@@ -42,13 +42,13 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
       onClick={handleClick}
     >
       <CardHeader>
-        <CardTitle className="grid grid-cols-[1fr_auto] gap-2 min-h-10 justify-center items-center">
+        <CardTitle className="grid grid-cols-[1fr_minmax(100px,auto)] gap-2 min-h-10 justify-center items-start">
           <span className="first-letter:uppercase text-wrap">{project.typeContract}</span>
-          <div className="inline-flex gap-2">
+          <div className=" gap-2 justify-end group-hover/project-card:inline-flex hidden">
             <Button
               variant="ghost"
               size="icon"
-              className="group-hover/project-card:flex hidden"
+              className="text-muted-foreground"
               onClick={(e) => {
                 e.stopPropagation();
                 open("projects", "edit", project);
@@ -60,7 +60,7 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="group-hover/project-card:flex hidden"
+              className="text-muted-foreground"
               onClick={(e) => {
                 e.stopPropagation();
                 open("projects", "delete", project);
