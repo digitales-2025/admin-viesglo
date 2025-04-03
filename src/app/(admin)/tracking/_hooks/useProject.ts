@@ -11,7 +11,7 @@ import {
   getProjectsPaginated,
   updateProject,
 } from "../_actions/project.actions";
-import { CreateProject, ProjectFilters, UpdateProject } from "../_types/tracking.types";
+import { CreateProject, ProjectFilters, UpdateProjectWithoutServices } from "../_types/tracking.types";
 
 export const PROJECT_KEYS = {
   all: ["projects"] as const,
@@ -68,7 +68,7 @@ export function useUpdateProject() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<UpdateProject> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: UpdateProjectWithoutServices }) => {
       const response = await updateProject(id, data);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar proyecto");

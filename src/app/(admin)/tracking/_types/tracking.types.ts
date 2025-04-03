@@ -5,6 +5,8 @@ export type ProjectResponse = Omit<components["schemas"]["ProjectResponseDto"], 
 };
 export type CreateProject = components["schemas"]["CreateProjectDto"];
 export type UpdateProject = components["schemas"]["UpdateProjectDto"];
+// Tipo específico para actualizar un proyecto sin incluir servicios
+export type UpdateProjectWithoutServices = Omit<UpdateProject, "services">;
 
 // Servicios de un proyecto
 export type ProjectServiceResponse = Omit<components["schemas"]["ProjectServiceResponseDto"], "objectives"> & {

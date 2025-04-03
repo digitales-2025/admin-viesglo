@@ -6,7 +6,7 @@ import {
   ProjectFilters,
   ProjectPaginationResponse,
   ProjectResponse,
-  UpdateProject,
+  UpdateProjectWithoutServices,
 } from "../_types/tracking.types";
 
 const API_ENDPOINT = "/projects";
@@ -68,7 +68,7 @@ export async function createProject(
  */
 export async function updateProject(
   id: string,
-  project: UpdateProject
+  project: UpdateProjectWithoutServices
 ): Promise<{ data: ProjectResponse | null; success: boolean; error?: string }> {
   try {
     const [data, err] = await http.put<ProjectResponse>(`${API_ENDPOINT}/${id}`, project);

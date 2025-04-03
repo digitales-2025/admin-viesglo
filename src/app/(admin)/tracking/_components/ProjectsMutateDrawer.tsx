@@ -29,7 +29,7 @@ import {
 } from "@/shared/components/ui/sheet";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
-import { CreateProject, ProjectResponse } from "../_types/tracking.types";
+import { CreateProject, ProjectResponse, UpdateProjectWithoutServices } from "../_types/tracking.types";
 import { searchClients } from "../../clients/_actions/clients.actions";
 import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
@@ -125,8 +125,16 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
 
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
+      // Cuando actualizamos, omitimos los servicios explícitamente
+      const { services: _, ...updateData } = data;
+      // Utilizamos el tipo específico que no incluye servicios
+      const projectToUpdate: UpdateProjectWithoutServices = updateData;
+
       updateProject(
-        { id: currentRow.id, data },
+        {
+          id: currentRow.id,
+          data: projectToUpdate,
+        },
         {
           onSuccess: () => {
             onOpenChange(false);
@@ -285,26 +293,36 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                   </FormItem>
                 )}
               />
-              {isLoading && (
-                <div className="flex items-center justify-center">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                </div>
-              )}
-              {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
-              {services && (
-                <FormField
-                  control={form.control}
-                  name="services"
-                  render={({ field }) => (
-                    <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
-                      <FormLabel>Servicios del proyecto</FormLabel>
-                      <FormControl>
-                        <TreeServices services={services} value={field.value} onChange={field.onChange} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
+              {!isUpdate ? (
+                <>
+                  {isLoading && (
+                    <div className="flex items-center justify-center">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    </div>
                   )}
-                />
+                  {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
+                  {services && (
+                    <FormField
+                      control={form.control}
+                      name="services"
+                      render={({ field }) => (
+                        <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
+                          <FormLabel>Servicios del proyecto</FormLabel>
+                          <FormControl>
+                            <TreeServices services={services} value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">
+                    Los servicios de un proyecto los puedes al seleccionar el proyecto.
+                  </p>
+                </div>
               )}
             </form>
           </Form>
