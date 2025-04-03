@@ -327,11 +327,12 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
               <Button
                 variant="outline"
                 role="combobox"
+                size="icon"
                 aria-expanded={isOpen}
-                className="rounded-lg border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
+                className="rounded-lg border border-dashed border-input bg-transparent px-3 py-1 text-sm"
+                title="Filtros avanzados"
               >
                 <SlidersHorizontal className="mr-1 h-4 w-4" />
-                Filtros avanzados
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-max p-0" align="start">
