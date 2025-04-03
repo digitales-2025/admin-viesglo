@@ -2,13 +2,14 @@
 
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, User } from "lucide-react";
+import { ClockArrowUp, Edit, Trash, User } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import { ProjectResponse } from "../_types/tracking.types";
 import { calculatePercentageProject } from "../_utils/calculateTracking";
@@ -20,7 +21,7 @@ interface ProjectCardProps {
 
 export default function ProjectCard({ className, project }: ProjectCardProps) {
   const { setSelectedProject, selectedProject } = useProjectStore();
-
+  const { open } = useDialogStore();
   const percentageProject = calculatePercentageProject(project);
   const handleClick = () => {
     if (selectedProject?.id === project.id) {
@@ -43,10 +44,32 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
       <CardHeader>
         <CardTitle className="grid grid-cols-[1fr_auto] gap-2 min-h-10 justify-center items-center">
           <span className="first-letter:uppercase text-wrap">{project.typeContract}</span>
-          <Button variant="ghost" size="icon" className="group-hover/project-card:flex hidden">
-            <Edit className="w-4 h-4" />
-            <span className="sr-only">Editar</span>
-          </Button>
+          <div className="inline-flex gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="group-hover/project-card:flex hidden"
+              onClick={(e) => {
+                e.stopPropagation();
+                open("projects", "edit", project);
+              }}
+            >
+              <Edit className="w-4 h-4" />
+              <span className="sr-only">Editar</span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="group-hover/project-card:flex hidden"
+              onClick={(e) => {
+                e.stopPropagation();
+                open("projects", "delete", project);
+              }}
+            >
+              <Trash className="w-4 h-4" />
+              <span className="sr-only">Eliminar</span>
+            </Button>
+          </div>
         </CardTitle>
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
