@@ -56,7 +56,15 @@ export default function ObjectiveMutateDrawer({
 
   const onSubmit = (data: ObjectivesForm) => {
     if (isUpdate && currentRow?.id) {
-      updateObjective({ serviceId, objectiveId: currentRow.id, objective: data });
+      updateObjective(
+        { serviceId, objectiveId: currentRow.id, objective: data },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            form.reset();
+          },
+        }
+      );
     } else {
       createObjective(
         { serviceId, objective: data },

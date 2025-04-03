@@ -64,7 +64,7 @@ export function useUpdateObjectiveProject() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
-      serviceId,
+      serviceId: _,
       objectiveId,
       objective,
     }: {
@@ -72,7 +72,7 @@ export function useUpdateObjectiveProject() {
       objectiveId: string;
       objective: UpdateProjectObjective;
     }) => {
-      const response = await updateObjectiveProject(serviceId, objectiveId, objective);
+      const response = await updateObjectiveProject(objectiveId, objective);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar objetivo del proyecto");
       }
@@ -91,18 +91,18 @@ export function useUpdateObjectiveProject() {
 /**
  * Hook para eliminar un objetivo de un proyecto
  */
-export function useDeleteObjectiveProject(projectId: string, objectiveId: string) {
+export function useDeleteObjectiveProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
-      const response = await deleteObjectiveProject(projectId, objectiveId);
+    mutationFn: async ({ serviceId: _, objectiveId }: { serviceId: string; objectiveId: string }) => {
+      const response = await deleteObjectiveProject(objectiveId);
       if (!response.success) {
         throw new Error(response.error || "Error al eliminar objetivo del proyecto");
       }
       return response;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(projectId) });
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.serviceId) });
       toast.success("Objetivo eliminado correctamente");
     },
     onError: () => {

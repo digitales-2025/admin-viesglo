@@ -36,15 +36,11 @@ export async function createObjectiveProject(
   }
 }
 export async function updateObjectiveProject(
-  projectId: string,
   objectiveId: string,
   objective: UpdateProjectObjective
 ): Promise<{ data: ProjectObjectiveResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.put<ProjectObjectiveResponse>(
-      `${API_ENDPOINT}/${projectId}/${objectiveId}`,
-      objective
-    );
+    const [data, err] = await http.put<ProjectObjectiveResponse>(`${API_ENDPOINT}/${objectiveId}`, objective);
     if (err !== null) {
       throw new Error(err.message || "Error al actualizar objetivo del proyecto");
     }
@@ -55,12 +51,11 @@ export async function updateObjectiveProject(
   }
 }
 
-export async function deleteObjectiveProject(
-  projectId: string,
-  objectiveId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteObjectiveProject(objectiveId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const [_, err] = await http.delete<ProjectObjectiveResponse>(`${API_ENDPOINT}/${projectId}/${objectiveId}`);
+    const [_, err] = await http.patch<ProjectObjectiveResponse>(`${API_ENDPOINT}/${objectiveId}/toggle-active`, {
+      isActive: false,
+    });
     if (err !== null) {
       throw new Error(err.message || "Error al eliminar objetivo del proyecto");
     }
@@ -68,5 +63,20 @@ export async function deleteObjectiveProject(
   } catch (error) {
     console.error("Error al eliminar objetivo del proyecto", error);
     return { success: false, error: "Error al eliminar objetivo del proyecto" };
+  }
+}
+
+export async function toggleObjectiveProjectActive(objectiveId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch<ProjectObjectiveResponse>(`${API_ENDPOINT}/${objectiveId}/toggle-active`, {
+      isActive: true,
+    });
+    if (err !== null) {
+      throw new Error(err.message || "Error al activar/desactivar objetivo del proyecto");
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al activar/desactivar objetivo del proyecto", error);
+    return { success: false, error: "Error al activar/desactivar objetivo del proyecto" };
   }
 }

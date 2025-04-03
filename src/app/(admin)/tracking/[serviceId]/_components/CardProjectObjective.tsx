@@ -11,7 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Progress } from "@/shared/components/ui/progress";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectObjectiveResponse } from "../../_types/tracking.types";
+import { MODULE_PROJECT_OBJECTIVES } from "./ProjectObjectivesDialogs";
 import TableActivities from "./TableActivities";
 
 interface Props {
@@ -30,6 +32,8 @@ export default function CarObjective({ objective }: Props) {
   const completedActivities = 0; // Por ahora lo dejamos en 0
 
   const progress = activitiesCount > 0 ? Math.round((completedActivities / activitiesCount) * 100) : 0;
+
+  const { open } = useDialogStore();
 
   return (
     <div className="space-y-2">
@@ -67,13 +71,23 @@ export default function CarObjective({ objective }: Props) {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      open(MODULE_PROJECT_OBJECTIVES, "edit", objective);
+                    }}
+                  >
                     Editar
                     <DropdownMenuShortcut>
                       <Edit className="w-4 h-4" />
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      open(MODULE_PROJECT_OBJECTIVES, "delete", objective);
+                    }}
+                  >
                     Eliminar
                     <DropdownMenuShortcut>
                       <Trash className="w-4 h-4" />
