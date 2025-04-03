@@ -52,12 +52,11 @@ export async function createServiceProject(
 }
 
 export async function updateServiceProject(
-  projectId: string,
   serviceId: string,
   service: UpdateProjectService
 ): Promise<{ data: ProjectServiceResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.put<ProjectServiceResponse>(`${API_ENDPOINT}/${projectId}/${serviceId}`, service);
+    const [data, err] = await http.put<ProjectServiceResponse>(`${API_ENDPOINT}/${serviceId}`, service);
     if (err !== null) {
       throw new Error(err.message || "Error al actualizar servicio del proyecto");
     }
@@ -68,12 +67,9 @@ export async function updateServiceProject(
   }
 }
 
-export async function deleteServiceProject(
-  projectId: string,
-  serviceId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteServiceProject(serviceId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const [_, err] = await http.delete<ProjectServiceResponse>(`${API_ENDPOINT}/${projectId}/${serviceId}`);
+    const [_, err] = await http.patch<ProjectServiceResponse>(`${API_ENDPOINT}/${serviceId}/toggle-active`, {});
     if (err !== null) {
       throw new Error(err.message || "Error al eliminar servicio del proyecto");
     }

@@ -11,6 +11,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectServiceResponse } from "../_types/tracking.types";
 import { calculatePercentageService, calculateTotalActivitiesCompleted } from "../_utils/calculateTracking";
 
@@ -25,6 +26,18 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
 
   const percentageService = calculatePercentageService(service);
   const totalActivitiesCompleted = calculateTotalActivitiesCompleted(service);
+
+  const PROJECT_SERVICE_MODULE = "project-services";
+
+  const { open } = useDialogStore();
+
+  const handleEditService = () => {
+    open(PROJECT_SERVICE_MODULE, "edit", service);
+  };
+
+  const handleDeleteService = () => {
+    open(PROJECT_SERVICE_MODULE, "delete", service);
+  };
 
   return (
     <Card className="shadow-none bg-accent/50 border-none p-2 px-1">
@@ -45,13 +58,13 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleEditService}>
                 Editar
                 <DropdownMenuShortcut>
                   <Edit />
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleDeleteService}>
                 Eliminar
                 <DropdownMenuShortcut>
                   <Trash />

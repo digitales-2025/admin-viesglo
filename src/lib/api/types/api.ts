@@ -600,6 +600,22 @@ export interface paths {
     };
     /** Obtener un servicio de proyecto por ID */
     get: operations["ProjectServicesController_getProjectServiceById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-services/{serviceId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
     /** Actualizar un servicio de proyecto */
     put: operations["ProjectServicesController_updateProjectService_v1"];
     post?: never;
@@ -2162,12 +2178,6 @@ export interface components {
       description?: string;
     };
     UpdateProjectServiceDto: {
-      /**
-       * Format: uuid
-       * @description ID del servicio plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId?: string;
       /**
        * @description Nombre del servicio de proyecto
        * @example Consultoría estratégica
@@ -4260,7 +4270,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        serviceId: string;
       };
       cookie?: never;
     };
@@ -4300,7 +4310,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        id: string;
+        serviceId: string;
       };
       cookie?: never;
     };

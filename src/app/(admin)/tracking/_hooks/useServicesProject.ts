@@ -66,25 +66,17 @@ export function useCreateServiceProject() {
 export function useUpdateServiceProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      projectId,
-      serviceId,
-      service,
-    }: {
-      projectId: string;
-      serviceId: string;
-      service: UpdateProjectService;
-    }) => {
-      const response = await updateServiceProject(projectId, serviceId, service);
+    mutationFn: async ({ serviceId, service }: { serviceId: string; service: UpdateProjectService }) => {
+      const response = await updateServiceProject(serviceId, service);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar servicio del proyecto");
       }
       return response.data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(variables.serviceId) });
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.projectId) });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(variables.serviceId) });
       toast.success("Servicio actualizado correctamente");
     },
     onError: () => {
@@ -96,20 +88,21 @@ export function useUpdateServiceProject() {
 /**
  * Hook para eliminar un servicio asignado a un proyecto
  */
-export function useDeleteServiceProject(projectId: string, serviceId: string) {
+export function useDeleteServiceProject() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async () => {
-      const response = await deleteServiceProject(projectId, serviceId);
+    mutationFn: async ({ serviceId }: { serviceId: string }) => {
+      const response = await deleteServiceProject(serviceId);
       if (!response.success) {
         throw new Error(response.error || "Error al eliminar servicio del proyecto");
       }
       return response;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.list(projectId) });
+      // Invalidamos todas las listas de servicios de proyectos
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+      // También invalidamos las listas de proyectos para reflejar cambios en los conteos
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.detail(projectId) });
       toast.success("Servicio eliminado correctamente");
     },
     onError: () => {
