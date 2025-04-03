@@ -15,7 +15,7 @@ export default function ProjectDetail() {
       <AlertMessage title="No hay proyecto seleccionado" description="No hay proyecto seleccionado" variant="default" />
     );
   return (
-    <Card className="shadow-none border-none h-full flex flex-col">
+    <Card className="shadow-none border-none h-full flex flex-col bg-accent/10">
       <CardHeader className="flex-shrink-0 pb-3">
         <CardTitle className="text-2xl font-bold first-letter:uppercase">{selectedProject?.typeContract}</CardTitle>
         <CardDescription className="text-sm text-muted-foreground text-balance">

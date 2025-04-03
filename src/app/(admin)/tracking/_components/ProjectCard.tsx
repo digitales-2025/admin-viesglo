@@ -2,11 +2,18 @@
 
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, Trash, User } from "lucide-react";
+import { ClockArrowUp, Edit, MoreVertical, Trash, User } from "lucide-react";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
 import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -35,41 +42,46 @@ export default function ProjectCard({ className, project }: ProjectCardProps) {
   return (
     <Card
       className={cn(
-        "h-fit shadow-none cursor-pointer select-none group/project-card",
+        "h-fit shadow-none cursor-pointer select-none",
         selectedProject?.id === project.id && "border-sky-500",
         className
       )}
       onClick={handleClick}
     >
       <CardHeader>
-        <CardTitle className="grid grid-cols-[1fr_minmax(100px,auto)] gap-2 min-h-10 justify-center items-start">
+        <CardTitle className="grid grid-cols-[1fr_auto] gap-2 min-h-10 justify-center items-start">
           <span className="first-letter:uppercase text-wrap">{project.typeContract}</span>
-          <div className=" gap-2 justify-end group-hover/project-card:inline-flex hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground"
-              onClick={(e) => {
-                e.stopPropagation();
-                open("projects", "edit", project);
-              }}
-            >
-              <Edit className="w-4 h-4" />
-              <span className="sr-only">Editar</span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-muted-foreground"
-              onClick={(e) => {
-                e.stopPropagation();
-                open("projects", "delete", project);
-              }}
-            >
-              <Trash className="w-4 h-4" />
-              <span className="sr-only">Eliminar</span>
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-muted-foreground">
+                <MoreVertical />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  open("projects", "edit", project);
+                }}
+              >
+                Editar
+                <DropdownMenuShortcut>
+                  <Edit />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation();
+                  open("projects", "delete", project);
+                }}
+              >
+                Eliminar
+                <DropdownMenuShortcut>
+                  <Trash />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </CardTitle>
         <CardDescription>{project.description}</CardDescription>
       </CardHeader>
