@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { CheckCircle, Circle, Clock, Edit, MoreVertical, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -38,8 +39,13 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
     open(PROJECT_SERVICE_MODULE, "delete", service);
   };
 
+  const router = useRouter();
+
   return (
-    <Card className="shadow-none bg-accent/50 border-none p-2 px-1">
+    <Card
+      className="shadow-none bg-accent/50 p-2 px-1 cursor-pointer hover:bg-accent/70 transition-all duration-300 hover:border-dashed hover:border-sky-500/50 border-transparent"
+      onClick={() => router.push(`/tracking/${service.id}`)}
+    >
       <CardHeader>
         <CardTitle className="grid grid-cols-[1fr_auto] justify-between items-center gap-4">
           <div className="inline-flex gap-2 items-center justify-between">
