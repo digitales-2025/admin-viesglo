@@ -6,10 +6,10 @@ import { CreateProjectActivity, ProjectActivityResponse, UpdateProjectActivity }
 const API_ENDPOINT = "/project-activities";
 
 export async function getActivitiesProject(
-  projectId: string
+  objectiveId: string
 ): Promise<{ data: ProjectActivityResponse[]; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<ProjectActivityResponse[]>(`${API_ENDPOINT}/${projectId}`);
+    const [data, err] = await http.get<ProjectActivityResponse[]>(`${API_ENDPOINT}?objectiveId=${objectiveId}`);
     if (err !== null) {
       throw new Error(err.message || "Error al obtener actividades del proyecto");
     }

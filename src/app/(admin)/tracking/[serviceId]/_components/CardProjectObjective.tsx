@@ -24,8 +24,7 @@ export default function CarObjective({ objective }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   // Calcular el progreso basado en actividades completadas
-  const activities = objective.activities || [];
-  const activitiesCount = activities.length;
+  const activitiesCount = objective.activities?.length || 0;
 
   // En un caso real, podrías calcular esto basado en el estado de las actividades
   // Por ejemplo: const completedActivities = activities.filter(a => a.isCompleted).length;
@@ -103,7 +102,7 @@ export default function CarObjective({ objective }: Props) {
       {expanded && (
         <div className="grid grid-cols-[auto_1fr] ml-2">
           <div className="h-full w-1 bg-border/50 mr-2"></div>
-          <TableActivities activities={activities} />
+          <TableActivities objectiveId={objective.id} />
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
 import { Calendar, Check, Clock, Paperclip, User, X } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -43,12 +44,19 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     id: "responsibleUserId",
     accessorKey: "responsibleUserId",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
-    cell: ({ row }) => (
-      <div className="flex items-center">
-        <User className="mr-2 h-4 w-4 text-muted-foreground" />
-        <span>{row.getValue("responsibleUserId") || "Sin asignar"}</span>
-      </div>
-    ),
+    cell: ({ row }) => {
+      console.log("🚀 ~ row:", row.original);
+      return (
+        <div className="flex items-center">
+          <User className="mr-2 h-4 w-4 text-muted-foreground" />
+          {row.original.responsibleUser ? (
+            <span>{row.original.responsibleUser.fullName}</span>
+          ) : (
+            <span>Sin asignar</span>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "scheduledDate",
@@ -57,7 +65,7 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     cell: ({ row }) => (
       <Badge variant="outline">
         <Calendar className="ml-2 h-4 w-4 text-muted-foreground" />
-        {row.getValue("scheduledDate") ? row.getValue("scheduledDate") : "Sin programar"}
+        {row.getValue("scheduledDate") ? format(row.getValue("scheduledDate"), "dd/MM/yyyy") : "Sin programar"}
       </Badge>
     ),
   },

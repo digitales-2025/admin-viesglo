@@ -23,7 +23,10 @@ export type CreateProjectObjective = components["schemas"]["CreateProjectObjecti
 export type UpdateProjectObjective = components["schemas"]["UpdateProjectObjectiveDto"];
 
 // Actividades de un proyecto
-export type ProjectActivityResponse = components["schemas"]["ProjectActivityResponseDto"];
+export type ProjectActivityResponse = Omit<components["schemas"]["ProjectActivityResponseDto"], "responsibleUser"> & {
+  responsibleUser: components["schemas"]["ResponsibleUserResponseDto"];
+};
+
 export type CreateProjectActivity = components["schemas"]["CreateProjectActivityDto"];
 export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivityDto"];
 

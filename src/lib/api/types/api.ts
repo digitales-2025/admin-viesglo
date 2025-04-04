@@ -1761,18 +1761,6 @@ export interface components {
     };
     CreateProjectActivityDto: {
       /**
-       * Format: uuid
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectObjectiveId: string;
-      /**
-       * Format: uuid
-       * @description ID de la actividad plantilla (opcional)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-      /**
        * @description Nombre de la actividad (requerido si no se proporciona activityId)
        * @example Documentar procesos internos
        */
@@ -1863,6 +1851,38 @@ export interface components {
       /** @description Servicios del proyecto */
       services?: components["schemas"]["CreateProjectServiceDto"][];
     };
+    ResponsibleUserResponseDto: {
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id?: string;
+      /**
+       * @description Correo electrónico del usuario responsable
+       * @example usuario@ejemplo.com
+       */
+      email?: string;
+      /**
+       * @description Nombre completo del usuario responsable
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Cargo del usuario responsable
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description Teléfono del usuario responsable
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Indica si el usuario responsable está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
     ProjectActivityResponseDto: {
       /**
        * @description ID de la actividad
@@ -1927,18 +1947,8 @@ export interface components {
        * @enum {string}
        */
       status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
-      /**
-       * Format: date-time
-       * @description Fecha de creación
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      updatedAt: string;
+      /** @description Usuario responsable */
+      responsibleUser?: components["schemas"]["ResponsibleUserResponseDto"];
     };
     ProjectObjectiveResponseDto: {
       /**
@@ -4499,7 +4509,9 @@ export interface operations {
   };
   ProjectActivitiesController_addActivityToProjectObjective_v1: {
     parameters: {
-      query?: never;
+      query: {
+        objectiveId: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
