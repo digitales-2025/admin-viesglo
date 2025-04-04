@@ -10,6 +10,7 @@ import {
   StatusProjectActivityLabel,
 } from "../_types/activities.types";
 import { ProjectActivityResponse } from "../../_types/tracking.types";
+import ProjectActivitiesActions from "./ProjectActivitiesActions";
 
 function getIconByStatus(status: StatusProjectActivity) {
   switch (status) {
@@ -105,5 +106,13 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
             "No definido"}
         </Badge>
       ),
+  },
+  {
+    id: "actions",
+    accessorKey: "actions",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
+    cell: ({ row }) => <ProjectActivitiesActions row={row.original} />,
+    enableHiding: false,
+    enableSorting: false,
   },
 ];
