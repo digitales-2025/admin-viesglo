@@ -10,11 +10,11 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectActivityResponse } from "../../_types/tracking.types";
+import { MODULE_PROJECT_ACTIVITIES } from "./ProjectActivitiesDialogs";
 
 interface ProjectActivitiesActionsProps {
   row: ProjectActivityResponse;
 }
-export const MODULE_PROJECT_ACTIVITIES = "project-activities";
 
 export default function ProjectActivitiesActions({ row }: ProjectActivitiesActionsProps) {
   const { open } = useDialogStore();

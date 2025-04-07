@@ -2,7 +2,7 @@ import { Loader2 } from "lucide-react";
 
 import { NoInfoSection } from "@/shared/components/ui/noinfosection";
 import { useObjectivesProject } from "../../_hooks/useObjectivesProject";
-import CarObjective from "./CardProjectObjective";
+import CardProjectObjective from "./CardProjectObjective";
 
 interface ListObjectivesProps {
   serviceId: string;
@@ -29,7 +29,7 @@ export const ListObjectives = ({ serviceId }: ListObjectivesProps) => {
 
   return (
     <div className="flex flex-col gap-4">
-      {objectives?.map((objective) => <CarObjective key={objective.id} objective={objective} />)}
+      {objectives?.map((objective) => <CardProjectObjective key={objective.id} objective={objective} />)}
     </div>
   );
 };

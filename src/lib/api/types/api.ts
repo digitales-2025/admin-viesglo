@@ -1771,11 +1771,10 @@ export interface components {
        */
       description?: string;
       /**
-       * Format: uuid
        * @description ID del usuario responsable
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
-      responsibleUserId: string;
+      responsibleUserId?: string;
       /**
        * @description Fecha programada
        * @example 2023-12-31T23:59:59Z
@@ -1946,7 +1945,7 @@ export interface components {
        * @example PENDING
        * @enum {string}
        */
-      status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
       /** @description Usuario responsable */
       responsibleUser?: components["schemas"]["ResponsibleUserResponseDto"];
     };
@@ -2119,11 +2118,6 @@ export interface components {
     };
     UpdateProjectActivityDto: {
       /**
-       * @description ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-      /**
        * @description Nombre de la actividad
        * @example Actividad de marketing
        */
@@ -2140,9 +2134,9 @@ export interface components {
       responsibleUserId?: string;
       /**
        * @description Fecha programada
-       * @example 2023-01-01T00:00:00.000Z
+       * @example 2023-01-01
        */
-      scheduledDate?: Record<string, never>;
+      scheduledDate?: string;
       /**
        * @description Requiere evidencia
        * @example true
@@ -2262,14 +2256,14 @@ export interface components {
       activityId?: string;
       name: string;
       description?: string;
-      responsibleUserId: string;
+      responsibleUserId?: string;
       scheduledDate?: Record<string, never>;
       executionDate?: Record<string, never>;
       evidenceRequired: boolean;
       evidence?: string;
       isActive: boolean;
       /** @enum {string} */
-      status: "PENDING" | "IN_PROGRESS" | "COMPLETED";
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
       /** Format: date-time */
       createdAt: string;
       /** Format: date-time */
@@ -4487,11 +4481,11 @@ export interface operations {
   };
   ProjectActivitiesController_getProjectActivities_v1: {
     parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        projectObjectiveId: string;
+      query: {
+        objectiveId: string;
       };
+      header?: never;
+      path?: never;
       cookie?: never;
     };
     requestBody?: never;
@@ -4538,7 +4532,7 @@ export interface operations {
         };
         content?: never;
       };
-      /** @description Project objective, activity template or user not found */
+      /** @description Objetivo de proyecto, plantilla de actividad o usuario no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
@@ -4599,6 +4593,20 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ProjectActivityResponseDto"];
         };
+      };
+      /** @description Bad request */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Actividad de proyecto no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

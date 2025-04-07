@@ -173,18 +173,18 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                 control={form.control}
                 name="evidenceRequired"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem
+                    className={cn(
+                      "flex flex-row items-center justify-between rounded-lg border p-3",
+                      field.value ? "border-emerald-500" : ""
+                    )}
+                  >
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Requiere Evidencia</FormLabel>
                       <FormDescription>Activa si la actividad requiere evidencia para ser completada</FormDescription>
                     </div>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={isPending}
-                        className={cn(field.value ? "bg-green-500" : "")}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                     </FormControl>
                   </FormItem>
                 )}

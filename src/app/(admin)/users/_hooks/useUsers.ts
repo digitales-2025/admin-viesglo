@@ -14,6 +14,7 @@ export const USERS_KEYS = {
   detail: (id: string) => [...USERS_KEYS.details(), id] as const,
   permissions: () => [...USERS_KEYS.all, "permissions"] as const,
   permissionsDetail: (id: string) => [...USERS_KEYS.permissions(), id] as const,
+  search: (filter: string) => [...USERS_KEYS.all, "search", filter] as const,
 };
 
 /**

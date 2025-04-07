@@ -46,7 +46,6 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     accessorKey: "responsibleUserId",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: ({ row }) => {
-      console.log("🚀 ~ row:", row.original);
       return (
         <div className="flex items-center">
           <User className="mr-2 h-4 w-4 text-muted-foreground" />

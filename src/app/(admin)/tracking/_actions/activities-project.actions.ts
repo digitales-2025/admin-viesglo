@@ -25,24 +25,23 @@ export async function createActivityProject(
   activity: CreateProjectActivity
 ): Promise<{ data: ProjectActivityResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.post<ProjectActivityResponse>(`${API_ENDPOINT}/${projectId}`, activity);
+    const [data, err] = await http.post<ProjectActivityResponse>(`${API_ENDPOINT}?objectiveId=${projectId}`, activity);
     if (err !== null) {
       throw new Error(err.message || "Error al crear actividad del proyecto");
     }
     return { success: true, data };
   } catch (error) {
     console.error("Error al crear actividad del proyecto", error);
-    return { success: false, data: null, error: "Error al crear actividad del proyecto" };
+    return { success: false, data: null, error: (error as Error).message || "Error al crear actividad del proyecto" };
   }
 }
 
 export async function updateActivityProject(
-  projectId: string,
   activityId: string,
   activity: UpdateProjectActivity
 ): Promise<{ data: ProjectActivityResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.put<ProjectActivityResponse>(`${API_ENDPOINT}/${projectId}/${activityId}`, activity);
+    const [data, err] = await http.put<ProjectActivityResponse>(`${API_ENDPOINT}/${activityId}`, activity);
     if (err !== null) {
       throw new Error(err.message || "Error al actualizar actividad del proyecto");
     }
@@ -53,12 +52,9 @@ export async function updateActivityProject(
   }
 }
 
-export async function deleteActivityProject(
-  projectId: string,
-  activityId: string
-): Promise<{ success: boolean; error?: string }> {
+export async function deleteActivityProject(activityId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const [_, err] = await http.delete<ProjectActivityResponse>(`${API_ENDPOINT}/${projectId}/${activityId}`);
+    const [_, err] = await http.delete<ProjectActivityResponse>(`${API_ENDPOINT}/${activityId}`);
     if (err !== null) {
       throw new Error(err.message || "Error al eliminar actividad del proyecto");
     }

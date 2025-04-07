@@ -13,6 +13,7 @@ import {
 import { Progress } from "@/shared/components/ui/progress";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectObjectiveResponse } from "../../_types/tracking.types";
+import ProjectActivitiesDialogs, { MODULE_PROJECT_ACTIVITIES } from "./ProjectActivitiesDialogs";
 import { MODULE_PROJECT_OBJECTIVES } from "./ProjectObjectivesDialogs";
 import TableActivities from "./TableActivities";
 
@@ -20,7 +21,7 @@ interface Props {
   objective: ProjectObjectiveResponse;
 }
 
-export default function CarObjective({ objective }: Props) {
+export default function CardProjectObjective({ objective }: Props) {
   const [expanded, setExpanded] = useState(false);
 
   // Calcular el progreso basado en actividades completadas
@@ -38,7 +39,7 @@ export default function CarObjective({ objective }: Props) {
     <div className="space-y-2">
       <Card
         key={objective.id}
-        className="p-4 shadow-none hover:bg-accent/30 transition-colors cursor-pointer"
+        className="p-4 shadow-none transition-colors cursor-pointer z-50 bg-background  hover:border-sky-300 sticky top-16"
         onClick={() => setExpanded(!expanded)}
       >
         <CardHeader className="p-0">
@@ -56,8 +57,8 @@ export default function CarObjective({ objective }: Props) {
               <Button
                 variant="ghost"
                 onClick={(e) => {
-                  e.stopPropagation(); // Evitar que se propague al card y active el toggle
-                  // Aquí iría la lógica para agregar actividad
+                  e.stopPropagation();
+                  open(MODULE_PROJECT_ACTIVITIES, "create", objective);
                 }}
               >
                 <PlusCircle className="w-4 h-4 mr-1" />
@@ -105,6 +106,7 @@ export default function CarObjective({ objective }: Props) {
           <TableActivities objectiveId={objective.id} />
         </div>
       )}
+      <ProjectActivitiesDialogs objectiveId={objective.id} />
     </div>
   );
 }

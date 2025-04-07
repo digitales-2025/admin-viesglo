@@ -22,7 +22,7 @@ export default function TableActivities({ objectiveId }: TableActivitiesProps) {
 
   return (
     <DataTable
-      className="border-none"
+      className="border-none max-h-[calc(100vh-20rem)] overflow-y-auto"
       columns={columns}
       data={activities || []}
       isLoading={isLoading}
