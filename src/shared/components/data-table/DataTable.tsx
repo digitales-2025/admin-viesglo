@@ -32,7 +32,6 @@ interface DataTableProps<TData, TValue> {
   pagination?: boolean;
   className?: string;
   onClickRow?: (row: TData) => void;
-  pinHeader?: string;
 }
 
 export function DataTable<TData, TValue>({
@@ -44,7 +43,6 @@ export function DataTable<TData, TValue>({
   pagination = true,
   onClickRow,
   className,
-  pinHeader,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -96,7 +94,7 @@ export function DataTable<TData, TValue>({
       {toolBar && <DataTableToolbar table={table} actions={actions} />}
       <div className={cn("rounded-md border", className)}>
         <Table>
-          <TableHeader className={pinHeader}>
+          <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
