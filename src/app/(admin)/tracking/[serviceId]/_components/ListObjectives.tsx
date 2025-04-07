@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 
+import { NoInfoSection } from "@/shared/components/ui/noinfosection";
 import { useObjectivesProject } from "../../_hooks/useObjectivesProject";
 import CarObjective from "./CardProjectObjective";
 
@@ -19,11 +20,11 @@ export const ListObjectives = ({ serviceId }: ListObjectivesProps) => {
   }
 
   if (!objectives) {
-    return <div>No se encontraron objetivos</div>;
+    return <NoInfoSection message="No se encontraron objetivos" />;
   }
 
   if (objectives?.length === 0) {
-    return <div>No se encontraron objetivos</div>;
+    return <NoInfoSection message="No se encontraron objetivos" />;
   }
 
   return (
