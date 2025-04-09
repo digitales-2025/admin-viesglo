@@ -1,9 +1,9 @@
 import { memo } from "react";
 import { Control, useController, useWatch } from "react-hook-form";
 
-import { AutoComplete } from "@/shared/components/ui/autocomplete";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { UbigeoOption, useUbigeo } from "@/shared/hooks/useUbigeo";
+import { AutoComplete } from "./ui/autocomplete-ubigeo";
 
 interface UbigeoSelectProps {
   control: Control<any>;

@@ -21,12 +21,16 @@ import {
 import { DataTablePagination } from "@/shared/components/data-table/DataTablePagination";
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { cn } from "@/shared/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   actions?: React.ReactNode;
   isLoading?: boolean;
+  toolBar?: boolean;
+  pagination?: boolean;
+  className?: string;
   onClickRow?: (row: TData) => void;
 }
 
@@ -35,7 +39,10 @@ export function DataTable<TData, TValue>({
   data,
   actions,
   isLoading = false,
+  toolBar = true,
+  pagination = true,
   onClickRow,
+  className,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -56,6 +63,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnPinning,
     },
+    manualPagination: !pagination,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -83,8 +91,8 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} actions={actions} />
-      <div className="rounded-md border">
+      {toolBar && <DataTableToolbar table={table} actions={actions} />}
+      <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -137,7 +145,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {pagination && <DataTablePagination table={table} />}
     </div>
   );
 }

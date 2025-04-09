@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createClient, deleteClient, getClients, updateClient } from "../_actions/clients.actions";
+import { createClient, deleteClient, getClients, searchClients, updateClient } from "../_actions/clients.actions";
 import { ClientCreate, ClientUpdate } from "../_types/clients.types";
 
 export const CLIENTS_KEYS = {
@@ -11,6 +11,7 @@ export const CLIENTS_KEYS = {
   lists: () => [...CLIENTS_KEYS.all, "list"] as const,
   list: (filters: string) => [...CLIENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...CLIENTS_KEYS.all, id] as const,
+  search: (filter: string) => [...CLIENTS_KEYS.all, "search", filter] as const,
 };
 
 /**
@@ -101,6 +102,22 @@ export function useDeleteClient() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar cliente");
+    },
+  });
+}
+
+/**
+ * Hook para buscar clientes (nombre, email, ruc)
+ */
+export function useSearchClients(filter: string) {
+  return useQuery({
+    queryKey: CLIENTS_KEYS.search(filter),
+    queryFn: async () => {
+      const response = await searchClients(filter);
+      if (!response.success) {
+        throw new Error(response.error || "Error al buscar clientes");
+      }
+      return response.data;
     },
   });
 }

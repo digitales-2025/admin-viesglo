@@ -7,6 +7,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -40,16 +41,16 @@ export default function QuotationTableActions({ quotation }: QuotationTableActio
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
-            <Edit className="size-4 mr-2" />
             Editar
+            <DropdownMenuShortcut>
+              <Edit className="size-4 mr-2" />
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            className="cursor-pointer text-destructive"
-            onClick={handleDelete}
-            disabled={quotation.isConcrete}
-          >
-            <Trash className="size-4 mr-2" />
+          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={quotation.isConcrete}>
             Eliminar
+            <DropdownMenuShortcut>
+              <Trash className="size-4 mr-2" />
+            </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
