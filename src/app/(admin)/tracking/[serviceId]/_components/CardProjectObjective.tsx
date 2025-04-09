@@ -39,7 +39,7 @@ export default function CardProjectObjective({ objective }: Props) {
     <div className="space-y-2">
       <Card
         key={objective.id}
-        className="p-4 shadow-none transition-colors cursor-pointer z-50 bg-background  hover:border-sky-300 sticky top-16"
+        className="p-4 shadow-none transition-colors cursor-pointer z-[1] bg-background  hover:border-sky-300 sticky top-16"
         onClick={() => setExpanded(!expanded)}
       >
         <CardHeader className="p-0">
@@ -58,7 +58,12 @@ export default function CardProjectObjective({ objective }: Props) {
                 variant="ghost"
                 onClick={(e) => {
                   e.stopPropagation();
-                  open(MODULE_PROJECT_ACTIVITIES, "create", objective);
+                  const dataWithObjectiveId = {
+                    ...objective,
+                    objectiveId: objective.id,
+                  };
+
+                  open(MODULE_PROJECT_ACTIVITIES, "create", dataWithObjectiveId);
                 }}
               >
                 <PlusCircle className="w-4 h-4 mr-1" />
@@ -106,7 +111,7 @@ export default function CardProjectObjective({ objective }: Props) {
           <TableActivities objectiveId={objective.id} />
         </div>
       )}
-      <ProjectActivitiesDialogs objectiveId={objective.id} />
+      {objective && <ProjectActivitiesDialogs objectiveId={objective.id} />}
     </div>
   );
 }

@@ -20,11 +20,21 @@ export default function ProjectActivitiesActions({ row }: ProjectActivitiesActio
   const { open } = useDialogStore();
 
   const handleEdit = () => {
-    open(MODULE_PROJECT_ACTIVITIES, "edit", row);
+    const dataWithObjectiveId = {
+      ...row,
+      objectiveId: row.projectObjectiveId,
+    };
+
+    open(MODULE_PROJECT_ACTIVITIES, "edit", dataWithObjectiveId);
   };
 
   const handleDelete = () => {
-    open(MODULE_PROJECT_ACTIVITIES, "delete", row);
+    const dataWithObjectiveId = {
+      ...row,
+      objectiveId: row.projectObjectiveId,
+    };
+
+    open(MODULE_PROJECT_ACTIVITIES, "delete", dataWithObjectiveId);
   };
 
   return (

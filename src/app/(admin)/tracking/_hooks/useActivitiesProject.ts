@@ -110,6 +110,9 @@ export function useDeleteActivityProject() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Actividad eliminada correctamente");
     },
     onError: () => {
