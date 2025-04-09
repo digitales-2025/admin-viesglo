@@ -11,6 +11,7 @@ import {
 } from "../_actions/activities-project.actions";
 import { CreateProjectActivity, UpdateProjectActivity } from "../_types/tracking.types";
 import { OBJECTIVES_PROJECT_KEYS } from "./useObjectivesProject";
+import { SERVICES_PROJECT_KEYS } from "./useServicesProject";
 
 export const ACTIVITIES_PROJECT_KEYS = {
   all: ["activities-project"] as const,
@@ -53,6 +54,7 @@ export function useCreateActivityProject() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Actividad creada correctamente");
     },
     onError: (error) => {
