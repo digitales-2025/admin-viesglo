@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { currentUser, login, logout } from "../_actions/auth.action";
-import { AuthResponse, SignIn } from "../_types/auth.types";
+import { currentUser, login, logout, updatePassword } from "../_actions/auth.actions";
+import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
 
 export const AUTH_KEYS = {
   user: ["user"],
@@ -161,4 +161,24 @@ export function useCurrentUser() {
     },
   });
   return { data, isLoading, error };
+}
+
+export function useUpdatePassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdatePassword) => {
+      const response = await updatePassword(data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar la contraseña");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
+      toast.success("Contraseña actualizada exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(`Error al actualizar la contraseña: ${error.message}`);
+    },
+  });
 }
