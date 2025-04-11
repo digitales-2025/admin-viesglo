@@ -7,7 +7,6 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { ClinicResponse } from "../_types/clinics.types";
 import ClinicsTableActions from "./ClinicsTableActions";
 
@@ -23,7 +22,11 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     size: 300,
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[300px]">{row.getValue("nombre")}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold truncate capitalize min-w-[200px] max-w-[300px]" title={row.getValue("nombre")}>
+        {row.getValue("nombre")}
+      </div>
+    ),
   },
   {
     id: "departamento",
@@ -78,19 +81,8 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "address",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Dirección" />,
     cell: ({ row }) => (
-      <div className="truncate min-w-[300px]">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="truncate min-w-[150px] max-w-[200px]">
-                {row.getValue("direccion") ? row.getValue("direccion") : "--"}
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>{row.getValue("direccion")}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+      <div className="truncate min-w-[200px] max-w-[300px]" title={row.getValue("direccion")}>
+        {row.getValue("direccion")}
       </div>
     ),
   },

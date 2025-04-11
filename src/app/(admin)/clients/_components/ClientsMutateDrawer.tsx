@@ -349,8 +349,8 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormMessage />
                       {isUpdate && (
                         <AlertMessage
-                          title="Cambiar la contraseña del usuario."
-                          description="Si desea cambiar la contraseña del usuario, genere una nueva contraseña y se enviará al correo electrónico del usuario."
+                          title="Cambiar la contraseña del cliente."
+                          description="Si desea cambiar la contraseña del cliente, genere una nueva contraseña y se enviará al correo electrónico del cliente."
                           variant="info"
                         />
                       )}

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot } from "lucide-react";
+import { Bot, Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import AlertMessage from "@/shared/components/alerts/Alert";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
@@ -208,6 +209,8 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
   const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
 
+  const isChangePassword = isUpdate && form.watch("password");
+
   return (
     <Sheet
       open={open}
@@ -354,6 +357,13 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                         </div>
                       </FormControl>
                       <FormMessage />
+                      {isUpdate && (
+                        <AlertMessage
+                          title="Cambiar la contraseña de la clínica."
+                          description="Si desea cambiar la contraseña de la clínica, genere una nueva contraseña y se enviará al correo electrónico de la clínica."
+                          variant="info"
+                        />
+                      )}
                     </FormItem>
                   )}
                 />
@@ -363,7 +373,22 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="clinics-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              <>
+                Actualizar
+                {isChangePassword && (
+                  <>
+                    {" "}
+                    y enviar credenciales
+                    <Send className="w-4 h-4" />
+                  </>
+                )}
+              </>
+            ) : (
+              "Crear"
+            )}
           </Button>
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>
