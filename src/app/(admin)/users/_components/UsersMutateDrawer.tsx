@@ -90,6 +90,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       email: "",
       phone: "",
       post: "",
+      password: "",
       roleIds: [],
     },
     mode: "onChange",
@@ -102,7 +103,17 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
+        password: "",
         roleIds: currentRow.roles.map((role) => role.id),
+      });
+    } else {
+      form.reset({
+        fullName: "",
+        email: "",
+        phone: "",
+        post: "",
+        password: "",
+        roleIds: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,11 +161,37 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
+        password: "",
         roleIds: currentRow.roles.map((role) => role.id),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
+
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        fullName: "",
+        email: "",
+        phone: "",
+        post: "",
+        password: "",
+        roleIds: [],
+      });
+    }
+  }, [open, form]);
+
+  useEffect(() => {
+    if (isUpdate) {
+      form.reset(form.getValues());
+    } else {
+      const values = form.getValues();
+      form.reset({
+        ...values,
+        password: "",
+      });
+    }
+  }, [isUpdate, form]);
 
   return (
     <Sheet
