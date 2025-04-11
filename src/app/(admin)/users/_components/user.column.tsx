@@ -36,14 +36,17 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     id: "Teléfono",
     accessorKey: "phone",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
-    cell: ({ row }) => (
-      <Link href={`tel:${row.getValue("Teléfono")}`}>
-        <Badge variant="outline">
-          <Phone className="w-4 h-4" />
-          {formatPhoneNumberIntl(row.getValue("Teléfono"))}
-        </Badge>
-      </Link>
-    ),
+    cell: ({ row }) =>
+      row.original.phone && row.original.phone !== "" ? (
+        <Link href={`tel:${row.getValue("Teléfono")}`}>
+          <Badge variant="outline">
+            <Phone className="w-4 h-4" />
+            {formatPhoneNumberIntl(row.getValue("Teléfono")) || row.original.phone}
+          </Badge>
+        </Link>
+      ) : (
+        <Badge variant="outline">No tiene teléfono</Badge>
+      ),
   },
   {
     id: "Cargo",

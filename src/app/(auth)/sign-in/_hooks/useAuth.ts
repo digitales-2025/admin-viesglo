@@ -9,6 +9,12 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import { currentUser, login, logout } from "../_actions/auth.action";
 import { AuthResponse, SignIn } from "../_types/auth.types";
 
+export const AUTH_KEYS = {
+  user: ["user"],
+  lists: () => [...AUTH_KEYS.user, "lists"],
+  detail: (id: string) => [...AUTH_KEYS.user, "detail", id],
+};
+
 interface AuthState {
   user: AuthResponse | null;
   isLoading: boolean;
@@ -106,7 +112,7 @@ export function useSignIn() {
      * @param response - Respuesta del servidor con los datos del usuario
      */
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => {
         router.push("/");
@@ -130,7 +136,7 @@ export function useLogout() {
       await logout();
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Cierre de sesión exitoso");
       router.push("/sign-in");
     },
@@ -145,7 +151,7 @@ export function useLogout() {
  */
 export function useCurrentUser() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["user"],
+    queryKey: AUTH_KEYS.user,
     queryFn: async () => {
       const response = await currentUser();
       if (!response) {
