@@ -126,9 +126,9 @@ export function MultiSelectAutocomplete({
           >
             <div className="flex flex-wrap gap-1">
               {selectedLabels.length > 0 ? (
-                selectedLabels.map((label) => (
+                selectedLabels.map((label, index) => (
                   <Badge
-                    key={label}
+                    key={index}
                     variant="secondary"
                     className={cn("mr-1 mb-1 capitalize h-auto text-sm py-1 px-2", badgeClassName)}
                   >

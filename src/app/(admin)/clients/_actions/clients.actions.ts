@@ -1,16 +1,16 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import { ClientCreate, ClientResponse, ClientUpdate } from "../_types/clients.types";
+import { ClientCreate, ClientResponse, ClientUpdate, ClientWithClinicResponse } from "../_types/clients.types";
 
 const API_ENDPOINT = "/clients";
 
 /**
  * Obtiene todos los clientes
  */
-export async function getClients(): Promise<{ data: ClientResponse[]; success: boolean; error?: string }> {
+export async function getClients(): Promise<{ data: ClientWithClinicResponse[]; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<ClientResponse[]>(API_ENDPOINT);
+    const [data, err] = await http.get<ClientWithClinicResponse[]>(API_ENDPOINT);
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener clientes" };
     }

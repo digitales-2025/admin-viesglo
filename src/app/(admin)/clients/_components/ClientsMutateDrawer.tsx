@@ -167,7 +167,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         department: currentRow.department,
         province: currentRow.province,
         district: currentRow.district,
-        clinicIds: currentRow.clinics,
+        clinicIds: Array.isArray(currentRow?.clinics) ? currentRow.clinics.map((clinic: any) => clinic.id) : [],
       });
     } else {
       form.reset({
@@ -322,9 +322,18 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                         <FormLabel>Clínicas</FormLabel>
                         <FormControl>
                           <MultiSelectAutocomplete
-                            options={clinics?.map((clinic) => ({ label: clinic.name, value: clinic.id })) || []}
+                            options={
+                              clinics?.map((clinic) => ({
+                                label: clinic.name,
+                                value: clinic.id,
+                              })) || []
+                            }
                             selected={field.value || []}
                             onChange={field.onChange}
+                            id="client-clinics-select"
+                            searchPlaceholder="Buscar por nombre de clínica..."
+                            placeholder="Seleccionar clínicas..."
+                            emptyMessage="No se encontraron clínicas con ese nombre."
                           />
                         </FormControl>
                         <FormDescription>Selecciona las clínicas a las que el cliente pertenece.</FormDescription>
