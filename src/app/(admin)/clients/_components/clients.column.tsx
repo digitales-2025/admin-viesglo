@@ -6,11 +6,12 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import AvatarStack from "@/shared/components/ui/avatar-stack";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClientResponse } from "../_types/clients.types";
+import { ClientWithClinicResponse } from "../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
 
-export const columnsClients = (): ColumnDef<ClientResponse>[] => [
+export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
   {
     id: "ruc",
     accessorKey: "ruc",
@@ -103,6 +104,12 @@ export const columnsClients = (): ColumnDef<ClientResponse>[] => [
         </Link>
       </div>
     ),
+  },
+  {
+    id: "clinicas",
+    accessorKey: "clinics",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Clínicas" />,
+    cell: ({ row }) => <AvatarStack users={row.original.clinics} limit={3} size="sm" />,
   },
   {
     id: "actions",

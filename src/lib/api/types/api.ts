@@ -72,6 +72,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/update-password": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la contraseña de un usuario */
+    put: operations["AuthController_updatePassword_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users": {
     parameters: {
       query?: never;
@@ -123,40 +140,6 @@ export interface paths {
     get: operations["UsersController_getUserPermissions_v1"];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/update-password": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Actualizar la contraseña de un usuario */
-    post: operations["UsersController_updatePassword_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/send-password-email": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Enviar correo con la nueva contraseña */
-    post: operations["UsersController_sendPasswordEmail_v1"];
     delete?: never;
     options?: never;
     head?: never;
@@ -1021,6 +1004,14 @@ export interface components {
       fullName?: string;
       roles: string[][];
     };
+    UpdatePasswordDto: {
+      /** @description Contraseña actual */
+      password: string;
+      /** @description Nueva contraseña */
+      newPassword: string;
+      /** @description Confirmar contraseña */
+      confirmPassword: string;
+    };
     RoleResponseDto: {
       /**
        * @description ID único del rol
@@ -1197,20 +1188,6 @@ export interface components {
        * @example create
        */
       action: string;
-    };
-    UpdatePasswordDto: {
-      /** @description Contraseña actual */
-      password: string;
-      /** @description Nueva contraseña */
-      newPassword: string;
-      /** @description Confirmar contraseña */
-      confirmPassword: string;
-    };
-    SendPasswordEmailDto: {
-      /** @description ID del usuario */
-      id: string;
-      /** @description Nueva contraseña */
-      newPassword: string;
     };
     CreateRoleDto: {
       /**
@@ -1735,6 +1712,60 @@ export interface components {
       isActive: boolean;
       /** @description Clínicas asignadas al cliente */
       clinics?: string[];
+    };
+    ClientWithClinicResponseDto: {
+      /**
+       * @description ID único del cliente
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description RUC del cliente
+       * @example 12345678901
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Cliente Empresa
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Calle Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 1234567890
+       */
+      phone: string;
+      /**
+       * @description Correo electrónico del cliente
+       * @example cliente@gmail.com
+       */
+      email: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province: string;
+      /**
+       * @description Distrito del cliente
+       * @example Miraflores
+       */
+      district: string;
+      /**
+       * @description Indica si el cliente está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Clínicas asignadas al cliente */
+      clinics: components["schemas"]["ClinicResponseDto"][];
     };
     AssignClinicsDto: {
       /**
@@ -2924,6 +2955,28 @@ export interface operations {
       };
     };
   };
+  AuthController_updatePassword_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePasswordDto"];
+      };
+    };
+    responses: {
+      /** @description Contraseña actualizada con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   UsersController_findAll_v1: {
     parameters: {
       query?: never;
@@ -3086,62 +3139,6 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UsersController_updatePassword_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePasswordDto"];
-      };
-    };
-    responses: {
-      /** @description Contraseña actualizada con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  UsersController_sendPasswordEmail_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SendPasswordEmailDto"];
-      };
-    };
-    responses: {
-      /** @description Correo enviado con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      201: {
         headers: {
           [name: string]: unknown;
         };
@@ -3765,7 +3762,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ClientResponseDto"][];
+          "application/json": components["schemas"]["ClientWithClinicResponseDto"][];
         };
       };
     };

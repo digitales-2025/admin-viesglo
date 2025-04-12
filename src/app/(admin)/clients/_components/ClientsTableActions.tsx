@@ -9,10 +9,10 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { ClientResponse } from "../_types/clients.types";
+import { ClientWithClinicResponse } from "../_types/clients.types";
 
 interface ClientsTableActionsProps {
-  client: ClientResponse;
+  client: ClientWithClinicResponse;
 }
 
 export default function ClientsTableActions({ client }: ClientsTableActionsProps) {

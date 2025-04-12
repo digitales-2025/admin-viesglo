@@ -8,9 +8,18 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
+import { MultiSelectAutocomplete } from "@/shared/components/multi-select";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { PhoneInput } from "@/shared/components/ui/phone-input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -26,6 +35,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClient, useUpdateClient } from "../_hooks/useClients";
 import { ClientCreate, ClientResponse } from "../_types/clients.types";
+import { useClinics } from "../../clinics/_hooks/useClinics";
 import { generateRandomPass } from "../../users/_utils/generateRandomPass";
 
 interface Props {
@@ -47,6 +57,7 @@ const baseSchema = {
   department: z.string().optional(),
   province: z.string().optional(),
   district: z.string().optional(),
+  clinicIds: z.array(z.string()).optional(),
 };
 
 const createSchema = z.object({
@@ -82,6 +93,7 @@ type FormValues = z.infer<typeof createSchema> & {
 };
 
 export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+  const { data: clinics, isLoading: isLoadingClinics } = useClinics();
   const { mutate: createClient, isPending: isCreating } = useCreateClient();
   const { mutate: updateClient, isPending: isUpdating } = useUpdateClient();
 
@@ -100,10 +112,10 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       department: "",
       province: "",
       district: "",
+      clinicIds: [],
     },
     mode: "onChange",
   });
-
   const watchedUbigeoValues = form.watch(["department", "province", "district"]);
   const [watchedDepartment, watchedProvince, watchedDistrict] = watchedUbigeoValues;
 
@@ -155,6 +167,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         department: currentRow.department,
         province: currentRow.province,
         district: currentRow.district,
+        clinicIds: Array.isArray(currentRow?.clinics) ? currentRow.clinics.map((clinic: any) => clinic.id) : [],
       });
     } else {
       form.reset({
@@ -167,6 +180,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         department: "",
         province: "",
         district: "",
+        clinicIds: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -184,6 +198,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         department: "",
         province: "",
         district: "",
+        clinicIds: [],
       });
     }
   }, [open, form]);
@@ -297,6 +312,37 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 }}
               />
               <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
+                <legend className="text-xs font-semibold text-muted-foreground">Clínicas</legend>
+                <div className="flex flex-col gap-2">
+                  <FormField
+                    control={form.control}
+                    name="clinicIds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Clínicas</FormLabel>
+                        <FormControl>
+                          <MultiSelectAutocomplete
+                            options={
+                              clinics?.map((clinic) => ({
+                                label: clinic.name,
+                                value: clinic.id,
+                              })) || []
+                            }
+                            selected={field.value || []}
+                            onChange={field.onChange}
+                            id="client-clinics-select"
+                            searchPlaceholder="Buscar por nombre de clínica..."
+                            placeholder="Seleccionar clínicas..."
+                            emptyMessage="No se encontraron clínicas con ese nombre."
+                          />
+                        </FormControl>
+                        <FormDescription>Selecciona las clínicas a las que el cliente pertenece.</FormDescription>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </fieldset>
+              <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
                 <legend className="text-xs font-semibold text-muted-foreground">Credenciales</legend>
                 <FormField
                   control={form.control}
@@ -362,7 +408,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           </Form>
         </ScrollArea>
         <SheetFooter className="gap-2">
-          <Button form="clients-form" type="submit" disabled={isPending}>
+          <Button form="clients-form" type="submit" disabled={isPending || isLoadingClinics}>
             {isPending ? (
               "Guardando..."
             ) : isUpdate ? (
