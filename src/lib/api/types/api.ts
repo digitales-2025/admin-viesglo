@@ -129,6 +129,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/users/update-password": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Actualizar la contraseña de un usuario */
+    post: operations["UsersController_updatePassword_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/send-password-email": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Enviar correo con la nueva contraseña */
+    post: operations["UsersController_sendPasswordEmail_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/roles": {
     parameters: {
       query?: never;
@@ -1164,6 +1198,20 @@ export interface components {
        */
       action: string;
     };
+    UpdatePasswordDto: {
+      /** @description Contraseña actual */
+      password: string;
+      /** @description Nueva contraseña */
+      newPassword: string;
+      /** @description Confirmar contraseña */
+      confirmPassword: string;
+    };
+    SendPasswordEmailDto: {
+      /** @description ID del usuario */
+      id: string;
+      /** @description Nueva contraseña */
+      newPassword: string;
+    };
     CreateRoleDto: {
       /**
        * @description Nombre del rol
@@ -1777,7 +1825,7 @@ export interface components {
       responsibleUserId?: string;
       /**
        * @description Fecha programada
-       * @example 2023-12-31T23:59:59Z
+       * @example 2023-12-31
        */
       scheduledDate?: string;
       /**
@@ -3038,6 +3086,62 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_updatePassword_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePasswordDto"];
+      };
+    };
+    responses: {
+      /** @description Contraseña actualizada con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_sendPasswordEmail_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SendPasswordEmailDto"];
+      };
+    };
+    responses: {
+      /** @description Correo enviado con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      201: {
         headers: {
           [name: string]: unknown;
         };

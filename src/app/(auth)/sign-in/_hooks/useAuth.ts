@@ -6,8 +6,14 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { currentUser, login, logout } from "../_actions/auth.action";
-import { AuthResponse, SignIn } from "../_types/auth.types";
+import { currentUser, login, logout, updatePassword } from "../_actions/auth.actions";
+import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
+
+export const AUTH_KEYS = {
+  user: ["user"],
+  lists: () => [...AUTH_KEYS.user, "lists"],
+  detail: (id: string) => [...AUTH_KEYS.user, "detail", id],
+};
 
 interface AuthState {
   user: AuthResponse | null;
@@ -106,7 +112,7 @@ export function useSignIn() {
      * @param response - Respuesta del servidor con los datos del usuario
      */
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => {
         router.push("/");
@@ -130,7 +136,7 @@ export function useLogout() {
       await logout();
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Cierre de sesión exitoso");
       router.push("/sign-in");
     },
@@ -145,7 +151,7 @@ export function useLogout() {
  */
 export function useCurrentUser() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ["user"],
+    queryKey: AUTH_KEYS.user,
     queryFn: async () => {
       const response = await currentUser();
       if (!response) {
@@ -155,4 +161,24 @@ export function useCurrentUser() {
     },
   });
   return { data, isLoading, error };
+}
+
+export function useUpdatePassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdatePassword) => {
+      const response = await updatePassword(data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar la contraseña");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
+      toast.success("Contraseña actualizada exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(`Error al actualizar la contraseña: ${error.message}`);
+    },
+  });
 }

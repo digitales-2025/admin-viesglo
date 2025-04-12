@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheckIcon, ChevronsUpDown, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(auth)/sign-in/_actions/auth.action";
+import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
 import { AuthResponse } from "@/app/(auth)/sign-in/_types/auth.types";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
@@ -51,7 +51,9 @@ export function NavUser({ user }: { user: AuthResponse }) {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg">{firstLetterName(user?.fullName || "")}</AvatarFallback>
+                  <AvatarFallback className="rounded-lg uppercase">
+                    {firstLetterName(user?.fullName || "")}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.fullName}</span>

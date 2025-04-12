@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { createUser, deleteUser, getUser, getUsers, updateUser } from "../_actions/user.actions";
 import { UserCreate, UserUpdate } from "../_types/user.types";
 
@@ -98,10 +99,11 @@ export function useUpdateUser() {
       }
       return updateUserResponse.data;
     },
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       // Invalida consultas para refrescar los datos
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Usuario actualizado exitosamente");
     },
     onError: (error: Error) => {

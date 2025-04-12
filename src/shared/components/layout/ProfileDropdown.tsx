@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(auth)/sign-in/_actions/auth.action";
+import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -52,7 +52,7 @@ export function ProfileDropdown() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>{firstLetterName(user?.fullName || "")}</AvatarFallback>
+                <AvatarFallback className="uppercase">{firstLetterName(user?.fullName || "")}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>

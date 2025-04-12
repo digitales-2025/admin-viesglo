@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot, Loader2 } from "lucide-react";
+import { Bot, Loader2, Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import AlertMessage from "@/shared/components/alerts/Alert";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
@@ -90,6 +91,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
       email: "",
       phone: "",
       post: "",
+      password: "",
       roleIds: [],
     },
     mode: "onChange",
@@ -102,7 +104,17 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
+        password: "",
         roleIds: currentRow.roles.map((role) => role.id),
+      });
+    } else {
+      form.reset({
+        fullName: "",
+        email: "",
+        phone: "",
+        post: "",
+        password: "",
+        roleIds: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -150,11 +162,39 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         email: currentRow.email,
         phone: currentRow.phone || "",
         post: currentRow.post || "",
+        password: "",
         roleIds: currentRow.roles.map((role) => role.id),
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
+
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        fullName: "",
+        email: "",
+        phone: "",
+        post: "",
+        password: "",
+        roleIds: [],
+      });
+    }
+  }, [open, form]);
+
+  useEffect(() => {
+    if (isUpdate) {
+      form.reset(form.getValues());
+    } else {
+      const values = form.getValues();
+      form.reset({
+        ...values,
+        password: "",
+      });
+    }
+  }, [isUpdate, form]);
+
+  const isChangePassword = isUpdate && form.watch("password") !== "";
 
   return (
     <Sheet
@@ -283,6 +323,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                   : "Introduce la contraseña del usuario"
                               }
                               {...field}
+                              disabled={isPending}
                             />
                             <TooltipProvider>
                               <Tooltip>
@@ -291,6 +332,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                     variant="outline"
                                     size="icon"
                                     type="button"
+                                    disabled={isPending}
                                     onClick={() => {
                                       field.onChange(generateRandomPass());
                                     }}
@@ -304,6 +346,13 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                           </div>
                         </FormControl>
                         <FormMessage />
+                        {isUpdate && (
+                          <AlertMessage
+                            title="Cambiar la contraseña del usuario."
+                            description="Si desea cambiar la contraseña del usuario, genere una nueva contraseña y se enviará al correo electrónico del usuario."
+                            variant="info"
+                          />
+                        )}
                       </FormItem>
                     )}
                   />
@@ -314,7 +363,22 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="tasks-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              <>
+                Actualizar
+                {isChangePassword && (
+                  <>
+                    {" "}
+                    y enviar credenciales
+                    <Send className="w-4 h-4" />
+                  </>
+                )}
+              </>
+            ) : (
+              "Crear"
+            )}
           </Button>
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>

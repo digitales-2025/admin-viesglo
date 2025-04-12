@@ -7,3 +7,5 @@ export type AuthResponse = Omit<AuthResponseOriginal, "roles"> & {
 };
 
 export type SignIn = components["schemas"]["SignInDto"];
+
+export type UpdatePassword = components["schemas"]["UpdatePasswordDto"];

@@ -5,8 +5,7 @@ import { z } from "zod";
 
 import { http } from "@/lib/http/clientFetch";
 import { http as httpApi } from "@/lib/http/serverFetch";
-import { AuthResponse } from "../_types/auth.types";
-import { components } from "../../../../lib/api/types/api";
+import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
 
 // Schema para validación del formulario
 const loginSchema = z.object({
@@ -14,9 +13,7 @@ const loginSchema = z.object({
   password: z.string().min(1, "Contraseña requerida"),
 });
 
-export type Credentials = components["schemas"]["SignInDto"];
-
-export async function login(credentials: Credentials) {
+export async function login(credentials: SignIn) {
   // Validar datos
   const validationResult = loginSchema.safeParse(credentials);
   if (!validationResult.success) {
@@ -27,7 +24,7 @@ export async function login(credentials: Credentials) {
   }
 
   try {
-    const loginData: Credentials = {
+    const loginData: SignIn = {
       email: credentials.email,
       password: credentials.password,
     };
@@ -141,5 +138,19 @@ export async function currentUser() {
   } catch (error) {
     console.error("Error al obtener el usuario:", error);
     return null;
+  }
+}
+
+export async function updatePassword(
+  data: UpdatePassword
+): Promise<{ success: boolean; data: string | null; error?: string }> {
+  try {
+    const [response, error] = await httpApi.put<string>("/auth/update-password", data);
+    if (error) {
+      throw new Error(error.message);
+    }
+    return { success: true, data: response };
+  } catch (error: any) {
+    return { success: false, data: null, error: error.message || "Error al actualizar la contraseña" };
   }
 }
