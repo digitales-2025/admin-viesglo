@@ -1,6 +1,30 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
+import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
 export default function ClientDashboardLayout({ children }: { children: React.ReactNode }) {
-  useUserTypeGuard(["client"]);
-  return <div>{children}</div>;
+  const { user, isLoading } = useUserTypeGuard(["client"]);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowContent(true);
+    }, 500);
+  }, []);
+
+  if (isLoading || !user || !showContent) {
+    return <LoadingTransition show={true} message="Verificando acceso..." />;
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <header className="bg-indigo-600 text-white p-4">
+        <h1 className="text-xl font-bold">Panel de Cliente</h1>
+      </header>
+      <main className="flex-grow p-4">{children}</main>
+    </div>
+  );
 }

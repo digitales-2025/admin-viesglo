@@ -8,7 +8,7 @@ import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import AdminDashboard from "@/shared/components/dashboard/AdminDashboard";
 import ClientDashboard from "@/shared/components/dashboard/ClientDashboard";
 import ClinicDashboard from "@/shared/components/dashboard/ClinicDashboard";
-import { Spinner } from "@/shared/components/ui/spinner";
+import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
 export default function HomePage() {
   const { user, isLoading: isAuthLoading } = useAuth();
@@ -36,13 +36,9 @@ export default function HomePage() {
     }
   }, [error]);
 
-  // Mostrar un spinner mientras carga
+  // Mostrar el LoadingTransition mientras carga o ejecutándose en el servidor
   if (isLoading || !isClient) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Spinner size="lg" />
-      </div>
-    );
+    return <LoadingTransition show={true} message="Cargando información..." />;
   }
 
   // Si no hay usuario, no renderizar nada (la redirección se maneja en el useEffect)
@@ -51,6 +47,7 @@ export default function HomePage() {
   }
 
   // Renderizar el dashboard según el tipo de usuario
+  // Los layouts específicos ya tienen su propia protección con useUserTypeGuard
   switch (user.type) {
     case "admin":
       return <AdminDashboard />;

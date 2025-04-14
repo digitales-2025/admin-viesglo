@@ -1,8 +1,12 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
 import ClinicSidebar from "@/shared/components/layout/ClinicSidebar";
 import SkipToMain from "@/shared/components/layout/SkipToMain";
+import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 import { SidebarProvider } from "@/shared/components/ui/sidebar";
 import { SearchProvider } from "@/shared/context/search-context";
 import { ThemeProvider } from "@/shared/context/theme-provider";
@@ -10,7 +14,19 @@ import { cn } from "@/shared/lib/utils";
 
 export default function ClinicDashboardLayout({ children }: { children: React.ReactNode }) {
   const defaultOpen = Cookies.get("sidebar:state") !== "false";
-  useUserTypeGuard(["clinic"]);
+  const { user, isLoading } = useUserTypeGuard(["clinic"]);
+  const [showContent, setShowContent] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setShowContent(true);
+    }, 500);
+  }, []);
+
+  if (isLoading || !user || !showContent) {
+    return <LoadingTransition show={true} message="Verificando acceso..." />;
+  }
+
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
       <SearchProvider>
