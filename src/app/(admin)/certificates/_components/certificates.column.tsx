@@ -23,7 +23,9 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
     cell: ({ row }) => (
-      <div className="font-semibold capitalize min-w-[200px] max-w-[200px] truncate">{row.original.businessName}</div>
+      <div className="font-semibold capitalize min-w-[200px] max-w-[200px] truncate" title={row.original.businessName}>
+        {row.original.businessName}
+      </div>
     ),
   },
   {
@@ -58,7 +60,12 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     accessorKey: "nameCapacitation",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Tema de la capacitación" />,
     cell: ({ row }) => (
-      <div className="font-semibold capitalize min-w-[150px] max-w-[150px]">{row.original.nameCapacitation}</div>
+      <div
+        className="font-semibold truncate capitalize min-w-[150px] max-w-[150px]"
+        title={row.original.nameCapacitation}
+      >
+        {row.original.nameCapacitation}
+      </div>
     ),
   },
   {
