@@ -1,8 +1,38 @@
-export default function Layout({ children }: { children: React.ReactNode }) {
+import Cookies from "js-cookie";
+
+import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
+import ClinicSidebar from "@/shared/components/layout/ClinicSidebar";
+import SkipToMain from "@/shared/components/layout/SkipToMain";
+import { SidebarProvider } from "@/shared/components/ui/sidebar";
+import { SearchProvider } from "@/shared/context/search-context";
+import { ThemeProvider } from "@/shared/context/theme-provider";
+import { cn } from "@/shared/lib/utils";
+
+export default function ClinicDashboardLayout({ children }: { children: React.ReactNode }) {
+  const defaultOpen = Cookies.get("sidebar:state") !== "false";
+  useUserTypeGuard(["clinic"]);
   return (
-    <div>
-      <h1>Clinic</h1>
-      {children}
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <SearchProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <SkipToMain />
+          <ClinicSidebar />
+          <div
+            id="content"
+            className={cn(
+              "ml-auto w-full max-w-full",
+              "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
+              "peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]",
+              "transition-[width] duration-200 ease-linear",
+              "flex h-svh flex-col",
+              "group-data-[scroll-locked=1]/body:h-full",
+              "group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh"
+            )}
+          >
+            {children}
+          </div>
+        </SidebarProvider>
+      </SearchProvider>
+    </ThemeProvider>
   );
 }

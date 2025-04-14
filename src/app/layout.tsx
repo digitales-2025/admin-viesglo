@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
 
+import { AuthProvider } from "@/auth/presentation/providers/AuthProvider";
 import { QueryProvider } from "@/shared/context/query-provider";
 import { ThemeProvider } from "@/shared/context/theme-provider";
 import { ToastProvider } from "@/shared/context/toast-provider";
@@ -35,8 +36,10 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <QueryProvider>
-            {children}
-            <ToastProvider />
+            <AuthProvider>
+              {children}
+              <ToastProvider />
+            </AuthProvider>
           </QueryProvider>
         </ThemeProvider>
       </body>

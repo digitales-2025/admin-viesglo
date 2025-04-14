@@ -1,8 +1,6 @@
-export default function Layout({ children }: { children: React.ReactNode }) {
-  return (
-    <div>
-      <h1>Client</h1>
-      {children}
-    </div>
-  );
+import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
+
+export default function ClientDashboardLayout({ children }: { children: React.ReactNode }) {
+  useUserTypeGuard(["client"]);
+  return <div>{children}</div>;
 }

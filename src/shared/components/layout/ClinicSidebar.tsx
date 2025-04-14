@@ -1,5 +1,8 @@
 "use client";
 
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { AuthResponse } from "@/app/(auth)/sign-in/_types/auth.types";
+import { clinicSidebarData } from "@/shared/components/layout/data/clinic-sidebar-data";
 import { NavGroup } from "@/shared/components/layout/NavGroup";
 import { NavUser } from "@/shared/components/layout/NavUser";
 import {
@@ -12,23 +15,23 @@ import {
 } from "@/shared/components/ui/sidebar";
 import LogoLarge from "../icons/LogoLarge";
 import LogoSmall from "../icons/LogoSmall";
-import { sidebarData } from "./data/sidebar-data";
+import { Skeleton } from "../ui/skeleton";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export default function ClinicSidebar() {
+  const { data: user, isLoading } = useCurrentUser();
   const { state } = useSidebar();
-
   return (
-    <Sidebar collapsible="icon" variant="floating" {...props}>
+    <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
         {state === "expanded" ? <LogoLarge className="h-10" /> : <LogoSmall className="h-6" />}
       </SidebarHeader>
       <SidebarContent>
-        {sidebarData.navGroups.map((props) => (
+        {clinicSidebarData.navGroups.map((props) => (
           <NavGroup key={props.title} {...props} />
         ))}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser />
+        {isLoading ? <Skeleton className="h-10 w-full" /> : <NavUser user={user as AuthResponse} />}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

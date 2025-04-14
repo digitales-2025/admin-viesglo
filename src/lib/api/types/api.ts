@@ -998,10 +998,16 @@ export interface components {
        */
       email?: string;
       /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
+       * @description Nombre (para clínicas y clientes)
+       * @example Clínica ABC
        */
-      fullName?: string;
+      name?: string;
+      /**
+       * @description Tipo de usuario
+       * @example admin
+       * @enum {string}
+       */
+      type?: "admin" | "clinic" | "client";
       roles: string[][];
     };
     UpdatePasswordDto: {

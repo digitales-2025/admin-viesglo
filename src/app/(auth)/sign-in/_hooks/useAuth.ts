@@ -42,7 +42,9 @@ export const useAuth = create<AuthState>()(
         set({
           user: {
             ...user,
-            roles: user.roles || [],
+            roles: Array.isArray(user.roles)
+              ? user.roles.map((role: any) => (typeof role === "string" ? role : role.name))
+              : [],
           },
         }),
 
@@ -100,16 +102,18 @@ export function useSignIn() {
           throw new Error("No se recibieron datos del servidor");
         }
 
-        return result.data;
+        return result;
       } catch (error) {
         throw new Error(error as string);
       }
     },
-    onSuccess: async () => {
+    onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => {
-        router.push("/");
+        // Usar la URL de redirección devuelta por la acción login si está disponible
+        const redirectUrl = result.redirectUrl || "/";
+        router.push(redirectUrl);
       }, 1000);
     },
     onError: (error: Error) => {
@@ -144,17 +148,16 @@ export function useLogout() {
  * Hook personalizado para obtener el usuario autenticado
  */
 export function useCurrentUser() {
-  const { data, isLoading, error } = useQuery({
+  return useQuery({
     queryKey: AUTH_KEYS.user,
     queryFn: async () => {
       const response = await currentUser();
-      if (!response) {
-        throw new Error("No se recibieron datos del servidor");
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener el usuario");
       }
-      return response;
+      return response.data;
     },
   });
-  return { data, isLoading, error };
 }
 
 export function useUpdatePassword() {
