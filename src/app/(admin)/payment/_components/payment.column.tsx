@@ -263,7 +263,11 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     id: "businessName",
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[200px]">{row.getValue("businessName")}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold capitalize min-w-[200px]" title={row.getValue("businessName")}>
+        {row.getValue("businessName")}
+      </div>
+    ),
   },
   {
     id: "service",
