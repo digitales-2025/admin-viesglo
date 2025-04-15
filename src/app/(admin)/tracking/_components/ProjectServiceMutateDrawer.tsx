@@ -159,7 +159,7 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
           </div>
         </SheetDescription>
       </SheetHeader>
-      <ScrollArea className="h-[calc(100vh-250px)]">
+      <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
         <Form {...form}>
           <form id="services-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
             <FormField

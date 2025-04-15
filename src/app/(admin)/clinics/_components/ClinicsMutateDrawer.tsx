@@ -20,7 +20,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClinic, useUpdateClinic } from "../_hooks/useClinics";
 import { ClinicCreate, ClinicResponse } from "../_types/clinics.types";
@@ -228,7 +228,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             {isUpdate ? "Actualiza los datos de la clínica" : "Crea una nueva clínica"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="clinics-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

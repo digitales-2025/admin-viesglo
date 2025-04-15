@@ -26,7 +26,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
 import { CreateProject, ProjectResponse, UpdateProjectWithoutServices } from "../_types/tracking.types";
@@ -216,7 +216,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField
