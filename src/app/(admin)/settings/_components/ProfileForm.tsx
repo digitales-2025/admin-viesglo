@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useUpdateUser } from "@/app/(admin)/users/_hooks/useUsers";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -18,7 +19,6 @@ import {
   FormMessage,
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { useUpdateUser } from "../../users/_hooks/useUsers";
 
 const profileFormSchema = z.object({
   username: z
@@ -55,7 +55,7 @@ export default function ProfileForm() {
   useEffect(() => {
     if (user) {
       form.reset({
-        username: user.fullName,
+        username: user.name,
         email: user.email,
       });
     }

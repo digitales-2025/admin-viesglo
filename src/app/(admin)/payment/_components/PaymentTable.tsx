@@ -12,14 +12,13 @@ export default function PaymentTable() {
 
   const columns = useMemo(() => columnsPayment(), []);
 
-  if (isLoading) return <div className="text-center py-4">Cargando pagos...</div>;
-
   if (error) return <div className="text-center py-4">Error al cargar pagos</div>;
 
   return (
     <DataTable
       columns={columns}
       data={payments || []}
+      isLoading={isLoading}
       actions={
         <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
           <DownloadCloud className="mr-2 h-4 w-4" /> Descargar

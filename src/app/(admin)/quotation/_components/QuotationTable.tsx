@@ -13,14 +13,13 @@ export default function QuotationTable() {
 
   const columns = useMemo(() => columnsQuotation(), []);
 
-  if (isLoading) return <div className="text-center py-4">Cargando cotizaciones...</div>;
-
   if (error) return <div className="text-center py-4">Error al cargar cotizaciones</div>;
 
   return (
     <DataTable
       columns={columns}
       data={quotations || []}
+      isLoading={isLoading}
       actions={
         <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
           <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
