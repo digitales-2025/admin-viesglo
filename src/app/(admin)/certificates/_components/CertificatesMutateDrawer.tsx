@@ -127,6 +127,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       expirationDate.setFullYear(expirationDate.getFullYear() + 1);
       form.setValue("dateExpiration", expirationDate.toISOString());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, form.watch("dateEmision")]);
 
   const onSubmit = (data: FormValues) => {
