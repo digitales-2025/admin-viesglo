@@ -37,7 +37,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Salud Ocupacional",
           icon: SquareActivity,
-          url: "/occupational-health",
+          url: "/medical-records",
         },
       ],
     },
