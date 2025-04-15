@@ -94,9 +94,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user.roles.includes(role);
   };
 
-  const hasPermission = async (permission: string): Promise<boolean> => {
+  const hasPermission = async () //permission: string
+  : Promise<boolean> => {
     // TODO: Implementar la lógica para verificar si el usuario tiene el permiso
-    console.log("🚀 ~ hasPermission ~ permission:", permission);
     if (!user) return false;
 
     // Ejemplo básico: el superadmin tiene todos los permisos
@@ -108,9 +108,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return false;
   };
 
-  const authorizeUser = async (requiredRoles?: string[], requiredPermissions?: string[]): Promise<User | null> => {
+  const authorizeUser = async (requiredRoles?: string[]): Promise<User | null> => {
+    // requiredPermissions?: string[]
     // TODO: Implementar la lógica para verificar si el usuario tiene los roles y permisos necesarios
-    console.log("🚀 ~ authorizeUser ~ requiredPermissions:", requiredPermissions);
     try {
       if (!user) {
         throw new UnauthorizedError("Usuario no autenticado");
