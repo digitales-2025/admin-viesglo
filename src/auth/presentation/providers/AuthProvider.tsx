@@ -54,8 +54,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(true);
       setIsLoading(false);
     } else if (!isUserLoading && error) {
-      // Si hay un error al cargar el usuario
-      console.error("Error loading user:", error);
       setUser(null);
       setIsAuthenticated(false);
       setIsLoading(false);
