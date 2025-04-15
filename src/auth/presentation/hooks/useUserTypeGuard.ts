@@ -21,7 +21,6 @@ export function useUserTypeGuard(allowedUserTypes: UserType[]) {
     if (!isLoading && user) {
       // Verificar si el tipo de usuario actual está permitido
       const isAllowed = allowedUserTypes.includes(user.type as UserType);
-
       // Si no está permitido, redirigir a la página principal
       if (!isAllowed) {
         console.log(`Acceso denegado para el tipo de usuario ${user.type}`);

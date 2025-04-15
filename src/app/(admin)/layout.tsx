@@ -9,22 +9,16 @@ import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useUserTypeGuard(["admin"]);
+  console.log("🚀 ~ AdminDashboardLayout ~ isLoading:", isLoading);
   const [showContent, setShowContent] = useState(false);
+  console.log("🚀 ~ AdminDashboardLayout ~ showContent:", showContent);
 
   useEffect(() => {
-    // Solo mostramos el contenido cuando:
-    // 1. No está cargando
-    // 2. Existe un usuario (está autenticado)
-    // 3. Esperamos 500ms para asegurar transiciones suaves
     if (!isLoading && user) {
       const timer = setTimeout(() => {
         setShowContent(true);
       }, 500);
-
       return () => clearTimeout(timer);
-    } else {
-      // Reseteamos el estado si no se cumplen las condiciones
-      setShowContent(false);
     }
   }, [isLoading, user]);
 

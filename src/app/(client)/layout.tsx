@@ -10,10 +10,13 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
   const [showContent, setShowContent] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setShowContent(true);
-    }, 500);
-  }, []);
+    if (!isLoading && user) {
+      const timer = setTimeout(() => {
+        setShowContent(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, user]);
 
   if (isLoading || !user || !showContent) {
     return <LoadingTransition show={true} message="Verificando acceso..." />;
