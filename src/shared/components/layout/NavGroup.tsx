@@ -33,12 +33,19 @@ const NavBadge = ({ children }: { children: ReactNode }) => (
   <Badge className="rounded-full px-1 py-0 text-xs">{children}</Badge>
 );
 function checkIsActive(href: string, item: NavItem, mainNav = false) {
-  return (
-    href === item.url || // /endpint?search=param
-    href.split("?")[0] === item.url || // endpoint
-    !!item?.items?.filter((i) => i.url === href).length || // if child nav is active
-    (mainNav && href.split("/")[1] !== "" && href.split("/")[1] === String(item?.url)?.split("/")[1])
-  );
+  if (href === item.url) return true;
+
+  if (href.split("?")[0] === item.url) return true;
+
+  if (item?.items?.some((i) => i.url === href)) return true;
+
+  if (item.url && item.url !== "/" && href.startsWith(item.url + "/")) return true;
+
+  if (mainNav && href.split("/")[1] !== "" && String(item?.url)?.split("/")[1] === href.split("/")[1]) {
+    return true;
+  }
+
+  return false;
 }
 
 const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
@@ -47,7 +54,7 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
     <SidebarMenuItem>
       <SidebarMenuButton asChild isActive={checkIsActive(href, item)} tooltip={item.title}>
         <Link href={item.url} onClick={() => setOpenMobile(false)}>
-          {item.icon && <item.icon className={cn(checkIsActive(href, item) ? "text-yellow-500" : "")} />}
+          {item.icon && <item.icon className={cn(checkIsActive(href, item) ? "text-primary" : "")} />}
           <span className={cn(checkIsActive(href, item) ? "font-semibold" : "")}>{item.title}</span>
           {item.badge && <NavBadge>{item.badge}</NavBadge>}
         </Link>

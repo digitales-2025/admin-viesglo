@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -6,12 +6,12 @@ import { z } from "zod";
 
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { Checkbox } from "@/shared/components/ui/checkbox";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 
 // Interfaz que coincide con ProjectFilters
@@ -59,6 +59,7 @@ export interface ProjectsAdvancedSearchProps {
 export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: ProjectsAdvancedSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState<string[]>([]);
+  const isMobile = useIsMobile();
 
   // Referencia para almacenar el último estado de filtros y evitar renderizados innecesarios
   const lastAppliedFiltersRef = useRef<string>("");
@@ -66,19 +67,22 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   // Ref para controlar el debounce
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const defaultFormValues: FormValues = {
-    search: "",
-    status: "all",
-    typeProject: "",
-    typeContract: "",
-    startDateFrom: "",
-    startDateTo: "",
-    endDateFrom: "",
-    endDateTo: "",
-    clientId: "",
-    isActive: "true",
-    ...defaultValues,
-  };
+  const defaultFormValues = useMemo(
+    () => ({
+      search: "",
+      status: "all",
+      typeProject: "",
+      typeContract: "",
+      startDateFrom: "",
+      startDateTo: "",
+      endDateFrom: "",
+      endDateTo: "",
+      clientId: "",
+      isActive: "true",
+      ...defaultValues,
+    }),
+    [defaultValues]
+  );
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -191,24 +195,6 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
     onSearch(values);
   };
 
-  // Función para establecer la misma fecha en "desde" y "hasta"
-  const setExactDateRange = (
-    fieldNameFrom: "startDateFrom" | "endDateFrom",
-    fieldNameTo: "startDateTo" | "endDateTo",
-    date: string
-  ) => {
-    if (date) {
-      // Actualizar ambos campos con la misma fecha
-      form.setValue(fieldNameFrom, date, { shouldDirty: true, shouldTouch: true });
-      form.setValue(fieldNameTo, date, { shouldDirty: true, shouldTouch: true });
-
-      // Actualizar los filtros inmediatamente después de cambiar los valores
-      setTimeout(() => {
-        updateFilters();
-      }, 0);
-    }
-  };
-
   const removeFilter = (filter: string) => {
     const filterType = filter.split(":")[0].trim();
 
@@ -248,298 +234,255 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
     // Después de actualizar el form, ejecutamos la búsqueda con los nuevos valores
     setTimeout(() => {
-      const values = form.getValues();
-
-      // Si el status es "all", lo eliminamos para no enviarlo al backend
-      if (values.status === "all") {
-        values.status = "";
-      }
-
-      onSearch(values);
+      const formValues = form.getValues();
+      onSearch(formValues);
     }, 0);
   };
 
   const clearAllFilters = () => {
-    // Resetear el formulario a los valores predeterminados
     form.reset(defaultFormValues);
-
-    // Limpiar los filtros aplicados
-    setAppliedFilters([]);
-
-    // Ejecutar la búsqueda con los valores predeterminados
-    setTimeout(() => {
-      const values = { ...defaultFormValues };
-
-      // Si el status es "all", lo eliminamos para no enviarlo al backend
-      if (values.status === "all") {
-        values.status = "";
-      }
-
-      onSearch(values);
-    }, 0);
+    onSearch({
+      search: "",
+      status: "",
+      typeProject: "",
+      typeContract: "",
+      startDateFrom: "",
+      startDateTo: "",
+      endDateFrom: "",
+      endDateTo: "",
+      clientId: "",
+      isActive: "true",
+    });
   };
 
-  // Función para crear un objeto Date de forma segura o undefined si la fecha es inválida
+  // Función para manejar fechas de forma segura
   const safeDate = (dateStr: string | undefined) => {
     if (!dateStr) return undefined;
-
     try {
       const date = new Date(dateStr);
-      return !isNaN(date.getTime()) ? date : undefined;
+      return isNaN(date.getTime()) ? undefined : date;
     } catch {
       return undefined;
     }
   };
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("space-y-2", className)}>
       <Form {...form}>
-        <div className="flex gap-2">
-          <div className="flex-1">
+        <div className="flex flex-wrap gap-2 items-end">
+          <div className="grow-[3] min-w-[150px]">
             <FormField
               control={form.control}
               name="search"
               render={({ field }) => (
-                <FormItem className="flex-1">
+                <FormItem>
                   <FormControl>
-                    <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Buscar por nombre o descripción..."
-                        className="pl-8"
-                        {...field}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") {
-                            e.preventDefault();
-                            handleSimpleSearch();
-                          }
-                        }}
-                      />
+                    <div className="flex w-full items-center space-x-2">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="search"
+                          placeholder={isMobile ? "Buscar..." : "Buscar proyectos..."}
+                          className={cn("h-9 sm:h-10 w-full pl-8", appliedFilters.length > 0 && "rounded-b-none")}
+                          {...field}
+                        />
+                      </div>
+                      <div className="flex space-x-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size={isMobile ? "sm" : "default"}
+                          className="h-9 sm:h-10"
+                          onClick={handleSimpleSearch}
+                        >
+                          Buscar
+                        </Button>
+                        <Popover open={isOpen} onOpenChange={setIsOpen}>
+                          <PopoverTrigger asChild>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size={isMobile ? "icon" : "default"}
+                              className={cn("h-9 sm:h-10", isOpen && "border-primary")}
+                            >
+                              <SlidersHorizontal className="h-4 w-4" />
+                              {!isMobile && <span className="ml-2">Filtros</span>}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent align="end" className="w-full sm:w-[400px] p-4">
+                            <form onSubmit={form.handleSubmit(handleSearch)} className="grid gap-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <FormField
+                                    control={form.control}
+                                    name="status"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <FormLabel>Estado</FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                          <FormControl>
+                                            <SelectTrigger className="h-8 sm:h-9">
+                                              <SelectValue placeholder="Selecciona un estado" />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            <SelectItem value="all">Todos</SelectItem>
+                                            {PROJECT_STATUS.map((status) => (
+                                              <SelectItem key={status.id} value={status.id}>
+                                                {status.label}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <FormField
+                                    control={form.control}
+                                    name="isActive"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <FormLabel>Estado activo</FormLabel>
+                                        <Select value={field.value} onValueChange={field.onChange}>
+                                          <FormControl>
+                                            <SelectTrigger className="h-8 sm:h-9">
+                                              <SelectValue placeholder="Selecciona un estado" />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            <SelectItem value="true">Activos</SelectItem>
+                                            <SelectItem value="false">Inactivos</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <FormLabel>Fecha de inicio</FormLabel>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <FormField
+                                    control={form.control}
+                                    name="startDateFrom"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <DatePicker
+                                          placeholder="Desde"
+                                          selected={safeDate(field.value)}
+                                          onSelect={(date) => {
+                                            field.onChange(date ? date.toISOString() : "");
+                                          }}
+                                          className="h-8 sm:h-9"
+                                        />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="startDateTo"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <DatePicker
+                                          placeholder="Hasta"
+                                          selected={safeDate(field.value)}
+                                          onSelect={(date) => {
+                                            field.onChange(date ? date.toISOString() : "");
+                                          }}
+                                          className="h-8 sm:h-9"
+                                        />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="space-y-2">
+                                <FormLabel>Fecha de finalización</FormLabel>
+                                <div className="grid grid-cols-2 gap-2">
+                                  <FormField
+                                    control={form.control}
+                                    name="endDateFrom"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <DatePicker
+                                          placeholder="Desde"
+                                          selected={safeDate(field.value)}
+                                          onSelect={(date) => {
+                                            field.onChange(date ? date.toISOString() : "");
+                                          }}
+                                          className="h-8 sm:h-9"
+                                        />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name="endDateTo"
+                                    render={({ field }) => (
+                                      <FormItem className="flex flex-col">
+                                        <DatePicker
+                                          placeholder="Hasta"
+                                          selected={safeDate(field.value)}
+                                          onSelect={(date) => {
+                                            field.onChange(date ? date.toISOString() : "");
+                                          }}
+                                          className="h-8 sm:h-9"
+                                        />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between pt-2">
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={clearAllFilters}
+                                  className="h-7 sm:h-8 text-xs"
+                                >
+                                  Limpiar filtros
+                                </Button>
+                                <Button type="submit" size="sm" className="h-7 sm:h-8 text-xs">
+                                  Aplicar filtros
+                                </Button>
+                              </div>
+                            </form>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                     </div>
                   </FormControl>
                 </FormItem>
               )}
             />
           </div>
-
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                size="icon"
-                aria-expanded={isOpen}
-                className="rounded-lg border border-dashed border-input bg-transparent px-3 py-1 text-sm"
-                title="Filtros avanzados"
-              >
-                <SlidersHorizontal className="mr-1 h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-max p-0" align="start">
-              <div className="p-4 pt-2">
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Filtros avanzados</h4>
-                    <p className="text-muted-foreground text-sm">
-                      Aplica filtros adicionales para refinar tu búsqueda.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <FormLabel>Estado del proyecto</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="status"
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select value={field.value} onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Seleccionar estado" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="all">Todos</SelectItem>
-                              {PROJECT_STATUS.map((status) => (
-                                <SelectItem key={status.id} value={status.id}>
-                                  {status.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <FormLabel>Mostrar proyectos inactivos</FormLabel>
-                    <FormField
-                      control={form.control}
-                      name="isActive"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-center gap-2 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value === "false"}
-                              onCheckedChange={(checked) => {
-                                field.onChange(checked ? "false" : "true");
-                              }}
-                            />
-                          </FormControl>
-                          <div className="text-sm leading-none">Incluir proyectos inactivos</div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <FormLabel>Búsqueda por fechas</FormLabel>
-                    <div className="text-xs text-muted-foreground mb-2">
-                      <p>
-                        Si seleccionas la misma fecha en "desde" y "hasta", se mostrarán proyectos que coincidan
-                        exactamente con ese día.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <FormLabel>Fecha inicio (desde)</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="startDateFrom"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={safeDate(field.value)}
-                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                                placeholder="Seleccionar fecha"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>Fecha inicio (hasta)</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="startDateTo"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={safeDate(field.value)}
-                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                                placeholder="Seleccionar fecha"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-muted-foreground">Para búsqueda por día exacto:</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const today = new Date().toISOString().split("T")[0];
-                        setExactDateRange("startDateFrom", "startDateTo", today);
-                      }}
-                    >
-                      Usar fecha de hoy
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <FormLabel>Fecha fin (desde)</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="endDateFrom"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={safeDate(field.value)}
-                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                                placeholder="Seleccionar fecha"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    <div>
-                      <FormLabel>Fecha fin (hasta)</FormLabel>
-                      <FormField
-                        control={form.control}
-                        name="endDateTo"
-                        render={({ field }) => (
-                          <FormItem className="mt-2">
-                            <FormControl>
-                              <DatePicker
-                                selected={safeDate(field.value)}
-                                onSelect={(date) => field.onChange(date ? date.toISOString().split("T")[0] : "")}
-                                placeholder="Seleccionar fecha"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-xs text-muted-foreground">Para búsqueda por día exacto:</span>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const today = new Date().toISOString().split("T")[0];
-                        setExactDateRange("endDateFrom", "endDateTo", today);
-                      }}
-                    >
-                      Usar fecha de hoy
-                    </Button>
-                  </div>
-
-                  <div className="flex justify-between pt-2">
-                    <Button variant="outline" type="button" onClick={clearAllFilters} size="sm">
-                      Limpiar filtros
-                    </Button>
-                    <Button type="button" onClick={() => handleSearch(form.getValues())} size="sm">
-                      Aplicar filtros
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          <Button type="button" variant="outline" onClick={handleSimpleSearch}>
-            Buscar
-          </Button>
         </div>
       </Form>
 
       {appliedFilters.length > 0 && (
-        <div className="flex flex-wrap gap-2">
-          {appliedFilters.map((filter) => (
-            <Badge key={filter} variant="secondary" className="flex items-center gap-1 px-3 py-1">
+        <div className="flex flex-wrap gap-1.5 rounded-b-md border-b border-l border-r p-1 shadow-sm">
+          {appliedFilters.map((filter, index) => (
+            <Badge key={`${filter}-${index}`} variant="secondary" className="flex items-center gap-1 text-xs h-6">
               {filter}
-              <X className="h-3 w-3 cursor-pointer" onClick={() => removeFilter(filter)} />
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => removeFilter(filter)}
+                className="h-4 w-4 p-0 hover:bg-transparent"
+              >
+                <X className="h-3 w-3" />
+                <span className="sr-only">Eliminar {filter}</span>
+              </Button>
             </Badge>
           ))}
           {appliedFilters.length > 1 && (
-            <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={clearAllFilters}>
+            <Button type="button" variant="ghost" size="sm" onClick={clearAllFilters} className="ml-auto h-6 text-xs">
               Limpiar todos
             </Button>
           )}
