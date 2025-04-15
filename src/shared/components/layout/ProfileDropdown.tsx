@@ -64,17 +64,21 @@ export function ProfileDropdown() {
                 <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  Mi cuenta
-                  <DropdownMenuShortcut>
-                    <BadgeCheck />
-                  </DropdownMenuShortcut>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {user?.type === "admin" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                      Mi cuenta
+                      <DropdownMenuShortcut>
+                        <BadgeCheck />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               Cerrar sesión
