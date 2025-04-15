@@ -66,14 +66,19 @@ const SidebarMenuLink = ({ item, href }: { item: NavLink; href: string }) => {
 const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: string }) => {
   const { setOpenMobile } = useSidebar();
   return (
-    <Collapsible asChild defaultOpen={checkIsActive(href, item, true)} className="group/collapsible">
+    <Collapsible asChild defaultOpen={checkIsActive(href, item, true)} className={cn("group/collapsible")}>
       <SidebarMenuItem>
         <CollapsibleTrigger asChild>
           <SidebarMenuButton tooltip={item.title}>
-            {item.icon && <item.icon />}
-            <span>{item.title}</span>
+            {item.icon && <item.icon className={cn(checkIsActive(href, item) ? "text-primary" : "")} />}
+            <span className={cn(checkIsActive(href, item) ? "font-semibold" : "")}>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
-            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            <ChevronRight
+              className={cn(
+                "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
+                checkIsActive(href, item) ? "text-primary" : ""
+              )}
+            />
           </SidebarMenuButton>
         </CollapsibleTrigger>
         <CollapsibleContent className="CollapsibleContent">
@@ -82,8 +87,10 @@ const SidebarMenuCollapsible = ({ item, href }: { item: NavCollapsible; href: st
               <SidebarMenuSubItem key={subItem.title}>
                 <SidebarMenuSubButton asChild isActive={checkIsActive(href, subItem)}>
                   <Link href={subItem.url} onClick={() => setOpenMobile(false)}>
-                    {subItem.icon && <subItem.icon />}
-                    <span>{subItem.title}</span>
+                    {subItem.icon && (
+                      <subItem.icon className={cn(checkIsActive(href, subItem) ? "text-primary!" : "")} />
+                    )}
+                    <span className={cn(checkIsActive(href, subItem) ? "font-semibold" : "")}>{subItem.title}</span>
                     {subItem.badge && <NavBadge>{subItem.badge}</NavBadge>}
                   </Link>
                 </SidebarMenuSubButton>
@@ -102,10 +109,15 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <SidebarMenuButton tooltip={item.title} isActive={checkIsActive(href, item)}>
-            {item.icon && <item.icon />}
-            <span>{item.title}</span>
+            {item.icon && <item.icon className={cn(checkIsActive(href, item) ? "text-primary" : "")} />}
+            <span className={cn(checkIsActive(href, item) ? "font-semibold" : "")}>{item.title}</span>
             {item.badge && <NavBadge>{item.badge}</NavBadge>}
-            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+            <ChevronRight
+              className={cn(
+                "ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90",
+                checkIsActive(href, item) ? "text-primary" : ""
+              )}
+            />
           </SidebarMenuButton>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="right" align="start" sideOffset={4}>
@@ -115,9 +127,9 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
           <DropdownMenuSeparator />
           {item.items.map((sub) => (
             <DropdownMenuItem key={`${sub.title}-${sub.url}`} asChild>
-              <Link href={sub.url} className={`${checkIsActive(href, sub) ? "bg-secondary" : ""}`}>
-                {sub.icon && <sub.icon />}
-                <span className="max-w-52 text-wrap">{sub.title}</span>
+              <Link href={sub.url} className={cn(checkIsActive(href, sub) ? "bg-secondary" : "")}>
+                {sub.icon && <sub.icon className={cn(checkIsActive(href, sub) ? "text-primary" : "")} />}
+                <span className={cn(checkIsActive(href, sub) ? "font-semibold" : "")}>{sub.title}</span>
                 {sub.badge && <span className="ml-auto text-xs">{sub.badge}</span>}
               </Link>
             </DropdownMenuItem>
