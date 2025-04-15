@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 
 import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
@@ -14,20 +13,14 @@ import { cn } from "@/shared/lib/utils";
 
 export default function ClinicDashboardLayout({ children }: { children: React.ReactNode }) {
   const defaultOpen = Cookies.get("sidebar:state") !== "false";
-  const { user, isLoading } = useUserTypeGuard(["clinic"]);
-  const [showContent, setShowContent] = useState(false);
+  const { user, isLoading, isAuthorized } = useUserTypeGuard(["clinic"]);
 
-  useEffect(() => {
-    if (!isLoading && user) {
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, user]);
-
-  if (isLoading || !user || !showContent) {
+  if (isLoading || !user || isAuthorized === null) {
     return <LoadingTransition show={true} message="Verificando acceso..." />;
+  }
+
+  if (!isAuthorized) {
+    return <LoadingTransition show={true} message="Redirigiendo..." />;
   }
 
   return (

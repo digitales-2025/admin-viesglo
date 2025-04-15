@@ -1,25 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
 import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
 import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
 export default function ClientDashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useUserTypeGuard(["client"]);
-  const [showContent, setShowContent] = useState(false);
+  const { user, isLoading, isAuthorized } = useUserTypeGuard(["client"]);
 
-  useEffect(() => {
-    if (!isLoading && user) {
-      const timer = setTimeout(() => {
-        setShowContent(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, user]);
-
-  if (isLoading || !user || !showContent) {
+  if (isLoading || !user || isAuthorized === null) {
     return <LoadingTransition show={true} message="Verificando acceso..." />;
+  }
+
+  if (!isAuthorized) {
+    return <LoadingTransition show={true} message="Redirigiendo..." />;
   }
 
   return (

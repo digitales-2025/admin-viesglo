@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { UserType } from "../../domain/entities/User";
@@ -15,12 +15,17 @@ import { useAuth } from "../providers/AuthProvider";
 export function useUserTypeGuard(allowedUserTypes: UserType[]) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
   useEffect(() => {
     // Si no está cargando y tenemos información del usuario
     if (!isLoading && user) {
       // Verificar si el tipo de usuario actual está permitido
       const isAllowed = allowedUserTypes.includes(user.type as UserType);
+
+      // Actualizar estado de autorización
+      setIsAuthorized(isAllowed);
+
       // Si no está permitido, redirigir a la página principal
       if (!isAllowed) {
         console.log(`Acceso denegado para el tipo de usuario ${user.type}`);
@@ -29,5 +34,5 @@ export function useUserTypeGuard(allowedUserTypes: UserType[]) {
     }
   }, [user, isLoading, router, allowedUserTypes]);
 
-  return { user, isLoading };
+  return { user, isLoading, isAuthorized };
 }
