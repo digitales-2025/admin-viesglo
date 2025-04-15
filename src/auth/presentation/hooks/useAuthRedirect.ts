@@ -38,7 +38,7 @@ export const useAuthRedirect = ({
 
       // Caso 1: Redireccionar si el usuario está autenticado (útil para páginas de login)
       if (redirectIfAuthenticated && isAuthenticated) {
-        const path = redirectPath || (user ? getUserDashboardPath(user.type) : "/");
+        const path = redirectPath || getUserDashboardPath();
         router.replace(path);
         return;
       }

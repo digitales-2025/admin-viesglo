@@ -40,6 +40,7 @@ export default function ActivitiesList() {
       // Refrescar la lista de actividades
       refetch();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [services, selectedObjective?.id, setSelectedObjective, refetch]);
 
   // Escuchar los diálogos de actividades para refrescar después de crear/editar/eliminar

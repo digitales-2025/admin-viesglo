@@ -51,7 +51,7 @@ export async function withAuth(options: AuthOptions = {}) {
     // Verificar tipo de usuario
     if (allowedUserTypes.length > 0 && !allowedUserTypes.includes(decodedToken.type)) {
       // Si el usuario no tiene un tipo permitido, redirigir a su dashboard correspondiente
-      redirect(getUserDashboardPath(decodedToken.type));
+      redirect(getUserDashboardPath());
     }
 
     // Verificar roles

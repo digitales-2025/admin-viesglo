@@ -60,6 +60,7 @@ const ProjectList = memo(function ProjectList() {
         observerRef.current.disconnect();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loadingRef.current]); // Solo re-configurar cuando el elemento de referencia cambie
 
   // Cargar más proyectos cuando estamos cerca del final

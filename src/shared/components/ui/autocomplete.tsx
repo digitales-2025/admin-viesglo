@@ -229,6 +229,7 @@ export default function Autocomplete({
         setFocused(false);
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [items, selectedIndex]
   );
 
