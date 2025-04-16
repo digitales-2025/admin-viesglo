@@ -27,6 +27,7 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
   }
 
   const percentageService = calculatePercentageService(service);
+  console.log("🚀 ~ ProjectServiceCard ~ percentageService:", percentageService);
   const totalActivitiesCompleted = calculateTotalActivitiesCompleted(service);
 
   const { open } = useDialogStore();

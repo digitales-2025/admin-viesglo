@@ -12,6 +12,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { Progress } from "@/shared/components/ui/progress";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { StatusProjectActivity } from "../_types/activities.types";
 import { ProjectObjectiveResponse } from "../../_types/tracking.types";
 import ProjectActivitiesDialogs, { MODULE_PROJECT_ACTIVITIES } from "./ProjectActivitiesDialogs";
 import { MODULE_PROJECT_OBJECTIVES } from "./ProjectObjectivesDialogs";
@@ -27,12 +28,10 @@ export default function CardProjectObjective({ objective }: Props) {
   // Calcular el progreso basado en actividades completadas
   const activitiesCount = objective.activities?.length || 0;
 
-  // En un caso real, podrías calcular esto basado en el estado de las actividades
-  // Por ejemplo: const completedActivities = activities.filter(a => a.isCompleted).length;
-  const completedActivities = 0; // Por ahora lo dejamos en 0
+  const completedActivities =
+    objective.activities?.filter((activity) => activity.status === StatusProjectActivity.COMPLETED).length || 0;
 
   const progress = activitiesCount > 0 ? Math.round((completedActivities / activitiesCount) * 100) : 0;
-
   const { open } = useDialogStore();
 
   return (

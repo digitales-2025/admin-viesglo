@@ -1,4 +1,5 @@
 import { ProjectResponse, ProjectServiceResponse } from "../_types/tracking.types";
+import { StatusProjectActivity } from "../[serviceId]/_types/activities.types";
 
 function calculatePercentageProject(project: ProjectResponse) {
   // Si no hay servicios o es undefined, devolver 0%
@@ -29,22 +30,25 @@ function calculatePercentageProject(project: ProjectResponse) {
 }
 
 function calculatePercentageService(service: ProjectServiceResponse) {
-  const totalActivities = service.objectives.reduce((acc, objective) => acc + (objective.activities ?? []).length, 0);
-
+  const activities = service.objectives.map((objective) => objective.activities).flat();
+  const totalActivities = activities.length;
   // Si no hay actividades, devolver 0 para evitar NaN
   if (totalActivities === 0) return 0;
 
   const completedActivities = service.objectives.reduce(
-    (acc, objective) => acc + (objective.activities ?? []).filter((activity) => activity.status === "COMPLETED").length,
+    (acc, objective) =>
+      acc +
+      (objective.activities ?? []).filter((activity) => activity.status === StatusProjectActivity.COMPLETED).length,
     0
   );
-
   return (completedActivities / totalActivities) * 100;
 }
 
 function calculateTotalActivitiesCompleted(service: ProjectServiceResponse) {
   return service.objectives.reduce(
-    (acc, objective) => acc + (objective.activities ?? []).filter((activity) => activity.status === "COMPLETED").length,
+    (acc, objective) =>
+      acc +
+      (objective.activities ?? []).filter((activity) => activity.status === StatusProjectActivity.COMPLETED).length,
     0
   );
 }
