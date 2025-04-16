@@ -29,14 +29,18 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     id: "name",
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-    cell: ({ row }) => <div className="font-medium">{row.getValue("name")}</div>,
+    cell: ({ row }) => (
+      <div className="font-medium" title={row.getValue("name")}>
+        {row.getValue("name")}
+      </div>
+    ),
   },
   {
     id: "description",
     accessorKey: "description",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
     cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground">
+      <div className="max-w-[300px] truncate text-muted-foreground" title={row.getValue("description")}>
         {row.getValue("description") || "Sin descripción"}
       </div>
     ),
@@ -47,7 +51,7 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: ({ row }) => {
       return (
-        <div className="flex items-center">
+        <div className="flex items-center" title={row.original.responsibleUser?.fullName}>
           <User className="mr-2 h-4 w-4 text-muted-foreground" />
           {row.original.responsibleUser ? (
             <span>{row.original.responsibleUser.fullName}</span>
