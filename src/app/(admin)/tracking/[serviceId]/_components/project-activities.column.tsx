@@ -98,7 +98,15 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     cell: ({ row }) =>
       row.getValue("status") && (
         <Badge
-          className={StatusProjectActivityColor[row.getValue("status") as keyof typeof StatusProjectActivityColor]}
+          variant={
+            StatusProjectActivityColor[row.getValue("status") as keyof typeof StatusProjectActivityColor] as
+              | "default"
+              | "secondary"
+              | "destructive"
+              | "outline"
+              | "success"
+              | "error"
+          }
         >
           {getIconByStatus(row.getValue("status") as StatusProjectActivity)}
           {StatusProjectActivityLabel[row.getValue("status") as keyof typeof StatusProjectActivityLabel] ||
