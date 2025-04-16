@@ -59,26 +59,54 @@ export async function serverFetch<Success>(
 ): Promise<Result<Success, ServerFetchError>> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
 
-  /* if (process.env.NODE_ENV === "development") {
-    console.log("\tSERVER FETCH: server fetch hit w cookie:");
-    console.log("\tSERVER FETCH:", accessToken ?? "---");
-  } */
-
-  if (!accessToken) {
+  // Si no hay refreshToken, no podemos autenticar la solicitud
+  if (!refreshToken) {
     if (process.env.NODE_ENV === "development") {
-      console.error("\tSERVER FETCH: Intentando user serverFetch sin una cookie `access_token valida`");
+      console.error("\tSERVER FETCH: No hay refresh_token disponible para la solicitud");
     }
+    return [
+      // @ts-expect-error allowing null
+      null,
+      {
+        statusCode: 401,
+        message: "No autenticado",
+        error: "Token de autenticación no disponible",
+      },
+    ];
   }
 
   try {
+    // Configuramos los cookies para la solicitud
+    let cookieHeader = `refresh_token=${refreshToken}`;
+    if (accessToken) {
+      cookieHeader += `; access_token=${accessToken}`;
+    }
+
     const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
       ...options,
       headers: {
         ...options?.headers,
-        Cookie: `access_token=${accessToken}`,
+        Cookie: cookieHeader,
       },
+      credentials: "include", // Importante para que el navegador incluya las cookies en la solicitud
     });
+
+    // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      // Extraer y guardar el nuevo access_token si está presente
+      const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+      if (accessTokenMatch && accessTokenMatch[1]) {
+        cookieStore.set("access_token", accessTokenMatch[1], {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          path: "/",
+        });
+      }
+    }
 
     if (!response.ok) {
       const data = (await response.json()) as Partial<ServerFetchError>;

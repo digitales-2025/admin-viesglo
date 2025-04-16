@@ -20,7 +20,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { useCreateQuotation, useUpdateQuotation } from "../_hooks/useQuotations";
 import { QuotationCreate, QuotationResponse } from "../_types/quotation.types";
 
@@ -195,7 +195,7 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
             {isUpdate ? "Actualiza los datos de la cotización" : "Crea una nueva cotización"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="quotations-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

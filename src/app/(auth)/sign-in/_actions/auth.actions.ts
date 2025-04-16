@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { z } from "zod";
 
+import { getUserDashboardPath } from "@/auth/domain/entities/User";
 import { http } from "@/lib/http/clientFetch";
 import { http as httpApi } from "@/lib/http/serverFetch";
 import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
@@ -30,19 +31,19 @@ export async function login(credentials: SignIn) {
     };
 
     const { data: responseData, headers } = await http.post<AuthResponse>("/auth/login", loginData);
-
-    // Log para ver la respuesta completa del servidor
-    /* console.log("Respuesta completa del servidor:", responseData); */
-
     if (!responseData?.id) {
       return { error: "Credenciales inválidas" };
     }
 
+    // Adaptar los roles si vienen como objetos complejos
+    const adaptedData = {
+      ...responseData,
+      roles: Array.isArray(responseData.roles)
+        ? responseData.roles.map((role: any) => (typeof role === "string" ? role : role.name))
+        : [],
+    };
     const cookieStore = await cookies();
     const setCookieHeaders = headers?.["set-cookie"] || [];
-
-    // Log para ver las cookies recibidas
-    /*  console.log("Headers de cookies recibidos:", setCookieHeaders); */
 
     // Primero eliminamos las cookies existentes
     cookieStore.delete("logged_in");
@@ -67,10 +68,16 @@ export async function login(credentials: SignIn) {
     }
 
     const allCookies = cookieStore.getAll();
-
     console.log("🔑 Todas las cookies establecidas:", allCookies);
 
-    return { success: true, data: responseData };
+    // Calcular la ruta de redirección según el tipo de usuario
+    const dashboardUrl = getUserDashboardPath();
+
+    return {
+      success: true,
+      data: adaptedData,
+      redirectUrl: dashboardUrl,
+    };
   } catch (error: any) {
     console.error("❌ Error al iniciar sesión:", error);
     return { success: false, error: error.message || "Error al iniciar sesión" };
@@ -107,6 +114,14 @@ export async function logout() {
       sameSite: "strict",
     });
 
+    // Notificar al backend del logout para invalidar el token en el servidor
+    try {
+      await httpApi.post("/auth/logout");
+    } catch (error) {
+      console.error("Error al notificar logout al backend:", error);
+      // Continuar con el logout local incluso si falla la notificación al backend
+    }
+
     return {
       success: true,
       redirect: "/sign-in",
@@ -120,24 +135,36 @@ export async function logout() {
   }
 }
 
-export async function currentUser() {
+export async function currentUser(): Promise<{ success: boolean; data: AuthResponse | null; error?: string }> {
   const cookieStore = await cookies();
   const accessToken = cookieStore.get("access_token")?.value;
   const refreshToken = cookieStore.get("refresh_token")?.value;
 
-  if (!accessToken && !refreshToken) {
-    return null;
+  // Si no hay refresh_token, el usuario no está autenticado
+  if (!refreshToken) {
+    return { success: false, data: null };
   }
 
   try {
-    const [data, error] = await httpApi.get<AuthResponse>("/auth/me");
+    // Llamamos a /auth/me, que verificará el access_token
+    // Si está expirado, el backend lo renovará automáticamente usando el refresh_token
+    const [data, error] = await httpApi.get<AuthResponse>("/auth/me", {
+      // Asegurarnos de que se envían las cookies
+      headers: {
+        Cookie: `refresh_token=${refreshToken}${accessToken ? `; access_token=${accessToken}` : ""}`,
+      },
+    });
     if (error) {
-      throw new Error(error.message);
+      // Si hay un error en la respuesta de la API (401, 403, etc.)
+      // consideramos que el usuario no está autenticado
+      console.error("Error al obtener el usuario:", error);
+      return { success: false, data: null };
     }
-    return data;
-  } catch (error) {
+
+    return { success: true, data };
+  } catch (error: any) {
     console.error("Error al obtener el usuario:", error);
-    return null;
+    return { success: false, data: null, error: error.message || "Error al obtener el usuario" };
   }
 }
 

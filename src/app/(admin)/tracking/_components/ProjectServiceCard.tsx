@@ -43,7 +43,7 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
 
   return (
     <Card
-      className="shadow-none bg-accent/50 p-2 px-1 cursor-pointer hover:bg-accent/70 transition-all duration-300 hover:border-dashed hover:border-sky-500/50 border-transparent"
+      className="shadow-none border-transparent p-2 px-1 cursor-pointer hover:bg-accent/70 transition-all duration-300 hover:border-dashed hover:border-sky-500/50 "
       onClick={() => router.push(`/tracking/${service.id}`)}
     >
       <CardHeader>
