@@ -7,22 +7,22 @@ import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { User } from "../_types/user.types";
+import { Role, User } from "../_types/user.types";
 import { UsersTableActions } from "./UsersTablesActions";
 
 // Esta función crea las columnas y recibe una función para manejar la expansión
 export const columnsUsers = (): ColumnDef<User>[] => [
   // Columna de expansión explícita
   {
-    id: "Nombre Completo",
+    id: "nombre completo",
     accessorKey: "fullName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre Completo" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("Nombre Completo")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="nombre completo" />,
+    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("nombre completo")}</div>,
   },
   {
     id: "email",
     accessorKey: "email",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="email" />,
     cell: ({ row }) => (
       <Link href={`mailto:${row.getValue("email")}`}>
         <Badge variant="outline">
@@ -33,15 +33,15 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     ),
   },
   {
-    id: "Teléfono",
+    id: "teléfono",
     accessorKey: "phone",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="teléfono" />,
     cell: ({ row }) =>
       row.original.phone && row.original.phone !== "" ? (
-        <Link href={`tel:${row.getValue("Teléfono")}`}>
+        <Link href={`tel:${row.getValue("teléfono")}`}>
           <Badge variant="outline">
             <Phone className="w-4 h-4" />
-            {formatPhoneNumberIntl(row.getValue("Teléfono")) || row.original.phone}
+            {formatPhoneNumberIntl(row.getValue("teléfono")) || row.original.phone}
           </Badge>
         </Link>
       ) : (
@@ -49,15 +49,15 @@ export const columnsUsers = (): ColumnDef<User>[] => [
       ),
   },
   {
-    id: "Cargo",
+    id: "cargo",
     accessorKey: "post",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
-    cell: ({ row }) => <div className=" capitalize">{row.getValue("Cargo")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="cargo" />,
+    cell: ({ row }) => <div className=" capitalize">{row.getValue("cargo")}</div>,
   },
   {
-    id: "Rol",
+    id: "rol",
     accessorKey: "roles",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="rol" />,
     cell: ({ row }) => {
       return (
         <div className="flex flex-wrap gap-2 capitalize font-semibold">
@@ -74,17 +74,23 @@ export const columnsUsers = (): ColumnDef<User>[] => [
         </div>
       );
     },
+    filterFn: (row, _, filterValue) => {
+      return filterValue.some((role: string) => row.original.roles.some((r: Role) => r.name === role));
+    },
   },
   {
     id: "estado",
     accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="estado" />,
     cell: ({ row }) => {
       return (
         <div className="truncate max-w-[300px]">
           {row.getValue("estado") ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
         </div>
       );
+    },
+    filterFn: (row, id, filterValue) => {
+      return filterValue.includes(String(row.getValue(id)));
     },
   },
   {
