@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, Phone } from "lucide-react";
+import { IdCard, Mail, Phone, Shield } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -62,16 +62,14 @@ export const columnsUsers = (): ColumnDef<User>[] => [
       return (
         <div className="flex flex-wrap gap-2 capitalize font-semibold">
           {row.original.roles.map((role) => (
-            <Badge
-              key={role.id}
-              className={
-                row.original.isSuperAdmin
-                  ? "bg-indigo-50 text-indigo-500 border-none"
-                  : "bg-cyan-50 text-cyan-500 border-none"
-              }
-            >
+            <span key={role.id} className="inline-flex items-center gap-2">
+              {row.original.isSuperAdmin ? (
+                <Shield className="w-4 h-4 text-emerald-500" />
+              ) : (
+                <IdCard className="w-4 h-4 text-muted-foreground" />
+              )}
               {role.name}
-            </Badge>
+            </span>
           ))}
         </div>
       );
@@ -84,11 +82,7 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     cell: ({ row }) => {
       return (
         <div className="truncate max-w-[300px]">
-          {row.getValue("estado") ? (
-            <Badge variant="successOutline">Activo</Badge>
-          ) : (
-            <Badge variant="errorOutline">Inactivo</Badge>
-          )}
+          {row.getValue("estado") ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
         </div>
       );
     },
