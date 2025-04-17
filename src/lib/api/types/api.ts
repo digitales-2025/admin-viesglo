@@ -2199,6 +2199,16 @@ export interface components {
        * @example 50
        */
       progress?: number;
+      /**
+       * @description Actividades asociadas al servicio
+       * @example 10
+       */
+      activities?: number;
+      /**
+       * @description Actividades completadas asociadas al servicio
+       * @example 5
+       */
+      completedActivities?: number;
     };
     ProjectResponseDto: {
       /**
