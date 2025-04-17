@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 
+import AlertError from "@/shared/components/alerts/AlertError";
 import { Button } from "@/shared/components/ui/button";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -95,14 +96,7 @@ const ProjectList = memo(function ProjectList() {
         </div>
       )}
 
-      {error && (
-        <div className="p-2 sm:p-4 bg-destructive/10 text-destructive rounded-md flex-shrink-0 text-xs sm:text-sm">
-          <p>Error: {(error as Error).message}</p>
-          <Button variant="outline" size="sm" onClick={() => refetch()} className="mt-1 sm:mt-2 text-xs h-7">
-            Reintentar
-          </Button>
-        </div>
-      )}
+      {error && <AlertError error={error} refetch={refetch} />}
 
       {projects.length === 0 && !isLoading && (
         <div className="p-3 sm:p-8 text-center border rounded-md bg-muted/10 flex-shrink-0 text-xs sm:text-sm">
