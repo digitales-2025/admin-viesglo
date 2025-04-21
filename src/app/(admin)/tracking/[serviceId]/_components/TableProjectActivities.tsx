@@ -4,11 +4,11 @@ import { DataTable } from "@/shared/components/data-table/DataTable";
 import { useActivitiesProject } from "../../_hooks/useActivitiesProject";
 import { columnsActivities } from "./project-activities.column";
 
-interface TableActivitiesProps {
+interface TableProjectActivitiesProps {
   objectiveId: string;
 }
 
-export default function TableActivities({ objectiveId }: TableActivitiesProps) {
+export default function TableProjectActivities({ objectiveId }: TableProjectActivitiesProps) {
   const { data: activities, isLoading, error } = useActivitiesProject(objectiveId);
   const columns = useMemo(() => columnsActivities(), []);
 
