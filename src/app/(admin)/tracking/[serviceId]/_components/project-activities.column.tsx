@@ -1,6 +1,6 @@
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Calendar, Check, Clock, Paperclip, X } from "lucide-react";
+import { Check, Clock, Loader2, Paperclip, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -74,6 +74,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
             value={responsibleUser?.id || ""}
             onChange={onUpdateResponsibleUserId}
             isLoading={isPending}
+            className="border-none"
           />
         </div>
       );
@@ -100,7 +101,16 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
         });
       };
       return (
-        <DatePicker selected={scheduledDateFormatted} onSelect={handleChange} disabled={isPending} clearable={true} />
+        <div className="relative">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <DatePicker
+            selected={scheduledDateFormatted}
+            onSelect={handleChange}
+            disabled={isPending}
+            clearable={true}
+            className="border-none"
+          />
+        </div>
       );
     },
   },
@@ -108,12 +118,37 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     id: "executionDate",
     accessorKey: "executionDate",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de ejecución" />,
-    cell: ({ row }) => (
-      <Badge variant="outline">
-        <Calendar className="ml-2 h-4 w-4 text-muted-foreground" />
-        {row.getValue("executionDate") ? row.getValue("executionDate") : "Sin ejecutar"}
-      </Badge>
-    ),
+    cell: function Cell({ row }) {
+      const executionDate = row.original.executionDate;
+      const executionDateFormatted = executionDate ? new TZDate(executionDate as string) : undefined;
+
+      const { mutate: updateTrackingActivity, isPending } = useUpdateTrackingActivity();
+
+      const handleChange = (date: Date | undefined) => {
+        updateTrackingActivity({
+          objectiveId,
+          activityId: row.original.id,
+          trackingActivity: {
+            executionDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return (
+        <div className="relative">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <DatePicker
+            selected={executionDateFormatted}
+            onSelect={handleChange}
+            disabled={isPending}
+            clearable={true}
+            className="border-none"
+          />
+        </div>
+      );
+    },
   },
   {
     id: "evidenceRequired",

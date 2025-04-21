@@ -21,9 +21,17 @@ interface AutocompleteSelectProps {
   value: string;
   onChange: (value: string) => void;
   isLoading?: boolean;
+  className?: string;
 }
 
-export default function AutocompleteSelect({ label, options, value, onChange, isLoading }: AutocompleteSelectProps) {
+export default function AutocompleteSelect({
+  label,
+  options,
+  value,
+  onChange,
+  isLoading,
+  className,
+}: AutocompleteSelectProps) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -34,7 +42,7 @@ export default function AutocompleteSelect({ label, options, value, onChange, is
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between truncate"
+            className={cn("w-full justify-between truncate", className)}
             disabled={isLoading}
           >
             {isLoading ? (
