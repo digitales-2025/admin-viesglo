@@ -716,18 +716,41 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full flex justify-start overflow-auto">
-          <TabsTrigger value="datos-filiacion">Datos de Filiación</TabsTrigger>
-          <TabsTrigger value="aptitud">Aptitud</TabsTrigger>
-          <TabsTrigger value="diagnosticos">Diagnósticos</TabsTrigger>
+        <TabsList className="w-full flex-col justify-start py-1 sm:flex-row h-auto">
+          <TabsTrigger
+            title="Datos de Filiación"
+            value="datos-filiacion"
+            className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+          >
+            Datos de Filiación
+          </TabsTrigger>
+          <TabsTrigger
+            title="Aptitud"
+            value="aptitud"
+            className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+          >
+            Aptitud
+          </TabsTrigger>
+          <TabsTrigger
+            title="Diagnósticos"
+            value="diagnosticos"
+            className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+          >
+            Diagnósticos
+          </TabsTrigger>
           {formData?.customSections?.map((section: any, index: number) => (
-            <TabsTrigger key={`section-${index}`} value={`custom-${index}`}>
+            <TabsTrigger
+              key={`section-${index}`}
+              title={section.name}
+              value={`custom-${index}`}
+              className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+            >
               {section.name}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        <TabsContent value="datos-filiacion" className="mt-6">
+        <TabsContent value="datos-filiacion" className="mt-4 md:mt-6">
           <DatosFiliacionSection
             data={formData?.datosFiliacion}
             isEditing={isEditing}
@@ -741,7 +764,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           />
         </TabsContent>
 
-        <TabsContent value="aptitud" className="mt-6">
+        <TabsContent value="aptitud" className="mt-4 md:mt-6">
           <AptitudSection
             data={formData?.aptitud}
             isEditing={isEditing}
@@ -753,7 +776,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           />
         </TabsContent>
 
-        <TabsContent value="diagnosticos" className="mt-6">
+        <TabsContent value="diagnosticos" className="mt-4 md:mt-6">
           <DiagnosticosSection
             data={formData?.diagnosticos}
             isEditing={isEditing}
@@ -769,7 +792,11 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         </TabsContent>
 
         {formData?.customSections?.map((section: any, sectionIndex: number) => (
-          <TabsContent key={`section-content-${sectionIndex}`} value={`custom-${sectionIndex}`} className="mt-6">
+          <TabsContent
+            key={`section-content-${sectionIndex}`}
+            value={`custom-${sectionIndex}`}
+            className="mt-4 md:mt-6"
+          >
             <CustomSection
               section={section}
               sectionIndex={sectionIndex}

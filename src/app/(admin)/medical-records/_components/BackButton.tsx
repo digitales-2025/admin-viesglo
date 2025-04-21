@@ -25,6 +25,12 @@ export function BackButton({ href, hasUnsavedChanges: initialHasUnsavedChanges =
   const router = useRouter();
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(initialHasUnsavedChanges);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  // Prefetch the destination page to improve navigation speed
+  useEffect(() => {
+    router.prefetch(href);
+  }, [href, router]);
 
   // Escuchar el evento de cambios sin guardar
   useEffect(() => {
@@ -40,18 +46,32 @@ export function BackButton({ href, hasUnsavedChanges: initialHasUnsavedChanges =
     };
   }, []);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleNavigate = () => {
+    setIsNavigating(true);
+    // Use a short timeout to allow the UI to update before navigation
+    setTimeout(() => {
+      router.push(href);
+    }, 10);
+  };
+
+  const handleClick = () => {
     if (hasUnsavedChanges) {
-      e.preventDefault();
       setShowUnsavedChangesDialog(true);
     } else {
-      router.push(href);
+      handleNavigate();
     }
   };
 
   return (
     <>
-      <Button variant="outline" size="icon" onClick={handleClick}>
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleClick}
+        type="button"
+        disabled={isNavigating}
+        aria-label="Volver"
+      >
         <ArrowLeft className="h-4 w-4" />
       </Button>
 
@@ -66,7 +86,7 @@ export function BackButton({ href, hasUnsavedChanges: initialHasUnsavedChanges =
           </AlertDialogHeader>
           <AlertDialogFooter className="flex items-center gap-2">
             <AlertDialogCancel onClick={() => setShowUnsavedChangesDialog(false)}>Continuar editando</AlertDialogCancel>
-            <AlertDialogAction onClick={() => router.push(href)} className="bg-red-600 text-white hover:bg-red-700">
+            <AlertDialogAction onClick={handleNavigate} className="bg-red-600 text-white hover:bg-red-700">
               Salir sin guardar
             </AlertDialogAction>
           </AlertDialogFooter>

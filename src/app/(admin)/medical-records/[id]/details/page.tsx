@@ -1,21 +1,24 @@
+"use client";
+
 // Server Component
 import { Suspense } from "react";
+import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Briefcase, Building, Calendar, FileText, Mail, MapPin, Phone, Stethoscope, User } from "lucide-react";
 
-import { getClient } from "@/app/(admin)/clients/_actions/clients.actions";
-import { getClinic } from "@/app/(admin)/clinics/_actions/clinics.actions";
-import { getMedicalRecord } from "@/app/(admin)/medical-records/_actions/medical-record.action";
+import { useClient } from "@/app/(admin)/clients/_hooks/useClients";
+import { useClinic } from "@/app/(admin)/clinics/_hooks/useClinics";
 import { BackButton } from "@/app/(admin)/medical-records/_components/BackButton";
 import { MedicalRecordDetails } from "@/app/(admin)/medical-records/_components/detalle/medical-record-editor";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { useMedicalRecord } from "../../_hooks/useMedicalRecords";
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
+// interface PageProps {
+//   params: Promise<{ id: string }>;
+// }
 
 const examTypeLabels = {
   PRE_OCCUPATIONAL: "Pre-ocupacional",
@@ -38,31 +41,52 @@ const aptitudeColors = {
   NOT_APT: "bg-red-100 text-red-800",
 };
 
-export default async function MedicalRecordDetailsPage({ params }: PageProps) {
-  // Correctamente esperar la promesa de params
-  const { id } = await params;
-  console.log(`🏥 Renderizando página de detalles para registro médico con ID: ${id}`);
+export default function MedicalRecordDetailsPage() {
+  // Get ID from params
+  const { id } = useParams();
 
-  // Obtener datos para tener información previa en el servidor
-  const recordData = await getMedicalRecord(id);
-  const record = recordData.success ? recordData.data : null;
+  // Use hooks for data fetching
+  const { data: record, isLoading: isRecordLoading } = useMedicalRecord(id as string);
 
-  // Obtener la información de la clínica si existe clinicId
-  let clinic = null;
-  if (record?.clinicId) {
-    const clinicData = await getClinic(record.clinicId);
-    if (clinicData.success && clinicData.data) {
-      clinic = clinicData.data;
-    }
+  // Fetch clinic data if record has clinicId
+  const { data: clinic, isLoading: isClinicLoading } = useClinic(record?.clinicId ? record.clinicId : "");
+
+  // Fetch client data if record has clientId
+  const { data: client, isLoading: isClientLoading } = useClient(record?.clientId ? record.clientId : "");
+
+  // Display loading state when fetching record data
+  if (isRecordLoading) {
+    return (
+      <div className="container py-6 pb-24">
+        <div className="mb-6 flex items-center gap-4">
+          <BackButton href="/medical-records" />
+          <h1 className="text-2xl font-bold">Cargando registro médico...</h1>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-[500px] w-full" />
+          <Skeleton className="h-[500px] w-full md:col-span-2" />
+        </div>
+      </div>
+    );
   }
 
-  // Obtener la información del cliente si existe clientId
-  let client = null;
-  if (record?.clientId) {
-    const clientData = await getClient(record.clientId);
-    if (clientData.success && clientData.data) {
-      client = clientData.data;
-    }
+  // Handle case when record doesn't exist
+  if (!record) {
+    return (
+      <div className="container py-6 pb-24">
+        <div className="mb-6 flex items-center gap-4">
+          <BackButton href="/medical-records" />
+          <h1 className="text-2xl font-bold">Registro médico no encontrado</h1>
+        </div>
+        <Card>
+          <CardContent className="py-8">
+            <p className="text-center text-muted-foreground">
+              El registro médico solicitado no existe o ha sido eliminado.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
@@ -84,56 +108,52 @@ export default async function MedicalRecordDetailsPage({ params }: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {record ? (
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                    <div>
-                      <p className="font-medium text-lg">
-                        {record.firstName} {record.secondName ? record.secondName + " " : ""}
-                        {record.firstLastName} {record.secondLastName || ""}
-                      </p>
-                      {record.dni && <p className="text-sm text-muted-foreground">DNI: {record.dni}</p>}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Stethoscope className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Tipo de examen</p>
-                      <p className="text-sm text-muted-foreground">
-                        {examTypeLabels[record.examType as keyof typeof examTypeLabels] || record.examType}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Fecha de creación</p>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(record.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: es })}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <p className="text-sm font-medium mb-2">Aptitud médica</p>
-                    <Badge className={aptitudeColors[record.aptitude as keyof typeof aptitudeColors]}>
-                      {aptitudeLabels[record.aptitude as keyof typeof aptitudeLabels] || record.aptitude}
-                    </Badge>
-
-                    {record.restrictions && (
-                      <div className="mt-2">
-                        <p className="text-sm font-medium">Restricciones:</p>
-                        <p className="text-sm text-muted-foreground">{record.restrictions}</p>
-                      </div>
-                    )}
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
+                  <div>
+                    <p className="font-medium text-lg">
+                      {record.firstName} {record.secondName ? record.secondName + " " : ""}
+                      {record.firstLastName} {record.secondLastName || ""}
+                    </p>
+                    {record.dni && <p className="text-sm text-muted-foreground">DNI: {record.dni}</p>}
                   </div>
                 </div>
-              ) : (
-                <Skeleton className="h-[200px] w-full" />
-              )}
+
+                <div className="flex items-center gap-3">
+                  <Stethoscope className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Tipo de examen</p>
+                    <p className="text-sm text-muted-foreground">
+                      {examTypeLabels[record.examType as keyof typeof examTypeLabels] || record.examType}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Fecha de creación</p>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(record.createdAt), "dd 'de' MMMM 'de' yyyy", { locale: es })}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <p className="text-sm font-medium mb-2">Aptitud médica</p>
+                  <Badge className={aptitudeColors[record.aptitude as keyof typeof aptitudeColors]}>
+                    {aptitudeLabels[record.aptitude as keyof typeof aptitudeLabels] || record.aptitude}
+                  </Badge>
+
+                  {record.restrictions && (
+                    <div className="mt-2">
+                      <p className="text-sm font-medium">Restricciones:</p>
+                      <p className="text-sm text-muted-foreground">{record.restrictions}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardContent>
           </Card>
 
@@ -146,7 +166,9 @@ export default async function MedicalRecordDetailsPage({ params }: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {client ? (
+              {isClientLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : client ? (
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -203,7 +225,9 @@ export default async function MedicalRecordDetailsPage({ params }: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {clinic ? (
+              {isClinicLoading ? (
+                <Skeleton className="h-[200px] w-full" />
+              ) : clinic ? (
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -263,7 +287,7 @@ export default async function MedicalRecordDetailsPage({ params }: PageProps) {
             </CardHeader>
             <CardContent>
               <Suspense fallback={<FormSkeleton />}>
-                <MedicalRecordDetails recordId={id} mode="view" />
+                <MedicalRecordDetails recordId={id as string} mode="view" />
               </Suspense>
             </CardContent>
           </Card>
