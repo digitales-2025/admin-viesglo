@@ -576,7 +576,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/medical-records": {
+  "/api/v1/medical-records": {
     parameters: {
       query?: never;
       header?: never;
@@ -584,17 +584,17 @@ export interface paths {
       cookie?: never;
     };
     /** Obtener registros médicos */
-    get: operations["MedicalRecordsController_getMedicalRecords"];
+    get: operations["MedicalRecordsController_getMedicalRecords_v1"];
     put?: never;
     /** Crear un registro médico */
-    post: operations["MedicalRecordsController_create"];
+    post: operations["MedicalRecordsController_create_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/medical-records/{id}/aptitude-certificate": {
+  "/api/v1/medical-records/{id}/aptitude-certificate": {
     parameters: {
       query?: never;
       header?: never;
@@ -602,17 +602,17 @@ export interface paths {
       cookie?: never;
     };
     /** Descargar certificado de aptitud médica */
-    get: operations["MedicalRecordsController_downloadAptitudeCertificate"];
+    get: operations["MedicalRecordsController_downloadAptitudeCertificate_v1"];
     put?: never;
     /** Subir o reemplazar certificado de aptitud médica */
-    post: operations["MedicalRecordsController_uploadAptitudeCertificate"];
+    post: operations["MedicalRecordsController_uploadAptitudeCertificate_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/medical-records/{id}/medical-report": {
+  "/api/v1/medical-records/{id}/medical-report": {
     parameters: {
       query?: never;
       header?: never;
@@ -620,17 +620,17 @@ export interface paths {
       cookie?: never;
     };
     /** Descargar informe médico */
-    get: operations["MedicalRecordsController_downloadMedicalReport"];
+    get: operations["MedicalRecordsController_downloadMedicalReport_v1"];
     put?: never;
     /** Subir o reemplazar informe médico */
-    post: operations["MedicalRecordsController_uploadMedicalReport"];
+    post: operations["MedicalRecordsController_uploadMedicalReport_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/medical-records/{id}/aptitude-certificate/info": {
+  "/api/v1/medical-records/{id}/aptitude-certificate/info": {
     parameters: {
       query?: never;
       header?: never;
@@ -638,7 +638,7 @@ export interface paths {
       cookie?: never;
     };
     /** Obtener información sobre el certificado de aptitud médica */
-    get: operations["MedicalRecordsController_getAptitudeCertificateInfo"];
+    get: operations["MedicalRecordsController_getAptitudeCertificateInfo_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -647,7 +647,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/medical-records/{id}/medical-report/info": {
+  "/api/v1/medical-records/{id}/medical-report/info": {
     parameters: {
       query?: never;
       header?: never;
@@ -655,13 +655,64 @@ export interface paths {
       cookie?: never;
     };
     /** Obtener información sobre el informe médico */
-    get: operations["MedicalRecordsController_getMedicalReportInfo"];
+    get: operations["MedicalRecordsController_getMedicalReportInfo_v1"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener registro médico por ID */
+    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}/details": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar detalles de un registro médico */
+    patch: operations["MedicalRecordsController_updateMedicalRecordDetails_v1"];
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}/custom-sections": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar secciones personalizadas de un registro médico */
+    patch: operations["MedicalRecordsController_updateCustomSections_v1"];
     trace?: never;
   };
   "/api/v1/payments": {
@@ -2030,15 +2081,30 @@ export interface components {
        */
       ruc: string;
       /**
-       * @description Nombre del paciente
+       * @description DNI del paciente
+       * @example 12345678
+       */
+      dni?: string;
+      /**
+       * @description Primer nombre del paciente
        * @example Juan
        */
       firstName: string;
       /**
-       * @description Apellido del paciente
+       * @description Segundo nombre del paciente
+       * @example Carlos
+       */
+      secondName?: string;
+      /**
+       * @description Primer apellido del paciente
        * @example Pérez
        */
-      lastName: string;
+      firstLastName: string;
+      /**
+       * @description Segundo apellido del paciente
+       * @example Gómez
+       */
+      secondLastName?: string;
       /**
        * @description Tipo de examen médico
        * @example PRE_OCCUPATIONAL
@@ -2080,6 +2146,123 @@ export interface components {
       updatedAt: string;
       /** @description Archivos asociados al registro médico */
       files?: components["schemas"]["FileMetadataResponseDto"][];
+      /**
+       * @description Detalles médicos del registro
+       * @example {
+       *       "datosFiliacion": {
+       *         "dni": "12345678",
+       *         "apellidoPaterno": "Pérez",
+       *         "apellidoMaterno": "Gómez",
+       *         "edad": "35",
+       *         "genero": "Masculino",
+       *         "customFields": []
+       *       },
+       *       "aptitud": {
+       *         "aptitud": "APT",
+       *         "restricciones": "Ninguna",
+       *         "antecedentesPersonales": "Hipertensión controlada",
+       *         "customFields": []
+       *       },
+       *       "diagnosticos": {
+       *         "hallazgosLaboratorio": [
+       *           "Glucosa elevada"
+       *         ],
+       *         "diagnosticoOftalmologia": "Normal",
+       *         "diagnosticoMusculoesqueletico": "Normal",
+       *         "alteracionDiagnosticoPsicologia": "No",
+       *         "diagnosticoAudiometria": "Normal",
+       *         "diagnosticoEspirometria": "Normal",
+       *         "diagnosticoEkg": "Normal",
+       *         "resultadoTestSomnolencia": "Negativo",
+       *         "customFields": []
+       *       },
+       *       "customSections": []
+       *     }
+       */
+      details?: Record<string, never>;
+    };
+    CustomSectionFieldDto: {
+      /** @example resultado */
+      name: string;
+      /** @example Normal */
+      value: string;
+    };
+    CustomSectionDto: {
+      /** @example Examen adicional */
+      name: string;
+      /** @example [
+       *       {
+       *         "name": "resultado",
+       *         "value": "Normal"
+       *       },
+       *       {
+       *         "name": "observaciones",
+       *         "value": "Ninguna"
+       *       }
+       *     ] */
+      fields: components["schemas"]["CustomSectionFieldDto"][];
+    };
+    UpdateMedicalRecordDetailsDto: {
+      /**
+       * @description Datos de filiación del paciente
+       * @example {
+       *       "dni": "12345678",
+       *       "nombres": "Juan",
+       *       "segundoNombre": "Carlos",
+       *       "apellidoPaterno": "Pérez",
+       *       "apellidoMaterno": "Gómez",
+       *       "edad": "35",
+       *       "genero": "Masculino",
+       *       "customFields": []
+       *     }
+       */
+      datosFiliacion?: Record<string, never>;
+      /**
+       * @description Datos de aptitud médica
+       * @example {
+       *       "aptitud": "APT",
+       *       "restricciones": "Ninguna",
+       *       "antecedentesPersonales": "Hipertensión controlada",
+       *       "customFields": []
+       *     }
+       */
+      aptitud?: Record<string, never>;
+      /**
+       * @description Datos de diagnósticos médicos
+       * @example {
+       *       "hallazgosLaboratorio": [
+       *         "Glucosa elevada"
+       *       ],
+       *       "diagnosticoOftalmologia": "Normal",
+       *       "diagnosticoMusculoesqueletico": "Normal",
+       *       "alteracionDiagnosticoPsicologia": "No",
+       *       "diagnosticoAudiometria": "Normal",
+       *       "diagnosticoEspirometria": "Normal",
+       *       "diagnosticoEkg": "Normal",
+       *       "resultadoTestSomnolencia": "Negativo",
+       *       "customFields": []
+       *     }
+       */
+      diagnosticos?: Record<string, never>;
+      /**
+       * @description Secciones personalizadas adicionales
+       * @example [
+       *       {
+       *         "name": "Examen adicional",
+       *         "fields": [
+       *           {
+       *             "name": "resultado",
+       *             "value": "Normal"
+       *           },
+       *           {
+       *             "name": "observaciones",
+       *             "value": "Ninguna"
+       *           }
+       *         ]
+       *       }
+       *     ]
+       */
+      customSections?: components["schemas"]["CustomSectionDto"][];
     };
     PaymentResponseDto: {
       /**
@@ -3588,7 +3771,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getMedicalRecords: {
+  MedicalRecordsController_getMedicalRecords_v1: {
     parameters: {
       query?: {
         /** @description ID del cliente (Opcional) */
@@ -3611,7 +3794,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_create: {
+  MedicalRecordsController_create_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3623,10 +3806,16 @@ export interface operations {
         "multipart/form-data": {
           /** @example 20603465157 */
           ruc: string;
+          /** @example 12345678 */
+          dni?: string;
           /** @example Juan */
           firstName: string;
+          /** @example Carlos */
+          secondName?: string;
           /** @example Pérez */
-          lastName: string;
+          firstLastName: string;
+          /** @example Gómez */
+          secondLastName?: string;
           /**
            * @example PRE_OCCUPATIONAL
            * @enum {string}
@@ -3664,7 +3853,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_downloadAptitudeCertificate: {
+  MedicalRecordsController_downloadAptitudeCertificate_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3692,7 +3881,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_uploadAptitudeCertificate: {
+  MedicalRecordsController_uploadAptitudeCertificate_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3729,7 +3918,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_downloadMedicalReport: {
+  MedicalRecordsController_downloadMedicalReport_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3757,7 +3946,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_uploadMedicalReport: {
+  MedicalRecordsController_uploadMedicalReport_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3794,7 +3983,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getAptitudeCertificateInfo: {
+  MedicalRecordsController_getAptitudeCertificateInfo_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3830,7 +4019,7 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getMedicalReportInfo: {
+  MedicalRecordsController_getMedicalReportInfo_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -3858,6 +4047,130 @@ export interface operations {
         };
       };
       /** @description Informe médico no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_getMedicalRecordById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico obtenido exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateMedicalRecordDetails_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMedicalRecordDetailsDto"];
+      };
+    };
+    responses: {
+      /** @description Detalles actualizados exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateCustomSections_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @example [
+           *       {
+           *         "name": "Examen adicional",
+           *         "fields": [
+           *           {
+           *             "name": "resultado",
+           *             "value": "Normal"
+           *           },
+           *           {
+           *             "name": "observaciones",
+           *             "value": "Ninguna"
+           *           }
+           *         ]
+           *       }
+           *     ] */
+          customSections?: {
+            /** @example Examen adicional */
+            name?: string;
+            fields?: {
+              /** @example resultado */
+              name?: string;
+              /** @example Normal */
+              value?: string;
+            }[];
+          }[];
+        };
+      };
+    };
+    responses: {
+      /** @description Secciones personalizadas actualizadas exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
       404: {
         headers: {
           [name: string]: unknown;

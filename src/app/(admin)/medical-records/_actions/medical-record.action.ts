@@ -3,7 +3,13 @@
 import { cookies } from "next/headers";
 
 import { http } from "@/lib/http/serverFetch";
-import { MedicalRecordCreate, MedicalRecordFileInfo, MedicalRecordResponse } from "../_types/medical-record.types";
+import {
+  MedicalRecordCreate,
+  MedicalRecordFileInfo,
+  MedicalRecordResponse,
+  UpdateCustomSections,
+  UpdateMedicalRecordDetails,
+} from "../_types/medical-record.types";
 
 const API_ENDPOINT = "/medical-records";
 
@@ -57,11 +63,23 @@ export async function createMedicalRecord(
     // Agregar los campos básicos
     formData.append("ruc", medicalRecord.ruc);
     formData.append("firstName", medicalRecord.firstName);
-    formData.append("lastName", medicalRecord.lastName);
+    formData.append("firstLastName", medicalRecord.firstLastName);
     formData.append("examType", medicalRecord.examType);
     formData.append("aptitude", medicalRecord.aptitude);
 
     // Agregar campos opcionales si existen
+    if (medicalRecord.dni) {
+      formData.append("dni", medicalRecord.dni);
+    }
+
+    if (medicalRecord.secondName) {
+      formData.append("secondName", medicalRecord.secondName);
+    }
+
+    if (medicalRecord.secondLastName) {
+      formData.append("secondLastName", medicalRecord.secondLastName);
+    }
+
     if (medicalRecord.restrictions) {
       formData.append("restrictions", medicalRecord.restrictions);
     }
@@ -314,5 +332,63 @@ export async function downloadMedicalReport(
   } catch (error) {
     console.warn("Error al descargar el informe", error);
     return { success: false, data: null, filename: null, error: "Error al descargar documento" };
+  }
+}
+
+/**
+ * Actualiza los detalles médicos de un registro
+ */
+export async function updateMedicalRecordDetails(
+  id: string,
+  details: UpdateMedicalRecordDetails
+): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
+  try {
+    console.log(`📝 Actualizando detalles médicos para el registro con ID: ${id}`);
+    console.log(`📊 Datos enviados:`, JSON.stringify(details).substring(0, 500) + "...");
+
+    const [data, err] = await http.patch<MedicalRecordResponse>(`${API_ENDPOINT}/${id}/details`, details);
+
+    if (err !== null) {
+      console.error(`❌ Error al actualizar detalles médicos:`, err);
+      return { success: false, data: null, error: err.message || "Error al actualizar detalles médicos" };
+    }
+
+    console.log(`✅ Detalles médicos actualizados correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al actualizar detalles médicos", error);
+    return { success: false, data: null, error: "Error al actualizar detalles médicos" };
+  }
+}
+
+/**
+ * Actualiza las secciones personalizadas de un registro médico
+ */
+export async function updateCustomSections(
+  id: string,
+  customSections: UpdateCustomSections
+): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
+  try {
+    console.log(`🔄 Actualizando secciones personalizadas para el registro médico con ID: ${id}`);
+    console.log(`📊 Datos enviados:`, JSON.stringify(customSections).substring(0, 500) + "...");
+
+    const [data, err] = await http.patch<MedicalRecordResponse>(
+      `${API_ENDPOINT}/${id}/custom-sections`,
+      customSections
+    );
+
+    if (err !== null) {
+      console.error(`❌ Error al actualizar secciones personalizadas:`, err);
+      return { success: false, data: null, error: err.message || "Error al actualizar secciones personalizadas" };
+    }
+
+    console.log(
+      `✅ Secciones personalizadas actualizadas correctamente:`,
+      JSON.stringify(data).substring(0, 200) + "..."
+    );
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al actualizar secciones personalizadas", error);
+    return { success: false, data: null, error: "Error al actualizar secciones personalizadas" };
   }
 }
