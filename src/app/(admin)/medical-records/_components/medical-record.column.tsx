@@ -3,21 +3,15 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Eye, FileDown, FileText, MoreHorizontal } from "lucide-react";
+import { FileDown } from "lucide-react";
 import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
 import { MedicalRecordResponse } from "../_types/medical-record.types";
 import { ClinicResponse } from "../../clinics/_types/clinics.types";
+import ClinicCell from "./ClinicCell";
+import MedicalRecordTableActions from "./MedicalRecordTableActions";
 
 interface ColumnsMedicalRecordProps {
   clinics?: ClinicResponse[];
@@ -36,12 +30,6 @@ export const columnsMedicalRecord = ({
   isDownloadingCertificate,
   isDownloadingReport,
 }: ColumnsMedicalRecordProps): ColumnDef<MedicalRecordResponse>[] => {
-  // Función para obtener el nombre de la clínica por ID
-  const getClinicName = (clinicId: string) => {
-    const clinic = clinics.find((clinic) => clinic.id === clinicId);
-    return clinic?.name || "Clínica no encontrada";
-  };
-
   // Función para verificar si existe un informe médico
   const hasMedicalReport = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
@@ -100,7 +88,7 @@ export const columnsMedicalRecord = ({
       header: ({ column }) => <DataTableColumnHeader column={column} title="Clínica" />,
       cell: ({ row }) => {
         const clinicId = row.original.clinicId;
-        return <div className="capitalize min-w-[150px]">{getClinicName(clinicId)}</div>;
+        return <ClinicCell clinicId={clinicId} clinicsList={clinics} />;
       },
     },
     {
@@ -143,33 +131,41 @@ export const columnsMedicalRecord = ({
     {
       id: "firstName",
       accessorKey: "firstName",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombres" />,
+      header: "Nombre",
       cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("firstName")}</div>,
     },
     {
-      id: "lastName",
-      accessorKey: "lastName",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Apellidos" />,
-      cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("lastName")}</div>,
+      id: "firstLastName",
+      accessorKey: "firstLastName",
+      header: "Apellido",
+      cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("firstLastName")}</div>,
     },
     {
       id: "status",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
       cell: ({ row }) => {
-        // Estado basado en la existencia de archivos
-        const files = row.original.files;
-        const hasReport = hasMedicalReport(files);
-        const hasCertificate = hasAptitudeCertificate(files);
+        // Ahora usamos el valor de aptitude directamente del registro médico
+        const aptitude = row.original.aptitude;
 
-        let status = "Pendiente";
-        let variant: "default" | "destructive" | "outline" | "secondary" = "outline";
+        let status = "";
+        let variant: "success" | "error" | "outline" | "info" = "outline";
 
-        if (hasReport && hasCertificate) {
-          status = "Completo";
-          variant = "default";
-        } else if (hasReport || hasCertificate) {
-          status = "Parcial";
-          variant = "secondary";
+        switch (aptitude) {
+          case "APT":
+            status = "Apto";
+            variant = "success";
+            break;
+          case "APT_WITH_RESTRICTIONS":
+            status = "Apto con restricciones";
+            variant = "info";
+            break;
+          case "NOT_APT":
+            status = "No apto";
+            variant = "error";
+            break;
+          default:
+            status = "Desconocido";
+            variant = "outline";
         }
 
         return (
@@ -226,35 +222,7 @@ export const columnsMedicalRecord = ({
       header: "",
       cell: ({ row }) => {
         const record = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => router.push(`/medical-records/${record.id}`)}>
-                Ver detalles
-                <DropdownMenuShortcut>
-                  <Eye className="size-4 mr-2" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-              {record.files && record.files.length > 0 && (
-                <DropdownMenuItem
-                  className="cursor-pointer"
-                  onClick={() => router.push(`/medical-records/${record.id}/files`)}
-                >
-                  Ver archivos
-                  <DropdownMenuShortcut>
-                    <FileText className="size-4 mr-2" />
-                  </DropdownMenuShortcut>
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
+        return <MedicalRecordTableActions record={record} router={router} _clinicsList={clinics} />;
       },
     },
   ];

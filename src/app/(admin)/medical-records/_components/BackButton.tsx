@@ -1,0 +1,77 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
+import { Button } from "@/shared/components/ui/button";
+
+interface BackButtonProps {
+  href: string;
+  hasUnsavedChanges?: boolean;
+}
+
+export function BackButton({ href, hasUnsavedChanges: initialHasUnsavedChanges = false }: BackButtonProps) {
+  const router = useRouter();
+  const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(initialHasUnsavedChanges);
+
+  // Escuchar el evento de cambios sin guardar
+  useEffect(() => {
+    const handleUnsavedChanges = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setHasUnsavedChanges(customEvent.detail?.hasUnsavedChanges || false);
+    };
+
+    window.addEventListener("unsavedChanges", handleUnsavedChanges);
+
+    return () => {
+      window.removeEventListener("unsavedChanges", handleUnsavedChanges);
+    };
+  }, []);
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      setShowUnsavedChangesDialog(true);
+    } else {
+      router.push(href);
+    }
+  };
+
+  return (
+    <>
+      <Button variant="outline" size="icon" onClick={handleClick}>
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+
+      <AlertDialog open={showUnsavedChangesDialog} onOpenChange={setShowUnsavedChangesDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cambios sin guardar</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tienes cambios sin guardar en el formulario. Si sales ahora, perderás todos los cambios realizados.
+              <p className="mt-2 font-medium">¿Qué deseas hacer?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex items-center gap-2">
+            <AlertDialogCancel onClick={() => setShowUnsavedChangesDialog(false)}>Continuar editando</AlertDialogCancel>
+            <AlertDialogAction onClick={() => router.push(href)} className="bg-red-600 text-white hover:bg-red-700">
+              Salir sin guardar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

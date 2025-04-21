@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { FileDown } from "lucide-react";
 
@@ -18,6 +18,25 @@ export default function MedicalRecordTable() {
   const router = useRouter();
   const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords();
   const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
+
+  // Debug logging
+  useEffect(() => {
+    if (medicalRecords) {
+      console.log("Medical Records Data:", medicalRecords);
+      // Check if clinicId exists in the records
+      const hasClinicId = medicalRecords.some((record) => record.clinicId);
+      console.log("Records have clinicId:", hasClinicId);
+      if (hasClinicId) {
+        // Log a sample clinicId
+        const sampleRecord = medicalRecords.find((record) => record.clinicId);
+        console.log("Sample clinicId:", sampleRecord?.clinicId);
+      }
+    }
+
+    if (clinics) {
+      console.log("Available Clinics:", clinics);
+    }
+  }, [medicalRecords, clinics]);
 
   // Mover los hooks de descarga al componente principal
   const { mutateAsync: downloadCertificate, isPending: isDownloadingCertificate } = useDownloadAptitudeCertificate();
