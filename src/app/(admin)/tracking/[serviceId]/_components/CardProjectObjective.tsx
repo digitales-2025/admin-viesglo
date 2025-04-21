@@ -42,19 +42,27 @@ export default function CardProjectObjective({ objective }: Props) {
         onClick={() => setExpanded(!expanded)}
       >
         <CardHeader className="p-0">
-          <CardTitle className="grid grid-cols-[1fr_auto] justify-center items-center gap-4">
-            <div className="inline-flex gap-2 items-center">
-              {expanded ? <ChevronUp className="w-4 h-4 text-primary" /> : <ChevronDown className="w-4 h-4" />}
-              <span className="first-letter:capitalize">{objective.name}</span>
-              <span className="text-xs text-muted-foreground ml-2">
-                ({activitiesCount} {activitiesCount === 1 ? "actividad" : "actividades"})
-              </span>
+          <CardTitle className="grid grid-cols-[auto_auto_auto] grid-rows-3 xl:grid-cols-[auto_1fr_auto_auto_auto] justify-center items-center gap-4 xl:grid-rows-1 md:grid-rows-2">
+            <div className="inline-flex justify-start items-start xl:order-1 ">
+              {expanded ? (
+                <ChevronUp className="shrink-0 w-4 h-4 text-primary" />
+              ) : (
+                <ChevronDown className="shrink-0 w-4 h-4" />
+              )}
             </div>
-            <div className="inline-flex justify-end items-center w-full gap-2">
+            <div className="inline-flex gap-2 items-center xl:order-2 col-span-3 order-4 xl:col-span-1">
+              <span className="first-letter:capitalize">{objective.name}</span>
+            </div>
+            <span className="text-xs text-muted-foreground ml-2 text-nowrap xl:order-3 text-end order-2">
+              ({activitiesCount} {activitiesCount === 1 ? "actividad" : "actividades"})
+            </span>
+            <div className="inline-flex justify-end items-center w-full gap-2 xl:order-4 order-5 col-span-3 xl:col-span-1">
               <Progress value={progress} className="min-w-52" />
               <span className="text-sm text-nowrap">{progress} %</span>
+            </div>
+            <div className="inline-flex justify-end items-center gap-2 xl:order-5 order-3">
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={(e) => {
                   e.stopPropagation();
                   const dataWithObjectiveId = {
