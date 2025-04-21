@@ -30,6 +30,8 @@ export type ProjectActivityResponse = Omit<components["schemas"]["ProjectActivit
 export type CreateProjectActivity = components["schemas"]["CreateProjectActivityDto"];
 export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivityDto"];
 
+export type TrackingActivityDto = components["schemas"]["TrackingActivityDto"];
+
 // Upload evidencia
 export type UploadEvidence = components["schemas"]["UploadEvidenceDto"];
 

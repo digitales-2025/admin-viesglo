@@ -38,7 +38,7 @@ export default function AutocompleteSelect({ label, options, value, onChange, is
             disabled={isLoading}
           >
             {isLoading ? (
-              <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              <Loader2 className="ml-2 h-4 w-4 shrink-0 opacity-50 animate-spin text-emerald-500" />
             ) : (
               <>
                 {value ? options.find((option) => option.value === value)?.label : `Selecciona un ${label}`}

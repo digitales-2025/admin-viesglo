@@ -8,9 +8,9 @@ import {
   deleteActivityProject,
   getActivitiesProject,
   updateActivityProject,
-  updateResponsibleUserId,
+  updateTrackingActivity,
 } from "../_actions/activities-project.actions";
-import { CreateProjectActivity, UpdateProjectActivity } from "../_types/tracking.types";
+import { CreateProjectActivity, TrackingActivityDto, UpdateProjectActivity } from "../_types/tracking.types";
 import { OBJECTIVES_PROJECT_KEYS } from "./useObjectivesProject";
 import { SERVICES_PROJECT_KEYS } from "./useServicesProject";
 
@@ -125,24 +125,24 @@ export function useDeleteActivityProject() {
 /**
  * Hook para actualizar el responsable de una actividad de un objetivo de proyecto
  */
-export function useUpdateResponsibleUserId() {
+export function useUpdateTrackingActivity() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       objectiveId: _,
       activityId,
-      responsibleUserId,
+      trackingActivity,
     }: {
       objectiveId: string;
       activityId: string;
-      responsibleUserId: string;
+      trackingActivity: TrackingActivityDto;
     }) => {
-      const response = await updateResponsibleUserId(activityId, responsibleUserId);
+      const response = await updateTrackingActivity(activityId, trackingActivity);
       if (!response.success) {
-        throw new Error(response.error || "Error al actualizar el responsable de la actividad");
+        throw new Error(response.error || "Error al actualizar la actividad");
       }
     },
-    onMutate: async ({ objectiveId, activityId, responsibleUserId }) => {
+    onMutate: async ({ objectiveId, activityId, trackingActivity }) => {
       // Cancelar consultas salientes para evitar que sobrescriban nuestra actualización optimista
       await queryClient.cancelQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(objectiveId) });
 
@@ -156,7 +156,7 @@ export function useUpdateResponsibleUserId() {
           if (activity.id === activityId) {
             return {
               ...activity,
-              responsibleUserId,
+              trackingActivity,
             };
           }
           return activity;
@@ -175,6 +175,7 @@ export function useUpdateResponsibleUserId() {
     },
     onSuccess: (_, variables) => {
       // pero podemos recargar para asegurarnos de tener la última información
+      queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });

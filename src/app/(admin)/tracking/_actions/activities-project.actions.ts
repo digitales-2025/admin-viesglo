@@ -1,7 +1,12 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import { CreateProjectActivity, ProjectActivityResponse, UpdateProjectActivity } from "../_types/tracking.types";
+import {
+  CreateProjectActivity,
+  ProjectActivityResponse,
+  TrackingActivityDto,
+  UpdateProjectActivity,
+} from "../_types/tracking.types";
 
 const API_ENDPOINT = "/project-activities";
 
@@ -65,15 +70,18 @@ export async function deleteActivityProject(activityId: string): Promise<{ succe
   }
 }
 
-export async function updateResponsibleUserId(activityId: string, responsibleUserId: string) {
+export async function updateTrackingActivity(activityId: string, trackingActivity: TrackingActivityDto) {
   try {
-    const [_, err] = await http.put<ProjectActivityResponse>(`${API_ENDPOINT}/${activityId}`, { responsibleUserId });
+    const [_, err] = await http.patch<ProjectActivityResponse>(
+      `${API_ENDPOINT}/${activityId}/tracking`,
+      trackingActivity
+    );
     if (err !== null) {
-      throw new Error(err.message || "Error al actualizar el responsable de la actividad");
+      throw new Error(err.message || "Error al actualizar la actividad");
     }
     return { success: true };
   } catch (error) {
-    console.error("Error al actualizar el responsable de la actividad", error);
-    return { success: false, error: "Error al actualizar el responsable de la actividad" };
+    console.error("Error al actualizar la actividad", error);
+    return { success: false, error: "Error al actualizar la actividad" };
   }
 }

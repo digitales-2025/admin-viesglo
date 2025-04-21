@@ -1,7 +1,7 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, X } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
@@ -14,6 +14,7 @@ export interface DatePickerProps {
   placeholder?: string;
   disabled?: boolean;
   className?: string;
+  clearable?: boolean;
 }
 
 export function DatePicker({
@@ -22,6 +23,7 @@ export function DatePicker({
   placeholder = "Seleccionar fecha",
   disabled = false,
   className,
+  clearable = false,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
@@ -48,6 +50,12 @@ export function DatePicker({
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar mode="single" selected={selected} onSelect={handleSelect} initialFocus locale={es} />
+        {clearable && (
+          <Button variant="ghost" onClick={() => onSelect(undefined)}>
+            Limpiar
+            <X className="w-4 h-4" />
+          </Button>
+        )}
       </PopoverContent>
     </Popover>
   );

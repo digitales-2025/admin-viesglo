@@ -783,7 +783,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/project-activities/{id}/status": {
+  "/api/v1/project-activities/{id}/tracking": {
     parameters: {
       query?: never;
       header?: never;
@@ -791,64 +791,13 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Actualizar el estado de una actividad */
-    put: operations["ProjectActivitiesController_updateStatus_v1"];
+    put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/evidence": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar la evidencia de una actividad */
-    put: operations["ProjectActivitiesController_updateEvidence_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/scheduled-date": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar la fecha programada de una actividad */
-    put: operations["ProjectActivitiesController_updateScheduledDate_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/execution-date": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar la fecha de ejecución de una actividad */
-    put: operations["ProjectActivitiesController_updateExecutionDate_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
+    /** Actualizar el seguimiento de una tarea */
+    patch: operations["ProjectActivitiesController_updateTrackingActivity_v1"];
     trace?: never;
   };
   "/api/v1/quotations": {
@@ -2443,36 +2392,35 @@ export interface components {
       /** Format: date-time */
       updatedAt: string;
     };
-    UpdateStatusDto: {
+    TrackingActivityDto: {
       /**
        * @description El estado de la actividad
        * @example PENDING
        * @enum {string}
        */
-      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-    };
-    UpdateEvidenceDto: {
+      status?: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
       /**
        * @description La evidencia de la actividad
        * @example https://www.google.com
        */
-      evidence: string;
-    };
-    UpdateScheduledDateDto: {
+      evidence?: string;
       /**
        * Format: date-time
        * @description La fecha programada de la actividad
        * @example 2021-01-01
        */
-      scheduledDate: string;
-    };
-    UpdateExecutionDateDto: {
+      scheduledDate?: string;
       /**
        * Format: date-time
        * @description La fecha de ejecución de la actividad
        * @example 2021-01-01
        */
-      executionDate: string;
+      executionDate?: string;
+      /**
+       * @description El ID del usuario responsable de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
     };
     QuotationResponseDto: {
       /**
@@ -4917,7 +4865,7 @@ export interface operations {
       };
     };
   };
-  ProjectActivitiesController_updateStatus_v1: {
+  ProjectActivitiesController_updateTrackingActivity_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -4928,96 +4876,30 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateStatusDto"];
+        "application/json": components["schemas"]["TrackingActivityDto"];
       };
     };
     responses: {
-      /** @description El estado de la actividad ha sido actualizado exitosamente */
+      /** @description La actividad ha sido actualizada existosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
+        content?: never;
       };
-    };
-  };
-  ProjectActivitiesController_updateEvidence_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateEvidenceDto"];
-      };
-    };
-    responses: {
-      /** @description La evidencia de la actividad ha sido actualizada exitosamente */
-      200: {
+      /** @description Bad request */
+      400: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
+        content?: never;
       };
-    };
-  };
-  ProjectActivitiesController_updateScheduledDate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateScheduledDateDto"];
-      };
-    };
-    responses: {
-      /** @description La fecha programada de la actividad ha sido actualizada exitosamente */
-      200: {
+      /** @description Actividad de proyecto no encontrada */
+      404: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectActivitiesController_updateExecutionDate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateExecutionDateDto"];
-      };
-    };
-    responses: {
-      /** @description La fecha de ejecución de la actividad ha sido actualizada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
+        content?: never;
       };
     };
   };

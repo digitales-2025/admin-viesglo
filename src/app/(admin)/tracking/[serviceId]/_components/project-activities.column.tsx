@@ -1,17 +1,18 @@
+import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Calendar, Check, Clock, Paperclip, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Badge } from "@/shared/components/ui/badge";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import {
   StatusProjectActivity,
   StatusProjectActivityColor,
   StatusProjectActivityLabel,
 } from "../_types/activities.types";
-import { useUpdateResponsibleUserId } from "../../_hooks/useActivitiesProject";
+import { useUpdateTrackingActivity } from "../../_hooks/useActivitiesProject";
 import { ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 
@@ -54,12 +55,14 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: function Cell({ row }) {
       const responsibleUser = users.find((user) => user.id === row.original.responsibleUserId);
-      const { mutate: updateResponsibleUserId, isPending } = useUpdateResponsibleUserId();
+      const { mutate: updateResponsibleUserId, isPending } = useUpdateTrackingActivity();
       const onUpdateResponsibleUserId = (id: string) => {
         updateResponsibleUserId({
           objectiveId,
           activityId: row.original.id,
-          responsibleUserId: id,
+          trackingActivity: {
+            responsibleUserId: id,
+          },
         });
       };
 
@@ -80,12 +83,26 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     id: "scheduledDate",
     accessorKey: "scheduledDate",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha programada" />,
-    cell: ({ row }) => (
-      <Badge variant="outline">
-        <Calendar className="ml-2 h-4 w-4 text-muted-foreground" />
-        {row.getValue("scheduledDate") ? format(row.getValue("scheduledDate"), "dd/MM/yyyy") : "Sin programar"}
-      </Badge>
-    ),
+    cell: function Cell({ row }) {
+      const scheduledDate = row.getValue("scheduledDate");
+      const scheduledDateFormatted = scheduledDate ? new Date(scheduledDate as string) : undefined;
+      const { mutate: updateTrackingActivity, isPending } = useUpdateTrackingActivity();
+
+      const handleChange = (date: Date | undefined) => {
+        updateTrackingActivity({
+          objectiveId,
+          activityId: row.original.id,
+          trackingActivity: {
+            scheduledDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+      return (
+        <DatePicker selected={scheduledDateFormatted} onSelect={handleChange} disabled={isPending} clearable={true} />
+      );
+    },
   },
   {
     id: "executionDate",
