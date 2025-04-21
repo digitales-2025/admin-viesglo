@@ -21,6 +21,13 @@ export default function TableActivities({ objectiveId }: TableActivitiesProps) {
   }
 
   return (
-    <DataTable columns={columns} data={activities || []} isLoading={isLoading} toolBar={false} pagination={false} />
+    <DataTable
+      columns={columns}
+      data={activities || []}
+      isLoading={isLoading}
+      toolBar={false}
+      pagination={false}
+      className="rounded-t-none"
+    />
   );
 }

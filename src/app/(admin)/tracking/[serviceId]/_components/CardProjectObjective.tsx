@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { Progress } from "@/shared/components/ui/progress";
+import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { StatusProjectActivity } from "../_types/activities.types";
 import { ProjectObjectiveResponse } from "../../_types/tracking.types";
@@ -35,10 +36,13 @@ export default function CardProjectObjective({ objective }: Props) {
   const { open } = useDialogStore();
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col">
       <Card
         key={objective.id}
-        className="p-4 shadow-none transition-colors cursor-pointer z-[1] bg-background  hover:border-sky-300 sticky top-16"
+        className={cn(
+          "p-4 shadow-none transition-colors cursor-pointer z-[1] bg-background  hover:border-sky-300 sticky top-16",
+          expanded && "bg-accent border-b-transparent rounded-b-none"
+        )}
         onClick={() => setExpanded(!expanded)}
       >
         <CardHeader className="p-0">
@@ -113,8 +117,7 @@ export default function CardProjectObjective({ objective }: Props) {
       </Card>
 
       {expanded && (
-        <div className="grid grid-cols-[auto_1fr] ml-2">
-          <div className="h-full w-1 bg-border/50 mr-2"></div>
+        <div className="flex flex-col gap-2">
           <TableActivities objectiveId={objective.id} />
         </div>
       )}
