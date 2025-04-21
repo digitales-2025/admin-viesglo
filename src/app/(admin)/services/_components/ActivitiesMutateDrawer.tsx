@@ -16,7 +16,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
@@ -142,7 +142,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
             {isUpdate ? "Actualiza los datos de la actividad" : "Crea una nueva actividad"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="activities-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowBigRightDash, Laptop, Moon, Sun } from "lucide-react";
+import { CornerDownRight, Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   CommandDialog,
   CommandEmpty,
@@ -15,13 +16,33 @@ import {
   CommandSeparator,
 } from "@/shared/components/ui/command";
 import { useSearch } from "@/shared/context/search-context";
+import { clinicSidebarData } from "../layout/data/clinic-sidebar-data";
 import { sidebarData } from "../layout/data/sidebar-data";
+import { SidebarData } from "../layout/data/types";
 import { ScrollArea } from "./scroll-area";
 
 export function CommandMenu() {
   const navigate = useRouter();
   const { setTheme } = useTheme();
   const { open, setOpen } = useSearch();
+  const [data, setData] = React.useState<SidebarData>();
+
+  // Vamos a ser una busqueda de acuerto al usuario
+  const { data: user } = useCurrentUser();
+
+  useEffect(() => {
+    switch (user?.type) {
+      case "admin":
+        setData(sidebarData);
+        break;
+      case "clinic":
+        setData(clinicSidebarData);
+        break;
+      default:
+        setData(undefined);
+        break;
+    }
+  }, [user]);
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -37,7 +58,7 @@ export function CommandMenu() {
       <CommandList>
         <ScrollArea type="hover" className="h-72 pr-1">
           <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-          {sidebarData.navGroups.map((group) => (
+          {data?.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.map((navItem, i) => {
                 if (navItem.url)
@@ -48,9 +69,10 @@ export function CommandMenu() {
                       onSelect={() => {
                         runCommand(() => navigate.push(navItem.url as string));
                       }}
+                      className="group/item"
                     >
-                      <div className="mr-2 flex h-4 w-4 items-center justify-center">
-                        <ArrowBigRightDash className="size-2 text-muted-foreground/80" />
+                      <div className="mr-2 flex size-5 group-hover/item:shadow-sm transition-colors duration-200 items-center justify-center bg-background rounded-sm">
+                        <CornerDownRight />
                       </div>
                       {navItem.title}
                     </CommandItem>
@@ -63,9 +85,10 @@ export function CommandMenu() {
                     onSelect={() => {
                       runCommand(() => navigate.push(subItem.url as string));
                     }}
+                    className="group/item"
                   >
-                    <div className="mr-2 flex h-4 w-4 items-center justify-center">
-                      <ArrowBigRightDash className="size-2 text-muted-foreground/80" />
+                    <div className="mr-2 flex size-5 group-hover/item:shadow-sm transition-colors duration-200 shadow-sm items-center justify-center bg-background rounded-sm">
+                      <CornerDownRight />
                     </div>
                     {subItem.title}
                   </CommandItem>

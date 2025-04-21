@@ -1,209 +1,110 @@
-import type { NextRequest } from "next/server";
-import { NextResponse } from "next/server";
-import { jwtDecode } from "jwt-decode"; // Forzar recarga del módulo
+import { NextRequest, NextResponse } from "next/server";
 
-import { Result } from "./lib/http/result";
+// Rutas públicas que no requieren autenticación
+const PUBLIC_ROUTES = ["/sign-in", "/forbidden"];
 
-interface JWTPayload {
-  exp: number;
+// Rutas de API que no deberían pasar por el middleware de autenticación
+const API_ROUTES = ["/api/auth", "/api/v1/auth"];
+
+// Rutas que no deben guardarse para redirección después del login
+const EXCLUDED_REDIRECT_ROUTES = ["/forbidden", "/sign-in"];
+
+/**
+ * Verifica si la solicitud es una petición de login o está relacionada con la autenticación
+ */
+function isAuthRelatedRequest(request: NextRequest): boolean {
+  const { pathname, searchParams } = request.nextUrl;
+  const method = request.method;
+
+  // Verificaciones rápidas primero
+  if (pathname === "/sign-in" && method === "POST") return true;
+
+  // Verificar si es una petición a la API de autenticación
+  for (const route of API_ROUTES) {
+    if (pathname.startsWith(route)) return true;
+  }
+
+  // Verificar parámetros relacionados con autenticación
+  return searchParams.has("token") || searchParams.has("code");
 }
 
-const PUBLIC_ROUTES = ["/sign-in"];
-
-const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:5000/api/v1";
-
-// Rutas que no queremos guardar como última URL visitada
-const EXCLUDED_REDIRECT_ROUTES = ["/", "/sign-in"];
+/**
+ * Verifica si la ruta es un recurso estático que no necesita verificación
+ */
+function isStaticResource(pathname: string): boolean {
+  return (
+    pathname.includes("/_next/") ||
+    pathname.includes("/assets/") ||
+    pathname.endsWith(".ico") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".png") ||
+    pathname.endsWith(".jpg") ||
+    pathname.endsWith(".jpeg") ||
+    pathname.endsWith(".css") ||
+    pathname.endsWith(".js")
+  );
+}
 
 export async function middleware(request: NextRequest) {
-  const access_token = request.cookies.get("access_token");
-  const refresh_token = request.cookies.get("refresh_token");
-  const isAuthenticated = !!access_token || !!refresh_token;
-  console.log("🚀 ~ middleware ~ isAuthenticated:", isAuthenticated);
+  const startTime = process.env.NODE_ENV === "development" ? Date.now() : 0;
   const { pathname } = request.nextUrl;
 
-  devlog("middleware hit");
+  devlog(`Middleware: ${pathname}`);
 
-  // Si estamos en una ruta pública (sign-in) y el usuario está autenticado
-  // redirigimos al home o a la última URL visitada
-  if (PUBLIC_ROUTES.includes(pathname) && isAuthenticated) {
-    devlog("ruta publica, autenticado, continue");
-
-    const lastVisitedUrl = request.cookies.get("lastUrl")?.value ?? "/";
-    const nextResponse = NextResponse.redirect(new URL(lastVisitedUrl, request.url));
-    nextResponse.cookies.delete("lastUrl");
-    return nextResponse;
-  }
-
-  // Si NO estamos en una ruta pública y el usuario NO está autenticado
-  // guardamos la URL actual (si no está excluida) y redirigimos a sign-in
-  if (!PUBLIC_ROUTES.includes(pathname) && !isAuthenticated) {
-    devlog("ruta privada, no autenticado, continue");
-
-    const response = NextResponse.redirect(new URL("/sign-in", request.url));
-
-    // Solo guardamos la URL si no está en la lista de excluidas
-    if (!EXCLUDED_REDIRECT_ROUTES.includes(pathname)) {
-      response.cookies.set("lastUrl", pathname);
-    }
-
-    return response;
-  }
-
-  // Si estamos en una ruta publica, y el usuario no esta autenticado, continuar
-  if (PUBLIC_ROUTES.includes(request.nextUrl.pathname)) {
-    devlog("ruta publica, no autenticado, continue");
-
+  // Permitir recursos estáticos sin verificación
+  if (isStaticResource(pathname)) {
     return NextResponse.next();
   }
 
-  devlog("session check");
-
-  // En este punto se cumple que:
-  // - Estamos en una ruta privada, y el usuario esta "autenticado"
-
-  // Si no existe access_token o refresh_token,
-  // redirigir a login
-  if (!refresh_token) {
-    devlog(`no refresh token. access: ${access_token?.value}`);
-
-    const redirectUrl = EXCLUDED_REDIRECT_ROUTES.includes(pathname) ? "/" : pathname;
-    return logoutAndRedirectLogin(request, redirectUrl);
+  // Si es una petición relacionada con autenticación, permitir sin interferir
+  if (isAuthRelatedRequest(request)) {
+    devlog("Petición relacionada con autenticación, permitiendo sin interferir");
+    return NextResponse.next();
   }
 
-  // Si el access_token expira en 30s o menos,
-  // intentar refrescarlo
-  if (tokenExpiration(access_token?.value ?? "") < 30) {
-    devlog("access_token exp: less than 30");
+  // Verificar presencia de cookie de autenticación (sin validar su contenido)
+  const hasRefreshToken = !!request.cookies.get("refresh_token")?.value;
 
-    // Si refresh_token expira en 5s o menos,
-    // eliminar todas las cookies y redirigir a login
-    if (tokenExpiration(refresh_token.value) < 5) {
-      devlog("refresh_token exp: less than 5");
+  // CASO 1: Ruta pública, usuario aparentemente autenticado -> redirigir a la página principal
+  if (PUBLIC_ROUTES.includes(pathname) && hasRefreshToken) {
+    devlog("Ruta pública, token presente, redirigiendo a dashboard");
+    const response = NextResponse.redirect(new URL("/", request.url));
+    response.cookies.delete("lastUrl");
+    return response;
+  }
 
-      const redirectUrl = EXCLUDED_REDIRECT_ROUTES.includes(pathname) ? "/" : pathname;
-      return logoutAndRedirectLogin(request, redirectUrl);
-    }
+  // CASO 2: Ruta privada, usuario sin token -> redirigir a login
+  if (!PUBLIC_ROUTES.includes(pathname) && !hasRefreshToken) {
+    devlog("Ruta privada, token ausente, redirigiendo a login");
+    const response = NextResponse.redirect(new URL("/sign-in", request.url));
 
-    const [newCookies, err] = await refresh(refresh_token.value);
-    console.log("🚀 ~ middleware ~ newCookies:", newCookies);
-    if (err) {
-      devlog("refresh failure");
-
-      console.log(err);
-      const redirectUrl = EXCLUDED_REDIRECT_ROUTES.includes(pathname) ? "/" : pathname;
-      return logoutAndRedirectLogin(request, redirectUrl);
-    }
-
-    devlog("resetting cookies & forward");
-
-    const response = NextResponse.next();
-    newCookies.forEach((cookie) => {
-      devlog("Set-Cookie: " + cookie);
-      const { name, value, options } = parseSetCookie(cookie);
-      response.cookies.set({
-        name,
-        value,
-        ...options,
+    // Guardar URL para redirección posterior
+    if (!EXCLUDED_REDIRECT_ROUTES.includes(pathname)) {
+      response.cookies.set("lastUrl", pathname, {
+        path: "/",
+        maxAge: 3600, // 1 hora
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict" as const,
       });
-    });
+      devlog(`Guardando última URL: ${pathname}`);
+    }
 
     return response;
   }
 
-  devlog("session valid, forward");
+  // En cualquier otro caso, continuar (el backend validará el token)
+  if (process.env.NODE_ENV === "development") {
+    const endTime = Date.now();
+    devlog(`Middleware completado en ${endTime - startTime}ms`);
+  }
 
-  // access_token es valido, continuar
   return NextResponse.next();
-}
-
-function parseSetCookie(cookieString: string) {
-  const pairs: [string, string | boolean][] = cookieString
-    .split(";")
-    .map((pair) => pair.trim())
-    .map((pair) => {
-      const [key, ...values] = pair.split("=");
-      return [key.toLowerCase(), values.join("=") || true];
-    });
-
-  // Get the first pair which has the cookie name and value
-  const [cookieName, cookieValue] = pairs[0];
-  const cookieMap = new Map(pairs.slice(1));
-
-  return {
-    name: cookieName,
-    value: cookieValue as string,
-    options: {
-      path: cookieMap.get("path") as string,
-      maxAge: cookieMap.has("max-age") ? parseInt(cookieMap.get("max-age") as string) : undefined,
-      expires: cookieMap.has("expires") ? new Date(cookieMap.get("expires") as string) : undefined,
-      httpOnly: cookieMap.get("httponly") === true,
-      sameSite: cookieMap.has("samesite")
-        ? ((cookieMap.get("samesite") as string).toLowerCase() as "strict")
-        : undefined,
-    },
-  };
 }
 
 function devlog(message: string) {
   if (process.env.NODE_ENV === "development") {
     console.log("\tDEBUG: " + message);
-  }
-}
-/**
- * Elimina todas las cookies y redirige a login. Guarda
- * la URL pasada como segundo parametro como cookie.
- */
-function logoutAndRedirectLogin(request: NextRequest, redirectUrl: string) {
-  const response = NextResponse.redirect(new URL("/sign-in", request.url));
-  response.cookies.delete("logged_in");
-  response.cookies.delete("access_token");
-  response.cookies.delete("refresh_token");
-  response.cookies.set("lastUrl", redirectUrl);
-  return response;
-}
-
-/**
- * Devuelve en cuantos segundos expira el token jwt pasado como param.
- * Si el token es invalido, o ya ha expirado, devuelve 0
- */
-function tokenExpiration(token: string): number {
-  try {
-    const decoded = jwtDecode<JWTPayload>(token);
-    const expirationMs = decoded.exp * 1000;
-    const now = Date.now();
-    const secondsToExpiration = (expirationMs - now) / 1000;
-    return secondsToExpiration > 0 ? secondsToExpiration : 0;
-  } catch {
-    return 0;
-  }
-}
-
-async function refresh(refreshToken: string): Promise<Result<string[], string>> {
-  try {
-    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
-      method: "POST",
-      headers: {
-        Cookie: `refresh_token=${refreshToken}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const newCookies = response.headers.getSetCookie();
-
-    if (!newCookies || newCookies.length === 0) {
-      // @ts-expect-error allowing null
-      return [null, "El refresh fue exitoso, pero no contenia nuevas cookies"];
-    }
-
-    return [newCookies, null];
-  } catch (error) {
-    console.error("Refresh token error:", error);
-    // @ts-expect-error allowing null
-    return [null, "Error refrescando token"];
   }
 }
 

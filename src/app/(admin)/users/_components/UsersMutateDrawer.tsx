@@ -22,7 +22,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateUser, useUpdateUser } from "../_hooks/useUsers";
 import { User, UserCreate } from "../_types/user.types";
@@ -216,7 +216,7 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="animate-spin" />

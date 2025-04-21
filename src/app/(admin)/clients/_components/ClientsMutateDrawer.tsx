@@ -31,7 +31,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClient, useUpdateClient } from "../_hooks/useClients";
 import { ClientCreate, ClientResponse } from "../_types/clients.types";
@@ -242,7 +242,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} Cliente</SheetTitle>
           <SheetDescription>{isUpdate ? "Actualiza los datos del cliente" : "Crea un nuevo cliente"}</SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="clients-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

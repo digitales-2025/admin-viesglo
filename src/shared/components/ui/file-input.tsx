@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { forwardRef, useRef, useState } from "react";
-import { FileText, Image, Upload } from "lucide-react";
+import { FileText, Image as ImageIcon, Upload } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { FormControl } from "@/shared/components/ui/form";
@@ -51,7 +51,7 @@ const FileInput = forwardRef<HTMLInputElement, FileInputProps>(
                 {files.map((file, index) => (
                   <div key={index} className="flex items-center py-1">
                     {file.type.includes("image") ? (
-                      <Image className="h-4 w-4 mr-2 shrink-0 text-emerald-500" />
+                      <ImageIcon className="h-4 w-4 mr-2 shrink-0 text-emerald-500" />
                     ) : (
                       <FileText className="h-4 w-4 mr-2 shrink-0 text-sky-500" />
                     )}

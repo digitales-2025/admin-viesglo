@@ -1,7 +1,6 @@
 "use client";
 
 import { HTMLAttributes, useEffect, useState } from "react";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -92,12 +91,6 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
                 <FormItem className="space-y-1">
                   <div className="flex items-center justify-between">
                     <FormLabel>Contraseña</FormLabel>
-                    <Link
-                      href="/forgot-password"
-                      className="text-sm font-medium text-muted-foreground hover:opacity-75"
-                    >
-                      ¿Has olvidado tu contraseña?
-                    </Link>
                   </div>
                   <FormControl>
                     <PasswordInput

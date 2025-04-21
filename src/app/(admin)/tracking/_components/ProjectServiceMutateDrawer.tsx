@@ -148,7 +148,7 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
                 : "Puedes crear un nuevo servicio desde cero o seleccionar uno existente."}
             </p>
             {!isUpdate && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex  flex-wrap justify-end items-center gap-2 text-sm text-muted-foreground">
                 <span>¿Ya tienes un servicio creado?</span>
                 <Button variant="ghost" size="sm" onClick={() => setIsSelectingExisting(true)}>
                   <PlusCircle className="mr-2 size-4 text-primary" />
@@ -159,7 +159,7 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
           </div>
         </SheetDescription>
       </SheetHeader>
-      <ScrollArea className="h-[calc(100vh-250px)]">
+      <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
         <Form {...form}>
           <form id="services-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
             <FormField

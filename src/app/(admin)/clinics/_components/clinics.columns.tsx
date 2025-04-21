@@ -130,11 +130,7 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        {row.getValue("estado") ? (
-          <Badge variant="successOutline"> Activo</Badge>
-        ) : (
-          <Badge variant="errorOutline">Inactivo</Badge>
-        )}
+        {row.getValue("estado") ? <Badge variant="success"> Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
       </div>
     ),
   },

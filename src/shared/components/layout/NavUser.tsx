@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { BadgeCheckIcon, ChevronsUpDown, LogOut } from "lucide-react";
 
 import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
-import { AuthResponse } from "@/app/(auth)/sign-in/_types/auth.types";
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
@@ -18,8 +18,10 @@ import {
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/shared/components/ui/sidebar";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
 import { LoadingTransition } from "../ui/loading-transition";
+import { Skeleton } from "../ui/skeleton";
 
-export function NavUser({ user }: { user: AuthResponse }) {
+export function NavUser() {
+  const { data: user, isLoading } = useCurrentUser();
   const { isMobile } = useSidebar();
 
   const router = useRouter();
@@ -39,6 +41,12 @@ export function NavUser({ user }: { user: AuthResponse }) {
     }
   };
 
+  if (!user) {
+    return null;
+  }
+
+  if (isLoading) return <Skeleton className="h-10 w-full" />;
+
   return (
     <>
       <LoadingTransition show={isRedirecting} message="Cerrando sesión, por favor espere..." />
@@ -51,12 +59,12 @@ export function NavUser({ user }: { user: AuthResponse }) {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarFallback className="rounded-lg uppercase">
-                    {firstLetterName(user?.fullName || "")}
+                  <AvatarFallback className="rounded-lg uppercase font-bold">
+                    {firstLetterName(user.name || "")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{user.fullName}</span>
+                  <span className="truncate font-semibold capitalize">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
                 </div>
                 <ChevronsUpDown className="ml-auto size-4" />
@@ -71,24 +79,30 @@ export function NavUser({ user }: { user: AuthResponse }) {
               <DropdownMenuLabel className="p-0 font-normal">
                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                   <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarFallback className="rounded-lg">SN</AvatarFallback>
+                    <AvatarFallback className="rounded-lg uppercase font-bold">
+                      {firstLetterName(user?.name || "")}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">{user?.fullName}</span>
+                    <span className="truncate font-semibold capitalize">{user?.name}</span>
                     <span className="truncate text-xs">{user.email}</span>
                   </div>
                 </div>
               </DropdownMenuLabel>
-              <DropdownMenuSeparator />
 
-              <DropdownMenuGroup>
-                <DropdownMenuItem asChild>
-                  <Link href="/settings/account">
-                    <BadgeCheckIcon />
-                    Account
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
+              {user.type === "admin" && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem asChild>
+                      <Link href="/settings/account">
+                        <BadgeCheckIcon />
+                        Account
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
                 <LogOut />

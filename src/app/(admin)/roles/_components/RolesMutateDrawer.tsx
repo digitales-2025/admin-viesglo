@@ -23,7 +23,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
@@ -135,7 +135,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           {isLoadingPermissions ? (
             <div className="flex items-center justify-center h-full">
               <Loader2 className="animate-spin" />

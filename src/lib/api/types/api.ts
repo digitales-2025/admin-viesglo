@@ -88,6 +88,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/verify-token": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Verificar la validez de un token de refresco */
+    post: operations["AuthController_verifyToken_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users": {
     parameters: {
       query?: never;
@@ -681,6 +698,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/project-activities/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar el estado de una actividad */
+    put: operations["ProjectActivitiesController_updateStatus_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la evidencia de una actividad */
+    put: operations["ProjectActivitiesController_updateEvidence_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/scheduled-date": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la fecha programada de una actividad */
+    put: operations["ProjectActivitiesController_updateScheduledDate_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/execution-date": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la fecha de ejecución de una actividad */
+    put: operations["ProjectActivitiesController_updateExecutionDate_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/medical-records/{id}/details": {
     parameters: {
       query?: never;
@@ -822,12 +907,26 @@ export interface components {
        */
       email?: string;
       /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
+       * @description Nombre (para clínicas y clientes)
+       * @example Clínica ABC
        */
-      fullName?: string;
+      name?: string;
+      /**
+       * @description Tipo de usuario
+       * @example admin
+       * @enum {string}
+       */
+      type?: "admin" | "clinic" | "client";
       roles: string[][];
     };
+    VerifyTokenDto: {
+      /**
+       * @description Token de refresco que desea verificar
+       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      refreshToken: string;
+    };
+    TokenVerificationResponse: Record<string, never>;
     RoleResponseDto: {
       /**
        * @description ID único del rol
@@ -1603,6 +1702,543 @@ export interface components {
        *     ]
        */
       clinicIds?: string[];
+    };
+    CreateProjectActivityDto: {
+      /**
+       * @description Nombre de la actividad (requerido si no se proporciona activityId)
+       * @example Documentar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Crear documentación detallada de los procesos operativos
+       */
+      description?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-12-31
+       */
+      scheduledDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @default false
+       * @example true
+       */
+      evidenceRequired: boolean;
+    };
+    CreateProjectObjectiveDto: {
+      /**
+       * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
+       * @example Mejorar procesos internos
+       */
+      name: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+    };
+    CreateProjectServiceDto: {
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+    };
+    CreateProjectDto: {
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /**
+       * @description ID del cliente asociado al proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      clientId: string;
+      /** @description Servicios del proyecto */
+      services?: components["schemas"]["CreateProjectServiceDto"][];
+    };
+    ResponsibleUserResponseDto: {
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id?: string;
+      /**
+       * @description Correo electrónico del usuario responsable
+       * @example usuario@ejemplo.com
+       */
+      email?: string;
+      /**
+       * @description Nombre completo del usuario responsable
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Cargo del usuario responsable
+       * @example Administrador
+       */
+      post?: string;
+      /**
+       * @description Teléfono del usuario responsable
+       * @example 999 999 999
+       */
+      phone?: string;
+      /**
+       * @description Indica si el usuario responsable está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ProjectActivityResponseDto: {
+      /**
+       * @description ID de la actividad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectObjectiveId: string;
+      /**
+       * @description ID de la actividad plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId: string;
+      /**
+       * Format: date-time
+       * @description Fecha programada
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      scheduledDate?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de ejecución
+       * @example 2023-01-15T00:00:00.000Z
+       */
+      executionDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired: boolean;
+      /**
+       * @description URL de la evidencia (si está disponible)
+       * @example https://example.com/evidence/123.jpg
+       */
+      evidence?: string;
+      /**
+       * @description Indica si la actividad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Estado de la actividad
+       * @example PENDING
+       * @enum {string}
+       */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+      /** @description Usuario responsable */
+      responsibleUser?: components["schemas"]["ResponsibleUserResponseDto"];
+    };
+    ProjectObjectiveResponseDto: {
+      /**
+       * @description ID del objetivo de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del objetivo de proyecto
+       * @example Objetivo de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del objetivo de proyecto
+       * @example Objetivo de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectServiceId: string;
+      /**
+       * @description ID del objetivo plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /**
+       * @description Indica si el objetivo está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Actividades asociadas al objetivo */
+      activities?: components["schemas"]["ProjectActivityResponseDto"][];
+    };
+    ProjectServiceResponseDto: {
+      /**
+       * @description ID del servicio de proyecto
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Servicio de marketing
+       */
+      name: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de marketing para el proyecto de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del proyecto al que pertenece el servicio
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      projectId: string;
+      /**
+       * @description ID del servicio plantilla (si aplica)
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId?: string;
+      /**
+       * @description Indica si el servicio está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Objetivos asociados al servicio */
+      objectives?: components["schemas"]["ProjectObjectiveResponseDto"][];
+      /**
+       * @description Progreso del servicio
+       * @example 50
+       */
+      progress?: number;
+      /**
+       * @description Actividades asociadas al servicio
+       * @example 10
+       */
+      activities?: number;
+      /**
+       * @description Actividades completadas asociadas al servicio
+       * @example 5
+       */
+      completedActivities?: number;
+    };
+    ProjectResponseDto: {
+      /**
+       * @description ID único del proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id: string;
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /** @description Información completa del cliente */
+      client: components["schemas"]["ClientResponseDto"];
+      /**
+       * @description Indica si el proyecto está activo
+       * @example true
+       */
+      isActive: boolean;
+      /** @description Servicios asociados al proyecto */
+      services?: components["schemas"]["ProjectServiceResponseDto"][];
+      /**
+       * @description Progreso del proyecto
+       * @example 50
+       */
+      progress?: number;
+    };
+    PaginatedProjectResponseDto: {
+      /** @description Lista de proyectos paginados */
+      data: components["schemas"]["ProjectResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
+    };
+    UpdateProjectActivityDto: {
+      /**
+       * @description Nombre de la actividad
+       * @example Actividad de marketing
+       */
+      name?: string;
+      /**
+       * @description Descripción de la actividad
+       * @example Descripción de la actividad de marketing
+       */
+      description?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
+       * @description Fecha programada
+       * @example 2023-01-01
+       */
+      scheduledDate?: string;
+      /**
+       * @description Requiere evidencia
+       * @example true
+       */
+      evidenceRequired?: boolean;
+    };
+    UpdateProjectObjectiveDto: {
+      /**
+       * @description Nombre del objetivo
+       * @example Mejorar procesos internos
+       */
+      name?: string;
+      /**
+       * @description Descripción del objetivo
+       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
+       */
+      description?: string;
+    };
+    UpdateProjectServiceDto: {
+      /**
+       * @description Nombre del servicio de proyecto
+       * @example Consultoría estratégica
+       */
+      name?: string;
+      /**
+       * @description Descripción del servicio de proyecto
+       * @example Servicio de consultoría para definir estrategias de negocio
+       */
+      description?: string;
+    };
+    UpdateProjectDto: {
+      /**
+       * @description Tipo de contrato del proyecto
+       * @example Servicio
+       */
+      typeContract?: string;
+      /**
+       * @description Tipo de proyecto
+       * @example Implementación
+       */
+      typeProject?: string;
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2023-01-01T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2023-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Estado del proyecto
+       * @example En progreso
+       */
+      status?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Implementación de sistema de gestión
+       */
+      description?: string;
+      /**
+       * @description ID del cliente asociado al proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      clientId?: string;
+      /**
+       * @description Indica si el proyecto está activo
+       * @example true
+       */
+      isActive?: boolean;
+      /** @description Servicios del proyecto */
+      services?: components["schemas"]["UpdateProjectServiceDto"][];
+    };
+    CreateServiceActivityFromTemplateDto: {
+      /**
+       * Format: uuid
+       * @description ID de la actividad de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      activityId?: string;
+    };
+    CreateServiceObjectiveFromTemplateDto: {
+      /**
+       * Format: uuid
+       * @description ID del objetivo de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      objectiveId?: string;
+      /** @description Actividades específicas a incluir del objetivo (opcional) */
+      activities?: components["schemas"]["CreateServiceActivityFromTemplateDto"][];
+    };
+    ProjectServiceTemplateItemDto: {
+      /**
+       * Format: uuid
+       * @description ID del servicio de la plantilla
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      serviceId: string;
+      /** @description Objetivos específicos a incluir del servicio (opcional) */
+      objectives?: components["schemas"]["CreateServiceObjectiveFromTemplateDto"][];
+    };
+    CreateProjectServiceTemplateDto: {
+      /** @description Lista de servicios desde plantillas para agregar */
+      services: components["schemas"]["ProjectServiceTemplateItemDto"][];
+    };
+    UploadEvidenceDto: {
+      /**
+       * @description URL de la evidencia
+       * @example https://example.com/evidencia.jpg
+       */
+      url: string;
+    };
+    ProjectActivity: {
+      id: string;
+      projectObjectiveId: string;
+      activityId?: string;
+      name: string;
+      description?: string;
+      responsibleUserId?: string;
+      scheduledDate?: Record<string, never>;
+      executionDate?: Record<string, never>;
+      evidenceRequired: boolean;
+      evidence?: string;
+      isActive: boolean;
+      /** @enum {string} */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    UpdateStatusDto: {
+      /**
+       * @description El estado de la actividad
+       * @example PENDING
+       * @enum {string}
+       */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+    };
+    UpdateEvidenceDto: {
+      /**
+       * @description La evidencia de la actividad
+       * @example https://www.google.com
+       */
+      evidence: string;
+    };
+    UpdateScheduledDateDto: {
+      /**
+       * Format: date-time
+       * @description La fecha programada de la actividad
+       * @example 2021-01-01
+       */
+      scheduledDate: string;
+    };
+    UpdateExecutionDateDto: {
+      /**
+       * Format: date-time
+       * @description La fecha de ejecución de la actividad
+       * @example 2021-01-01
+       */
+      executionDate: string;
     };
     QuotationResponseDto: {
       /**
@@ -2459,6 +3095,52 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["AuthResponseDto"];
+        };
+      };
+    };
+  };
+  AuthController_updatePassword_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePasswordDto"];
+      };
+    };
+    responses: {
+      /** @description Contraseña actualizada con éxito */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_verifyToken_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VerifyTokenDto"];
+      };
+    };
+    responses: {
+      /** @description Respuesta sobre la validez del token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenVerificationResponse"];
         };
       };
     };
@@ -3958,14 +4640,139 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "multipart/form-data": {
-          /**
-           * Format: binary
-           * @description Informe médico (PDF, máximo 5MB)
-           */
-          file: string;
+        "application/json": components["schemas"]["UploadEvidenceDto"];
+      };
+    };
+    responses: {
+      /** @description La evidencia ha sido subida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
         };
       };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivity"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStatusDto"];
+      };
+    };
+    responses: {
+      /** @description El estado de la actividad ha sido actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEvidenceDto"];
+      };
+    };
+    responses: {
+      /** @description La evidencia de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateScheduledDate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateScheduledDateDto"];
+      };
+    };
+    responses: {
+      /** @description La fecha programada de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateExecutionDate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateExecutionDateDto"];
+      };
+    };
+    responses: {
+      /** @description La fecha de ejecución de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  QuotationController_findAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
     };
     responses: {
       /** @description Informe médico subido exitosamente. */

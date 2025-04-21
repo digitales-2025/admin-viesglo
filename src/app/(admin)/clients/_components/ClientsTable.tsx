@@ -13,7 +13,10 @@ export default function ClientsTable() {
 
   const columns = useMemo(() => columnsClients(), []);
 
-  if (error) return <div className="text-center py-4">Error al cargar clientes</div>;
+  if (error) {
+    console.log("🚀 ~ ClientsTable ~ error:", error);
+    return <div className="text-center py-4">Error al cargar clientes</div>;
+  }
 
   return (
     <DataTable

@@ -27,7 +27,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
@@ -233,14 +233,10 @@ export default function ProjectActivityMutateDrawer({
                           <DatePicker
                             selected={field.value ? new Date(field.value) : undefined}
                             onSelect={(date) => {
-                              if (date) {
-                                const isoDate = new Date(date);
-                                isoDate.setUTCHours(0, 0, 0, 0);
-                                field.onChange(isoDate.toISOString());
-                              } else {
-                                field.onChange("");
-                              }
+                              const dateString = date ? date.toISOString() : "";
+                              field.onChange(dateString);
                             }}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
