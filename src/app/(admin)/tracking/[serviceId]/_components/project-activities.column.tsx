@@ -139,5 +139,6 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     cell: ({ row }) => <ProjectActivitiesActions row={row.original} />,
     enableHiding: false,
     enableSorting: false,
+    size: 20,
   },
 ];

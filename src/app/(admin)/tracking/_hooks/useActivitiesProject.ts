@@ -121,6 +121,7 @@ export function useDeleteActivityProject() {
     },
   });
 }
+
 /**
  * Hook para actualizar el responsable de una actividad de un objetivo de proyecto
  */
@@ -141,16 +142,44 @@ export function useUpdateResponsibleUserId() {
         throw new Error(response.error || "Error al actualizar el responsable de la actividad");
       }
     },
+    onMutate: async ({ objectiveId, activityId, responsibleUserId }) => {
+      // Cancelar consultas salientes para evitar que sobrescriban nuestra actualización optimista
+      await queryClient.cancelQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(objectiveId) });
+
+      // Guardar el estado anterior
+      const previousActivities = queryClient.getQueryData(ACTIVITIES_PROJECT_KEYS.list(objectiveId));
+
+      // Actualizar el cache optimistamente
+      queryClient.setQueryData(ACTIVITIES_PROJECT_KEYS.list(objectiveId), (old: any) => {
+        if (!old) return old;
+        return old.map((activity: any) => {
+          if (activity.id === activityId) {
+            return {
+              ...activity,
+              responsibleUserId,
+            };
+          }
+          return activity;
+        });
+      });
+
+      // Retornar el contexto con el estado anterior
+      return { previousActivities };
+    },
+    onError: (error, _, context) => {
+      // Si hay un error, revertir a los datos anteriores
+      if (context?.previousActivities) {
+        queryClient.setQueryData(ACTIVITIES_PROJECT_KEYS.list(_.objectiveId), context.previousActivities);
+      }
+      toast.error(error.message || "Error al actualizar el responsable de la actividad");
+    },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
+      // pero podemos recargar para asegurarnos de tener la última información
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Responsable actualizado correctamente");
-    },
-    onError: () => {
-      toast.error("Error al actualizar el responsable de la actividad");
     },
   });
 }
