@@ -8,6 +8,7 @@ import {
   deleteActivityProject,
   getActivitiesProject,
   updateActivityProject,
+  updateResponsibleUserId,
 } from "../_actions/activities-project.actions";
 import { CreateProjectActivity, UpdateProjectActivity } from "../_types/tracking.types";
 import { OBJECTIVES_PROJECT_KEYS } from "./useObjectivesProject";
@@ -117,6 +118,39 @@ export function useDeleteActivityProject() {
     },
     onError: () => {
       toast.error("Error al eliminar actividad del proyecto");
+    },
+  });
+}
+/**
+ * Hook para actualizar el responsable de una actividad de un objetivo de proyecto
+ */
+export function useUpdateResponsibleUserId() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      objectiveId: _,
+      activityId,
+      responsibleUserId,
+    }: {
+      objectiveId: string;
+      activityId: string;
+      responsibleUserId: string;
+    }) => {
+      const response = await updateResponsibleUserId(activityId, responsibleUserId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar el responsable de la actividad");
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+      toast.success("Responsable actualizado correctamente");
+    },
+    onError: () => {
+      toast.error("Error al actualizar el responsable de la actividad");
     },
   });
 }

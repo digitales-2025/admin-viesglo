@@ -1,14 +1,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { Calendar, Check, Clock, Paperclip, User, X } from "lucide-react";
+import { Calendar, Check, Clock, Paperclip, X } from "lucide-react";
 
+import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Badge } from "@/shared/components/ui/badge";
 import {
   StatusProjectActivity,
   StatusProjectActivityColor,
   StatusProjectActivityLabel,
 } from "../_types/activities.types";
+import { useUpdateResponsibleUserId } from "../../_hooks/useActivitiesProject";
 import { ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 
@@ -24,7 +27,7 @@ function getIconByStatus(status: StatusProjectActivity) {
       return <X className=" h-4 w-4" />;
   }
 }
-export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
+export const columnsActivities = (users: UserResponse[], objectiveId: string): ColumnDef<ProjectActivityResponse>[] => [
   {
     id: "name",
     accessorKey: "name",
@@ -49,15 +52,26 @@ export const columnsActivities = (): ColumnDef<ProjectActivityResponse>[] => [
     id: "responsibleUserId",
     accessorKey: "responsibleUserId",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
-    cell: ({ row }) => {
+    cell: function Cell({ row }) {
+      const responsibleUser = users.find((user) => user.id === row.original.responsibleUserId);
+      const { mutate: updateResponsibleUserId, isPending } = useUpdateResponsibleUserId();
+      const onUpdateResponsibleUserId = (id: string) => {
+        updateResponsibleUserId({
+          objectiveId,
+          activityId: row.original.id,
+          responsibleUserId: id,
+        });
+      };
+
       return (
-        <div className="flex items-center" title={row.original.responsibleUser?.fullName}>
-          <User className="mr-2 h-4 w-4 text-muted-foreground" />
-          {row.original.responsibleUser ? (
-            <span>{row.original.responsibleUser.fullName}</span>
-          ) : (
-            <span>Sin asignar</span>
-          )}
+        <div className="flex items-center w-[220px]" title={responsibleUser?.fullName}>
+          <AutocompleteSelect
+            label="Responsable"
+            options={users.map((user) => ({ value: user.id, label: user.fullName }))}
+            value={responsibleUser?.id || ""}
+            onChange={onUpdateResponsibleUserId}
+            isLoading={isPending}
+          />
         </div>
       );
     },

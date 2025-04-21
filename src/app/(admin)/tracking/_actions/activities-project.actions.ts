@@ -64,3 +64,16 @@ export async function deleteActivityProject(activityId: string): Promise<{ succe
     return { success: false, error: "Error al eliminar actividad del proyecto" };
   }
 }
+
+export async function updateResponsibleUserId(activityId: string, responsibleUserId: string) {
+  try {
+    const [_, err] = await http.put<ProjectActivityResponse>(`${API_ENDPOINT}/${activityId}`, { responsibleUserId });
+    if (err !== null) {
+      throw new Error(err.message || "Error al actualizar el responsable de la actividad");
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al actualizar el responsable de la actividad", error);
+    return { success: false, error: "Error al actualizar el responsable de la actividad" };
+  }
+}
