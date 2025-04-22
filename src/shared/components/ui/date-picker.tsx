@@ -51,7 +51,13 @@ export function DatePicker({
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar mode="single" selected={selected} onSelect={handleSelect} initialFocus locale={es} />
         {clearable && (
-          <Button variant="ghost" onClick={() => onSelect(undefined)}>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              onSelect(undefined);
+              setOpen(false);
+            }}
+          >
             Limpiar
             <X className="w-4 h-4" />
           </Button>

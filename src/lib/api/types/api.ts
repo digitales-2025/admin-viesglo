@@ -2409,18 +2409,18 @@ export interface components {
        * @description La fecha programada de la actividad
        * @example 2021-01-01
        */
-      scheduledDate?: string;
+      scheduledDate?: string | null;
       /**
        * Format: date-time
        * @description La fecha de ejecución de la actividad
        * @example 2021-01-01
        */
-      executionDate?: string;
+      executionDate?: string | null;
       /**
        * @description El ID del usuario responsable de la actividad
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
-      responsibleUserId?: string;
+      responsibleUserId?: string | null;
     };
     QuotationResponseDto: {
       /**

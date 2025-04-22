@@ -32,20 +32,10 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
   {
     id: "name",
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Actividad" />,
     cell: ({ row }) => (
       <div className="font-medium" title={row.getValue("name")}>
         {row.getValue("name")}
-      </div>
-    ),
-  },
-  {
-    id: "description",
-    accessorKey: "description",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
-    cell: ({ row }) => (
-      <div className="max-w-[300px] truncate text-muted-foreground" title={row.getValue("description")}>
-        {row.getValue("description") || "Sin descripción"}
       </div>
     ),
   },
@@ -96,7 +86,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
           trackingActivity: {
             scheduledDate: date
               ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
-              : undefined,
+              : null,
           },
         });
       };
@@ -131,7 +121,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
           trackingActivity: {
             executionDate: date
               ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
-              : undefined,
+              : null,
           },
         });
       };
