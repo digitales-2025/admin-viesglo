@@ -22,6 +22,12 @@ type ServerFetchError = {
 };
 
 /**
+ * Determina si el código se está ejecutando en el servidor o en el cliente
+ * @returns true si está en el servidor, false si está en el cliente
+ */
+const isServer = () => typeof window === "undefined";
+
+/**
  * Realiza una petición al backend y devuelve un Result.
  *
  * Un Result es una tupla que contiene uno de dos casos:
@@ -57,24 +63,75 @@ export async function serverFetch<Success>(
   url: string,
   options?: RequestInit
 ): Promise<Result<Success, ServerFetchError>> {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("access_token")?.value;
-  const refreshToken = cookieStore.get("refresh_token")?.value;
+  // Usamos try/catch para manejar errores al acceder a cookies desde el cliente
+  let accessToken = null;
+  let refreshToken = null;
+  let cookieStore = null;
+
+  try {
+    // Solo accedemos a cookies si estamos en el servidor
+    if (isServer()) {
+      cookieStore = await cookies();
+      accessToken = cookieStore.get("access_token")?.value;
+      refreshToken = cookieStore.get("refresh_token")?.value;
+    } else {
+      // En cliente, podríamos intentar obtener los tokens de otra manera
+      // Por ejemplo, de localStorage o de un estado global de la aplicación
+      console.warn("serverFetch: Ejecutándose en el cliente, no se pueden obtener cookies del servidor");
+
+      // Si se implementa un mecanismo alternativo para el cliente:
+      // accessToken = getAccessTokenFromClientSide();
+      // refreshToken = getRefreshTokenFromClientSide();
+    }
+  } catch (error) {
+    console.error("Error al acceder a las cookies:", error);
+  }
 
   // Si no hay refreshToken, no podemos autenticar la solicitud
   if (!refreshToken) {
     if (process.env.NODE_ENV === "development") {
-      console.error("\tSERVER FETCH: No hay refresh_token disponible para la solicitud");
+      console.warn(
+        "\tSERVER FETCH: No hay refresh_token disponible para la solicitud. Intentando continuar sin autenticación."
+      );
     }
-    return [
-      // @ts-expect-error allowing null
-      null,
-      {
-        statusCode: 401,
-        message: "No autenticado",
-        error: "Token de autenticación no disponible",
-      },
-    ];
+
+    // En lugar de retornar un error, intentamos continuar sin token
+    try {
+      const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+        ...options,
+        headers: {
+          ...options?.headers,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = (await response.json()) as Partial<ServerFetchError>;
+        return [
+          // @ts-expect-error allowing null
+          null,
+          {
+            statusCode: response.status,
+            message: data.message ?? "API no disponible",
+            error: data.error ?? "Error desconocido",
+          },
+        ];
+      }
+
+      const data = await response.json();
+      return [data, null];
+    } catch (error) {
+      console.error(error);
+      return [
+        // @ts-expect-error allowing null
+        null,
+        {
+          statusCode: 503,
+          message: "Error interno",
+          error: "Error interno",
+        },
+      ];
+    }
   }
 
   try {
@@ -95,16 +152,21 @@ export async function serverFetch<Success>(
 
     // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
     const setCookieHeader = response.headers.get("set-cookie");
-    if (setCookieHeader) {
-      // Extraer y guardar el nuevo access_token si está presente
-      const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
-      if (accessTokenMatch && accessTokenMatch[1]) {
-        cookieStore.set("access_token", accessTokenMatch[1], {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-          path: "/",
-        });
+    if (setCookieHeader && isServer() && cookieStore) {
+      try {
+        // Extraer y guardar el nuevo access_token si está presente
+        const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+        if (accessTokenMatch && accessTokenMatch[1]) {
+          cookieStore.set("access_token", accessTokenMatch[1], {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+          });
+        }
+      } catch (error) {
+        // Si hay un error al establecer cookies, lo registramos pero continuamos
+        console.error("Error al actualizar cookie de access_token:", error);
       }
     }
 
