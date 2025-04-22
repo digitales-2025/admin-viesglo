@@ -1,6 +1,6 @@
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Clock, Loader2, Paperclip, X } from "lucide-react";
+import { Check, Clock, Loader2, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -144,12 +144,13 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     id: "evidenceRequired",
     accessorKey: "evidenceRequired",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Evidencia" />,
-    cell: ({ row }) =>
-      row.getValue("evidenceRequired") ? (
-        <Paperclip className="mr-2 h-4 w-4 text-muted-foreground" />
+    cell: function Cell({ row }) {
+      return row.getValue("evidenceRequired") ? (
+        <></>
       ) : (
         <span className="text-xs text-muted-foreground">No se requiere evidencia</span>
-      ),
+      );
+    },
   },
   {
     id: "status",
