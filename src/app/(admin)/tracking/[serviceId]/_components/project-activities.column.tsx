@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
+import { Check, CircleFadingArrowUp, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -9,14 +9,15 @@ import { FileUpload } from "@/shared/components/file-upload";
 import { FileUploadAlert } from "@/shared/components/file-upload-alert";
 import { Doc, File, Pdf } from "@/shared/components/icons/Files";
 import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import {
   StatusProjectActivity,
   StatusProjectActivityColor,
-  StatusProjectActivityLabel,
+  StatusProjectActivityOptions,
 } from "../_types/activities.types";
 import {
   useDeleteEvidence,
@@ -28,18 +29,6 @@ import { FileType, ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 import { MODULE_PROJECT_ACTIVITIES } from "./ProjectActivitiesDialogs";
 
-function getIconByStatus(status: StatusProjectActivity) {
-  switch (status) {
-    case StatusProjectActivity.PENDING:
-      return <Clock className=" h-4 w-4" />;
-    case StatusProjectActivity.IN_PROGRESS:
-      return <Clock className=" h-4 w-4" />;
-    case StatusProjectActivity.COMPLETED:
-      return <Check className=" h-4 w-4" />;
-    case StatusProjectActivity.CANCELLED:
-      return <X className=" h-4 w-4" />;
-  }
-}
 export const columnsActivities = (users: UserResponse[], objectiveId: string): ColumnDef<ProjectActivityResponse>[] => [
   {
     id: "name",
@@ -281,24 +270,45 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     id: "status",
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-    cell: ({ row }) =>
-      row.getValue("status") && (
-        <Badge
-          variant={
-            StatusProjectActivityColor[row.getValue("status") as keyof typeof StatusProjectActivityColor] as
-              | "default"
-              | "secondary"
-              | "destructive"
-              | "outline"
-              | "success"
-              | "error"
-          }
-        >
-          {getIconByStatus(row.getValue("status") as StatusProjectActivity)}
-          {StatusProjectActivityLabel[row.getValue("status") as keyof typeof StatusProjectActivityLabel] ||
-            "No definido"}
-        </Badge>
-      ),
+    cell: function Cell({ row }) {
+      const status = row.getValue("status");
+      const { mutate: updateTrackingActivity, isPending } = useUpdateTrackingActivity();
+
+      const handleChange = (value: StatusProjectActivity) => {
+        updateTrackingActivity({
+          objectiveId,
+          activityId: row.original.id,
+          trackingActivity: { status: value },
+        });
+      };
+      return (
+        status && (
+          <Select value={status as string} onValueChange={handleChange} disabled={isPending}>
+            <SelectTrigger
+              className={cn(
+                "border-none shadow-none font-semibold",
+                isPending && "cursor-not-allowed opacity-50",
+                StatusProjectActivityColor[status as StatusProjectActivity]
+              )}
+            >
+              {isPending && <Loader2 className="size-4 animate-spin" />}
+              {status === StatusProjectActivity.PENDING && <Clock className="size-4" />}
+              {status === StatusProjectActivity.IN_PROGRESS && <CircleFadingArrowUp className="size-4" />}
+              {status === StatusProjectActivity.COMPLETED && <Check className="size-4" />}
+              {status === StatusProjectActivity.CANCELLED && <X className="size-4" />}
+              <SelectValue placeholder="Seleccionar estado" />
+            </SelectTrigger>
+            <SelectContent>
+              {StatusProjectActivityOptions.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+      );
+    },
   },
   {
     id: "actions",
