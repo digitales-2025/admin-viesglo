@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, Clock, Image, Loader2, Trash, X } from "lucide-react";
@@ -12,6 +12,7 @@ import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import {
   StatusProjectActivity,
   StatusProjectActivityColor,
@@ -171,35 +172,61 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
         });
       };
 
+      const [open, setOpen] = useState(false);
+      const [isOverButton, setIsOverButton] = useState(false);
+      const [isOverContent, setIsOverContent] = useState(false);
+
+      // Efecto para controlar el estado del popover
+      useEffect(() => {
+        if (isOverButton || isOverContent) {
+          setOpen(true);
+        } else {
+          // Pequeño retraso para permitir que el mouse se mueva entre elementos
+          const timer = setTimeout(() => setOpen(false), 100);
+          return () => clearTimeout(timer);
+        }
+      }, [isOverButton, isOverContent]);
+
       return row.getValue("evidenceRequired") ? (
         <div className="flex items-center gap-2">
           {row.original.evidence?.id ? (
-            <div className="flex items-center gap-2 group/evidence">
-              <div className="flex items-center gap-2">
-                <span>
-                  {row.original.evidence.fileType === FileType.PDF ? (
-                    <Pdf className="size-4 text-red-500" />
-                  ) : row.original.evidence.fileType === FileType.DOCUMENT ? (
-                    <Doc className="size-4 text-blue-500" />
-                  ) : row.original.evidence.fileType === FileType.IMAGE ? (
-                    <Image className="size-4 text-green-500" />
-                  ) : (
-                    <File className="size-4 text-gray-500" />
-                  )}
-                </span>
-                <span className="text-xs text-muted-foreground">{row.original.evidence.originalName}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleDeleteEvidence}
-                  disabled={isDeleting}
-                  className="group-hover/evidence:visible invisible"
-                  title="Eliminar evidencia"
+            <Popover open={open} onOpenChange={setOpen}>
+              <PopoverTrigger asChild>
+                <div
+                  className="flex items-center gap-2 group/evidence cursor-pointer"
+                  onMouseEnter={() => setIsOverButton(true)}
+                  onMouseLeave={() => setIsOverButton(false)}
                 >
-                  {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
-                </Button>
-              </div>
-            </div>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {row.original.evidence.fileType === FileType.PDF ? (
+                        <Pdf className="size-4 text-red-500" />
+                      ) : row.original.evidence.fileType === FileType.DOCUMENT ? (
+                        <Doc className="size-4 text-blue-500" />
+                      ) : row.original.evidence.fileType === FileType.IMAGE ? (
+                        <Image className="size-4 text-green-500" />
+                      ) : (
+                        <File className="size-4 text-gray-500" />
+                      )}
+                    </span>
+                    <span className="text-xs text-muted-foreground">{row.original.evidence.originalName}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleDeleteEvidence}
+                      disabled={isDeleting}
+                      className="group-hover/evidence:visible invisible"
+                      title="Eliminar evidencia"
+                    >
+                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
+                    </Button>
+                  </div>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent onMouseEnter={() => setIsOverContent(true)} onMouseLeave={() => setIsOverContent(false)}>
+                Place content for the popover here.
+              </PopoverContent>
+            </Popover>
           ) : (
             <FileUpload
               onChange={handleFileChange}
