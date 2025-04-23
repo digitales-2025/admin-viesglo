@@ -7,6 +7,7 @@ import {
   createActivityProject,
   deleteActivityProject,
   deleteEvidence,
+  downloadEvidence,
   getActivitiesProject,
   updateActivityProject,
   updateTrackingActivity,
@@ -231,6 +232,61 @@ export function useDeleteEvidence() {
     },
     onError: (error) => {
       toast.error(error.message || "Error al eliminar evidencia");
+    },
+  });
+}
+
+export function useDownloadEvidence() {
+  return useMutation({
+    mutationFn: async ({ objectiveId: _, activityId }: { objectiveId: string; activityId: string }) => {
+      const response = await downloadEvidence(activityId);
+      console.log("🚀 ~ mutationFn: ~ response:", response);
+      if (!response.success) {
+        throw new Error(response.error || "Error al descargar evidencia");
+      }
+
+      // Si tenemos una URL de descarga, iniciamos la descarga
+      if (response.downloadUrl) {
+        try {
+          // Solución 1: Intentar descarga directa con iframe (menos disruptiva, ideal para PDFs)
+          const iframe = document.createElement("iframe");
+          iframe.style.display = "none";
+          iframe.src = response.downloadUrl;
+          iframe.onload = () => {
+            // Si la carga fue exitosa, probablemente se está mostrando en el iframe
+            // Para PDF/imágenes esto funciona bien, para archivos binarios necesitamos otro enfoque
+            setTimeout(() => {
+              document.body.removeChild(iframe);
+
+              // Solución 2 (fallback): Utilizar un enlace de descarga tradicional
+              const link = document.createElement("a");
+              link.href = response.downloadUrl;
+              link.download = response.filename || "evidence";
+              link.target = "_blank";
+              link.rel = "noopener noreferrer";
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }, 1000); // Damos tiempo para que se inicie la descarga
+          };
+          document.body.appendChild(iframe);
+
+          // Mostrar mensaje de éxito
+          toast.success("Evidencia descargada correctamente");
+        } catch (error) {
+          console.error("Error al iniciar la descarga", error);
+
+          // Solución 3 (fallback final): Abrir en nueva ventana
+          window.open(response.downloadUrl, "_blank");
+          toast.success("Documento abierto en nueva ventana");
+        }
+      } else {
+        // Si no hay URL de descarga, mostramos un mensaje informativo
+        toast.success("Evidencia procesada correctamente");
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al descargar evidencia");
     },
   });
 }

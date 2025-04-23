@@ -137,6 +137,124 @@ export async function serverFetch<Success>(
   }
 }
 
+// Función para procesar respuestas con headers y datos binarios
+async function processResponse<T>(response: Response): Promise<[T | null, ServerFetchError | null, Response | null]> {
+  if (!response.ok) {
+    try {
+      const data = (await response.json()) as Partial<ServerFetchError>;
+      return [
+        null,
+        {
+          statusCode: response.status,
+          message: data.message ?? "API no disponible",
+          error: data.error ?? "Error desconocido",
+        },
+        null,
+      ];
+    } catch (error) {
+      console.log("X ~ Error al procesar la respuesta", error);
+      return [
+        null,
+        {
+          statusCode: response.status,
+          message: "Error en la respuesta",
+          error: "No se pudo procesar la respuesta",
+        },
+        null,
+      ];
+    }
+  }
+
+  // Para respuestas binarias o descargas, devolvemos la respuesta completa
+  if (
+    response.headers.get("Content-Type")?.includes("application/octet-stream") ||
+    response.headers.get("Content-Disposition")?.includes("attachment") ||
+    response.headers.get("Content-Disposition")?.includes("inline")
+  ) {
+    return [null, null, response];
+  }
+
+  try {
+    const data = await response.json();
+    return [data as T, null, null];
+  } catch (error) {
+    console.log("X ~ Error al procesar la respuesta", error);
+    // Si la respuesta no es JSON, devolvemos la respuesta completa
+    return [null, null, response];
+  }
+}
+
+// Función para realizar peticiones y obtener también la respuesta
+export async function serverFetchWithResponse<T>(
+  url: string,
+  options?: RequestInit
+): Promise<[T | null, ServerFetchError | null, Response | null]> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+
+  // Si no hay refreshToken, no podemos autenticar la solicitud
+  if (!refreshToken) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("\tSERVER FETCH: No hay refresh_token disponible para la solicitud");
+    }
+    return [
+      null,
+      {
+        statusCode: 401,
+        message: "No autenticado",
+        error: "Token de autenticación no disponible",
+      },
+      null,
+    ];
+  }
+
+  try {
+    // Configuramos los cookies para la solicitud
+    let cookieHeader = `refresh_token=${refreshToken}`;
+    if (accessToken) {
+      cookieHeader += `; access_token=${accessToken}`;
+    }
+
+    const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        Cookie: cookieHeader,
+      },
+      credentials: "include", // Importante para que el navegador incluya las cookies en la solicitud
+    });
+
+    // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      // Extraer y guardar el nuevo access_token si está presente
+      const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+      if (accessTokenMatch && accessTokenMatch[1]) {
+        cookieStore.set("access_token", accessTokenMatch[1], {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          path: "/",
+        });
+      }
+    }
+
+    return processResponse<T>(response);
+  } catch (error) {
+    console.error(error);
+    return [
+      null,
+      {
+        statusCode: 503,
+        message: "Error interno",
+        error: "Error interno",
+      },
+      null,
+    ];
+  }
+}
+
 /**
  * Objeto que proporciona métodos para realizar peticiones HTTP
  */
@@ -297,6 +415,74 @@ export const http = {
       headers: {
         // No establecer Content-Type para multipart/form-data
         ...config?.headers,
+      },
+    });
+  },
+
+  /**
+   * Realiza una petición GET obteniendo la respuesta completa con headers
+   * Útil para descargas de archivos y peticiones que requieren acceso a headers
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa que resuelve con los datos, error, y la respuesta completa
+   * @example
+   * ```ts
+   * const [data, err, response] = await http.getWithResponse<User>("/users/");
+   * if (response) {
+   *   // Acceder a headers o blob para descargas
+   *   const contentType = response.headers.get('content-type');
+   * }
+   * ```
+   */
+  getWithResponse<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, config);
+  },
+
+  /**
+   * Realiza una petición GET especialmente para descargas de archivos
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa con la respuesta para descarga o error
+   * @example
+   * ```ts
+   * const [_, err, response] = await http.downloadFile("/files/document.pdf");
+   * if (response) {
+   *   const blob = await response.blob();
+   *   // Procesar la descarga
+   * }
+   * ```
+   */
+  downloadFile<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        Accept: "application/octet-stream",
+      },
+    });
+  },
+
+  /**
+   * Realiza una petición GET para visualizar archivos como imágenes o PDFs
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa con la respuesta para visualización o error
+   * @example
+   * ```ts
+   * const [_, err, response] = await http.viewFile("/images/photo.jpg");
+   * if (response) {
+   *   const blob = await response.blob();
+   *   const objectUrl = URL.createObjectURL(blob);
+   *   // Usar objectUrl para visualizar
+   * }
+   * ```
+   */
+  viewFile<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        Accept: "application/pdf,image/*",
       },
     });
   },

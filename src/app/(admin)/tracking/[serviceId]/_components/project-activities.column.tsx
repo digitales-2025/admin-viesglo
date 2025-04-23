@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Clock, Image, Loader2, Trash, X } from "lucide-react";
+import { Check, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -18,7 +18,12 @@ import {
   StatusProjectActivityColor,
   StatusProjectActivityLabel,
 } from "../_types/activities.types";
-import { useDeleteEvidence, useUpdateTrackingActivity, useUploadEvidence } from "../../_hooks/useActivitiesProject";
+import {
+  useDeleteEvidence,
+  useDownloadEvidence,
+  useUpdateTrackingActivity,
+  useUploadEvidence,
+} from "../../_hooks/useActivitiesProject";
 import { FileType, ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 
@@ -153,6 +158,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     cell: function Cell({ row }) {
       const { mutate: uploadEvidence, isPending, error } = useUploadEvidence();
       const { mutate: deleteEvidence, isPending: isDeleting } = useDeleteEvidence();
+      const { mutate: downloadEvidence, isPending: isDownloading } = useDownloadEvidence();
       const [files, setFiles] = useState<File[]>([]);
       const handleFileChange = (files: FileList | null) => {
         if (files && files.length > 0) {
@@ -167,6 +173,13 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
 
       const handleDeleteEvidence = () => {
         deleteEvidence({
+          objectiveId,
+          activityId: row.original.id,
+        });
+      };
+
+      const handleDownloadEvidence = () => {
+        downloadEvidence({
           objectiveId,
           activityId: row.original.id,
         });
@@ -210,21 +223,33 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
                       )}
                     </span>
                     <span className="text-xs text-muted-foreground">{row.original.evidence.originalName}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleDeleteEvidence}
-                      disabled={isDeleting}
-                      className="group-hover/evidence:visible invisible"
-                      title="Eliminar evidencia"
-                    >
-                      {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDownloadEvidence}
+                        disabled={isDownloading}
+                        className="group-hover/evidence:visible invisible"
+                        title="Descargar evidencia"
+                      >
+                        {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="size-3" />}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleDeleteEvidence}
+                        disabled={isDeleting}
+                        className="group-hover/evidence:visible invisible"
+                        title="Eliminar evidencia"
+                      >
+                        {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </PopoverTrigger>
               <PopoverContent onMouseEnter={() => setIsOverContent(true)} onMouseLeave={() => setIsOverContent(false)}>
-                Place content for the popover here.
+                Descargar evidencia
               </PopoverContent>
             </Popover>
           ) : (
