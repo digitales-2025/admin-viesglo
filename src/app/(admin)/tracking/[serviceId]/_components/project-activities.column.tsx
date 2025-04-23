@@ -1,19 +1,24 @@
+import { useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, Clock, Loader2, X } from "lucide-react";
+import { Check, Clock, Image, Loader2, Trash, X } from "lucide-react";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { FileUpload } from "@/shared/components/file-upload";
+import { FileUploadAlert } from "@/shared/components/file-upload-alert";
+import { Doc, File, Pdf } from "@/shared/components/icons/Files";
 import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import {
   StatusProjectActivity,
   StatusProjectActivityColor,
   StatusProjectActivityLabel,
 } from "../_types/activities.types";
-import { useUpdateTrackingActivity } from "../../_hooks/useActivitiesProject";
-import { ProjectActivityResponse } from "../../_types/tracking.types";
+import { useDeleteEvidence, useUpdateTrackingActivity, useUploadEvidence } from "../../_hooks/useActivitiesProject";
+import { FileType, ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 
 function getIconByStatus(status: StatusProjectActivity) {
@@ -44,7 +49,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "responsibleUserId",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: function Cell({ row }) {
-      const responsibleUser = users.find((user) => user.id === row.original.responsibleUserId);
+      const responsibleUser = users.find((user) => user.id === row.original.responsibleUser.id);
       const { mutate: updateResponsibleUserId, isPending } = useUpdateTrackingActivity();
       const onUpdateResponsibleUserId = (id: string) => {
         updateResponsibleUserId({
@@ -145,8 +150,69 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "evidenceRequired",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Evidencia" />,
     cell: function Cell({ row }) {
+      const { mutate: uploadEvidence, isPending, error } = useUploadEvidence();
+      const { mutate: deleteEvidence, isPending: isDeleting } = useDeleteEvidence();
+      const [files, setFiles] = useState<File[]>([]);
+      const handleFileChange = (files: FileList | null) => {
+        if (files && files.length > 0) {
+          uploadEvidence({
+            objectiveId,
+            activityId: row.original.id,
+            evidence: files[0],
+          });
+          setFiles([files[0]]);
+        }
+      };
+
+      const handleDeleteEvidence = () => {
+        deleteEvidence({
+          objectiveId,
+          activityId: row.original.id,
+        });
+      };
+
       return row.getValue("evidenceRequired") ? (
-        <></>
+        <div className="flex items-center gap-2">
+          {row.original.evidence?.id ? (
+            <div className="flex items-center gap-2 group/evidence">
+              <div className="flex items-center gap-2">
+                <span>
+                  {row.original.evidence.fileType === FileType.PDF ? (
+                    <Pdf className="size-4 text-red-500" />
+                  ) : row.original.evidence.fileType === FileType.DOCUMENT ? (
+                    <Doc className="size-4 text-blue-500" />
+                  ) : row.original.evidence.fileType === FileType.IMAGE ? (
+                    <Image className="size-4 text-green-500" />
+                  ) : (
+                    <File className="size-4 text-gray-500" />
+                  )}
+                </span>
+                <span className="text-xs text-muted-foreground">{row.original.evidence.originalName}</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDeleteEvidence}
+                  disabled={isDeleting}
+                  className="group-hover/evidence:visible invisible"
+                  title="Eliminar evidencia"
+                >
+                  {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <FileUpload
+              onChange={handleFileChange}
+              variant="ghost"
+              defaultText="Subir evidencia"
+              disabled={isPending}
+            />
+          )}
+
+          {isPending && (
+            <FileUploadAlert file={files[0]} onClose={() => {}} progress={0} isUploading={isPending} error={error} />
+          )}
+        </div>
       ) : (
         <span className="text-xs text-muted-foreground">No se requiere evidencia</span>
       );

@@ -6,9 +6,11 @@ import { toast } from "sonner";
 import {
   createActivityProject,
   deleteActivityProject,
+  deleteEvidence,
   getActivitiesProject,
   updateActivityProject,
   updateTrackingActivity,
+  uploadEvidence,
 } from "../_actions/activities-project.actions";
 import { CreateProjectActivity, TrackingActivityDto, UpdateProjectActivity } from "../_types/tracking.types";
 import { OBJECTIVES_PROJECT_KEYS } from "./useObjectivesProject";
@@ -181,6 +183,54 @@ export function useUpdateTrackingActivity() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       toast.success("Responsable actualizado correctamente");
+    },
+  });
+}
+
+export function useUploadEvidence() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      objectiveId: _,
+      activityId,
+      evidence,
+    }: {
+      objectiveId: string;
+      activityId: string;
+      evidence: File;
+    }) => {
+      const response = await uploadEvidence(activityId, evidence);
+      if (!response.success) {
+        throw new Error(response.error || "Error al subir evidencia");
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      toast.success("Evidencia subida correctamente");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al subir evidencia");
+    },
+  });
+}
+
+export function useDeleteEvidence() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ objectiveId: _, activityId }: { objectiveId: string; activityId: string }) => {
+      const response = await deleteEvidence(activityId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al eliminar evidencia");
+      }
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      toast.success("Evidencia eliminada correctamente");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al eliminar evidencia");
     },
   });
 }

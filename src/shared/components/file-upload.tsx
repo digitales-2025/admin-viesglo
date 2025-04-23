@@ -1,178 +1,133 @@
 "use client";
 
-import type React from "react";
-import { useState } from "react";
-import { Check, File, Upload, X } from "lucide-react";
+import * as React from "react";
+import { type VariantProps } from "class-variance-authority";
+import { AlertCircleIcon, FileIcon, UploadIcon, XIcon } from "lucide-react";
 
-import { FileUploadAlert } from "@/shared/components/file-upload-alert";
-import { Button } from "@/shared/components/ui/button";
-import { Progress } from "@/shared/components/ui/progress";
+import { Button, buttonVariants } from "@/shared/components/ui/button";
+import { cn } from "@/shared/lib/utils";
 
-export interface FileUploadStatus {
-  isUploading: boolean;
-  progress: number;
-  error: string | null;
-  isSuccess: boolean;
-}
-
-export interface FileUploadProps {
-  // Función que recibe el archivo y devuelve un objeto con el estado de la carga
-  uploadFile?: (file: File) => {
-    status: FileUploadStatus;
-    upload: () => Promise<void>;
-    cancel: () => void;
-  };
+interface FileUploadProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange"> {
   accept?: string;
-  maxSize?: number; // in bytes
-  showAlert?: boolean;
-  onFileSelect?: (file: File | null) => void;
+  multiple?: boolean;
+  maxSize?: number; // en bytes
+  onChange?: (files: FileList | null) => void;
+  defaultText?: string;
+  icon?: React.ReactNode;
 }
 
 export function FileUpload({
-  uploadFile,
-  accept = "*",
-  maxSize = 5 * 1024 * 1024, // 5MB default
-  showAlert = true,
-  onFileSelect,
-}: FileUploadProps) {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<FileUploadStatus>({
-    isUploading: false,
-    progress: 0,
-    error: null,
-    isSuccess: false,
-  });
-  const [showUploadAlert, setShowUploadAlert] = useState(false);
-  const [uploadController, setUploadController] = useState<{
-    upload: () => Promise<void>;
-    cancel: () => void;
-  } | null>(null);
+  accept,
+  multiple = false,
+  maxSize = 5 * 1024 * 1024, // 5MB por defecto
+  onChange,
+  className,
+  defaultText = "Seleccionar archivo",
+  icon = <UploadIcon className="mr-2 h-4 w-4" />,
+  ...props
+}: FileUploadProps &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+  }) {
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
+  const handleClick = () => {
+    inputRef.current?.click();
+  };
 
-    // Validate file size
-    if (selectedFile.size > maxSize) {
-      setUploadStatus({
-        ...uploadStatus,
-        error: `El archivo excede el tamaño máximo de ${maxSize / 1024 / 1024}MB`,
-      });
-      return;
-    }
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    setError(null);
 
-    setFile(selectedFile);
-
-    // Notify parent component if callback provided
-    if (onFileSelect) {
-      onFileSelect(selectedFile);
-    }
-
-    // Reset status
-    setUploadStatus({
-      isUploading: false,
-      progress: 0,
-      error: null,
-      isSuccess: false,
-    });
-
-    if (uploadFile) {
-      // Get upload controller from the provided function
-      const controller = uploadFile(selectedFile);
-      setUploadController(controller);
-      setUploadStatus(controller.status);
-
-      if (showAlert) {
-        setShowUploadAlert(true);
+    if (files && files.length > 0) {
+      // Verificar tamaño del archivo
+      let sizeExceeded = false;
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].size > maxSize) {
+          sizeExceeded = true;
+          break;
+        }
       }
 
-      // Start upload
-      try {
-        await controller.upload();
-      } catch (error) {
-        console.error("Error al subir el archivo", error);
-        // Error handling is managed by the external upload function
-        // through the status object
+      if (sizeExceeded) {
+        setError(`El archivo excede el tamaño máximo de ${Math.round(maxSize / 1024 / 1024)}MB`);
+        setFileName(null);
+        if (inputRef.current) inputRef.current.value = "";
+        return;
+      }
+
+      setFileName(multiple ? `${files.length} archivos` : files[0].name);
+
+      if (onChange) {
+        onChange(files);
+      }
+    } else {
+      setFileName(null);
+
+      if (onChange) {
+        onChange(null);
       }
     }
   };
 
-  const handleRemoveFile = () => {
-    // Cancel upload if in progress
-    if (uploadController && uploadStatus.isUploading) {
-      uploadController.cancel();
+  const clearSelection = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFileName(null);
+    setError(null);
+    if (inputRef.current) {
+      inputRef.current.value = "";
     }
-
-    setFile(null);
-    setUploadStatus({
-      isUploading: false,
-      progress: 0,
-      error: null,
-      isSuccess: false,
-    });
-    setShowUploadAlert(false);
-
-    // Notify parent component if callback provided
-    if (onFileSelect) {
-      onFileSelect(null);
+    if (onChange) {
+      onChange(null);
     }
-  };
-
-  const handleCloseAlert = () => {
-    setShowUploadAlert(false);
   };
 
   return (
-    <>
-      <div className="flex items-center gap-2 p-1 min-w-[150px] max-w-[250px]">
-        {!file ? (
-          <div className="flex items-center gap-1">
-            <input type="file" id="file-upload" className="sr-only" onChange={handleFileChange} accept={accept} />
-            <label htmlFor="file-upload" className="cursor-pointer">
-              <Button variant="ghost" size="sm" className="h-8 px-2" type="button" asChild>
-                <span>
-                  <Upload className="h-4 w-4 mr-1" />
-                  Subir
-                </span>
-              </Button>
-            </label>
-          </div>
-        ) : (
-          <div className="flex flex-col w-full gap-1">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs truncate max-w-[180px]">
-                <File className="h-3 w-3 flex-shrink-0" />
-                <span className="truncate">{file.name}</span>
-              </div>
-              <Button variant="ghost" size="sm" className="h-5 w-5 p-0" onClick={handleRemoveFile}>
-                <X className="h-3 w-3" />
-                <span className="sr-only">Eliminar archivo</span>
-              </Button>
-            </div>
-
-            {uploadStatus.isUploading && <Progress value={uploadStatus.progress} className="h-1 w-full" />}
-
-            {uploadStatus.isSuccess && (
-              <div className="flex items-center text-xs text-green-600">
-                <Check className="h-3 w-3 mr-1" />
-                <span>Subido</span>
-              </div>
-            )}
-
-            {uploadStatus.error && <div className="text-xs text-red-500">{uploadStatus.error}</div>}
+    <div className={cn("inline-block", className)}>
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={handleChange}
+        accept={accept}
+        multiple={multiple}
+        className="hidden"
+        aria-label={defaultText}
+      />
+      <div className="flex flex-col">
+        <Button
+          onClick={handleClick}
+          className={cn("flex items-center", fileName ? "pr-2" : "")}
+          type="button"
+          {...props}
+        >
+          {fileName ? (
+            <>
+              <FileIcon className="mr-2 h-4 w-4" />
+              <span className="truncate max-w-[150px]">{fileName}</span>
+              <span
+                onClick={clearSelection}
+                className="ml-2 rounded-full p-1 hover:bg-muted/50 cursor-pointer"
+                aria-label="Borrar selección"
+              >
+                <XIcon className="h-3 w-3" />
+              </span>
+            </>
+          ) : (
+            <>
+              {icon}
+              {defaultText}
+            </>
+          )}
+        </Button>
+        {error && (
+          <div className="text-destructive text-xs flex items-center mt-1 gap-1">
+            <AlertCircleIcon className="h-3 w-3" />
+            <span>{error}</span>
           </div>
         )}
       </div>
-
-      {showUploadAlert && file && (
-        <FileUploadAlert
-          file={file}
-          onClose={handleCloseAlert}
-          progress={uploadStatus.progress}
-          isUploading={uploadStatus.isUploading}
-          error={uploadStatus.error}
-        />
-      )}
-    </>
+    </div>
   );
 }

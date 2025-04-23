@@ -32,9 +32,6 @@ export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivity
 
 export type TrackingActivityDto = components["schemas"]["TrackingActivityDto"];
 
-// Upload evidencia
-export type UploadEvidence = components["schemas"]["UploadEvidenceDto"];
-
 // Paginación
 export type ProjectPaginationResponse = Omit<components["schemas"]["PaginatedProjectResponseDto"], "data"> & {
   data: ProjectResponse[];
@@ -53,3 +50,10 @@ export type ProjectFilters = {
   clientId?: string;
   isActive?: string;
 };
+
+export enum FileType {
+  PDF = "PDF",
+  IMAGE = "IMAGE",
+  DOCUMENT = "DOCUMENT",
+  OTHER = "OTHER",
+}

@@ -85,3 +85,34 @@ export async function updateTrackingActivity(activityId: string, trackingActivit
     return { success: false, error: "Error al actualizar la actividad" };
   }
 }
+
+export async function uploadEvidence(activityId: string, evidence: File) {
+  try {
+    const formData = new FormData();
+    formData.append("file", evidence);
+    const [_, err] = await http.multipartPost<ProjectActivityResponse>(
+      `${API_ENDPOINT}/${activityId}/upload-evidence`,
+      formData
+    );
+    if (err !== null) {
+      throw new Error(err.message || "Error al subir evidencia");
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al subir evidencia", error);
+    return { success: false, error: "Error al subir evidencia" };
+  }
+}
+
+export async function deleteEvidence(activityId: string) {
+  try {
+    const [_, err] = await http.delete<ProjectActivityResponse>(`${API_ENDPOINT}/${activityId}/evidence`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al eliminar evidencia");
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al eliminar evidencia", error);
+    return { success: false, error: "Error al eliminar evidencia" };
+  }
+}
