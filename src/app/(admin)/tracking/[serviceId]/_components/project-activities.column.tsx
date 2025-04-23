@@ -233,7 +233,11 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
                     className="group-hover/evidence:visible invisible"
                     title="Descargar evidencia"
                   >
-                    {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="size-3" />}
+                    {isDownloading ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-emerald-500" />
+                    ) : (
+                      <Download className="size-4 text-sky-500" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
@@ -246,7 +250,11 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
                     className="group-hover/evidence:visible invisible"
                     title="Eliminar evidencia"
                   >
-                    {isDeleting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash className="size-3" />}
+                    {isDeleting ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-rose-500" />
+                    ) : (
+                      <Trash className="size-4 text-rose-500" />
+                    )}
                   </Button>
                 </div>
               </div>
