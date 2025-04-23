@@ -15,6 +15,7 @@ import {
 } from "../_actions/activities-project.actions";
 import { CreateProjectActivity, TrackingActivityDto, UpdateProjectActivity } from "../_types/tracking.types";
 import { OBJECTIVES_PROJECT_KEYS } from "./useObjectivesProject";
+import { PROJECT_KEYS } from "./useProject";
 import { SERVICES_PROJECT_KEYS } from "./useServicesProject";
 
 export const ACTIVITIES_PROJECT_KEYS = {
@@ -183,6 +184,7 @@ export function useUpdateTrackingActivity() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
       toast.success("Responsable actualizado correctamente");
     },
   });
