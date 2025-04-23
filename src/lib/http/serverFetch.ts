@@ -362,6 +362,121 @@ export const http = {
       },
     });
   },
+
+  /**
+   * Realiza una petición GET para descargar archivos binarios
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa que resuelve con los datos blob y el nombre del archivo, o un error
+   * @example
+   * ```ts
+   * const [result, err] = await http.download("/files/document.pdf");
+   * if (!err) {
+   *   const { blob, filename } = result;
+   *   // Trabajar con el blob y filename
+   * }
+   * ```
+   */
+  download: async (
+    url: string,
+    config?: RequestInit
+  ): Promise<[{ blob: Blob; filename: string } | null, ServerFetchError | null]> => {
+    try {
+      // Obtenemos las cookies
+      let accessToken = null;
+      let refreshToken = null;
+      let cookieStore = null;
+
+      if (isServer()) {
+        cookieStore = await cookies();
+        accessToken = cookieStore.get("access_token")?.value;
+        refreshToken = cookieStore.get("refresh_token")?.value;
+      }
+
+      // Configuramos los cookies para la solicitud
+      const headersObj: Record<string, string> = { ...((config?.headers || {}) as Record<string, string>) };
+
+      if (accessToken) {
+        headersObj["Cookie"] = `access_token=${accessToken}`;
+        if (refreshToken) {
+          headersObj["Cookie"] += `; refresh_token=${refreshToken}`;
+        }
+      }
+
+      const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+        method: "GET",
+        ...config,
+        headers: headersObj,
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        return [
+          null,
+          {
+            statusCode: response.status,
+            message: `Error al descargar archivo (${response.status})`,
+            error: `Error al descargar archivo (${response.status})`,
+          },
+        ];
+      }
+
+      // Verificar que la respuesta no esté vacía
+      const contentLength = response.headers.get("content-length");
+      if (contentLength && parseInt(contentLength) === 0) {
+        return [
+          null,
+          {
+            statusCode: 204,
+            message: "El archivo está vacío o no disponible",
+            error: "El archivo está vacío o no disponible",
+          },
+        ];
+      }
+
+      const blob = await response.blob();
+
+      // Intentar obtener el nombre del archivo del encabezado Content-Disposition
+      let filename = "file";
+      const contentDisposition = response.headers.get("content-disposition");
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Determinar la extensión basada en el tipo MIME si no está en el nombre
+      if (!filename.includes(".")) {
+        const contentType = response.headers.get("content-type");
+        if (contentType) {
+          if (contentType.includes("pdf")) {
+            filename += ".pdf";
+          } else if (contentType.includes("jpeg") || contentType.includes("jpg")) {
+            filename += ".jpg";
+          } else if (contentType.includes("png")) {
+            filename += ".png";
+          } else if (contentType.includes("excel") || contentType.includes("spreadsheetml")) {
+            filename += ".xlsx";
+          } else if (contentType.includes("word") || contentType.includes("document")) {
+            filename += ".docx";
+          }
+        }
+      }
+
+      return [{ blob, filename }, null];
+    } catch (error) {
+      console.error("Error al descargar archivo:", error);
+      return [
+        null,
+        {
+          statusCode: 503,
+          message: "Error al descargar archivo",
+          error: "Error interno",
+        },
+      ];
+    }
+  },
 };
 
 /**
