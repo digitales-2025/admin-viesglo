@@ -286,7 +286,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
           <Select value={status as string} onValueChange={handleChange} disabled={isPending}>
             <SelectTrigger
               className={cn(
-                "border-none shadow-none font-semibold",
+                "border-none shadow-none font-semibold w-[150px]",
                 isPending && "cursor-not-allowed opacity-50",
                 StatusProjectActivityColor[status as StatusProjectActivity]
               )}
