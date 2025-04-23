@@ -4,8 +4,10 @@ import { useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   createMedicalRecord,
+  deleteMedicalRecord,
   downloadAptitudeCertificate,
   downloadMedicalReport,
   getAptitudeCertificateInfo,
@@ -13,11 +15,12 @@ import {
   getMedicalRecords,
   getMedicalReportInfo,
   updateCustomSections,
+  updateMedicalRecord,
   updateMedicalRecordDetails,
   uploadAptitudeCertificate,
   uploadMedicalReport,
 } from "../_actions/medical-record.action";
-import { MedicalRecordCreate, UpdateCustomSections, UpdateMedicalRecordDetails } from "../_types/medical-record.types";
+import { MedicalRecordUpdate, UpdateCustomSections, UpdateMedicalRecordDetails } from "../_types/medical-record.types";
 
 export const MEDICAL_RECORDS_KEYS = {
   all: ["medical-records"] as const,
@@ -30,8 +33,14 @@ export const MEDICAL_RECORDS_KEYS = {
  * Hook para obtener todos los registros médicos
  */
 export function useMedicalRecords(clientId?: string) {
+  // Obtener el ID del usuario actual para incluirlo en la clave de consulta
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
   return useQuery({
-    queryKey: clientId ? MEDICAL_RECORDS_KEYS.list(`clientId=${clientId}`) : MEDICAL_RECORDS_KEYS.lists(),
+    queryKey: clientId
+      ? [...MEDICAL_RECORDS_KEYS.list(`clientId=${clientId}`), { userId }]
+      : [...MEDICAL_RECORDS_KEYS.lists(), { userId }],
     queryFn: async () => {
       const response = await getMedicalRecords(clientId);
       if (!response.success) {
@@ -39,6 +48,8 @@ export function useMedicalRecords(clientId?: string) {
       }
       return response.data;
     },
+    // Asegurarnos de que se actualice cuando cambie el ID de usuario
+    enabled: !!userId,
   });
 }
 
@@ -46,8 +57,12 @@ export function useMedicalRecords(clientId?: string) {
  * Hook para obtener un registro médico por su ID
  */
 export function useMedicalRecord(id: string) {
+  // Obtener el ID del usuario actual para incluirlo en la clave de consulta
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
   return useQuery({
-    queryKey: MEDICAL_RECORDS_KEYS.detail(id),
+    queryKey: [...MEDICAL_RECORDS_KEYS.detail(id), { userId }],
     queryFn: async () => {
       const response = await getMedicalRecord(id);
       if (!response.success) {
@@ -55,6 +70,8 @@ export function useMedicalRecord(id: string) {
       }
       return response.data;
     },
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -63,16 +80,23 @@ export function useMedicalRecord(id: string) {
  */
 export function useCreateMedicalRecord() {
   const queryClient = useQueryClient();
+  // Obtener el ID del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
   return useMutation({
-    mutationFn: async (medicalRecord: MedicalRecordCreate) => {
-      const response = await createMedicalRecord(medicalRecord);
+    mutationFn: async (formData: FormData) => {
+      const response = await createMedicalRecord(formData as any);
       if (!response.success) {
         throw new Error(response.error || "Error al crear registro médico");
       }
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: MEDICAL_RECORDS_KEYS.lists() });
+      // Invalidamos usando la misma estructura de clave que incluye el ID del usuario
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.lists(), { userId }],
+      });
       toast.success("Registro médico creado exitosamente");
     },
     onError: (error: Error) => {
@@ -118,6 +142,10 @@ export function useMedicalReportInfo(id: string) {
  */
 export function useUploadAptitudeCertificate() {
   const queryClient = useQueryClient();
+  // Obtener el ID del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
   return useMutation({
     mutationFn: async ({ id, file }: { id: string; file: File }) => {
       const response = await uploadAptitudeCertificate(id, file);
@@ -128,7 +156,7 @@ export function useUploadAptitudeCertificate() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), "aptitude-certificate-info"],
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), "aptitude-certificate-info", { userId }],
       });
       toast.success("Certificado de aptitud médica subido exitosamente");
     },
@@ -143,6 +171,10 @@ export function useUploadAptitudeCertificate() {
  */
 export function useUploadMedicalReport() {
   const queryClient = useQueryClient();
+  // Obtener el ID del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
   return useMutation({
     mutationFn: async ({ id, file }: { id: string; file: File }) => {
       const response = await uploadMedicalReport(id, file);
@@ -153,7 +185,7 @@ export function useUploadMedicalReport() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), "medical-report-info"],
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), "medical-report-info", { userId }],
       });
       toast.success("Informe médico subido exitosamente");
     },
@@ -226,6 +258,9 @@ export function useDownloadMedicalReport() {
  */
 export function useMedicalRecordDetails(id: string) {
   const queryClient = useQueryClient();
+  // Obtener el ID del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
 
   console.log(`🔍 Obteniendo detalles del registro médico con ID: ${id}`);
 
@@ -258,8 +293,9 @@ export function useMedicalRecordDetails(id: string) {
     onSuccess: (_, variables) => {
       // Invalidamos la consulta para forzar una recarga de los datos
       console.log(`🔄 Invalidando consulta para forzar recarga de datos del registro ${variables.id}`);
-      queryClient.invalidateQueries({ queryKey: MEDICAL_RECORDS_KEYS.detail(variables.id) });
-      toast.success("Detalles del registro médico actualizados correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), { userId }],
+      });
     },
     onError: (error: Error) => {
       console.error(`❌ Error en la mutación:`, error);
@@ -280,6 +316,9 @@ export function useMedicalRecordDetails(id: string) {
  */
 export function useUpdateCustomSections() {
   const queryClient = useQueryClient();
+  // Obtener el ID del usuario actual
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
 
   return useMutation({
     mutationFn: async ({ id, customSections }: { id: string; customSections: UpdateCustomSections }) => {
@@ -295,12 +334,86 @@ export function useUpdateCustomSections() {
     onSuccess: (_, variables) => {
       // Invalidamos la consulta para forzar una recarga de los datos
       console.log(`🔄 Invalidando consulta para forzar recarga de datos del registro ${variables.id}`);
-      queryClient.invalidateQueries({ queryKey: MEDICAL_RECORDS_KEYS.detail(variables.id) });
-      toast.success("Secciones personalizadas actualizadas correctamente");
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), { userId }],
+      });
     },
     onError: (error: Error) => {
       console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al actualizar secciones personalizadas");
+    },
+  });
+}
+
+/**
+ * Hook para actualizar un registro médico
+ */
+export function useUpdateMedicalRecord() {
+  const queryClient = useQueryClient();
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: MedicalRecordUpdate }) => {
+      console.log(`📤 Enviando actualización para registro médico ${id}`);
+      const response = await updateMedicalRecord(id, data);
+      if (!response.success) {
+        console.error(`❌ Error en la respuesta del servidor:`, response.error);
+        throw new Error(response.error || "Error al actualizar registro médico");
+      }
+      console.log(`📥 Respuesta exitosa del servidor:`, JSON.stringify(response.data).substring(0, 200) + "...");
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      console.log(`🔄 Invalidando consultas después de actualizar registro médico ${variables.id}`);
+      // Invalidar la consulta del registro específico
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id), { userId }],
+      });
+      // Invalidar la lista de registros
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.lists(), { userId }],
+      });
+    },
+    onError: (error: Error) => {
+      console.error(`❌ Error en la mutación:`, error);
+      toast.error(error.message || "Error al actualizar registro médico");
+    },
+  });
+}
+
+/**
+ * Hook para eliminar un registro médico
+ */
+export function useDeleteMedicalRecord() {
+  const queryClient = useQueryClient();
+  const { data: currentUser } = useCurrentUser();
+  const userId = currentUser?.id;
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      console.log(`🗑️ Eliminando registro médico ${id}`);
+      const response = await deleteMedicalRecord(id);
+      if (!response.success) {
+        console.error(`❌ Error en la respuesta del servidor:`, response.error);
+        throw new Error(response.error || "Error al eliminar registro médico");
+      }
+      return response;
+    },
+    onSuccess: (_, id) => {
+      console.log(`🔄 Invalidando consultas después de eliminar registro médico ${id}`);
+      // Invalidar la consulta del registro específico
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(id), { userId }],
+      });
+      // Invalidar la lista de registros
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.lists(), { userId }],
+      });
+    },
+    onError: (error: Error) => {
+      console.error(`❌ Error en la mutación:`, error);
+      toast.error(error.message || "Error al eliminar registro médico");
     },
   });
 }

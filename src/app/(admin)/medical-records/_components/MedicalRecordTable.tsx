@@ -55,15 +55,13 @@ export default function MedicalRecordTable() {
     [clinics, router, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
   );
 
-  if (isLoadingRecords || isLoadingClinics)
-    return <div className="text-center py-4">Cargando registros médicos...</div>;
-
   if (recordsError || clinicsError) return <div className="text-center py-4">Error al cargar registros médicos</div>;
 
   return (
     <DataTable
       columns={columns}
       data={medicalRecords || []}
+      isLoading={isLoadingRecords || isLoadingClinics}
       actions={
         <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
           <FileDown className="mr-2 h-4 w-4" /> Descargar
