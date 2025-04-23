@@ -18,6 +18,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
+import { DataTableFacetedFilterOption } from "@/shared/components/data-table/DataTableFacetedFilter";
 import { DataTablePagination } from "@/shared/components/data-table/DataTablePagination";
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
@@ -29,6 +30,7 @@ interface DataTableProps<TData, TValue> {
   actions?: React.ReactNode;
   isLoading?: boolean;
   toolBar?: boolean;
+  filterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
   pagination?: boolean;
   className?: string;
   onClickRow?: (row: TData) => void;
@@ -41,6 +43,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   toolBar = true,
   pagination = true,
+  filterOptions,
   onClickRow,
   className,
 }: DataTableProps<TData, TValue>) {
@@ -91,7 +94,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {toolBar && <DataTableToolbar table={table} actions={actions} />}
+      {toolBar && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
       <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>

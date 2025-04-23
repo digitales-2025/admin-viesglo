@@ -27,7 +27,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";

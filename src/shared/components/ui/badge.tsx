@@ -14,16 +14,25 @@ const badgeVariants = cva(
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline: "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        success: "border-emerald-500 bg-emerald-500 text-white [a&]:hover:bg-emerald-600",
-        error: "border-rose-500 bg-rose-500 text-white [a&]:hover:bg-rose-600",
-        warning: "border-yellow-500 bg-yellow-500 text-white [a&]:hover:bg-yellow-600",
-        info: "border-blue-500 bg-blue-500 text-white [a&]:hover:bg-blue-600",
-        muted: "border-gray-500 bg-gray-500 text-white [a&]:hover:bg-gray-600",
-        successOutline: "border-emerald-500 text-emerald-500  [a&]:hover:bg-emerald-50 [a&]:hover:text-emerald-600",
-        errorOutline: "border-rose-500 text-rose-500 [a&]:hover:bg-rose-50 [a&]:hover:text-rose-600",
-        warningOutline: "border-yellow-500 text-yellow-500 [a&]:hover:bg-yellow-50 [a&]:hover:text-yellow-600",
-        infoOutline: "border-blue-500 text-blue-500 [a&]:hover:bg-blue-50 [a&]:hover:text-blue-600",
-        mutedOutline: "border-gray-500 text-gray-500 [a&]:hover:bg-gray-50 [a&]:hover:text-gray-600",
+        success:
+          "bg-emerald-100 border-none text-emerald-500 [a&]:hover:bg-emerald-600 font-semibold dark:bg-emerald-900 dark:text-emerald-400 dark:[a&]:hover:bg-emerald-800",
+        error:
+          "bg-rose-100 border-none text-rose-500 [a&]:hover:bg-rose-600 font-semibold dark:bg-rose-900 dark:text-rose-400 dark:[a&]:hover:bg-rose-800",
+        warning:
+          "bg-yellow-100 border-none text-yellow-500 [a&]:hover:bg-yellow-600 font-semibold dark:bg-yellow-900 dark:text-yellow-400 dark:[a&]:hover:bg-yellow-800",
+        info: "bg-blue-100 border-none text-blue-500 [a&]:hover:bg-blue-600 font-semibold dark:bg-blue-900 dark:text-blue-400 dark:[a&]:hover:bg-blue-800",
+        muted:
+          "bg-gray-100 border-none text-gray-500 [a&]:hover:bg-gray-600 font-semibold dark:bg-gray-900 dark:text-gray-400 dark:[a&]:hover:bg-gray-800",
+        successOutline:
+          "border-emerald-500 text-emerald-500  [a&]:hover:bg-emerald-50 [a&]:hover:text-emerald-600 dark:border-emerald-400 dark:text-emerald-400 dark:[a&]:hover:bg-emerald-900 dark:[a&]:hover:text-emerald-500",
+        errorOutline:
+          "border-rose-500 text-rose-500 [a&]:hover:bg-rose-50 [a&]:hover:text-rose-600 dark:border-rose-400 dark:text-rose-400 dark:[a&]:hover:bg-rose-900 dark:[a&]:hover:text-rose-500",
+        warningOutline:
+          "border-yellow-500 text-yellow-500 [a&]:hover:bg-yellow-50 [a&]:hover:text-yellow-600 dark:border-yellow-400 dark:text-yellow-400 dark:[a&]:hover:bg-yellow-900 dark:[a&]:hover:text-yellow-500",
+        infoOutline:
+          "border-blue-500 text-blue-500 [a&]:hover:bg-blue-50 [a&]:hover:text-blue-600 dark:border-blue-400 dark:text-blue-400 dark:[a&]:hover:bg-blue-900 dark:[a&]:hover:text-blue-500",
+        mutedOutline:
+          "border-gray-500 text-gray-500 [a&]:hover:bg-gray-50 [a&]:hover:text-gray-600 dark:border-gray-400 dark:text-gray-400 dark:[a&]:hover:bg-gray-900 dark:[a&]:hover:text-gray-500",
       },
     },
     defaultVariants: {

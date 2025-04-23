@@ -107,11 +107,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     accessorKey: "status",
     cell: ({ row }) => (
       <div className="min-w-[150px] max-w-[150px]">
-        {row.original.isActive ? (
-          <Badge variant="successOutline">Activo</Badge>
-        ) : (
-          <Badge variant="errorOutline">Inactivo</Badge>
-        )}
+        {row.original.isActive ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
       </div>
     ),
   },

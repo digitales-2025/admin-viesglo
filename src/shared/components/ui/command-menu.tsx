@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowBigRightDash, Laptop, Moon, Sun } from "lucide-react";
+import { CornerDownRight, Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
@@ -69,9 +69,10 @@ export function CommandMenu() {
                       onSelect={() => {
                         runCommand(() => navigate.push(navItem.url as string));
                       }}
+                      className="group/item"
                     >
-                      <div className="mr-2 flex h-4 w-4 items-center justify-center">
-                        <ArrowBigRightDash className="size-2 text-muted-foreground/80" />
+                      <div className="mr-2 flex size-5 group-hover/item:shadow-sm transition-colors duration-200 items-center justify-center bg-background rounded-sm">
+                        <CornerDownRight />
                       </div>
                       {navItem.title}
                     </CommandItem>
@@ -84,9 +85,10 @@ export function CommandMenu() {
                     onSelect={() => {
                       runCommand(() => navigate.push(subItem.url as string));
                     }}
+                    className="group/item"
                   >
-                    <div className="mr-2 flex h-4 w-4 items-center justify-center">
-                      <ArrowBigRightDash className="size-2 text-muted-foreground/80" />
+                    <div className="mr-2 flex size-5 group-hover/item:shadow-sm transition-colors duration-200 shadow-sm items-center justify-center bg-background rounded-sm">
+                      <CornerDownRight />
                     </div>
                     {subItem.title}
                   </CommandItem>

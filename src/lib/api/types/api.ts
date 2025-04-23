@@ -89,6 +89,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/verify-token": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Verificar la validez de un token de refresco */
+    post: operations["AuthController_verifyToken_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users": {
     parameters: {
       query?: never;
@@ -766,6 +783,74 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/project-activities/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar el estado de una actividad */
+    put: operations["ProjectActivitiesController_updateStatus_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la evidencia de una actividad */
+    put: operations["ProjectActivitiesController_updateEvidence_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/scheduled-date": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la fecha programada de una actividad */
+    put: operations["ProjectActivitiesController_updateScheduledDate_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/execution-date": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar la fecha de ejecución de una actividad */
+    put: operations["ProjectActivitiesController_updateExecutionDate_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/quotations": {
     parameters: {
       query?: never;
@@ -1018,6 +1103,14 @@ export interface components {
       /** @description Confirmar contraseña */
       confirmPassword: string;
     };
+    VerifyTokenDto: {
+      /**
+       * @description Token de refresco que desea verificar
+       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      refreshToken: string;
+    };
+    TokenVerificationResponse: Record<string, never>;
     RoleResponseDto: {
       /**
        * @description ID único del rol
@@ -2099,20 +2192,23 @@ export interface components {
        * @example true
        */
       isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      updatedAt: string;
       /** @description Objetivos asociados al servicio */
       objectives?: components["schemas"]["ProjectObjectiveResponseDto"][];
+      /**
+       * @description Progreso del servicio
+       * @example 50
+       */
+      progress?: number;
+      /**
+       * @description Actividades asociadas al servicio
+       * @example 10
+       */
+      activities?: number;
+      /**
+       * @description Actividades completadas asociadas al servicio
+       * @example 5
+       */
+      completedActivities?: number;
     };
     ProjectResponseDto: {
       /**
@@ -2159,20 +2255,13 @@ export interface components {
        * @example true
        */
       isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación del proyecto
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del proyecto
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      updatedAt: string;
       /** @description Servicios asociados al proyecto */
       services?: components["schemas"]["ProjectServiceResponseDto"][];
+      /**
+       * @description Progreso del proyecto
+       * @example 50
+       */
+      progress?: number;
     };
     PaginatedProjectResponseDto: {
       /** @description Lista de proyectos paginados */
@@ -2353,6 +2442,37 @@ export interface components {
       createdAt: string;
       /** Format: date-time */
       updatedAt: string;
+    };
+    UpdateStatusDto: {
+      /**
+       * @description El estado de la actividad
+       * @example PENDING
+       * @enum {string}
+       */
+      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
+    };
+    UpdateEvidenceDto: {
+      /**
+       * @description La evidencia de la actividad
+       * @example https://www.google.com
+       */
+      evidence: string;
+    };
+    UpdateScheduledDateDto: {
+      /**
+       * Format: date-time
+       * @description La fecha programada de la actividad
+       * @example 2021-01-01
+       */
+      scheduledDate: string;
+    };
+    UpdateExecutionDateDto: {
+      /**
+       * Format: date-time
+       * @description La fecha de ejecución de la actividad
+       * @example 2021-01-01
+       */
+      executionDate: string;
     };
     QuotationResponseDto: {
       /**
@@ -2980,6 +3100,30 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  AuthController_verifyToken_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["VerifyTokenDto"];
+      };
+    };
+    responses: {
+      /** @description Respuesta sobre la validez del token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenVerificationResponse"];
+        };
       };
     };
   };
@@ -4769,6 +4913,110 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["ProjectActivity"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateStatusDto"];
+      };
+    };
+    responses: {
+      /** @description El estado de la actividad ha sido actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateEvidenceDto"];
+      };
+    };
+    responses: {
+      /** @description La evidencia de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateScheduledDate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateScheduledDateDto"];
+      };
+    };
+    responses: {
+      /** @description La fecha programada de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_updateExecutionDate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateExecutionDateDto"];
+      };
+    };
+    responses: {
+      /** @description La fecha de ejecución de la actividad ha sido actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
         };
       };
     };

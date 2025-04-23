@@ -58,7 +58,7 @@ export default function ProjectsContainer() {
             "flex-1 overflow-hidden" // Permitir que se expanda sin tamaños fijos
           )}
         >
-          <ResizablePanel defaultSize={35} minSize={25} maxSize={45} className="py-4 flex flex-col">
+          <ResizablePanel defaultSize={35} minSize={30} maxSize={45} className="py-4 flex flex-col">
             <ProjectList />
           </ResizablePanel>
           <ResizableHandle withHandle />

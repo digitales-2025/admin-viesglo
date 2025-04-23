@@ -15,7 +15,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateObjectiveProject, useUpdateObjectiveProject } from "../../_hooks/useObjectivesProject";
 import { CreateProjectObjective, ProjectObjectiveResponse } from "../../_types/tracking.types";
@@ -127,7 +127,7 @@ export default function ObjectiveMutateDrawer({
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-200px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 flex-1 p-4" id="objective-form">
               <FormField
