@@ -240,49 +240,56 @@ export function useDownloadEvidence() {
   return useMutation({
     mutationFn: async ({ objectiveId: _, activityId }: { objectiveId: string; activityId: string }) => {
       const response = await downloadEvidence(activityId);
-      console.log("🚀 ~ mutationFn: ~ response:", response);
       if (!response.success) {
         throw new Error(response.error || "Error al descargar evidencia");
       }
 
-      // Si tenemos una URL de descarga, iniciamos la descarga
+      // Si tenemos una URL de descarga, forzamos la descarga directa
       if (response.downloadUrl) {
         try {
-          // Solución 1: Intentar descarga directa con iframe (menos disruptiva, ideal para PDFs)
-          const iframe = document.createElement("iframe");
-          iframe.style.display = "none";
-          iframe.src = response.downloadUrl;
-          iframe.onload = () => {
-            // Si la carga fue exitosa, probablemente se está mostrando en el iframe
-            // Para PDF/imágenes esto funciona bien, para archivos binarios necesitamos otro enfoque
-            setTimeout(() => {
-              document.body.removeChild(iframe);
+          // Realiza una petición fetch al endpoint de descarga
+          const downloadResponse = await fetch(response.downloadUrl, {
+            method: "GET",
+            credentials: "include", // Importante para que las cookies se envíen con la solicitud
+          });
 
-              // Solución 2 (fallback): Utilizar un enlace de descarga tradicional
-              const link = document.createElement("a");
-              link.href = response.downloadUrl;
-              link.download = response.filename || "evidence";
-              link.target = "_blank";
-              link.rel = "noopener noreferrer";
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }, 1000); // Damos tiempo para que se inicie la descarga
-          };
-          document.body.appendChild(iframe);
+          if (!downloadResponse.ok) {
+            throw new Error("Error al obtener el archivo para descargar");
+          }
+
+          // Obtener el blob de la respuesta
+          const blob = await downloadResponse.blob();
+
+          // Crear una URL para el blob
+          const url = window.URL.createObjectURL(blob);
+
+          // Crear un enlace invisible para la descarga
+          const link = document.createElement("a");
+          link.style.display = "none";
+          link.href = url;
+          // Usar el nombre de archivo proporcionado por el servidor, o un nombre por defecto
+          link.download = response.filename || "evidence";
+
+          // Añadir el enlace al documento, hacer clic y eliminarlo
+          document.body.appendChild(link);
+          link.click();
+
+          // Limpiar recursos después de un breve retraso
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+          }, 100);
 
           // Mostrar mensaje de éxito
           toast.success("Evidencia descargada correctamente");
         } catch (error) {
-          console.error("Error al iniciar la descarga", error);
-
-          // Solución 3 (fallback final): Abrir en nueva ventana
-          window.open(response.downloadUrl, "_blank");
-          toast.success("Documento abierto en nueva ventana");
+          console.error("Error al descargar archivo", error);
+          toast.error("Error al descargar el archivo");
+          throw error;
         }
       } else {
-        // Si no hay URL de descarga, mostramos un mensaje informativo
-        toast.success("Evidencia procesada correctamente");
+        // Si no hay URL de descarga
+        toast.success("Archivo procesado correctamente");
       }
     },
     onError: (error) => {
