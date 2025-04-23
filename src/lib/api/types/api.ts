@@ -503,6 +503,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients/by-clinic/{clinicId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener clientes asociados a una clínica */
+    get: operations["ClientsController_getClientsByClinic_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/projects": {
     parameters: {
       query?: never;
@@ -1024,10 +1041,12 @@ export interface paths {
     get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
     put?: never;
     post?: never;
-    delete?: never;
+    /** Eliminar registro médico */
+    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
     options?: never;
     head?: never;
-    patch?: never;
+    /** Actualizar registro médico */
+    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
     trace?: never;
   };
   "/api/v1/medical-records/{id}/details": {
@@ -2988,6 +3007,65 @@ export interface components {
        */
       fileCertificate?: string;
     };
+    CreateMedicalRecordDto: {
+      /**
+       * @description RUC del paciente
+       * @example 20603465157
+       */
+      ruc: string;
+      /**
+       * @description DNI del paciente
+       * @example 12345678
+       */
+      dni?: string;
+      /**
+       * @description Primer nombre del paciente
+       * @example Juan
+       */
+      firstName: string;
+      /**
+       * @description Segundo nombre del paciente
+       * @example Carlos
+       */
+      secondName?: string;
+      /**
+       * @description Primer apellido del paciente
+       * @example Pérez
+       */
+      firstLastName: string;
+      /**
+       * @description Segundo apellido del paciente
+       * @example Gómez
+       */
+      secondLastName?: string;
+      /**
+       * @description Tipo de examen
+       * @example PRE_OCCUPATIONAL
+       * @enum {string}
+       */
+      examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
+      /**
+       * @description Tipo de aptitud
+       * @example APT
+       * @enum {string}
+       */
+      aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+      /**
+       * @description Restricciones (opcional)
+       * @example No levantar objetos pesados
+       */
+      restrictions?: string;
+      /**
+       * Format: binary
+       * @description Certificado de aptitud médica (PDF, máximo 5MB)
+       */
+      aptitudeCertificate?: string;
+      /**
+       * Format: binary
+       * @description Informe médico (PDF, máximo 5MB)
+       */
+      medicalReport?: string;
+    };
     FileMetadataResponseDto: {
       /**
        * @description ID único del archivo
@@ -3220,6 +3298,55 @@ export interface components {
        *     ]
        */
       customSections?: components["schemas"]["CustomSectionDto"][];
+    };
+    UpdateMedicalRecordDto: {
+      /**
+       * @description RUC de la empresa
+       * @example 20603465157
+       */
+      ruc?: string;
+      /**
+       * @description DNI del paciente
+       * @example 12345678
+       */
+      dni?: string;
+      /**
+       * @description Primer nombre del paciente
+       * @example Juan
+       */
+      firstName?: string;
+      /**
+       * @description Segundo nombre del paciente
+       * @example Carlos
+       */
+      secondName?: string;
+      /**
+       * @description Primer apellido del paciente
+       * @example Pérez
+       */
+      firstLastName?: string;
+      /**
+       * @description Segundo apellido del paciente
+       * @example Gómez
+       */
+      secondLastName?: string;
+      /**
+       * @description Tipo de examen
+       * @example PRE_OCCUPATIONAL
+       * @enum {string}
+       */
+      examType?: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
+      /**
+       * @description Aptitud médica
+       * @example APT
+       * @enum {string}
+       */
+      aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+      /**
+       * @description Restricciones médicas
+       * @example No levantar objetos pesados
+       */
+      restrictions?: string | null;
     };
     PaymentResponseDto: {
       /**
@@ -4472,6 +4599,28 @@ export interface operations {
       };
     };
   };
+  ClientsController_getClientsByClinic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clinicId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes asociados a la clínica obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"][];
+        };
+      };
+    };
+  };
   ProjectsController_getProjects_v1: {
     parameters: {
       query?: never;
@@ -5646,44 +5795,10 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
+    /** @description Datos del registro médico a crear */
     requestBody: {
       content: {
-        "multipart/form-data": {
-          /** @example 20603465157 */
-          ruc: string;
-          /** @example 12345678 */
-          dni?: string;
-          /** @example Juan */
-          firstName: string;
-          /** @example Carlos */
-          secondName?: string;
-          /** @example Pérez */
-          firstLastName: string;
-          /** @example Gómez */
-          secondLastName?: string;
-          /**
-           * @example PRE_OCCUPATIONAL
-           * @enum {string}
-           */
-          examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
-          /**
-           * @example APT
-           * @enum {string}
-           */
-          aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
-          /** @example No levantar objetos pesados */
-          restrictions?: string | null;
-          /**
-           * Format: binary
-           * @description Certificado de aptitud médica (PDF, máximo 5MB)
-           */
-          aptitudeCertificate?: string | null;
-          /**
-           * Format: binary
-           * @description Informe médico (PDF, máximo 5MB)
-           */
-          medicalReport?: string | null;
-        };
+        "multipart/form-data": components["schemas"]["CreateMedicalRecordDto"];
       };
     };
     responses: {
@@ -5913,6 +6028,69 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Registro médico obtenido exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_deleteMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos para actualizar el registro médico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
+      };
+    };
+    responses: {
+      /** @description Registro médico actualizado exitosamente. */
       200: {
         headers: {
           [name: string]: unknown;
