@@ -18,7 +18,9 @@ export type MedicalRecordFileInfo = {
 };
 
 // Usar el esquema de la API para los detalles
-export type UpdateMedicalRecordDetails = components["schemas"]["UpdateMedicalRecordDetailsDto"];
+export type UpdateMedicalRecordDetails = components["schemas"]["UpdateMedicalRecordDetailsDto"] & {
+  customData?: string | Record<string, any>;
+};
 
 // Usar el esquema de la API para los campos de secciones personalizadas
 export type CustomSectionField = components["schemas"]["CustomSectionFieldDto"];
