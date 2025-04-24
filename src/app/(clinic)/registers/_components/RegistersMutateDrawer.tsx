@@ -538,7 +538,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                       <FormLabel>Tipo de examen</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona el tipo de examen" />
                           </SelectTrigger>
                         </FormControl>
@@ -562,7 +562,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                       <FormLabel>Aptitud</FormLabel>
                       <Select value={field.value} onValueChange={field.onChange}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona la aptitud" />
                           </SelectTrigger>
                         </FormControl>

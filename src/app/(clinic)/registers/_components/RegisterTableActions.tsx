@@ -1,6 +1,5 @@
 "use client";
 
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -16,7 +15,6 @@ import { MedicalRecordResponse } from "../../../(admin)/medical-records/_types/m
 
 interface RegisterTableActionsProps {
   record: MedicalRecordResponse;
-  router: AppRouterInstance;
 }
 
 export default function RegisterTableActions({ record }: RegisterTableActionsProps) {

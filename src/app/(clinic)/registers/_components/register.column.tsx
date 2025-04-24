@@ -8,12 +8,12 @@ import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { MedicalRecordResponse } from "../_types/medical-record.types";
-import { ClinicResponse } from "../../clinics/_types/clinics.types";
-import ClinicCell from "./ClinicCell";
-import MedicalRecordTableActions from "./MedicalRecordTableActions";
+import { ClinicResponse } from "../../../(admin)/clinics/_types/clinics.types";
+import ClinicCell from "../../../(admin)/medical-records/_components/ClinicCell";
+import { MedicalRecordResponse } from "../../../(admin)/medical-records/_types/medical-record.types";
+import RegisterTableActions from "./RegisterTableActions";
 
-interface ColumnsMedicalRecordProps {
+interface RegistersRecordProps {
   clinics?: ClinicResponse[];
   downloadCertificate: (id: string) => Promise<any>;
   downloadReport: (id: string) => Promise<any>;
@@ -21,13 +21,13 @@ interface ColumnsMedicalRecordProps {
   isDownloadingReport: boolean;
 }
 
-export const columnsMedicalRecord = ({
+export const registersRecordColumns = ({
   clinics = [],
   downloadCertificate,
   downloadReport,
   isDownloadingCertificate,
   isDownloadingReport,
-}: ColumnsMedicalRecordProps): ColumnDef<MedicalRecordResponse>[] => {
+}: RegistersRecordProps): ColumnDef<MedicalRecordResponse>[] => {
   // Función para verificar si existe un informe médico
   const hasMedicalReport = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
@@ -224,7 +224,7 @@ export const columnsMedicalRecord = ({
       header: ({ column }) => <DataTableColumnHeader column={column} title="Opciones" />,
       cell: ({ row }) => {
         const record = row.original;
-        return <MedicalRecordTableActions record={record} />;
+        return <RegisterTableActions record={record} />;
       },
     },
   ];

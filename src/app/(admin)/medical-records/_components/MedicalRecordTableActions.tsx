@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useRouter } from "next/navigation";
 import { Eye, MoreHorizontal } from "lucide-react";
 
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
@@ -14,21 +14,15 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { MedicalRecordResponse } from "../_types/medical-record.types";
-import { ClinicResponse } from "../../clinics/_types/clinics.types";
 
 interface MedicalRecordTableActionsProps {
   record: MedicalRecordResponse;
-  router: AppRouterInstance;
-  _clinicsList?: ClinicResponse[];
 }
 
-export default function MedicalRecordTableActions({
-  record,
-  router,
-  _clinicsList = [],
-}: MedicalRecordTableActionsProps) {
+export default function MedicalRecordTableActions({ record }: MedicalRecordTableActionsProps) {
   const { user, hasRole } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAdminRole = async () => {
