@@ -184,7 +184,7 @@ export async function downloadAptitudeCertificate(id: string) {
     // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
     const [_, err, response] = await http.downloadFile(`${API_ENDPOINT}/${id}/aptitude-certificate`);
     if (err !== null) {
-      throw new Error(err.message || "Error al descargar evidencia");
+      throw new Error(err.message || "Error al descargar certificado");
     }
 
     // Si tenemos una respuesta, extraemos la información necesaria para la descarga
@@ -216,46 +216,54 @@ export async function downloadAptitudeCertificate(id: string) {
     // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
     return { success: true };
   } catch (error) {
-    console.error("Error al descargar evidencia", error);
-    return { success: false, error: "Error al descargar evidencia" };
+    console.error("Error al descargar certificado", error);
+    return { success: false, error: "Error al descargar certificado" };
   }
 }
 
 /**
  * Descarga el informe médico
  */
-export async function downloadMedicalReport(
-  id: string
-): Promise<{ data: Blob | null; filename: string | null; success: boolean; error?: string }> {
+export async function downloadMedicalReport(id: string) {
+  // Esta función usa las nuevas utilidades para obtener la respuesta completa de descarga
   try {
-    console.log("⬇️ Iniciando descarga de informe para ID:", id);
+    // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
+    const [_, err, response] = await http.downloadFile(`${API_ENDPOINT}/${id}/medical-report`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al descargar informe");
+    }
 
-    const [result, err] = await http.download(`/medical-records/${id}/medical-report`);
+    // Si tenemos una respuesta, extraemos la información necesaria para la descarga
+    if (response) {
+      // Obtener el nombre del archivo del Content-Disposition
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = "evidence";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
 
-    if (err !== null || result === null) {
-      console.warn(`❌ Error al descargar informe:`, err);
+      const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+
+      // En lugar de intentar procesar el blob aquí, devolvemos la información necesaria
+      // para que el cliente pueda hacer la solicitud correctamente
       return {
-        success: false,
-        data: null,
-        filename: null,
-        error: err?.message || `Error al descargar documento`,
+        success: true,
+        // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
+        // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
+        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT}/${id}/medical-report`,
+        filename,
+        contentType,
       };
     }
 
-    console.log("✅ Informe médico descargado correctamente:", result.filename);
-    return {
-      success: true,
-      data: result.blob,
-      filename: result.filename,
-    };
+    // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
+    return { success: true };
   } catch (error) {
-    console.warn("❌ Error inesperado al descargar el informe", error);
-    return {
-      success: false,
-      data: null,
-      filename: null,
-      error: "Error al descargar documento",
-    };
+    console.error("Error al descargar informe", error);
+    return { success: false, error: "Error al descargar informe" };
   }
 }
 

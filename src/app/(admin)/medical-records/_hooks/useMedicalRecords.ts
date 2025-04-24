@@ -294,23 +294,61 @@ export function useDownloadMedicalReport() {
     mutationFn: async (id: string) => {
       const response = await downloadMedicalReport(id);
       if (!response.success) {
-        toast.error("Error al obtener documento");
-        return response;
+        throw new Error(response.error || "Error al descargar evidencia");
       }
-      return response;
+
+      console.log(`📄 Respuesta del servidor:`, response.downloadUrl);
+
+      // Si tenemos una URL de descarga, forzamos la descarga directa
+      if (response.downloadUrl) {
+        try {
+          // Realiza una petición fetch al endpoint de descarga
+          const downloadResponse = await fetch(response.downloadUrl, {
+            method: "GET",
+            credentials: "include", // Importante para que las cookies se envíen con la solicitud
+          });
+
+          if (!downloadResponse.ok) {
+            throw new Error("Error al obtener el archivo para descargar");
+          }
+
+          // Obtener el blob de la respuesta
+          const blob = await downloadResponse.blob();
+
+          // Crear una URL para el blob
+          const url = window.URL.createObjectURL(blob);
+
+          // Crear un enlace invisible para la descarga
+          const link = document.createElement("a");
+          link.style.display = "none";
+          link.href = url;
+          // Usar el nombre de archivo proporcionado por el servidor, o un nombre por defecto
+          link.download = response.filename || "evidence";
+
+          // Añadir el enlace al documento, hacer clic y eliminarlo
+          document.body.appendChild(link);
+          link.click();
+
+          // Limpiar recursos después de un breve retraso
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(link);
+          }, 100);
+
+          // Mostrar mensaje de éxito
+          toast.success("Certificado de aptitud médica descargado correctamente");
+        } catch (error) {
+          console.error("Error al descargar archivo", error);
+          toast.error("Error al descargar el archivo");
+          throw error;
+        }
+      } else {
+        // Si no hay URL de descarga
+        toast.success("Archivo procesado correctamente");
+      }
     },
-    onSuccess: (response) => {
-      if (response.success && response.data && response.filename) {
-        const url = window.URL.createObjectURL(response.data);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = response.filename;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-        toast.success("Documento obtenido correctamente");
-      }
+    onError: (error) => {
+      toast.error(error.message || "Error al descargar evidencia");
     },
   });
 }

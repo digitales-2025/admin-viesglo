@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { FileDown } from "lucide-react";
-import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -66,12 +65,6 @@ export const columnsMedicalRecord = ({
   // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
-      const hasReport = hasMedicalReport(record.files);
-      if (!hasReport) {
-        toast.error("No hay documento disponible");
-        return;
-      }
-
       // La función de descarga ahora maneja internamente los toasts y la descarga
       await downloadReport(record.id);
     } catch (error) {
