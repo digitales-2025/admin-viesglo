@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { VisibilityState } from "@tanstack/react-table";
-import { Check, FileDown, PlusCircle } from "lucide-react";
+import { Check, FileDown, PlusCircle, X } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Badge } from "@/shared/components/ui/badge";
@@ -34,14 +33,14 @@ import { columnsMedicalRecord } from "./medical-record.column";
 const SimpleFilterMenu = ({
   title,
   options,
-  onSelect,
+  selected,
+  onSelected,
 }: {
   title: string;
   options: { label: string; value: string }[];
-  onSelect: (value: string | null) => void;
+  selected: string | null;
+  onSelected: (value: string | null) => void;
 }) => {
-  const [selected, setSelected] = useState<string | null>(null);
-
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -75,8 +74,7 @@ const SimpleFilterMenu = ({
                     key={option.value}
                     onSelect={() => {
                       const newValue = isSelected ? null : option.value;
-                      setSelected(newValue);
-                      onSelect(newValue);
+                      onSelected(newValue);
                     }}
                   >
                     <div
@@ -98,8 +96,7 @@ const SimpleFilterMenu = ({
                 <CommandGroup>
                   <CommandItem
                     onSelect={() => {
-                      setSelected(null);
-                      onSelect(null);
+                      onSelected(null);
                     }}
                     className="justify-center text-center"
                   >
@@ -121,70 +118,10 @@ export default function MedicalRecordTable() {
   const [filters, setFilters] = useState<MedicalRecordsFilter>({});
   // Estado adicional para rastrear la categoría seleccionada (para filtrar condiciones)
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-
+  const [selectedConditionId, setSelectedConditionId] = useState<string | null>(null);
   const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords(filters);
   const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
   const { data: categories, isLoading: isLoadingCategories, error: categoriesError } = useMedicalCategories();
-
-  // Estado para controlar la visibilidad de columnas
-  // Las columnas 'category' y 'condition' deben estar presentes para el filtrado
-  // pero no deben mostrarse en la tabla
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    category: false,
-    condition: false,
-  });
-
-  // Debug logging
-  useEffect(() => {
-    // Log para verificar si hay cambios en los filtros
-    console.log("🏷️ Filtros actuales:", JSON.stringify(filters, null, 2));
-
-    if (filters.categoryId) {
-      console.log(`🔍 Filtrando por categoría: ${filters.categoryId}`);
-      // Buscar el nombre de la categoría si está disponible
-      if (categories?.categories) {
-        const category = categories.categories.find((c) => c.category.id === filters.categoryId);
-        if (category) {
-          console.log(`🔍 Nombre de la categoría: ${category.category.name}`);
-        }
-      }
-    }
-
-    if (filters.conditionId) {
-      console.log(`🔍 Filtrando por condición: ${filters.conditionId}`);
-      // Buscar el nombre de la condición si está disponible
-      if (categories?.categories) {
-        let conditionName = "";
-        categories.categories.forEach((cat) => {
-          const condition = cat.conditions.find((c) => c.id === filters.conditionId);
-          if (condition) {
-            conditionName = `${condition.name} (${cat.category.name})`;
-          }
-        });
-        if (conditionName) {
-          console.log(`🔍 Nombre de la condición: ${conditionName}`);
-        }
-      }
-    }
-
-    if (medicalRecords) {
-      console.log(`📊 Registros médicos cargados: ${medicalRecords.length}`);
-
-      // Check if any record has diagnostics
-      const hasDiagnostics = medicalRecords.some(
-        (record) => record.diagnostics && Array.isArray(record.diagnostics) && record.diagnostics.length > 0
-      );
-
-      if (hasDiagnostics) {
-        console.log("📋 Algunos registros tienen diagnósticos");
-        if (filters.categoryId || filters.conditionId) {
-          console.log("🔍 Verificando filtrado de diagnósticos...");
-        }
-      } else {
-        console.warn("⚠️ Ningún registro tiene diagnósticos");
-      }
-    }
-  }, [medicalRecords, categories, filters]);
 
   // Mover los hooks de descarga al componente principal
   const { mutateAsync: downloadCertificate, isPending: isDownloadingCertificate } = useDownloadAptitudeCertificate();
@@ -245,22 +182,6 @@ export default function MedicalRecordTable() {
     return allConditions;
   }, [categories, selectedCategoryId]);
 
-  // Manejar cambios en la visibilidad de columnas para asegurar que
-  // las columnas de filtrado siempre estén disponibles (aunque ocultas)
-  const handleColumnVisibilityChange = (value: VisibilityState | ((prev: VisibilityState) => VisibilityState)) => {
-    setColumnVisibility((prevState) => {
-      // Determinar el nuevo estado basado en el tipo de value
-      const newState = typeof value === "function" ? value(prevState) : value;
-
-      // Asegurarse de que category y condition siempre estén ocultos
-      return {
-        ...newState,
-        category: false,
-        condition: false,
-      };
-    });
-  };
-
   // Manejar cambios en los filtros seleccionados
   const handleFilterChange = (filterKey: string, value: string | null) => {
     console.log(`🔄 Cambio de filtro simple: ${filterKey}`, value);
@@ -305,6 +226,7 @@ export default function MedicalRecordTable() {
     } else if (filterKey === "condition") {
       if (value) {
         console.log(`✅ Estableciendo filtro simple de condición: ${value}`);
+        setSelectedConditionId(value);
         setFilters((prev) => ({ ...prev, conditionId: value }));
       } else {
         console.log(`❌ Eliminando filtro simple de condición`);
@@ -321,35 +243,44 @@ export default function MedicalRecordTable() {
     return <div className="text-center py-4">Error al cargar datos</div>;
 
   return (
-    <div className="space-y-4">
-      {/* Filtros personalizados */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-x-2">
+    <DataTable
+      columns={columns}
+      data={medicalRecords || []}
+      isLoading={isLoadingRecords || isLoadingClinics || isLoadingCategories}
+      actions={
+        <div className="flex items-center gap-x-2">
           <SimpleFilterMenu
             title="Categoría Médica"
             options={filterCategoryOptions}
-            onSelect={(value) => handleFilterChange("category", value)}
+            selected={selectedCategoryId}
+            onSelected={(value) => handleFilterChange("category", value)}
           />
           <SimpleFilterMenu
             title="Condición Médica"
             options={filterConditionOptions}
-            onSelect={(value) => handleFilterChange("condition", value)}
+            selected={selectedConditionId}
+            onSelected={(value) => handleFilterChange("condition", value)}
           />
+          {filters.categoryId || filters.conditionId ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={() => {
+                // Limpiar todos los filtros
+                setFilters({});
+                setSelectedCategoryId(null);
+                setSelectedConditionId(null);
+              }}
+            >
+              <X className="mr-2 h-4 w-4" /> Limpiar filtros
+            </Button>
+          ) : null}
+          <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
+            <FileDown className="mr-2 h-4 w-4" /> Descargar
+          </Button>
         </div>
-        {/* Acciones existentes */}
-        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-          <FileDown className="mr-2 h-4 w-4" /> Descargar
-        </Button>
-      </div>
-
-      {/* La tabla sin los filtros integrados pero manteniendo la visibilidad de columnas */}
-      <DataTable
-        columns={columns}
-        data={medicalRecords || []}
-        isLoading={isLoadingRecords || isLoadingClinics || isLoadingCategories}
-        columnVisibility={columnVisibility}
-        onColumnVisibilityChange={handleColumnVisibilityChange}
-      />
-    </div>
+      }
+    />
   );
 }

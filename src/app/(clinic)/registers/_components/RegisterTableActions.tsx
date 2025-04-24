@@ -35,20 +35,20 @@ export default function RegisterTableActions({ record }: RegisterTableActionsPro
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="bg-background" size="icon">
-            <MoreHorizontal className="size-4" />
+            <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
             Editar
             <DropdownMenuShortcut>
-              <Edit className="size-4 mr-2" />
+              <Edit className="h-4 w-4 mr-2" />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem className="cursor-pointer text-destructive" onClick={handleDelete}>
             Eliminar
             <DropdownMenuShortcut>
-              <Trash className="size-4 mr-2" />
+              <Trash className="h-4 w-4 mr-2" />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
         </DropdownMenuContent>

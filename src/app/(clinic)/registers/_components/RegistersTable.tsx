@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { VisibilityState } from "@tanstack/react-table";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { useClinics } from "../../../(admin)/clinics/_hooks/useClinics";
@@ -18,12 +17,6 @@ export default function RegistersTable() {
   const router = useRouter();
   const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords();
   const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
-
-  // Estado para controlar la visibilidad de columnas - Ocultar columnas de categoría y condición
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    category: false,
-    condition: false,
-  });
 
   // Debug logging
   useEffect(() => {
@@ -68,13 +61,5 @@ export default function RegistersTable() {
 
   if (recordsError || clinicsError) return <div className="text-center py-4">Error al cargar registros médicos</div>;
 
-  return (
-    <DataTable
-      columns={columns}
-      data={medicalRecords || []}
-      isLoading={isLoadingRecords || isLoadingClinics}
-      columnVisibility={columnVisibility}
-      onColumnVisibilityChange={setColumnVisibility}
-    />
-  );
+  return <DataTable columns={columns} data={medicalRecords || []} isLoading={isLoadingRecords || isLoadingClinics} />;
 }
