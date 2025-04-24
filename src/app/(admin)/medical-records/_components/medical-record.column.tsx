@@ -83,7 +83,7 @@ export const columnsMedicalRecord = ({
 
   return [
     {
-      id: "clinic",
+      id: "clinica",
       accessorKey: "clinicId",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Clínica" />,
       cell: ({ row }) => {
@@ -92,11 +92,11 @@ export const columnsMedicalRecord = ({
       },
     },
     {
-      id: "examType",
+      id: "tipo de examen",
       accessorKey: "examType",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Examen" />,
       cell: ({ row }) => {
-        const examType = row.getValue("examType") as string;
+        const examType = row.getValue("tipo de examen") as string;
         let label = "";
 
         switch (examType) {
@@ -120,28 +120,31 @@ export const columnsMedicalRecord = ({
       },
     },
     {
-      id: "createdAt",
+      id: "fecha de registro",
       accessorKey: "createdAt",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Registro" />,
       cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"));
+        const date = new Date(row.getValue("fecha de registro"));
         return <div className="min-w-[150px]">{format(date, "PPP", { locale: es })}</div>;
       },
     },
     {
-      id: "firstName",
+      id: "nombre",
       accessorKey: "firstName",
-      header: "Nombre",
-      cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("firstName")}</div>,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+      cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("nombre")}</div>,
     },
     {
-      id: "firstLastName",
+      id: "apellido paterno",
       accessorKey: "firstLastName",
-      header: "Apellido",
-      cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("firstLastName")}</div>,
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Apellido Paterno" />,
+      cell: ({ row }) => (
+        <div className="font-semibold capitalize min-w-[150px]">{row.getValue("apellido paterno")}</div>
+      ),
     },
     {
-      id: "status",
+      id: "estado",
+      accessorKey: "status",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
       cell: ({ row }) => {
         // Ahora usamos el valor de aptitude directamente del registro médico
@@ -176,7 +179,7 @@ export const columnsMedicalRecord = ({
       },
     },
     {
-      id: "aptitude",
+      id: "aptitud médica",
       accessorKey: "aptitude",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Aptitud Médica" />,
       cell: ({ row }) => {
@@ -195,9 +198,10 @@ export const columnsMedicalRecord = ({
           </div>
         );
       },
+      enableSorting: false,
     },
     {
-      id: "medicalReport",
+      id: "informe médico",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Informe Médico" />,
       cell: ({ row }) => {
         const files = row.original.files;
@@ -218,7 +222,7 @@ export const columnsMedicalRecord = ({
       },
     },
     {
-      id: "options",
+      id: "opciones",
       header: "",
       cell: ({ row }) => {
         const record = row.original;
