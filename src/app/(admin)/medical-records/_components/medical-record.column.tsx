@@ -8,7 +8,7 @@ import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { MedicalRecordResponse } from "../_types/medical-record.types";
+import { CategoryResponse, ConditionResponse, MedicalRecordResponse } from "../_types/medical-record.types";
 import { ClinicResponse } from "../../clinics/_types/clinics.types";
 import ClinicCell from "./ClinicCell";
 import MedicalRecordTableActions from "./MedicalRecordTableActions";
@@ -20,6 +20,13 @@ interface ColumnsMedicalRecordProps {
   downloadReport: (id: string) => Promise<any>;
   isDownloadingCertificate: boolean;
   isDownloadingReport: boolean;
+}
+
+interface Diagnostic {
+  id: string;
+  condition: ConditionResponse & {
+    category: CategoryResponse;
+  };
 }
 
 export const columnsMedicalRecord = ({
@@ -81,7 +88,67 @@ export const columnsMedicalRecord = ({
     }
   };
 
+  // Función para extraer categorías médicas del registro médico
+  const getRecordCategories = (record: MedicalRecordResponse): string[] => {
+    if (!record.diagnostics || !Array.isArray(record.diagnostics)) {
+      return [];
+    }
+
+    // Extraer las categorías únicas de todos los diagnósticos
+    const categoryIds = (record.diagnostics as Diagnostic[])
+      .map((diagnostic) => diagnostic.condition?.category?.id)
+      .filter(Boolean) as string[];
+
+    return [...new Set(categoryIds)]; // Eliminar duplicados
+  };
+
+  // Función para extraer condiciones médicas del registro médico
+  const getRecordConditions = (record: MedicalRecordResponse): string[] => {
+    if (!record.diagnostics || !Array.isArray(record.diagnostics)) {
+      return [];
+    }
+
+    // Extraer las condiciones de todos los diagnósticos
+    const conditionIds = (record.diagnostics as Diagnostic[])
+      .map((diagnostic) => diagnostic.condition?.id)
+      .filter(Boolean) as string[];
+
+    return [...new Set(conditionIds)]; // Eliminar duplicados
+  };
+
   return [
+    // Columnas ocultas para filtrado por categoría
+    {
+      id: "category",
+      accessorFn: (row) => {
+        const categoryIds = getRecordCategories(row);
+        return categoryIds.join(",");
+      },
+      enableHiding: false,
+      enableSorting: false,
+      header: "",
+      cell: () => null,
+      meta: {
+        skipExport: true,
+      },
+    },
+
+    // Columnas ocultas para filtrado por condición
+    {
+      id: "condition",
+      accessorFn: (row) => {
+        const conditionIds = getRecordConditions(row);
+        return conditionIds.join(",");
+      },
+      enableHiding: false,
+      enableSorting: false,
+      header: "",
+      cell: () => null,
+      meta: {
+        skipExport: true,
+      },
+    },
+
     {
       id: "clinic",
       accessorKey: "clinicId",
