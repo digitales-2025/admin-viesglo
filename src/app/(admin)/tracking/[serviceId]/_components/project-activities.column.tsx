@@ -2,6 +2,7 @@ import { useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, CircleFadingArrowUp, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
+import { toast } from "sonner";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -273,29 +274,49 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     cell: function Cell({ row }) {
       const status = row.getValue("status");
       const { mutate: updateTrackingActivity, isPending } = useUpdateTrackingActivity();
+      const [optimisticStatus, setOptimisticStatus] = useState<StatusProjectActivity | null>(
+        status as StatusProjectActivity
+      );
 
       const handleChange = (value: StatusProjectActivity) => {
-        updateTrackingActivity({
-          objectiveId,
-          activityId: row.original.id,
-          trackingActivity: { status: value },
-        });
+        // Actualizar el estado local inmediatamente (Optimistic UI)
+        setOptimisticStatus(value);
+
+        // Enviar la actualización al servidor
+        updateTrackingActivity(
+          {
+            objectiveId,
+            activityId: row.original.id,
+            trackingActivity: { status: value },
+          },
+          {
+            // En caso de error, revertir al estado anterior
+            onError: () => {
+              setOptimisticStatus(status as StatusProjectActivity);
+              toast.error("Error al actualizar el estado. Se ha revertido el cambio.");
+            },
+          }
+        );
       };
+
+      // Usar el estado optimista para renderizar la UI
+      const displayStatus = optimisticStatus || (status as StatusProjectActivity);
+
       return (
-        status && (
-          <Select value={status as string} onValueChange={handleChange} disabled={isPending}>
+        displayStatus && (
+          <Select value={displayStatus} onValueChange={handleChange} disabled={isPending}>
             <SelectTrigger
               className={cn(
                 "border-none shadow-none font-semibold w-[150px]",
                 isPending && "cursor-not-allowed opacity-50",
-                StatusProjectActivityColor[status as StatusProjectActivity]
+                StatusProjectActivityColor[displayStatus]
               )}
             >
               {isPending && <Loader2 className="size-4 animate-spin" />}
-              {status === StatusProjectActivity.PENDING && <Clock className="size-4" />}
-              {status === StatusProjectActivity.IN_PROGRESS && <CircleFadingArrowUp className="size-4" />}
-              {status === StatusProjectActivity.COMPLETED && <Check className="size-4" />}
-              {status === StatusProjectActivity.CANCELLED && <X className="size-4" />}
+              {displayStatus === StatusProjectActivity.PENDING && <Clock className="size-4" />}
+              {displayStatus === StatusProjectActivity.IN_PROGRESS && <CircleFadingArrowUp className="size-4" />}
+              {displayStatus === StatusProjectActivity.COMPLETED && <Check className="size-4" />}
+              {displayStatus === StatusProjectActivity.CANCELLED && <X className="size-4" />}
               <SelectValue placeholder="Seleccionar estado" />
             </SelectTrigger>
             <SelectContent>
