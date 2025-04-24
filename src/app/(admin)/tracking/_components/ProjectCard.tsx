@@ -107,7 +107,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           className="bg-slate-500/10 h-1.5 sm:h-2"
         />
         <div className="flex flex-row gap-1 sm:gap-2 items-center">
-          <span className="text-xs sm:text-sm font-medium">{project.progress?.toFixed(2)}%</span>
+          <span className="text-xs sm:text-sm font-medium">{project.progress?.toFixed(0)}%</span>
           <span className={cn("text-muted-foreground", isMobile ? "sr-only" : "text-xs")}>Completado</span>
         </div>
       </CardContent>

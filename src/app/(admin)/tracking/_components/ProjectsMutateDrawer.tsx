@@ -154,18 +154,12 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
 
   useEffect(() => {
     if (isUpdate && extendedCurrentRow?.id) {
-      const serviceSelection =
-        extendedCurrentRow.services?.map((s) => ({
-          serviceId: s.id,
-          objectives: [],
-        })) || [];
-
       form.reset({
         typeContract: extendedCurrentRow.typeContract || "",
         description: extendedCurrentRow.description || "",
         startDate: extendedCurrentRow.startDate || "",
         clientId: extendedCurrentRow.client?.id || "",
-        services: serviceSelection,
+        services: [],
       });
     } else {
       form.reset({

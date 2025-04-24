@@ -3,12 +3,14 @@ import { Trash } from "lucide-react";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteActivityProject } from "../../_hooks/useActivitiesProject";
+import EvidencePreviewDialog from "./EvidencePreviewDialog";
 import ProjectActivityMutateDrawer from "./ProjectActivityMutateDrawer";
 
 export const MODULE_PROJECT_ACTIVITIES = "project-activities";
 export default function ProjectActivitiesDialogs({ objectiveId }: { objectiveId: string }) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteActivityProject, isPending: isDeleting } = useDeleteActivityProject();
+
   const isCreateForThisObjective =
     isOpenForModule(MODULE_PROJECT_ACTIVITIES, "create") && data?.objectiveId === objectiveId;
 
@@ -21,6 +23,8 @@ export default function ProjectActivitiesDialogs({ objectiveId }: { objectiveId:
 
   // Solo abrir este diálogo específico si una de las condiciones es verdadera
   const shouldOpen = isCreateForThisObjective || isEditForThisObjective;
+  const isPreviewForThisObjective =
+    isOpenForModule(MODULE_PROJECT_ACTIVITIES, "view") && data?.objectiveId === objectiveId;
 
   return (
     <>
@@ -60,6 +64,15 @@ export default function ProjectActivitiesDialogs({ objectiveId }: { objectiveId:
             Estás a punto de eliminar la actividad <strong className="uppercase text-wrap">{data?.name}</strong>. <br />
           </>
         }
+      />
+
+      <EvidencePreviewDialog
+        key={`project-activity-preview-${objectiveId}`}
+        activity={isPreviewForThisObjective ? data : null}
+        open={isPreviewForThisObjective}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
       />
     </>
   );

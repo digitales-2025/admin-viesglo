@@ -783,6 +783,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/project-activities/{id}/tracking": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el seguimiento de una tarea */
+    patch: operations["ProjectActivitiesController_updateTrackingActivity_v1"];
+    trace?: never;
+  };
   "/api/v1/project-activities/{id}/upload-evidence": {
     parameters: {
       query?: never;
@@ -800,7 +817,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/project-activities/{id}/tracking": {
+  "/api/v1/project-activities/{id}/evidence": {
     parameters: {
       query?: never;
       header?: never;
@@ -810,11 +827,28 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
+    /** Eliminar evidencia de una actividad */
+    delete: operations["ProjectActivitiesController_deleteEvidence_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/download-evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Descargar evidencia de una actividad */
+    get: operations["ProjectActivitiesController_downloadEvidence_v1"];
+    put?: never;
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
-    /** Actualizar el seguimiento de una tarea */
-    patch: operations["ProjectActivitiesController_updateTrackingActivity_v1"];
+    patch?: never;
     trace?: never;
   };
   "/api/v1/quotations": {
@@ -2187,6 +2221,78 @@ export interface components {
       /** @description Servicios del proyecto */
       services?: components["schemas"]["CreateProjectServiceDto"][];
     };
+    FileMetadataResponseDto: {
+      /**
+       * @description ID del archivo
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del archivo
+       * @example archivo.pdf
+       */
+      filename: string;
+      /**
+       * @description Nombre original del archivo
+       * @example archivo.pdf
+       */
+      originalName: string;
+      /**
+       * @description Tipo de archivo
+       * @example application/pdf
+       */
+      mimeType: string;
+      /**
+       * Format: date-time
+       * @description Fecha de subida
+       * @example 2021-01-01T00:00:00.000Z
+       */
+      uploadedAt: string;
+      /**
+       * @description Indica si el archivo es público
+       * @example true
+       */
+      isPublic: boolean;
+      /**
+       * @description Tipo de archivo
+       * @example PDF
+       * @enum {string}
+       */
+      fileType: "PDF" | "IMAGE" | "DOCUMENT" | "OTHER";
+      /**
+       * @description Tamaño del archivo
+       * @example 1024
+       */
+      size: number;
+      /**
+       * @description Ruta del archivo
+       * @example /uploads/archivo.pdf
+       */
+      path: string;
+      /**
+       * @description URL del archivo
+       * @example https://example.com/uploads/archivo.pdf
+       */
+      url: string;
+      /**
+       * @description customMetadata
+       * @example {
+       *       "uploadedBy": "123e4567-e89b-12d3-a456-426614174000",
+       *       "uploadedByName": "Juan Pérez"
+       *     }
+       */
+      customMetadata: Record<string, never>;
+      /**
+       * @description Tipo de entidad
+       * @example ProjectActivity
+       */
+      entityType: string;
+      /**
+       * @description ID de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      entityId: string;
+    };
     ResponsibleUserResponseDto: {
       /**
        * @description ID del usuario responsable
@@ -2246,11 +2352,6 @@ export interface components {
        */
       activityId?: string;
       /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId: string;
-      /**
        * Format: date-time
        * @description Fecha programada
        * @example 2023-01-01T00:00:00.000Z
@@ -2267,11 +2368,8 @@ export interface components {
        * @example true
        */
       evidenceRequired: boolean;
-      /**
-       * @description URL de la evidencia (si está disponible)
-       * @example https://example.com/evidence/123.jpg
-       */
-      evidence?: string;
+      /** @description Evidencia */
+      evidence?: components["schemas"]["FileMetadataResponseDto"];
       /**
        * @description Indica si la actividad está activa
        * @example true
@@ -2575,32 +2673,6 @@ export interface components {
     CreateProjectServiceTemplateDto: {
       /** @description Lista de servicios desde plantillas para agregar */
       services: components["schemas"]["ProjectServiceTemplateItemDto"][];
-    };
-    UploadEvidenceDto: {
-      /**
-       * @description URL de la evidencia
-       * @example https://example.com/evidencia.jpg
-       */
-      url: string;
-    };
-    ProjectActivity: {
-      id: string;
-      projectObjectiveId: string;
-      activityId?: string;
-      name: string;
-      description?: string;
-      responsibleUserId?: string;
-      scheduledDate?: Record<string, never>;
-      executionDate?: Record<string, never>;
-      evidenceRequired: boolean;
-      evidence?: string;
-      isActive: boolean;
-      /** @enum {string} */
-      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
     };
     TrackingActivityDto: {
       /**
@@ -3117,44 +3189,6 @@ export interface components {
        * @description Informe médico (PDF, máximo 5MB)
        */
       medicalReport?: string;
-    };
-    FileMetadataResponseDto: {
-      /**
-       * @description ID único del archivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del archivo en el sistema de almacenamiento
-       * @example 89b6bec5-8e6a-43bd-bc09-d60d5fe4f1d3.pdf
-       */
-      filename: string;
-      /**
-       * @description Nombre original del archivo subido por el usuario
-       * @example Plan de tesis HUISA ATAUCCURI EPIE.pdf
-       */
-      originalName: string;
-      /**
-       * @description Nombre descriptivo generado por el sistema
-       * @example juan_perez_20230517_certificado_aptitud_medica.pdf
-       */
-      descriptiveName?: string;
-      /**
-       * @description Tipo MIME del archivo
-       * @example application/pdf
-       */
-      mimeType: string;
-      /**
-       * @description Tipo de archivo
-       * @example PDF
-       * @enum {string}
-       */
-      fileType: "PDF" | "IMAGE" | "DOCUMENT" | "OTHER";
-      /**
-       * @description URL pública para descargar el archivo (si está disponible)
-       * @example https://example.com/file.pdf
-       */
-      url?: string;
     };
     MedicalRecordResponseDto: {
       /**
@@ -5485,40 +5519,6 @@ export interface operations {
       };
     };
   };
-  ProjectActivitiesController_uploadEvidence_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UploadEvidenceDto"];
-      };
-    };
-    responses: {
-      /** @description La evidencia ha sido subida exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivity"];
-        };
-      };
-    };
-  };
   ProjectActivitiesController_updateTrackingActivity_v1: {
     parameters: {
       query?: never;
@@ -5550,6 +5550,94 @@ export interface operations {
       };
       /** @description Actividad de proyecto no encontrada */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_uploadEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la actividad */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          /**
+           * Format: binary
+           * @description Evidencia (PDF, máximo 5MB)
+           */
+          file?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description La evidencia ha sido subida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectActivityResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectActivitiesController_deleteEvidence_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La evidencia ha sido eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Evidencia no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_downloadEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La evidencia ha sido descargada exitosamente */
+      200: {
         headers: {
           [name: string]: unknown;
         };
