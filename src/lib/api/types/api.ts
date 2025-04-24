@@ -800,6 +800,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/project-activities/{id}/evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Eliminar evidencia de una actividad */
+    delete: operations["ProjectActivitiesController_deleteEvidence_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/project-activities/{id}/download-evidence": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Descargar evidencia de una actividad */
+    get: operations["ProjectActivitiesController_downloadEvidence_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/quotations": {
     parameters: {
       query?: never;
@@ -5279,6 +5313,53 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ProjectActivityResponseDto"];
         };
+      };
+    };
+  };
+  ProjectActivitiesController_deleteEvidence_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La evidencia ha sido eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Evidencia no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectActivitiesController_downloadEvidence_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description La evidencia ha sido descargada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

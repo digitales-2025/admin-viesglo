@@ -3,7 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createClient, deleteClient, getClients, searchClients, updateClient } from "../_actions/clients.actions";
+import {
+  createClient,
+  deleteClient,
+  getClient,
+  getClientByRuc,
+  getClients,
+  searchClients,
+  updateClient,
+} from "../_actions/clients.actions";
 import { ClientCreate, ClientUpdate } from "../_types/clients.types";
 
 export const CLIENTS_KEYS = {
@@ -12,6 +20,7 @@ export const CLIENTS_KEYS = {
   list: (filters: string) => [...CLIENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...CLIENTS_KEYS.all, id] as const,
   search: (filter: string) => [...CLIENTS_KEYS.all, "search", filter] as const,
+  byRuc: (ruc: string) => [...CLIENTS_KEYS.all, "ruc", ruc] as const,
 };
 
 /**
@@ -27,6 +36,40 @@ export function useClients() {
       }
       return response.data;
     },
+  });
+}
+
+/**
+ * Hook para obtener un cliente por ID
+ */
+export function useClient(id: string) {
+  return useQuery({
+    queryKey: CLIENTS_KEYS.detail(id),
+    queryFn: async () => {
+      const response = await getClient(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener cliente");
+      }
+      return response.data;
+    },
+    enabled: !!id,
+  });
+}
+
+/**
+ * Hook para buscar un cliente por RUC
+ */
+export function useClientByRuc(ruc: string) {
+  return useQuery({
+    queryKey: CLIENTS_KEYS.byRuc(ruc),
+    queryFn: async () => {
+      const response = await getClientByRuc(ruc);
+      if (!response.success) {
+        throw new Error(response.error || "Error al buscar cliente por RUC");
+      }
+      return response.data;
+    },
+    enabled: !!ruc,
   });
 }
 
