@@ -11,15 +11,6 @@ export default function ProjectActivitiesDialogs({ objectiveId }: { objectiveId:
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteActivityProject, isPending: isDeleting } = useDeleteActivityProject();
 
-  // Log para depuración
-  console.log("ProjectActivitiesDialogs rendering:", {
-    objectiveId,
-    data,
-    isViewDialog: isOpenForModule(MODULE_PROJECT_ACTIVITIES, "view"),
-    isViewForThisObjective: isOpenForModule(MODULE_PROJECT_ACTIVITIES, "view") && data?.objectiveId === objectiveId,
-    dataObjectiveId: data?.objectiveId,
-  });
-
   const isCreateForThisObjective =
     isOpenForModule(MODULE_PROJECT_ACTIVITIES, "create") && data?.objectiveId === objectiveId;
 
@@ -34,13 +25,6 @@ export default function ProjectActivitiesDialogs({ objectiveId }: { objectiveId:
   const shouldOpen = isCreateForThisObjective || isEditForThisObjective;
   const isPreviewForThisObjective =
     isOpenForModule(MODULE_PROJECT_ACTIVITIES, "view") && data?.objectiveId === objectiveId;
-
-  // Log adicional específico para el diálogo de previsualización
-  console.log("Preview dialog state:", {
-    isPreviewForThisObjective,
-    activityId: data?.id,
-    activityName: data?.name,
-  });
 
   return (
     <>
