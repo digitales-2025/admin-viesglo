@@ -81,7 +81,7 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
           <span className="first-letter:uppercase">
             {service.completedActivities} / {service.activities} Actividades completadas
           </span>
-          <span className="flex items-center gap-2">{service.progress}%</span>
+          <span className="flex items-center gap-2">{service.progress?.toFixed(0)}%</span>
         </div>
         <Progress
           value={service.progress}
