@@ -34,6 +34,9 @@ interface DataTableProps<TData, TValue> {
   pagination?: boolean;
   className?: string;
   onClickRow?: (row: TData) => void;
+  columnVisibility?: VisibilityState;
+  onColumnVisibilityChange?: (value: VisibilityState) => void;
+  onFilterChange?: (filterKey: string, values: string[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -46,9 +49,12 @@ export function DataTable<TData, TValue>({
   filterOptions,
   onClickRow,
   className,
+  columnVisibility: externalColumnVisibility,
+  onColumnVisibilityChange,
+  onFilterChange,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [internalColumnVisibility, setInternalColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({
@@ -56,12 +62,55 @@ export function DataTable<TData, TValue>({
     // right: ["actions"],
   });
 
+  // Use external column visibility state if provided
+  const effectiveColumnVisibility = externalColumnVisibility || internalColumnVisibility;
+
+  // Handle column visibility changes and propagate to external handler if provided
+  const handleColumnVisibilityChange = React.useCallback(
+    (updaterOrValue: VisibilityState | ((prev: VisibilityState) => VisibilityState)) => {
+      if (onColumnVisibilityChange) {
+        // If it's a function updater, execute it with the current visibility state
+        const newValue =
+          typeof updaterOrValue === "function"
+            ? updaterOrValue(externalColumnVisibility || internalColumnVisibility)
+            : updaterOrValue;
+
+        onColumnVisibilityChange(newValue);
+      } else {
+        setInternalColumnVisibility(updaterOrValue);
+      }
+    },
+    [onColumnVisibilityChange, externalColumnVisibility, internalColumnVisibility]
+  );
+
+  // Handle column filter changes and propagate to external handler if provided
+  const handleColumnFiltersChange = React.useCallback(
+    (updaterOrValue: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)) => {
+      // If it's a function updater, execute it with current filters
+      const newFilters = typeof updaterOrValue === "function" ? updaterOrValue(columnFilters) : updaterOrValue;
+
+      setColumnFilters(newFilters);
+
+      // If external handler is provided, notify about filter changes
+      if (onFilterChange) {
+        // Process each filter and call the external handler
+        newFilters.forEach((filter) => {
+          const { id, value } = filter;
+          if (Array.isArray(value)) {
+            onFilterChange(id, value);
+          }
+        });
+      }
+    },
+    [onFilterChange, columnFilters]
+  );
+
   const table = useReactTable({
     data,
     columns,
     state: {
       sorting,
-      columnVisibility,
+      columnVisibility: effectiveColumnVisibility,
       rowSelection,
       columnFilters,
       columnPinning,
@@ -70,8 +119,8 @@ export function DataTable<TData, TValue>({
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnFiltersChange: handleColumnFiltersChange,
+    onColumnVisibilityChange: handleColumnVisibilityChange,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -94,7 +143,14 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {toolBar && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
+      {toolBar && (
+        <DataTableToolbar
+          table={table}
+          actions={actions}
+          filterOptions={filterOptions}
+          onFilterChange={onFilterChange}
+        />
+      )}
       <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
