@@ -22,8 +22,14 @@ import {
 } from "@/shared/components/ui/sheet-responsive";
 import { searchClients } from "../../../(admin)/clients/_actions/clients.actions";
 import {
+  useAptitudeCertificateInfo,
   useCreateMedicalRecord,
+  useDownloadAptitudeCertificate,
+  useDownloadMedicalReport,
+  useMedicalReportInfo,
   useUpdateMedicalRecord,
+  useUploadAptitudeCertificate,
+  useUploadMedicalReport,
 } from "../../../(admin)/medical-records/_hooks/useMedicalRecords";
 import {
   MedicalRecordCreate,
@@ -64,6 +70,18 @@ const validateFileSize = (file: File | undefined) => {
     return false;
   }
   return true;
+};
+
+// Helper to truncate filenames
+const truncateFilename = (filename: string, maxLength: number = 25) => {
+  if (!filename || filename.length <= maxLength) return filename;
+
+  const extension = filename.split(".").pop() || "";
+  const nameWithoutExt = filename.substring(0, filename.length - extension.length - 1);
+
+  if (nameWithoutExt.length <= maxLength - 5) return filename;
+
+  return `${nameWithoutExt.substring(0, maxLength - 6)}...${extension ? "." + extension : ""}`;
 };
 
 // Define the form schema based on the MedicalRecordCreate type
@@ -136,8 +154,22 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
   const { mutate: createMedicalRecord, isPending: isCreating } = useCreateMedicalRecord();
   const { mutate: updateMedicalRecord, isPending: isUpdating } = useUpdateMedicalRecord();
 
+  // New hooks for file management
+  const { mutate: uploadAptitudeCertificate, isPending: isUploadingAptCertificate } = useUploadAptitudeCertificate();
+  const { mutate: uploadMedicalReport, isPending: isUploadingMedReport } = useUploadMedicalReport();
+  const { data: aptitudeCertificateInfo } = useAptitudeCertificateInfo(currentRow?.id || "");
+  const { data: medicalReportInfo } = useMedicalReportInfo(currentRow?.id || "");
+  const { mutateAsync: downloadCertificate } = useDownloadAptitudeCertificate();
+  const { mutateAsync: downloadReport } = useDownloadMedicalReport();
+
   const isUpdate = !!currentRow?.id;
-  const isPending = isCreating || isUpdating;
+
+  // Determine if files exist (for showing file info in edit mode)
+  const hasCertificate = isUpdate && aptitudeCertificateInfo?.fileInfo;
+  const hasReport = isUpdate && medicalReportInfo?.fileInfo;
+
+  const isUploadingFiles = isUploadingAptCertificate || isUploadingMedReport;
+  const isPending = isCreating || isUpdating || isUploadingFiles;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -328,6 +360,52 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
     }
   }, []);
 
+  // Function to handle file uploads in edit mode
+  const handleFileUpload = (type: "certificate" | "report", file: File) => {
+    if (!currentRow?.id) return;
+
+    if (type === "certificate") {
+      uploadAptitudeCertificate(
+        { id: currentRow.id, file },
+        {
+          onSuccess: () => {
+            toast.success("Certificado de aptitud subido correctamente");
+          },
+          onError: (error) => {
+            toast.error(error.message || "Error al subir el certificado");
+          },
+        }
+      );
+    } else {
+      uploadMedicalReport(
+        { id: currentRow.id, file },
+        {
+          onSuccess: () => {
+            toast.success("Informe médico subido correctamente");
+          },
+          onError: (error) => {
+            toast.error(error.message || "Error al subir el informe");
+          },
+        }
+      );
+    }
+  };
+
+  // Function to handle file downloads
+  const handleDownloadFile = async (type: "certificate" | "report") => {
+    if (!currentRow?.id) return;
+
+    try {
+      if (type === "certificate") {
+        await downloadCertificate(currentRow.id);
+      } else {
+        await downloadReport(currentRow.id);
+      }
+    } catch (_error) {
+      toast.error("Error al descargar el archivo");
+    }
+  };
+
   return (
     <Sheet
       open={open}
@@ -377,7 +455,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                 )}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="dni"
@@ -393,7 +471,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="firstName"
@@ -422,7 +500,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                 />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <FormField
                   control={form.control}
                   name="firstLastName"
@@ -520,71 +598,173 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                 />
               )}
 
-              {/* File uploads - Note: These are only used when creating new records */}
-              {!isUpdate && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="aptitudeCertificate"
-                    render={({ field: { value: _value, onChange, ...field } }) => (
-                      <FormItem>
+              {/* File uploads section - For both create and update */}
+              <div className="my-4">
+                <h3 className="font-medium text-sm mb-3">Documentos</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {!isUpdate ? (
+                    <>
+                      {/* File uploads for new records */}
+                      <FormField
+                        control={form.control}
+                        name="aptitudeCertificate"
+                        render={({ field: { value: _value, onChange, ...field } }) => (
+                          <FormItem>
+                            <FormLabel>Certificado de Aptitud</FormLabel>
+                            <FormControl>
+                              <FileUpload
+                                accept=".pdf,.doc,.docx"
+                                onChange={(file) => {
+                                  if (file && !validateFileSize(file)) {
+                                    toast.error("El archivo excede el límite de 5MB");
+                                    return;
+                                  }
+                                  onChange(file);
+                                }}
+                                {...field}
+                              />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="medicalReport"
+                        render={({ field: { value: _value, onChange, ...field } }) => (
+                          <FormItem>
+                            <FormLabel>Informe Médico</FormLabel>
+                            <FormControl>
+                              <FileUpload
+                                accept=".pdf,.doc,.docx"
+                                onChange={(file) => {
+                                  if (file && !validateFileSize(file)) {
+                                    toast.error("El archivo excede el límite de 5MB");
+                                    return;
+                                  }
+                                  onChange(file);
+                                }}
+                                {...field}
+                              />
+                            </FormControl>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
+                            </p>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {/* File upload/download section for existing records */}
+                      <div className="space-y-2">
                         <FormLabel>Certificado de Aptitud</FormLabel>
-                        <FormControl>
-                          <FileUpload
-                            accept=".pdf,.doc,.docx"
-                            onChange={(file) => {
-                              if (file && !validateFileSize(file)) {
-                                toast.error("El archivo excede el límite de 5MB");
-                                return;
-                              }
-                              onChange(file);
-                            }}
-                            {...field}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                        <div className="flex flex-col gap-2">
+                          {hasCertificate ? (
+                            <div className="flex items-center p-2 border rounded-md bg-accent/30">
+                              <div className="flex-1 min-w-0 overflow-hidden">
+                                <span
+                                  className="text-sm block truncate"
+                                  title={aptitudeCertificateInfo?.fileInfo?.originalName || ""}
+                                >
+                                  {truncateFilename(aptitudeCertificateInfo?.fileInfo?.originalName || "Certificado")}
+                                </span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                type="button"
+                                onClick={() => handleDownloadFile("certificate")}
+                                className="ml-2 whitespace-nowrap"
+                              >
+                                Descargar
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No hay certificado cargado</p>
+                          )}
 
-                  <FormField
-                    control={form.control}
-                    name="medicalReport"
-                    render={({ field: { value: _value, onChange, ...field } }) => (
-                      <FormItem>
+                          <FormItem>
+                            <FormLabel className="text-sm">
+                              {hasCertificate ? "Reemplazar certificado" : "Subir certificado"}
+                            </FormLabel>
+                            <FileUpload
+                              accept=".pdf,.doc,.docx"
+                              onChange={(file) => {
+                                if (!file) return;
+                                if (!validateFileSize(file)) {
+                                  toast.error("El archivo excede el límite de 5MB");
+                                  return;
+                                }
+                                handleFileUpload("certificate", file);
+                              }}
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
+                            </p>
+                          </FormItem>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
                         <FormLabel>Informe Médico</FormLabel>
-                        <FormControl>
-                          <FileUpload
-                            accept=".pdf,.doc,.docx"
-                            onChange={(file) => {
-                              if (file && !validateFileSize(file)) {
-                                toast.error("El archivo excede el límite de 5MB");
-                                return;
-                              }
-                              onChange(file);
-                            }}
-                            {...field}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              )}
+                        <div className="flex flex-col gap-2">
+                          {hasReport ? (
+                            <div className="flex items-center p-2 border rounded-md bg-accent/30">
+                              <div className="flex-1 min-w-0 overflow-hidden">
+                                <span
+                                  className="text-sm block truncate"
+                                  title={medicalReportInfo?.fileInfo?.originalName || ""}
+                                >
+                                  {truncateFilename(medicalReportInfo?.fileInfo?.originalName || "Informe")}
+                                </span>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                type="button"
+                                onClick={() => handleDownloadFile("report")}
+                                className="ml-2 whitespace-nowrap"
+                              >
+                                Descargar
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">No hay informe cargado</p>
+                          )}
 
-              {isUpdate && (
-                <p className="text-sm text-muted-foreground mt-2">
-                  Nota: Los archivos (certificado de aptitud e informe médico) deben ser gestionados desde la página de
-                  detalle del registro médico.
-                </p>
-              )}
+                          <FormItem>
+                            <FormLabel className="text-sm">
+                              {hasReport ? "Reemplazar informe" : "Subir informe"}
+                            </FormLabel>
+                            <FileUpload
+                              accept=".pdf,.doc,.docx"
+                              onChange={(file) => {
+                                if (!file) return;
+                                if (!validateFileSize(file)) {
+                                  toast.error("El archivo excede el límite de 5MB");
+                                  return;
+                                }
+                                handleFileUpload("report", file);
+                              }}
+                              className="mt-1"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Formatos aceptados: PDF, DOC, DOCX (máx. 5MB)
+                            </p>
+                          </FormItem>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
             </form>
           </Form>
         </ScrollArea>

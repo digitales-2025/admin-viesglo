@@ -143,11 +143,7 @@ export async function uploadAptitudeCertificate(id: string, file: File): Promise
     const formData = new FormData();
     formData.append("file", file);
 
-    const [_, err] = await http.post(`${API_ENDPOINT}/${id}/aptitude-certificate`, formData, {
-      headers: {
-        // No establecer Content-Type, el navegador lo establecerá automáticamente con el boundary correcto
-      },
-    });
+    const [_, err] = await http.multipartPost(`${API_ENDPOINT}/${id}/aptitude-certificate`, formData);
 
     if (err !== null) {
       return { success: false, error: err.message || "Error al subir el certificado de aptitud médica" };
@@ -167,11 +163,7 @@ export async function uploadMedicalReport(id: string, file: File): Promise<{ suc
     const formData = new FormData();
     formData.append("file", file);
 
-    const [_, err] = await http.post(`${API_ENDPOINT}/${id}/medical-report`, formData, {
-      headers: {
-        // No establecer Content-Type, el navegador lo establecerá automáticamente con el boundary correcto
-      },
-    });
+    const [_, err] = await http.multipartPost(`${API_ENDPOINT}/${id}/medical-report`, formData);
 
     if (err !== null) {
       return { success: false, error: err.message || "Error al subir el informe médico" };

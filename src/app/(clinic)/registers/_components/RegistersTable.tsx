@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { VisibilityState } from "@tanstack/react-table";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { useClinics } from "../../../(admin)/clinics/_hooks/useClinics";
@@ -17,6 +18,12 @@ export default function RegistersTable() {
   const router = useRouter();
   const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords();
   const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
+
+  // Estado para controlar la visibilidad de columnas - Ocultar columnas de categoría y condición
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
+    category: false,
+    condition: false,
+  });
 
   // Debug logging
   useEffect(() => {
@@ -40,11 +47,14 @@ export default function RegistersTable() {
       isDownloadingReport,
     });
 
-    // Reemplazamos la última columna (opciones) con nuestro componente personalizado
-    const columnsWithoutOptions = baseColumns.filter((col) => col.id !== "options");
+    // Filtrar cualquier columna que esté relacionada con filtros de categoría o condición
+    const filteredColumns = baseColumns.filter(
+      (col) => col.id !== "category" && col.id !== "condition" && col.id !== "options"
+    );
 
+    // Agregar la columna de acciones personalizada
     return [
-      ...columnsWithoutOptions,
+      ...filteredColumns,
       {
         id: "options",
         header: "",
@@ -63,11 +73,8 @@ export default function RegistersTable() {
       columns={columns}
       data={medicalRecords || []}
       isLoading={isLoadingRecords || isLoadingClinics}
-      // actions={
-      // <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-      //   <FileDown className="mr-2 h-4 w-4" /> Descargar
-      // </Button>
-      // }
+      columnVisibility={columnVisibility}
+      onColumnVisibilityChange={setColumnVisibility}
     />
   );
 }
