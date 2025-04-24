@@ -29,3 +29,19 @@ export type CustomSection = components["schemas"]["CustomSectionDto"];
 export type UpdateCustomSections = {
   customSections?: CustomSection[];
 };
+
+// Tipos para diagnósticos médicos
+export type CreateDiagnostic = components["schemas"]["CreateDiagnosticDto"];
+
+// Tipos para categorías médicas
+export type CategoryResponse = components["schemas"]["CategoryResponseDto"];
+export type ConditionResponse = components["schemas"]["ConditionResponseDto"];
+export type CategoryWithConditions = components["schemas"]["CategoryWithConditionsResponseDto"];
+export type CategoriesList = components["schemas"]["CategoriesListResponseDto"];
+
+// Tipo para filtrar registros médicos
+export interface MedicalRecordsFilter {
+  clientId?: string;
+  categoryId?: string;
+  conditionId?: string;
+}

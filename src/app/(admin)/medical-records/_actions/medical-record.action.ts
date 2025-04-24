@@ -2,8 +2,11 @@
 
 import { http } from "@/lib/http/serverFetch";
 import {
+  CategoriesList,
+  CreateDiagnostic,
   MedicalRecordFileInfo,
   MedicalRecordResponse,
+  MedicalRecordsFilter,
   MedicalRecordUpdate,
   UpdateCustomSections,
   UpdateMedicalRecordDetails,
@@ -15,17 +18,46 @@ const API_ENDPOINT = "/medical-records";
  * Obtiene todos los registros médicos
  */
 export async function getMedicalRecords(
-  clientId?: string
+  filters?: MedicalRecordsFilter
 ): Promise<{ data: MedicalRecordResponse[]; success: boolean; error?: string }> {
   try {
-    const queryParams = clientId ? `?clientId=${clientId}` : "";
-    const [data, err] = await http.get<MedicalRecordResponse[]>(`${API_ENDPOINT}${queryParams}`);
+    // Construir query params basados en los filtros proporcionados
+    const queryParams = new URLSearchParams();
+
+    if (filters?.clientId) {
+      queryParams.append("clientId", filters.clientId);
+    }
+
+    if (filters?.categoryId) {
+      console.log(`🔎 Filtrando por categoryId: ${filters.categoryId}`);
+      queryParams.append("categoryId", filters.categoryId);
+    }
+
+    if (filters?.conditionId) {
+      console.log(`🔎 Filtrando por conditionId: ${filters.conditionId}`);
+      queryParams.append("conditionId", filters.conditionId);
+    }
+
+    const queryString = queryParams.toString();
+    const endpoint = `${API_ENDPOINT}${queryString ? `?${queryString}` : ""}`;
+
+    console.log(`🔍 Obteniendo registros médicos con filtros:`, JSON.stringify(filters, null, 2));
+    console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const [data, err] = await http.get<MedicalRecordResponse[]>(endpoint);
     if (err !== null) {
+      console.error(`❌ Error al obtener registros médicos:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener registros médicos" };
     }
+
+    console.log(`✅ Registros médicos obtenidos. Cantidad: ${data.length}`);
+    if (filters?.categoryId || filters?.conditionId) {
+      console.log(`🏷️ Filtros aplicados: ${JSON.stringify(filters)}`);
+    }
+
     return { success: true, data };
   } catch (error) {
-    console.error("Error al obtener registros médicos", error);
+    console.error("❌ Error al obtener registros médicos", error);
     return { success: false, data: [], error: "Error al obtener registros médicos" };
   }
 }
@@ -330,5 +362,104 @@ export async function deleteMedicalRecord(id: string): Promise<{ success: boolea
   } catch (error) {
     console.error("❌ Error al eliminar registro médico", error);
     return { success: false, error: "Error al eliminar registro médico" };
+  }
+}
+
+/**
+ * Obtiene todos los diagnósticos de un registro médico
+ */
+export async function getDiagnostics(id: string): Promise<{ data: any[]; success: boolean; error?: string }> {
+  try {
+    console.log(`🔍 Obteniendo diagnósticos del registro médico con ID: ${id}`);
+
+    const [data, err] = await http.get<any[]>(`${API_ENDPOINT}/${id}/diagnostics`);
+
+    if (err !== null) {
+      console.error(`❌ Error al obtener diagnósticos:`, err);
+      return { success: false, data: [], error: err.message || "Error al obtener diagnósticos" };
+    }
+
+    console.log(`✅ Diagnósticos obtenidos correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al obtener diagnósticos", error);
+    return { success: false, data: [], error: "Error al obtener diagnósticos" };
+  }
+}
+
+/**
+ * Agrega un diagnóstico a un registro médico
+ */
+export async function addDiagnostic(
+  id: string,
+  diagnostic: CreateDiagnostic
+): Promise<{ data: any; success: boolean; error?: string }> {
+  try {
+    console.log(`➕ Agregando diagnóstico al registro médico con ID: ${id}`);
+    console.log(`📊 Datos enviados:`, JSON.stringify(diagnostic));
+
+    const [data, err] = await http.post<any>(`${API_ENDPOINT}/${id}/diagnostics`, diagnostic);
+
+    if (err !== null) {
+      console.error(`❌ Error al agregar diagnóstico:`, err);
+      return { success: false, data: null, error: err.message || "Error al agregar diagnóstico" };
+    }
+
+    console.log(`✅ Diagnóstico agregado correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al agregar diagnóstico", error);
+    return { success: false, data: null, error: "Error al agregar diagnóstico" };
+  }
+}
+
+/**
+ * Elimina un diagnóstico de un registro médico
+ */
+export async function deleteDiagnostic(
+  id: string,
+  diagnosticId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log(`🗑️ Eliminando diagnóstico ${diagnosticId} del registro médico con ID: ${id}`);
+
+    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}/diagnostics/${diagnosticId}`);
+
+    if (err !== null) {
+      console.error(`❌ Error al eliminar diagnóstico:`, err);
+      return { success: false, error: err.message || "Error al eliminar diagnóstico" };
+    }
+
+    console.log(`✅ Diagnóstico eliminado correctamente`);
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error al eliminar diagnóstico", error);
+    return { success: false, error: "Error al eliminar diagnóstico" };
+  }
+}
+
+/**
+ * Obtiene todas las categorías médicas y sus condiciones
+ */
+export async function getAllMedicalCategories(): Promise<{
+  data: CategoriesList | null;
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    console.log(`🔍 Obteniendo todas las categorías médicas y sus condiciones`);
+
+    const [data, err] = await http.get<CategoriesList>(`${API_ENDPOINT}/categories/all`);
+
+    if (err !== null) {
+      console.error(`❌ Error al obtener categorías médicas:`, err);
+      return { success: false, data: null, error: err.message || "Error al obtener categorías médicas" };
+    }
+
+    console.log(`✅ Categorías médicas obtenidas correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al obtener categorías médicas", error);
+    return { success: false, data: null, error: "Error al obtener categorías médicas" };
   }
 }
