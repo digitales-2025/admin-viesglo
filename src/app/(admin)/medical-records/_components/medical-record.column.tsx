@@ -50,11 +50,11 @@ export const columnsMedicalRecord = ({
   // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
-      const hasCertificate = hasAptitudeCertificate(record.files);
-      if (!hasCertificate) {
-        toast.error("No hay documento disponible");
-        return;
-      }
+      // const hasCertificate = hasAptitudeCertificate(record.files);
+      // // if (!hasCertificate) {
+      // //   toast.error("No hay documento disponible");
+      // //   return;
+      // // }
 
       // La función de descarga ahora maneja internamente los toasts y la descarga
       await downloadCertificate(record.id);

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Check, FileDown, PlusCircle, X } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
@@ -113,7 +112,6 @@ const SimpleFilterMenu = ({
 };
 
 export default function MedicalRecordTable() {
-  const router = useRouter();
   // Estado para almacenar los filtros seleccionados
   const [filters, setFilters] = useState<MedicalRecordsFilter>({});
   // Estado adicional para rastrear la categoría seleccionada (para filtrar condiciones)
@@ -131,13 +129,12 @@ export default function MedicalRecordTable() {
     () =>
       columnsMedicalRecord({
         clinics: clinics || [],
-        router,
         downloadCertificate,
         downloadReport,
         isDownloadingCertificate,
         isDownloadingReport,
       }),
-    [clinics, router, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
+    [clinics, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
   );
 
   // Preparar opciones de filtro para categorías
