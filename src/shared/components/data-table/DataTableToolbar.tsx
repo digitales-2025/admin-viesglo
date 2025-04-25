@@ -12,6 +12,7 @@ interface DataTableToolbarProps<TData> {
   searchColumn?: string;
   filterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
   actions?: React.ReactNode;
+  onFilterChange?: (filterKey: string, values: string[]) => void;
 }
 
 export function DataTableToolbar<TData>({
@@ -20,8 +21,23 @@ export function DataTableToolbar<TData>({
   searchColumn,
   filterOptions,
   actions,
+  onFilterChange,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
+
+  // Function to handle clearing all filters and notify external handlers
+  const handleClearFilters = () => {
+    table.resetColumnFilters();
+    table.setGlobalFilter("");
+
+    // Also notify external handlers that filters have been cleared
+    if (onFilterChange && filterOptions) {
+      filterOptions.forEach((option) => {
+        onFilterChange(option.value, []);
+      });
+    }
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
@@ -52,19 +68,13 @@ export function DataTableToolbar<TData>({
                 column={table.getColumn(f.value)}
                 title={f.label}
                 options={f.options}
+                onFilterChange={onFilterChange ? (values) => onFilterChange(f.value, values) : undefined}
               />
             ))}
           </div>
         )}
         {isFiltered && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              table.resetColumnFilters();
-              table.setGlobalFilter("");
-            }}
-            className="h-8 px-2 lg:px-3"
-          >
+          <Button variant="ghost" onClick={handleClearFilters} className="h-8 px-2 lg:px-3">
             Limpiar
             <X className="ml-2 h-4 w-4" />
           </Button>

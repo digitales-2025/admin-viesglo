@@ -539,7 +539,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       // Actualizamos primero los detalles estándar
       await updateMedicalRecord.mutateAsync({
         id: recordId,
-        details: detailsToUpdate,
+        details: { customData: JSON.stringify(detailsToUpdate) },
       });
 
       // Para las secciones personalizadas, solo actualizamos si hay cambios reales

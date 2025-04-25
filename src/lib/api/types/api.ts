@@ -503,6 +503,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients/by-clinic/{clinicId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener clientes asociados a una clínica */
+    get: operations["ClientsController_getClientsByClinic_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/projects": {
     parameters: {
       query?: never;
@@ -1058,10 +1075,12 @@ export interface paths {
     get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
     put?: never;
     post?: never;
-    delete?: never;
+    /** Eliminar registro médico */
+    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
     options?: never;
     head?: never;
-    patch?: never;
+    /** Actualizar registro médico */
+    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
     trace?: never;
   };
   "/api/v1/medical-records/{id}/details": {
@@ -1096,6 +1115,58 @@ export interface paths {
     head?: never;
     /** Actualizar secciones personalizadas de un registro médico */
     patch: operations["MedicalRecordsController_updateCustomSections_v1"];
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}/diagnostics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener diagnósticos de un registro médico */
+    get: operations["MedicalRecordsController_getDiagnostics_v1"];
+    put?: never;
+    /** Añadir un diagnóstico a un registro médico */
+    post: operations["MedicalRecordsController_addDiagnostic_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}/diagnostics/{diagnosticId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Eliminar un diagnóstico de un registro médico */
+    delete: operations["MedicalRecordsController_deleteDiagnostic_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/categories/all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todas las categorías médicas y sus condiciones */
+    get: operations["MedicalRecordsController_getAllMedicalCategories_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/api/v1/payments": {
@@ -3060,6 +3131,65 @@ export interface components {
        */
       fileCertificate?: string;
     };
+    CreateMedicalRecordDto: {
+      /**
+       * @description RUC del paciente
+       * @example 20603465157
+       */
+      ruc: string;
+      /**
+       * @description DNI del paciente
+       * @example 12345678
+       */
+      dni?: string;
+      /**
+       * @description Primer nombre del paciente
+       * @example Juan
+       */
+      firstName: string;
+      /**
+       * @description Segundo nombre del paciente
+       * @example Carlos
+       */
+      secondName?: string;
+      /**
+       * @description Primer apellido del paciente
+       * @example Pérez
+       */
+      firstLastName: string;
+      /**
+       * @description Segundo apellido del paciente
+       * @example Gómez
+       */
+      secondLastName?: string;
+      /**
+       * @description Tipo de examen
+       * @example PRE_OCCUPATIONAL
+       * @enum {string}
+       */
+      examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
+      /**
+       * @description Tipo de aptitud
+       * @example APT
+       * @enum {string}
+       */
+      aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+      /**
+       * @description Restricciones (opcional)
+       * @example No levantar objetos pesados
+       */
+      restrictions?: string;
+      /**
+       * Format: binary
+       * @description Certificado de aptitud médica (PDF, máximo 5MB)
+       */
+      aptitudeCertificate?: string;
+      /**
+       * Format: binary
+       * @description Informe médico (PDF, máximo 5MB)
+       */
+      medicalReport?: string;
+    };
     MedicalRecordResponseDto: {
       /**
        * @description ID único del registro médico
@@ -3137,6 +3267,21 @@ export interface components {
       updatedAt: string;
       /** @description Archivos asociados al registro médico */
       files?: components["schemas"]["FileMetadataResponseDto"][];
+      /**
+       * @description Diagnósticos médicos asociados al registro
+       * @example [
+       *       {
+       *         "id": "123e4567-e89b-12d3-a456-426614174003",
+       *         "categoryName": "Cardiología",
+       *         "conditionName": "Hipertensión arterial",
+       *         "isDefault": false,
+       *         "medicalRecordId": "123e4567-e89b-12d3-a456-426614174000",
+       *         "createdAt": "2023-04-01T12:00:00Z",
+       *         "updatedAt": "2023-04-01T12:00:00Z"
+       *       }
+       *     ]
+       */
+      diagnostics?: unknown[];
       /**
        * @description Detalles médicos del registro
        * @example {
@@ -3254,6 +3399,121 @@ export interface components {
        *     ]
        */
       customSections?: components["schemas"]["CustomSectionDto"][];
+    };
+    UpdateMedicalRecordDto: {
+      /**
+       * @description RUC de la empresa
+       * @example 20603465157
+       */
+      ruc?: string;
+      /**
+       * @description DNI del paciente
+       * @example 12345678
+       */
+      dni?: string;
+      /**
+       * @description Primer nombre del paciente
+       * @example Juan
+       */
+      firstName?: string;
+      /**
+       * @description Segundo nombre del paciente
+       * @example Carlos
+       */
+      secondName?: string;
+      /**
+       * @description Primer apellido del paciente
+       * @example Pérez
+       */
+      firstLastName?: string;
+      /**
+       * @description Segundo apellido del paciente
+       * @example Gómez
+       */
+      secondLastName?: string;
+      /**
+       * @description Tipo de examen
+       * @example PRE_OCCUPATIONAL
+       * @enum {string}
+       */
+      examType?: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
+      /**
+       * @description Aptitud médica
+       * @example APT
+       * @enum {string}
+       */
+      aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+      /**
+       * @description Restricciones médicas
+       * @example No levantar objetos pesados
+       */
+      restrictions?: string | null;
+    };
+    CreateDiagnosticDto: {
+      /**
+       * @description Nombre de la categoría médica
+       * @example VISUAL
+       */
+      categoryName: string;
+      /**
+       * @description Nombre de la condición médica
+       * @example MIOPIA
+       */
+      conditionName: string;
+      /**
+       * @description Indica si es el diagnóstico por defecto
+       * @example false
+       */
+      isDefault?: boolean;
+    };
+    CategoryResponseDto: {
+      /**
+       * @description ID de la categoría médica
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la categoría médica
+       * @example VISUAL
+       */
+      name: string;
+      /**
+       * @description Indica si la categoría está activa
+       * @example true
+       */
+      isActive: boolean;
+    };
+    ConditionResponseDto: {
+      /**
+       * @description ID de la condición médica
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre de la condición médica
+       * @example MIOPIA
+       */
+      name: string;
+      /**
+       * @description ID de la categoría a la que pertenece
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      categoryId: string;
+      /**
+       * @description Indica si la condición está activa
+       * @example true
+       */
+      isActive: boolean;
+    };
+    CategoryWithConditionsResponseDto: {
+      /** @description Datos de la categoría médica */
+      category: components["schemas"]["CategoryResponseDto"];
+      /** @description Lista de condiciones médicas asociadas a la categoría */
+      conditions: components["schemas"]["ConditionResponseDto"][];
+    };
+    CategoriesListResponseDto: {
+      /** @description Lista de categorías médicas con sus condiciones */
+      categories: components["schemas"]["CategoryWithConditionsResponseDto"][];
     };
     PaymentResponseDto: {
       /**
@@ -4506,6 +4766,28 @@ export interface operations {
       };
     };
   };
+  ClientsController_getClientsByClinic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        clinicId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes asociados a la clínica obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientResponseDto"][];
+        };
+      };
+    };
+  };
   ProjectsController_getProjects_v1: {
     parameters: {
       query?: never;
@@ -5709,6 +5991,10 @@ export interface operations {
       query?: {
         /** @description ID del cliente (Opcional) */
         clientId?: string;
+        /** @description ID de la categoría médica (Opcional) */
+        categoryId?: string;
+        /** @description ID de la condición médica (Opcional) */
+        conditionId?: string;
       };
       header?: never;
       path?: never;
@@ -5734,44 +6020,10 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
+    /** @description Datos del registro médico a crear */
     requestBody: {
       content: {
-        "multipart/form-data": {
-          /** @example 20603465157 */
-          ruc: string;
-          /** @example 12345678 */
-          dni?: string;
-          /** @example Juan */
-          firstName: string;
-          /** @example Carlos */
-          secondName?: string;
-          /** @example Pérez */
-          firstLastName: string;
-          /** @example Gómez */
-          secondLastName?: string;
-          /**
-           * @example PRE_OCCUPATIONAL
-           * @enum {string}
-           */
-          examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
-          /**
-           * @example APT
-           * @enum {string}
-           */
-          aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
-          /** @example No levantar objetos pesados */
-          restrictions?: string | null;
-          /**
-           * Format: binary
-           * @description Certificado de aptitud médica (PDF, máximo 5MB)
-           */
-          aptitudeCertificate?: string | null;
-          /**
-           * Format: binary
-           * @description Informe médico (PDF, máximo 5MB)
-           */
-          medicalReport?: string | null;
-        };
+        "multipart/form-data": components["schemas"]["CreateMedicalRecordDto"];
       };
     };
     responses: {
@@ -6018,6 +6270,69 @@ export interface operations {
       };
     };
   };
+  MedicalRecordsController_deleteMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos para actualizar el registro médico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
+      };
+    };
+    responses: {
+      /** @description Registro médico actualizado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   MedicalRecordsController_updateMedicalRecordDetails_v1: {
     parameters: {
       query?: never;
@@ -6109,6 +6424,96 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_getDiagnostics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnósticos obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_addDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del diagnóstico a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateDiagnosticDto"];
+      };
+    };
+    responses: {
+      /** @description Diagnóstico creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_deleteDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+        /** @description ID del diagnóstico a eliminar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_getAllMedicalCategories_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de categorías médicas con sus condiciones */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CategoriesListResponseDto"];
+        };
       };
     };
   };
