@@ -1,7 +1,5 @@
 "use client";
 
-import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
-import { AuthResponse } from "@/app/(auth)/sign-in/_types/auth.types";
 import { NavGroup } from "@/shared/components/layout/NavGroup";
 import { NavUser } from "@/shared/components/layout/NavUser";
 import {
@@ -14,11 +12,9 @@ import {
 } from "@/shared/components/ui/sidebar";
 import LogoLarge from "../icons/LogoLarge";
 import LogoSmall from "../icons/LogoSmall";
-import { Skeleton } from "../ui/skeleton";
 import { sidebarData } from "./data/sidebar-data";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: user, isLoading } = useCurrentUser();
   const { state } = useSidebar();
 
   return (
@@ -32,7 +28,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
       <SidebarFooter>
-        {isLoading ? <Skeleton className="h-10 w-full" /> : <NavUser user={user as AuthResponse} />}
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

@@ -22,6 +22,12 @@ type ServerFetchError = {
 };
 
 /**
+ * Determina si el código se está ejecutando en el servidor o en el cliente
+ * @returns true si está en el servidor, false si está en el cliente
+ */
+const isServer = () => typeof window === "undefined";
+
+/**
  * Realiza una petición al backend y devuelve un Result.
  *
  * Un Result es una tupla que contiene uno de dos casos:
@@ -57,28 +63,112 @@ export async function serverFetch<Success>(
   url: string,
   options?: RequestInit
 ): Promise<Result<Success, ServerFetchError>> {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("access_token")?.value;
+  // Usamos try/catch para manejar errores al acceder a cookies desde el cliente
+  let accessToken = null;
+  let refreshToken = null;
+  let cookieStore = null;
 
-  /* if (process.env.NODE_ENV === "development") {
-    console.log("\tSERVER FETCH: server fetch hit w cookie:");
-    console.log("\tSERVER FETCH:", accessToken ?? "---");
-  } */
+  try {
+    // Solo accedemos a cookies si estamos en el servidor
+    if (isServer()) {
+      cookieStore = await cookies();
+      accessToken = cookieStore.get("access_token")?.value;
+      refreshToken = cookieStore.get("refresh_token")?.value;
+    } else {
+      // En cliente, podríamos intentar obtener los tokens de otra manera
+      // Por ejemplo, de localStorage o de un estado global de la aplicación
+      console.warn("serverFetch: Ejecutándose en el cliente, no se pueden obtener cookies del servidor");
 
-  if (!accessToken) {
+      // Si se implementa un mecanismo alternativo para el cliente:
+      // accessToken = getAccessTokenFromClientSide();
+      // refreshToken = getRefreshTokenFromClientSide();
+    }
+  } catch (error) {
+    console.error("Error al acceder a las cookies:", error);
+  }
+
+  // Si no hay refreshToken, no podemos autenticar la solicitud
+  if (!refreshToken) {
     if (process.env.NODE_ENV === "development") {
-      console.error("\tSERVER FETCH: Intentando user serverFetch sin una cookie `access_token valida`");
+      console.warn(
+        "\tSERVER FETCH: No hay refresh_token disponible para la solicitud. Intentando continuar sin autenticación."
+      );
+    }
+
+    // En lugar de retornar un error, intentamos continuar sin token
+    try {
+      const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+        ...options,
+        headers: {
+          ...options?.headers,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const data = (await response.json()) as Partial<ServerFetchError>;
+        return [
+          // @ts-expect-error allowing null
+          null,
+          {
+            statusCode: response.status,
+            message: data.message ?? "API no disponible",
+            error: data.error ?? "Error desconocido",
+          },
+        ];
+      }
+
+      const data = await response.json();
+      return [data, null];
+    } catch (error) {
+      console.error(error);
+      return [
+        // @ts-expect-error allowing null
+        null,
+        {
+          statusCode: 503,
+          message: "Error interno",
+          error: "Error interno",
+        },
+      ];
     }
   }
 
   try {
+    // Configuramos los cookies para la solicitud
+    let cookieHeader = `refresh_token=${refreshToken}`;
+    if (accessToken) {
+      cookieHeader += `; access_token=${accessToken}`;
+    }
+
     const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
       ...options,
       headers: {
         ...options?.headers,
-        Cookie: `access_token=${accessToken}`,
+        Cookie: cookieHeader,
       },
+      credentials: "include", // Importante para que el navegador incluya las cookies en la solicitud
     });
+
+    // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader && isServer() && cookieStore) {
+      try {
+        // Extraer y guardar el nuevo access_token si está presente
+        const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+        if (accessTokenMatch && accessTokenMatch[1]) {
+          cookieStore.set("access_token", accessTokenMatch[1], {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+          });
+        }
+      } catch (error) {
+        // Si hay un error al establecer cookies, lo registramos pero continuamos
+        console.error("Error al actualizar cookie de access_token:", error);
+      }
+    }
 
     if (!response.ok) {
       const data = (await response.json()) as Partial<ServerFetchError>;
@@ -105,6 +195,124 @@ export async function serverFetch<Success>(
         message: "Error interno",
         error: "Error interno",
       },
+    ];
+  }
+}
+
+// Función para procesar respuestas con headers y datos binarios
+async function processResponse<T>(response: Response): Promise<[T | null, ServerFetchError | null, Response | null]> {
+  if (!response.ok) {
+    try {
+      const data = (await response.json()) as Partial<ServerFetchError>;
+      return [
+        null,
+        {
+          statusCode: response.status,
+          message: data.message ?? "API no disponible",
+          error: data.error ?? "Error desconocido",
+        },
+        null,
+      ];
+    } catch (error) {
+      console.log("X ~ Error al procesar la respuesta", error);
+      return [
+        null,
+        {
+          statusCode: response.status,
+          message: "Error en la respuesta",
+          error: "No se pudo procesar la respuesta",
+        },
+        null,
+      ];
+    }
+  }
+
+  // Para respuestas binarias o descargas, devolvemos la respuesta completa
+  if (
+    response.headers.get("Content-Type")?.includes("application/octet-stream") ||
+    response.headers.get("Content-Disposition")?.includes("attachment") ||
+    response.headers.get("Content-Disposition")?.includes("inline")
+  ) {
+    return [null, null, response];
+  }
+
+  try {
+    const data = await response.json();
+    return [data as T, null, null];
+  } catch (error) {
+    console.log("X ~ Error al procesar la respuesta", error);
+    // Si la respuesta no es JSON, devolvemos la respuesta completa
+    return [null, null, response];
+  }
+}
+
+// Función para realizar peticiones y obtener también la respuesta
+export async function serverFetchWithResponse<T>(
+  url: string,
+  options?: RequestInit
+): Promise<[T | null, ServerFetchError | null, Response | null]> {
+  const cookieStore = await cookies();
+  const accessToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
+
+  // Si no hay refreshToken, no podemos autenticar la solicitud
+  if (!refreshToken) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("\tSERVER FETCH: No hay refresh_token disponible para la solicitud");
+    }
+    return [
+      null,
+      {
+        statusCode: 401,
+        message: "No autenticado",
+        error: "Token de autenticación no disponible",
+      },
+      null,
+    ];
+  }
+
+  try {
+    // Configuramos los cookies para la solicitud
+    let cookieHeader = `refresh_token=${refreshToken}`;
+    if (accessToken) {
+      cookieHeader += `; access_token=${accessToken}`;
+    }
+
+    const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+      ...options,
+      headers: {
+        ...options?.headers,
+        Cookie: cookieHeader,
+      },
+      credentials: "include", // Importante para que el navegador incluya las cookies en la solicitud
+    });
+
+    // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
+    const setCookieHeader = response.headers.get("set-cookie");
+    if (setCookieHeader) {
+      // Extraer y guardar el nuevo access_token si está presente
+      const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
+      if (accessTokenMatch && accessTokenMatch[1]) {
+        cookieStore.set("access_token", accessTokenMatch[1], {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          path: "/",
+        });
+      }
+    }
+
+    return processResponse<T>(response);
+  } catch (error) {
+    console.error(error);
+    return [
+      null,
+      {
+        statusCode: 503,
+        message: "Error interno",
+        error: "Error interno",
+      },
+      null,
     ];
   }
 }
@@ -238,6 +446,29 @@ export const http = {
     });
   },
 
+  /**
+   * Realiza una petición PUT multipart/form-data
+   * @param url - La URL a la que se realizará la petición
+   * @param body - El cuerpo de la petición, debe ser un FormData
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa que resuelve con los datos de tipo T, o un error
+   * @example
+   * ```ts
+   * const [updatedUser, err] = await http.multipartPut<User>("/users/1", formData);
+   * ```
+   */
+  multipartPut<T>(url: string, body?: FormData, config?: RequestInit) {
+    return serverFetch<T>(url, {
+      ...config,
+      method: "PUT",
+      body: body,
+      headers: {
+        // No establecer Content-Type para multipart/form-data
+        ...config?.headers,
+      },
+    });
+  },
+
   multipartPatch<T>(url: string, body?: FormData, config?: RequestInit) {
     return serverFetch<T>(url, {
       ...config,
@@ -246,6 +477,74 @@ export const http = {
       headers: {
         // No establecer Content-Type para multipart/form-data
         ...config?.headers,
+      },
+    });
+  },
+
+  /**
+   * Realiza una petición GET obteniendo la respuesta completa con headers
+   * Útil para descargas de archivos y peticiones que requieren acceso a headers
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa que resuelve con los datos, error, y la respuesta completa
+   * @example
+   * ```ts
+   * const [data, err, response] = await http.getWithResponse<User>("/users/");
+   * if (response) {
+   *   // Acceder a headers o blob para descargas
+   *   const contentType = response.headers.get('content-type');
+   * }
+   * ```
+   */
+  getWithResponse<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, config);
+  },
+
+  /**
+   * Realiza una petición GET especialmente para descargas de archivos
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa con la respuesta para descarga o error
+   * @example
+   * ```ts
+   * const [_, err, response] = await http.downloadFile("/files/document.pdf");
+   * if (response) {
+   *   const blob = await response.blob();
+   *   // Procesar la descarga
+   * }
+   * ```
+   */
+  downloadFile<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        Accept: "application/octet-stream",
+      },
+    });
+  },
+
+  /**
+   * Realiza una petición GET para visualizar archivos como imágenes o PDFs
+   * @param url - La URL a la que se realizará la petición
+   * @param config - Configuración opcional para la petición fetch
+   * @returns Una promesa con la respuesta para visualización o error
+   * @example
+   * ```ts
+   * const [_, err, response] = await http.viewFile("/images/photo.jpg");
+   * if (response) {
+   *   const blob = await response.blob();
+   *   const objectUrl = URL.createObjectURL(blob);
+   *   // Usar objectUrl para visualizar
+   * }
+   * ```
+   */
+  viewFile<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponse<T>(url, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        Accept: "application/pdf,image/*",
       },
     });
   },

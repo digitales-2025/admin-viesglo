@@ -3,7 +3,7 @@ import { components } from "@/lib/api/types/api";
 // Servicios
 export type ServiceResponseOriginal = components["schemas"]["ServiceResponseDto"];
 export type ServiceResponse = Omit<ServiceResponseOriginal, "objectives"> & {
-  objectives?: string[];
+  objectives?: ObjectiveResponse[];
 };
 export type OriginalServiceCreate = components["schemas"]["CreateServiceDto"];
 export type ServiceCreate = Omit<OriginalServiceCreate, "objectives"> & {
@@ -15,7 +15,10 @@ export type OriginalServiceUpdate = Omit<ServiceUpdate, "objectives"> & {
 };
 
 // Objetivos
-export type ObjectiveResponse = components["schemas"]["ObjectiveResponseDto"];
+export type ObjectiveResponseOriginal = components["schemas"]["ObjectiveResponseDto"];
+export type ObjectiveResponse = ObjectiveResponseOriginal & {
+  activities: ActivityResponse[];
+};
 export type OriginalObjectiveCreate = components["schemas"]["CreateObjectiveDto"];
 export type ObjectiveCreate = Omit<OriginalObjectiveCreate, "serviceId"> & {
   serviceId?: string;

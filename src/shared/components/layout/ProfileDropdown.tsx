@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(auth)/sign-in/_actions/auth.action";
+import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
@@ -26,7 +26,6 @@ import { Skeleton } from "../ui/skeleton";
 export function ProfileDropdown() {
   const router = useRouter();
   const { data: user, isLoading } = useCurrentUser();
-
   // Añadimos estado para la redirección
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -52,28 +51,34 @@ export function ProfileDropdown() {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarFallback>{firstLetterName(user?.fullName || "")}</AvatarFallback>
+                <AvatarFallback className="rounded-lg uppercase font-bold">
+                  {firstLetterName(user?.name || "")}
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end" forceMount>
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.fullName}</p>
+                <p className="text-sm font-semibold capitalize leading-none">{user?.name}</p>
                 <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">
-                  Mi cuenta
-                  <DropdownMenuShortcut>
-                    <BadgeCheck />
-                  </DropdownMenuShortcut>
-                </Link>
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
+            {user?.type === "admin" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings">
+                      Mi cuenta
+                      <DropdownMenuShortcut>
+                        <BadgeCheck />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               Cerrar sesión

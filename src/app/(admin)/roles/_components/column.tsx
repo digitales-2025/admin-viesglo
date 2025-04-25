@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, IdCard, Shield } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -37,7 +37,16 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
     id: "nombre",
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("nombre")}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold capitalize flex items-center gap-2">
+        {row.original.name === "superadmin" ? (
+          <Shield className="size-4 text-emerald-500" />
+        ) : (
+          <IdCard className="size-4 text-muted-foreground" />
+        )}
+        {row.getValue("nombre")}
+      </div>
+    ),
   },
   {
     id: "descripcion",
@@ -51,11 +60,7 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        {row.getValue("estado") ? (
-          <Badge variant="successOutline"> Activo</Badge>
-        ) : (
-          <Badge variant="errorOutline">Inactivo</Badge>
-        )}
+        {row.getValue("estado") ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
       </div>
     ),
   },

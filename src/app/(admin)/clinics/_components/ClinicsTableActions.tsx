@@ -1,14 +1,14 @@
 import React from "react";
-import { Mail, MoreHorizontal, RectangleEllipsis } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ClinicResponse } from "../_types/clinics.types";
 
@@ -31,34 +31,26 @@ export default function ClinicsTableActions({ row }: ClinicsTableActionsProps) {
   };
 
   return (
-    <div className="flex items-center gap-2">
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="outline" size="icon" className="cursor-pointer relative text-slate-400">
-              <Mail className="size-5" strokeWidth={1.5} />
-              <RectangleEllipsis
-                className="size-4 absolute top-1/2 left-1/2 fill-white dark:fill-black stroke-slate-400"
-                strokeWidth={1.5}
-              />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Enviar credenciales de acceso</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="bg-background" size="icon">
-            <MoreHorizontal className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem onClick={handleEdit}>Editar</DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete}>Eliminar</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="bg-background" size="icon">
+          <MoreHorizontal className="size-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={handleEdit}>
+          Editar
+          <DropdownMenuShortcut>
+            <Edit className="size-4 mr-2" />
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDelete}>
+          Eliminar
+          <DropdownMenuShortcut>
+            <Trash className="size-4 mr-2" />
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

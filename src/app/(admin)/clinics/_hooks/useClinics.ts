@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createClinic, deleteClinic, getClinics, updateClinic } from "../_actions/clinics.actions";
+import { createClinic, deleteClinic, getClinic, getClinics, updateClinic } from "../_actions/clinics.actions";
 import { ClinicCreate, ClinicUpdate } from "../_types/clinics.types";
 
 export const CLINICS_KEYS = {
@@ -26,6 +26,35 @@ export function useClinics() {
       }
       return response.data;
     },
+  });
+}
+
+/**
+ * Hook para obtener una clínica por ID
+ */
+export function useClinic(id: string | undefined) {
+  // Debugging
+  console.log("useClinic hook called with id:", id);
+
+  return useQuery({
+    queryKey: CLINICS_KEYS.detail(id || "unknown"),
+    queryFn: async () => {
+      // Validar que existe un ID válido
+      if (!id) {
+        console.error("Se intentó obtener una clínica sin proporcionar un ID");
+        throw new Error("ID de clínica no proporcionado");
+      }
+
+      const response = await getClinic(id);
+      console.log("Clinic response:", response);
+
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener clínica");
+      }
+      return response.data;
+    },
+    enabled: !!id, // Solo ejecutar si hay un ID
+    retry: 1, // Limitar reintentos para evitar sobrecarga
   });
 }
 

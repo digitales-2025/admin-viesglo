@@ -16,7 +16,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
@@ -108,7 +108,8 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         evidenceRequired: false,
       });
     }
-  }, [isUpdate, currentRow?.id, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUpdate, currentRow?.id]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
@@ -119,7 +120,8 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
         evidenceRequired: false,
       });
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Sheet
@@ -140,7 +142,7 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
             {isUpdate ? "Actualiza los datos de la actividad" : "Crea una nueva actividad"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="activities-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField
@@ -171,18 +173,18 @@ export const ActivitiesMutateDrawer = ({ open, onOpenChange, currentRow }: Props
                 control={form.control}
                 name="evidenceRequired"
                 render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                  <FormItem
+                    className={cn(
+                      "flex flex-row items-center justify-between rounded-lg border p-3",
+                      field.value ? "border-emerald-500" : ""
+                    )}
+                  >
                     <div className="space-y-0.5">
                       <FormLabel className="text-base">Requiere Evidencia</FormLabel>
                       <FormDescription>Activa si la actividad requiere evidencia para ser completada</FormDescription>
                     </div>
                     <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        disabled={isPending}
-                        className={cn(field.value ? "bg-green-500" : "")}
-                      />
+                      <Switch checked={field.value} onCheckedChange={field.onChange} disabled={isPending} />
                     </FormControl>
                   </FormItem>
                 )}

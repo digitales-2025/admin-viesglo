@@ -8,7 +8,10 @@ import {
   KeyRound,
   Layers,
   LayoutDashboard,
+  Lock,
+  Settings,
   SquareActivity,
+  UserRound,
   UsersRound,
 } from "lucide-react";
 
@@ -37,7 +40,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Salud Ocupacional",
           icon: SquareActivity,
-          url: "/occupational-health",
+          url: "/medical-records",
         },
       ],
     },
@@ -67,12 +70,12 @@ export const sidebarData: SidebarData = {
         {
           title: "Cotizaciones",
           icon: Files,
-          url: "/quotes",
+          url: "/quotation",
         },
         {
           title: "Pagos",
           icon: Banknote,
-          url: "/payments",
+          url: "/payment",
         },
       ],
     },
@@ -90,14 +93,36 @@ export const sidebarData: SidebarData = {
       title: "Gestión de Usuarios",
       items: [
         {
-          title: "Usuarios",
+          title: "Usuarios y permisos",
           icon: UsersRound,
-          url: "/users",
+          items: [
+            {
+              title: "Usuarios",
+              icon: UsersRound,
+              url: "/users",
+            },
+            {
+              title: "Roles y permisos",
+              icon: KeyRound,
+              url: "/roles",
+            },
+          ],
         },
         {
-          title: "Roles y permisos",
-          icon: KeyRound,
-          url: "/roles",
+          title: "Configuración",
+          icon: Settings,
+          items: [
+            {
+              title: "Perfil",
+              icon: UserRound,
+              url: "/settings",
+            },
+            {
+              title: "Seguridad",
+              icon: Lock,
+              url: "/settings/security",
+            },
+          ],
         },
       ],
     },

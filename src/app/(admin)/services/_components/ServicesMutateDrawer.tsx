@@ -15,7 +15,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateService, useUpdateService } from "../_hooks/useServices";
 import { ServiceCreate, ServiceResponse } from "../_types/services.types";
@@ -29,7 +29,6 @@ interface Props {
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().optional(),
-  objectives: z.array(z.string()).optional(),
 }) satisfies z.ZodType<ServiceCreate>;
 type ServicesForm = z.infer<typeof formSchema>;
 
@@ -44,7 +43,6 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
     defaultValues: {
       name: "",
       description: "",
-      objectives: [],
     },
   });
 
@@ -80,10 +78,10 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
       form.reset({
         name: "",
         description: "",
-        objectives: [],
       });
     }
-  }, [isUpdate, currentRow?.id, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUpdate, currentRow?.id]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
@@ -91,10 +89,10 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
       form.reset({
         name: "",
         description: "",
-        objectives: [],
       });
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Sheet
@@ -118,7 +116,7 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="services-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

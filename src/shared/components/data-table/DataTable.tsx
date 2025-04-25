@@ -18,24 +18,42 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 
+import { DataTableFacetedFilterOption } from "@/shared/components/data-table/DataTableFacetedFilter";
 import { DataTablePagination } from "@/shared/components/data-table/DataTablePagination";
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { cn } from "@/shared/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   actions?: React.ReactNode;
+  isLoading?: boolean;
+  toolBar?: boolean;
+  filterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
+  pagination?: boolean;
+  className?: string;
+  onClickRow?: (row: TData) => void;
 }
 
-export function DataTable<TData, TValue>({ columns, data, actions }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({
+  columns,
+  data,
+  actions,
+  isLoading = false,
+  toolBar = true,
+  pagination = true,
+  filterOptions,
+  onClickRow,
+  className,
+}: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({
     left: ["select"],
-    right: ["actions"],
+    // right: ["actions"],
   });
 
   const table = useReactTable({
@@ -48,6 +66,7 @@ export function DataTable<TData, TValue>({ columns, data, actions }: DataTablePr
       columnFilters,
       columnPinning,
     },
+    manualPagination: !pagination,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -75,8 +94,8 @@ export function DataTable<TData, TValue>({ columns, data, actions }: DataTablePr
 
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} actions={actions} />
-      <div className="rounded-md border">
+      {toolBar && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
+      <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -93,9 +112,22 @@ export function DataTable<TData, TValue>({ columns, data, actions }: DataTablePr
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="h-24">
+                  <div className="flex justify-center items-center">
+                    <div className="animate-spin h-6 w-6 border-2 border-gray-500 rounded-full border-t-transparent"></div>
+                    <span className="ml-2 text-slate-500">Cargando datos...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={onClickRow ? () => onClickRow(row.original) : undefined}
+                >
                   {row.getVisibleCells().map((cell) => {
                     const { column } = cell;
                     return (
@@ -116,7 +148,7 @@ export function DataTable<TData, TValue>({ columns, data, actions }: DataTablePr
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} />
+      {pagination && <DataTablePagination table={table} />}
     </div>
   );
 }

@@ -6,8 +6,14 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { currentUser, login, logout } from "../_actions/auth.action";
-import { AuthResponse, SignIn } from "../_types/auth.types";
+import { currentUser, login, logout, updatePassword } from "../_actions/auth.actions";
+import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
+
+export const AUTH_KEYS = {
+  user: ["user"],
+  lists: () => [...AUTH_KEYS.user, "lists"],
+  detail: (id: string) => [...AUTH_KEYS.user, "detail", id],
+};
 
 interface AuthState {
   user: AuthResponse | null;
@@ -36,7 +42,9 @@ export const useAuth = create<AuthState>()(
         set({
           user: {
             ...user,
-            roles: user.roles || [],
+            roles: Array.isArray(user.roles)
+              ? user.roles.map((role: any) => (typeof role === "string" ? role : role.name))
+              : [],
           },
         }),
 
@@ -80,36 +88,32 @@ export function useSignIn() {
 
   return useMutation({
     mutationFn: async (credentials: SignIn) => {
-      const result = await login(credentials);
+      try {
+        const result = await login(credentials);
+        if (result.success === false) {
+          throw new Error(result.error);
+        }
 
-      if (result.success === false) {
-        throw new Error(
-          Object.values(result.errors || {})
-            .flat()
-            .join(", ")
-        );
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        if (!result.data) {
+          throw new Error("No se recibieron datos del servidor");
+        }
+
+        return result;
+      } catch (error) {
+        throw new Error(error as string);
       }
-
-      if (result.error) {
-        throw new Error(result.error);
-      }
-
-      if (!result.data) {
-        throw new Error("No se recibieron datos del servidor");
-      }
-
-      return result.data;
     },
-    /**
-     * Callback ejecutado cuando el inicio de sesión es exitoso
-     * Transforma y almacena los datos del usuario en el estado
-     * @param response - Respuesta del servidor con los datos del usuario
-     */
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+    onSuccess: async (result) => {
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => {
-        router.push("/");
+        // Usar la URL de redirección devuelta por la acción login si está disponible
+        const redirectUrl = result.redirectUrl || "/";
+        router.push(redirectUrl);
       }, 1000);
     },
     onError: (error: Error) => {
@@ -130,7 +134,7 @@ export function useLogout() {
       await logout();
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["user"] });
+      await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Cierre de sesión exitoso");
       router.push("/sign-in");
     },
@@ -144,15 +148,34 @@ export function useLogout() {
  * Hook personalizado para obtener el usuario autenticado
  */
 export function useCurrentUser() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["user"],
+  return useQuery({
+    queryKey: AUTH_KEYS.user,
     queryFn: async () => {
       const response = await currentUser();
-      if (!response) {
-        throw new Error("No se recibieron datos del servidor");
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener el usuario");
       }
-      return response;
+      return response.data;
     },
   });
-  return { data, isLoading, error };
+}
+
+export function useUpdatePassword() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: UpdatePassword) => {
+      const response = await updatePassword(data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar la contraseña");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
+      toast.success("Contraseña actualizada exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(`Error al actualizar la contraseña: ${error.message}`);
+    },
+  });
 }

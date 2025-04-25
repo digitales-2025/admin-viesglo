@@ -15,7 +15,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateObjective, useUpdateObjective } from "../_hooks/useObjectives";
 import { useServiceStore } from "../_hooks/useServiceStore";
@@ -89,7 +89,8 @@ export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow 
         description: "",
       });
     }
-  }, [isUpdate, currentRow?.id, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUpdate, currentRow?.id]);
 
   // Resetear al cerrar el modal
   useEffect(() => {
@@ -99,7 +100,8 @@ export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow 
         description: "",
       });
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   return (
     <Sheet
@@ -123,7 +125,7 @@ export default function ObjectivesMutateDrawer({ open, onOpenChange, currentRow 
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="objectives-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField

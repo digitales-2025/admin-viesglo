@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot } from "lucide-react";
+import { Bot, Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import AlertMessage from "@/shared/components/alerts/Alert";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
@@ -19,7 +20,7 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-} from "@/shared/components/ui/sheet";
+} from "@/shared/components/ui/sheet-responsive";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClinic, useUpdateClinic } from "../_hooks/useClinics";
 import { ClinicCreate, ClinicResponse } from "../_types/clinics.types";
@@ -46,13 +47,31 @@ const baseSchema = {
 // Esquema para crear (contraseña requerida)
 const createSchema = z.object({
   ...baseSchema,
-  password: z.string().min(1, "La contraseña es requerida."),
+  password: z
+    .string()
+    .min(8, "La contraseña debe tener al menos 8 caracteres.")
+    .regex(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
+      "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
+    ),
 });
 
 // Esquema para actualizar (contraseña opcional)
 const updateSchema = z.object({
   ...baseSchema,
-  password: z.string().optional(),
+  password: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val) return true; // Si no hay valor, es válido (opcional)
+        return val.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(val);
+      },
+      {
+        message:
+          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número.",
+      }
+    ),
 });
 
 // Tipo unificado para el formulario
@@ -190,6 +209,8 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
   const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
 
+  const isChangePassword = isUpdate && form.watch("password");
+
   return (
     <Sheet
       open={open}
@@ -207,7 +228,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
             {isUpdate ? "Actualiza los datos de la clínica" : "Crea una nueva clínica"}
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
             <form id="clinics-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
               <FormField
@@ -285,66 +306,89 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   district: (value) => form.setValue("district", value, { shouldValidate: true }),
                 }}
               />
-
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Usuario (Correo electrónico)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Introduce el email de la clínica" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
-                    <FormControl>
-                      <div className="inline-flex gap-1">
-                        <Input
-                          type="password"
-                          placeholder={
-                            isUpdate
-                              ? "Dejar en blanco para mantener la contraseña actual"
-                              : "Introduce la contraseña de la clínica"
-                          }
-                          {...field}
+              <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
+                <legend className="text-xs font-semibold text-muted-foreground">Credenciales</legend>
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Usuario (Correo electrónico)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Introduce el email de la clínica" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
+                      <FormControl>
+                        <div className="inline-flex gap-1">
+                          <Input
+                            placeholder={
+                              isUpdate
+                                ? "Dejar en blanco para mantener la contraseña actual"
+                                : "Introduce la contraseña de la clínica"
+                            }
+                            {...field}
+                          />
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="icon"
+                                  onClick={() => field.onChange(generateRandomPass())}
+                                  type="button"
+                                >
+                                  <Bot />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Generar contraseña aleatoria</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                      {isUpdate && (
+                        <AlertMessage
+                          title="Cambiar la contraseña de la clínica."
+                          description="Si desea cambiar la contraseña de la clínica, genere una nueva contraseña y se enviará al correo electrónico de la clínica."
+                          variant="info"
                         />
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => field.onChange(generateRandomPass())}
-                                type="button"
-                              >
-                                <Bot />
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Generar contraseña aleatoria</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      )}
+                    </FormItem>
+                  )}
+                />
+              </fieldset>
             </form>
           </Form>
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="clinics-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              <>
+                Actualizar
+                {isChangePassword && (
+                  <>
+                    {" "}
+                    y enviar credenciales
+                    <Send className="w-4 h-4" />
+                  </>
+                )}
+              </>
+            ) : (
+              "Crear"
+            )}
           </Button>
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>

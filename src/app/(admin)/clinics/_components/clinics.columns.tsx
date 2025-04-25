@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { MapPin } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -21,7 +22,11 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     size: 300,
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[300px]">{row.getValue("nombre")}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold truncate capitalize min-w-[200px] max-w-[300px]" title={row.getValue("nombre")}>
+        {row.getValue("nombre")}
+      </div>
+    ),
   },
   {
     id: "departamento",
@@ -76,7 +81,9 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     accessorKey: "address",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Dirección" />,
     cell: ({ row }) => (
-      <div className="truncate min-w-[300px]">{row.getValue("direccion") ? row.getValue("direccion") : "--"}</div>
+      <div className="truncate min-w-[200px] max-w-[300px]" title={row.getValue("direccion")}>
+        {row.getValue("direccion")}
+      </div>
     ),
   },
   {
@@ -86,9 +93,12 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
         {row.getValue("telefono") ? (
-          <Badge variant="outline">
-            <Link href={`tel:${row.getValue("telefono")}`}>{row.getValue("telefono")}</Link>
-          </Badge>
+          <Link href={`tel:${row.getValue("telefono")}`}>
+            <Badge variant="outline">
+              <Phone className="size-4" />
+              {formatPhoneNumberIntl(row.getValue("telefono"))}
+            </Badge>
+          </Link>
         ) : (
           "--"
         )}
@@ -102,9 +112,12 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
         {row.getValue("email") ? (
-          <Badge variant="outline">
-            <Link href={`mailto:${row.getValue("email")}`}>{row.getValue("email")}</Link>
-          </Badge>
+          <Link href={`mailto:${row.getValue("email")}`}>
+            <Badge variant="outline">
+              <Mail className="size-4" />
+              {row.getValue("email")}
+            </Badge>
+          </Link>
         ) : (
           "--"
         )}
@@ -117,11 +130,7 @@ export const columnsClinics = (): ColumnDef<ClinicResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        {row.getValue("estado") ? (
-          <Badge variant="successOutline"> Activo</Badge>
-        ) : (
-          <Badge variant="errorOutline">Inactivo</Badge>
-        )}
+        {row.getValue("estado") ? <Badge variant="success"> Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
       </div>
     ),
   },
