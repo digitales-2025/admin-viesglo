@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
 import { Check, CircleFadingArrowUp, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
@@ -272,11 +272,16 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "status",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: function Cell({ row }) {
-      const status = row.getValue("status");
+      const status = row.getValue("status") as StatusProjectActivity;
       const { mutate: updateTrackingActivity, isPending } = useUpdateTrackingActivity();
-      const [optimisticStatus, setOptimisticStatus] = useState<StatusProjectActivity | null>(
-        status as StatusProjectActivity
-      );
+
+      // Inicializar optimisticStatus como null (no con un valor derivado)
+      const [optimisticStatus, setOptimisticStatus] = useState<StatusProjectActivity | null>(null);
+
+      // Actualizar optimisticStatus cuando cambie status
+      useEffect(() => {
+        setOptimisticStatus(status);
+      }, [status]);
 
       const handleChange = (value: StatusProjectActivity) => {
         // Actualizar el estado local inmediatamente (Optimistic UI)
@@ -292,15 +297,15 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
           {
             // En caso de error, revertir al estado anterior
             onError: () => {
-              setOptimisticStatus(status as StatusProjectActivity);
+              setOptimisticStatus(status);
               toast.error("Error al actualizar el estado. Se ha revertido el cambio.");
             },
           }
         );
       };
 
-      // Usar el estado optimista para renderizar la UI
-      const displayStatus = optimisticStatus || (status as StatusProjectActivity);
+      // Usar el estado optimista para renderizar la UI, con fallback a status
+      const displayStatus = optimisticStatus ?? status;
 
       return (
         displayStatus && (

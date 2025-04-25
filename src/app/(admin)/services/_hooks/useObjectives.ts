@@ -77,6 +77,8 @@ export const useUpdateObjective = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: OBJECTIVES_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: SERVICES_KEYS.lists() });
       toast.success("Objetivo actualizado exitosamente");
     },
     onError: (error: Error) => {

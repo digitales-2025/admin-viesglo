@@ -81,7 +81,7 @@ export function BackButton({ href, hasUnsavedChanges: initialHasUnsavedChanges =
             <AlertDialogTitle>Cambios sin guardar</AlertDialogTitle>
             <AlertDialogDescription>
               Tienes cambios sin guardar en el formulario. Si sales ahora, perderás todos los cambios realizados.
-              <p className="mt-2 font-medium">¿Qué deseas hacer?</p>
+              <span className="mt-2 font-medium">¿Qué deseas hacer?</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex items-center gap-2">
