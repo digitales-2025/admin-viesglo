@@ -1,12 +1,13 @@
 "use server";
 
-import { cookies } from "next/headers";
-
 import { http } from "@/lib/http/serverFetch";
 import {
-  MedicalRecordCreate,
+  CategoriesList,
+  CreateDiagnostic,
   MedicalRecordFileInfo,
   MedicalRecordResponse,
+  MedicalRecordsFilter,
+  MedicalRecordUpdate,
   UpdateCustomSections,
   UpdateMedicalRecordDetails,
 } from "../_types/medical-record.types";
@@ -17,17 +18,46 @@ const API_ENDPOINT = "/medical-records";
  * Obtiene todos los registros médicos
  */
 export async function getMedicalRecords(
-  clientId?: string
+  filters?: MedicalRecordsFilter
 ): Promise<{ data: MedicalRecordResponse[]; success: boolean; error?: string }> {
   try {
-    const queryParams = clientId ? `?clientId=${clientId}` : "";
-    const [data, err] = await http.get<MedicalRecordResponse[]>(`${API_ENDPOINT}${queryParams}`);
+    // Construir query params basados en los filtros proporcionados
+    const queryParams = new URLSearchParams();
+
+    if (filters?.clientId) {
+      queryParams.append("clientId", filters.clientId);
+    }
+
+    if (filters?.categoryId) {
+      console.log(`🔎 Filtrando por categoryId: ${filters.categoryId}`);
+      queryParams.append("categoryId", filters.categoryId);
+    }
+
+    if (filters?.conditionId) {
+      console.log(`🔎 Filtrando por conditionId: ${filters.conditionId}`);
+      queryParams.append("conditionId", filters.conditionId);
+    }
+
+    const queryString = queryParams.toString();
+    const endpoint = `${API_ENDPOINT}${queryString ? `?${queryString}` : ""}`;
+
+    console.log(`🔍 Obteniendo registros médicos con filtros:`, JSON.stringify(filters, null, 2));
+    console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const [data, err] = await http.get<MedicalRecordResponse[]>(endpoint);
     if (err !== null) {
+      console.error(`❌ Error al obtener registros médicos:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener registros médicos" };
     }
+
+    console.log(`✅ Registros médicos obtenidos. Cantidad: ${data.length}`);
+    if (filters?.categoryId || filters?.conditionId) {
+      console.log(`🏷️ Filtros aplicados: ${JSON.stringify(filters)}`);
+    }
+
     return { success: true, data };
   } catch (error) {
-    console.error("Error al obtener registros médicos", error);
+    console.error("❌ Error al obtener registros médicos", error);
     return { success: false, data: [], error: "Error al obtener registros médicos" };
   }
 }
@@ -54,57 +84,17 @@ export async function getMedicalRecord(
  * Crea un nuevo registro médico
  */
 export async function createMedicalRecord(
-  medicalRecord: MedicalRecordCreate
+  formData: FormData
 ): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
   try {
-    // Crear un FormData para enviar los archivos
-    const formData = new FormData();
-
-    // Agregar los campos básicos
-    formData.append("ruc", medicalRecord.ruc);
-    formData.append("firstName", medicalRecord.firstName);
-    formData.append("firstLastName", medicalRecord.firstLastName);
-    formData.append("examType", medicalRecord.examType);
-    formData.append("aptitude", medicalRecord.aptitude);
-
-    // Agregar campos opcionales si existen
-    if (medicalRecord.dni) {
-      formData.append("dni", medicalRecord.dni);
-    }
-
-    if (medicalRecord.secondName) {
-      formData.append("secondName", medicalRecord.secondName);
-    }
-
-    if (medicalRecord.secondLastName) {
-      formData.append("secondLastName", medicalRecord.secondLastName);
-    }
-
-    if (medicalRecord.restrictions) {
-      formData.append("restrictions", medicalRecord.restrictions);
-    }
-
-    // Agregar archivos si existen
-    if (medicalRecord.aptitudeCertificate) {
-      formData.append("aptitudeCertificate", medicalRecord.aptitudeCertificate);
-    }
-
-    if (medicalRecord.medicalReport) {
-      formData.append("medicalReport", medicalRecord.medicalReport);
-    }
-
-    const [data, err] = await http.post<MedicalRecordResponse>(API_ENDPOINT, formData, {
-      headers: {
-        // No establecer Content-Type, el navegador lo establecerá automáticamente con el boundary correcto
-      },
-    });
+    const [data, err] = await http.multipartPost<MedicalRecordResponse>(API_ENDPOINT, formData);
 
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al crear registro médico" };
     }
     return { success: true, data };
   } catch (error) {
-    console.error("Error al crear registro médico", error);
+    console.error("Error al crear registro médico:", error);
     return { success: false, data: null, error: "Error al crear registro médico" };
   }
 }
@@ -153,11 +143,7 @@ export async function uploadAptitudeCertificate(id: string, file: File): Promise
     const formData = new FormData();
     formData.append("file", file);
 
-    const [_, err] = await http.post(`${API_ENDPOINT}/${id}/aptitude-certificate`, formData, {
-      headers: {
-        // No establecer Content-Type, el navegador lo establecerá automáticamente con el boundary correcto
-      },
-    });
+    const [_, err] = await http.multipartPost(`${API_ENDPOINT}/${id}/aptitude-certificate`, formData);
 
     if (err !== null) {
       return { success: false, error: err.message || "Error al subir el certificado de aptitud médica" };
@@ -177,11 +163,7 @@ export async function uploadMedicalReport(id: string, file: File): Promise<{ suc
     const formData = new FormData();
     formData.append("file", file);
 
-    const [_, err] = await http.post(`${API_ENDPOINT}/${id}/medical-report`, formData, {
-      headers: {
-        // No establecer Content-Type, el navegador lo establecerá automáticamente con el boundary correcto
-      },
-    });
+    const [_, err] = await http.multipartPost(`${API_ENDPOINT}/${id}/medical-report`, formData);
 
     if (err !== null) {
       return { success: false, error: err.message || "Error al subir el informe médico" };
@@ -196,142 +178,92 @@ export async function uploadMedicalReport(id: string, file: File): Promise<{ suc
 /**
  * Descarga el certificado de aptitud médica
  */
-export async function downloadAptitudeCertificate(
-  id: string
-): Promise<{ data: Blob | null; filename: string | null; success: boolean; error?: string }> {
+export async function downloadAptitudeCertificate(id: string) {
+  // Esta función usa las nuevas utilidades para obtener la respuesta completa de descarga
   try {
-    console.log("⬇️ Iniciando descarga de certificado para ID:", id);
-
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token")?.value;
-    console.log("🍪 Token disponible:", accessToken ? "Sí" : "No");
-
-    // Corregir URL eliminando la duplicación de /api/v1/
-    const url = `${process.env.BACKEND_URL}/medical-records/${id}/aptitude-certificate`;
-    console.log("🔗 URL de descarga:", url);
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Cookie: `access_token=${accessToken}`,
-      },
-      credentials: "include", // Importante para que se envíen las cookies
-    });
-
-    console.log("📡 Respuesta:", response.status, response.statusText);
-
-    if (!response.ok) {
-      console.warn(`Error al descargar certificado: ${response.status} ${response.statusText}`);
-      return {
-        success: false,
-        data: null,
-        filename: null,
-        error: `Error al descargar documento (${response.status})`,
-      };
+    // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
+    const [_, err, response] = await http.downloadFile(`${API_ENDPOINT}/${id}/aptitude-certificate`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al descargar certificado");
     }
 
-    // Verificar que la respuesta no esté vacía
-    const contentLength = response.headers.get("content-length");
-    console.log("📊 Tamaño de respuesta:", contentLength || "desconocido");
-
-    if (contentLength && parseInt(contentLength) === 0) {
-      console.warn("Respuesta vacía del servidor");
-      return {
-        success: false,
-        data: null,
-        filename: null,
-        error: "El documento está vacío o no disponible",
-      };
-    }
-
-    const blob = await response.blob();
-    console.log("📄 Blob recibido:", blob.size, "bytes, tipo:", blob.type);
-
-    // Intentar obtener el nombre del archivo del encabezado Content-Disposition
-    let filename = "aptitude-certificate.pdf";
-    const contentDisposition = response.headers.get("content-disposition");
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-      if (filenameMatch && filenameMatch[1]) {
-        filename = filenameMatch[1];
+    // Si tenemos una respuesta, extraemos la información necesaria para la descarga
+    if (response) {
+      // Obtener el nombre del archivo del Content-Disposition
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = "evidence";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
       }
+
+      const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+
+      // En lugar de intentar procesar el blob aquí, devolvemos la información necesaria
+      // para que el cliente pueda hacer la solicitud correctamente
+      return {
+        success: true,
+        // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
+        // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
+        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT}/${id}/aptitude-certificate`,
+        filename,
+        contentType,
+      };
     }
 
-    return { success: true, data: blob, filename };
+    // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
+    return { success: true };
   } catch (error) {
-    console.warn("Error al descargar el certificado", error);
-    return { success: false, data: null, filename: null, error: "Error al descargar documento" };
+    console.error("Error al descargar certificado", error);
+    return { success: false, error: "Error al descargar certificado" };
   }
 }
 
 /**
  * Descarga el informe médico
  */
-export async function downloadMedicalReport(
-  id: string
-): Promise<{ data: Blob | null; filename: string | null; success: boolean; error?: string }> {
+export async function downloadMedicalReport(id: string) {
+  // Esta función usa las nuevas utilidades para obtener la respuesta completa de descarga
   try {
-    console.log("⬇️ Iniciando descarga de informe para ID:", id);
-
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token")?.value;
-    console.log("🍪 Token disponible:", accessToken ? "Sí" : "No");
-
-    // Corregir URL eliminando la duplicación de /api/v1/
-    const url = `${process.env.BACKEND_URL}/medical-records/${id}/medical-report`;
-    console.log("🔗 URL de descarga:", url);
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        Cookie: `access_token=${accessToken}`,
-      },
-      credentials: "include", // Importante para que se envíen las cookies
-    });
-
-    console.log("📡 Respuesta:", response.status, response.statusText);
-
-    if (!response.ok) {
-      console.warn(`Error al descargar informe: ${response.status} ${response.statusText}`);
-      return {
-        success: false,
-        data: null,
-        filename: null,
-        error: `Error al descargar documento (${response.status})`,
-      };
+    // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
+    const [_, err, response] = await http.downloadFile(`${API_ENDPOINT}/${id}/medical-report`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al descargar informe");
     }
 
-    // Verificar que la respuesta no esté vacía
-    const contentLength = response.headers.get("content-length");
-    console.log("📊 Tamaño de respuesta:", contentLength || "desconocido");
-
-    if (contentLength && parseInt(contentLength) === 0) {
-      console.warn("Respuesta vacía del servidor");
-      return {
-        success: false,
-        data: null,
-        filename: null,
-        error: "El documento está vacío o no disponible",
-      };
-    }
-
-    const blob = await response.blob();
-    console.log("📄 Blob recibido:", blob.size, "bytes, tipo:", blob.type);
-
-    // Intentar obtener el nombre del archivo del encabezado Content-Disposition
-    let filename = "medical-report.pdf";
-    const contentDisposition = response.headers.get("content-disposition");
-    if (contentDisposition) {
-      const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-      if (filenameMatch && filenameMatch[1]) {
-        filename = filenameMatch[1];
+    // Si tenemos una respuesta, extraemos la información necesaria para la descarga
+    if (response) {
+      // Obtener el nombre del archivo del Content-Disposition
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = "evidence";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
       }
+
+      const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+
+      // En lugar de intentar procesar el blob aquí, devolvemos la información necesaria
+      // para que el cliente pueda hacer la solicitud correctamente
+      return {
+        success: true,
+        // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
+        // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
+        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT}/${id}/medical-report`,
+        filename,
+        contentType,
+      };
     }
 
-    return { success: true, data: blob, filename };
+    // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
+    return { success: true };
   } catch (error) {
-    console.warn("Error al descargar el informe", error);
-    return { success: false, data: null, filename: null, error: "Error al descargar documento" };
+    console.error("Error al descargar informe", error);
+    return { success: false, error: "Error al descargar informe" };
   }
 }
 
@@ -390,5 +322,152 @@ export async function updateCustomSections(
   } catch (error) {
     console.error("❌ Error al actualizar secciones personalizadas", error);
     return { success: false, data: null, error: "Error al actualizar secciones personalizadas" };
+  }
+}
+
+/**
+ * Actualiza un registro médico
+ */
+export async function updateMedicalRecord(
+  id: string,
+  data: MedicalRecordUpdate
+): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
+  try {
+    console.log(`📝 Actualizando registro médico con ID: ${id}`);
+    console.log(`📊 Datos enviados:`, JSON.stringify(data).substring(0, 500) + "...");
+
+    const [response, err] = await http.patch<MedicalRecordResponse>(`${API_ENDPOINT}/${id}`, data);
+
+    if (err !== null) {
+      console.error(`❌ Error al actualizar registro médico:`, err);
+      return { success: false, data: null, error: err.message || "Error al actualizar registro médico" };
+    }
+
+    console.log(`✅ Registro médico actualizado correctamente:`, JSON.stringify(response).substring(0, 200) + "...");
+    return { success: true, data: response };
+  } catch (error) {
+    console.error("❌ Error al actualizar registro médico", error);
+    return { success: false, data: null, error: "Error al actualizar registro médico" };
+  }
+}
+
+/**
+ * Elimina un registro médico
+ */
+export async function deleteMedicalRecord(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log(`🗑️ Eliminando registro médico con ID: ${id}`);
+
+    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}`);
+
+    if (err !== null) {
+      console.error(`❌ Error al eliminar registro médico:`, err);
+      return { success: false, error: err.message || "Error al eliminar registro médico" };
+    }
+
+    console.log(`✅ Registro médico eliminado correctamente`);
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error al eliminar registro médico", error);
+    return { success: false, error: "Error al eliminar registro médico" };
+  }
+}
+
+/**
+ * Obtiene todos los diagnósticos de un registro médico
+ */
+export async function getDiagnostics(id: string): Promise<{ data: any[]; success: boolean; error?: string }> {
+  try {
+    console.log(`🔍 Obteniendo diagnósticos del registro médico con ID: ${id}`);
+
+    const [data, err] = await http.get<any[]>(`${API_ENDPOINT}/${id}/diagnostics`);
+
+    if (err !== null) {
+      console.error(`❌ Error al obtener diagnósticos:`, err);
+      return { success: false, data: [], error: err.message || "Error al obtener diagnósticos" };
+    }
+
+    console.log(`✅ Diagnósticos obtenidos correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al obtener diagnósticos", error);
+    return { success: false, data: [], error: "Error al obtener diagnósticos" };
+  }
+}
+
+/**
+ * Agrega un diagnóstico a un registro médico
+ */
+export async function addDiagnostic(
+  id: string,
+  diagnostic: CreateDiagnostic
+): Promise<{ data: any; success: boolean; error?: string }> {
+  try {
+    console.log(`➕ Agregando diagnóstico al registro médico con ID: ${id}`);
+    console.log(`📊 Datos enviados:`, JSON.stringify(diagnostic));
+
+    const [data, err] = await http.post<any>(`${API_ENDPOINT}/${id}/diagnostics`, diagnostic);
+
+    if (err !== null) {
+      console.error(`❌ Error al agregar diagnóstico:`, err);
+      return { success: false, data: null, error: err.message || "Error al agregar diagnóstico" };
+    }
+
+    console.log(`✅ Diagnóstico agregado correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al agregar diagnóstico", error);
+    return { success: false, data: null, error: "Error al agregar diagnóstico" };
+  }
+}
+
+/**
+ * Elimina un diagnóstico de un registro médico
+ */
+export async function deleteDiagnostic(
+  id: string,
+  diagnosticId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log(`🗑️ Eliminando diagnóstico ${diagnosticId} del registro médico con ID: ${id}`);
+
+    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}/diagnostics/${diagnosticId}`);
+
+    if (err !== null) {
+      console.error(`❌ Error al eliminar diagnóstico:`, err);
+      return { success: false, error: err.message || "Error al eliminar diagnóstico" };
+    }
+
+    console.log(`✅ Diagnóstico eliminado correctamente`);
+    return { success: true };
+  } catch (error) {
+    console.error("❌ Error al eliminar diagnóstico", error);
+    return { success: false, error: "Error al eliminar diagnóstico" };
+  }
+}
+
+/**
+ * Obtiene todas las categorías médicas y sus condiciones
+ */
+export async function getAllMedicalCategories(): Promise<{
+  data: CategoriesList | null;
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    console.log(`🔍 Obteniendo todas las categorías médicas y sus condiciones`);
+
+    const [data, err] = await http.get<CategoriesList>(`${API_ENDPOINT}/categories/all`);
+
+    if (err !== null) {
+      console.error(`❌ Error al obtener categorías médicas:`, err);
+      return { success: false, data: null, error: err.message || "Error al obtener categorías médicas" };
+    }
+
+    console.log(`✅ Categorías médicas obtenidas correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al obtener categorías médicas", error);
+    return { success: false, data: null, error: "Error al obtener categorías médicas" };
   }
 }

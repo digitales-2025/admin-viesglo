@@ -21,11 +21,13 @@ export default function CertificatesTableActions({ certificate }: CertificatesTa
   // Constante para módulo
   const MODULE = "certificates";
 
-  const handleEdit = () => {
+  const handleEdit = (e: any) => {
+    e.stopPropagation();
     open(MODULE, "edit", certificate);
   };
 
-  const handleDelete = () => {
+  const handleDelete = (e: any) => {
+    e.stopPropagation();
     open(MODULE, "delete", certificate);
   };
 

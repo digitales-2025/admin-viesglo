@@ -138,3 +138,21 @@ export async function searchClients(
     return { success: false, data: [], error: "Error al buscar clientes" };
   }
 }
+
+/**
+ * Obtener los clientes asociados a una clínica específica
+ */
+export async function getClientsByClinic(
+  clinicId: string
+): Promise<{ data: ClientResponse[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<ClientResponse[]>(`${API_ENDPOINT}/by-clinic/${clinicId}`);
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener clientes por clínica" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al obtener clientes por clínica", error);
+    return { success: false, data: [], error: "Error al obtener clientes por clínica" };
+  }
+}

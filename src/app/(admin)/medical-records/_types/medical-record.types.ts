@@ -5,19 +5,11 @@ export type MedicalRecordResponse = components["schemas"]["MedicalRecordResponse
   details?: any;
 };
 
-export type MedicalRecordCreate = {
-  ruc: string;
-  dni?: string;
-  firstName: string;
-  secondName?: string;
-  firstLastName: string;
-  secondLastName?: string;
-  examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
-  aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "TEMPORARY_NOT_APT" | "NOT_APT";
-  restrictions?: string | null;
-  aptitudeCertificate?: File | null;
-  medicalReport?: File | null;
-};
+// Usar el esquema de la API para los tipos
+export type MedicalRecordCreate = components["schemas"]["CreateMedicalRecordDto"];
+
+// Usar el esquema de la API para los tipos
+export type MedicalRecordUpdate = components["schemas"]["UpdateMedicalRecordDto"];
 
 export type MedicalRecordFileInfo = {
   status?: string;
@@ -25,48 +17,33 @@ export type MedicalRecordFileInfo = {
   fileInfo?: components["schemas"]["FileMetadataResponseDto"];
 };
 
-export type UpdateMedicalRecordDetails = {
-  datosFiliacion?: {
-    dni?: string;
-    nombres?: string;
-    segundoNombre?: string;
-    apellidoPaterno?: string;
-    apellidoMaterno?: string;
-    edad?: string;
-    genero?: string;
-    customFields?: Array<{ name: string; value: string }>;
-  };
-  aptitud?: {
-    aptitud?: string;
-    restricciones?: string;
-    antecedentesPersonales?: string;
-    customFields?: Array<{ name: string; value: string }>;
-  };
-  diagnosticos?: {
-    hallazgosLaboratorio?: string[];
-    diagnosticoOftalmologia?: string;
-    diagnosticoMusculoesqueletico?: string;
-    alteracionDiagnosticoPsicologia?: string;
-    diagnosticoAudiometria?: string;
-    diagnosticoEspirometria?: string;
-    diagnosticoEkg?: string;
-    resultadoTestSomnolencia?: string;
-    customFields?: Array<{ name: string; value: string }>;
-  };
-  customSections?: CustomSection[];
-  customData?: string;
+// Usar el esquema de la API para los detalles
+export type UpdateMedicalRecordDetails = components["schemas"]["UpdateMedicalRecordDetailsDto"] & {
+  customData?: string | Record<string, any>;
 };
 
-export type CustomSectionField = {
-  name?: string;
-  value?: string;
-};
+// Usar el esquema de la API para los campos de secciones personalizadas
+export type CustomSectionField = components["schemas"]["CustomSectionFieldDto"];
 
-export type CustomSection = {
-  name?: string;
-  fields?: CustomSectionField[];
-};
+// Usar el esquema de la API para las secciones personalizadas
+export type CustomSection = components["schemas"]["CustomSectionDto"];
 
 export type UpdateCustomSections = {
   customSections?: CustomSection[];
 };
+
+// Tipos para diagnósticos médicos
+export type CreateDiagnostic = components["schemas"]["CreateDiagnosticDto"];
+
+// Tipos para categorías médicas
+export type CategoryResponse = components["schemas"]["CategoryResponseDto"];
+export type ConditionResponse = components["schemas"]["ConditionResponseDto"];
+export type CategoryWithConditions = components["schemas"]["CategoryWithConditionsResponseDto"];
+export type CategoriesList = components["schemas"]["CategoriesListResponseDto"];
+
+// Tipo para filtrar registros médicos
+export interface MedicalRecordsFilter {
+  clientId?: string;
+  categoryId?: string;
+  conditionId?: string;
+}
