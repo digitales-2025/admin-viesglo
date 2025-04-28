@@ -23,6 +23,7 @@ import { DataTablePagination } from "@/shared/components/data-table/DataTablePag
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -94,7 +95,13 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      {toolBar && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
+      {isLoading && (
+        <div className="flex flex-col gap-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full" />
+        </div>
+      )}
+      {toolBar && !isLoading && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
       <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
