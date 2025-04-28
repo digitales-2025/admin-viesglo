@@ -13,6 +13,7 @@ interface DataTableToolbarProps<TData> {
   filterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
   actions?: React.ReactNode;
   onFilterChange?: (filterKey: string, values: string[]) => void;
+  viewOptions?: boolean;
 }
 
 export function DataTableToolbar<TData>({
@@ -22,6 +23,7 @@ export function DataTableToolbar<TData>({
   filterOptions,
   actions,
   onFilterChange,
+  viewOptions = true,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
 
@@ -82,7 +84,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex gap-x-2">
         {actions && actions}
-        <DataTableViewOptions table={table} />
+        {viewOptions && <DataTableViewOptions table={table} />}
       </div>
     </div>
   );

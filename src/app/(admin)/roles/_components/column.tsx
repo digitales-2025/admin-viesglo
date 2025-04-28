@@ -66,7 +66,7 @@ export const columnsRoles = (): ColumnDef<Role>[] => [
   },
   {
     id: "actions",
-    size: 100,
+    size: 20,
     cell: ({ row }) => {
       const item = row.original;
 
