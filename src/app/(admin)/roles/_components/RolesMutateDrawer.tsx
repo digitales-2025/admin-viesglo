@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Circle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -27,7 +28,7 @@ import {
 import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
-import { groupedPermission } from "../_utils/groupedPermission";
+import { groupedPermission, iconResource, labelResource } from "../_utils/groupedPermission";
 
 interface Props {
   open: boolean;
@@ -167,7 +168,11 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Nombre</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
+                        <Input
+                          {...field}
+                          placeholder="Ingrese el nombre del rol (Ej: Administrador)"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -180,7 +185,11 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Descripción</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese una descripción" disabled={isPending} />
+                        <Input
+                          {...field}
+                          placeholder="Ingrese una descripción del rol (Ej: Rol para administradores)"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -214,16 +223,43 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                       htmlFor={`group-${group.resource}`}
                                       className="font-medium cursor-pointer flex items-center"
                                     >
-                                      <span className="ml-2 capitalize font-semibold">{group.resource}</span>
+                                      <span className="first-letter:uppercase font-semibold flex items-center gap-2">
+                                        {(() => {
+                                          const IconComponent =
+                                            iconResource[group.resource as keyof typeof iconResource];
+                                          return IconComponent ? (
+                                            <IconComponent className="w-4 h-4 text-muted-foreground/70 shrink-0" />
+                                          ) : (
+                                            <Circle className="text-muted-foreground/70 w-4 h-4 shrink-0" />
+                                          );
+                                        })()}
+                                        {labelResource[group.resource as keyof typeof labelResource] || group.resource}
+                                      </span>
                                     </Label>
                                   </div>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <Badge variant="outline">
-                                    {
+                                  <Badge
+                                    variant={
                                       group.actions.filter((p) => form.getValues("permissionsIds")?.includes(p.id))
-                                        .length
-                                    }{" "}
+                                        .length === group.actions.length
+                                        ? "success"
+                                        : "outline"
+                                    }
+                                  >
+                                    <span
+                                      className={cn(
+                                        group.actions.filter((p) => form.getValues("permissionsIds")?.includes(p.id))
+                                          .length > 0
+                                          ? "text-emerald-500 font-semibold"
+                                          : ""
+                                      )}
+                                    >
+                                      {
+                                        group.actions.filter((p) => form.getValues("permissionsIds")?.includes(p.id))
+                                          .length
+                                      }{" "}
+                                    </span>
                                     / {group.actions.length}
                                   </Badge>
                                   <ChevronDown
@@ -244,11 +280,12 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                       return (
                                         <FormItem
                                           key={permission.id}
-                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                          className="flex flex-row items-center space-x-1 space-y-1"
                                         >
                                           <FormControl>
                                             <Checkbox
                                               id={permission.id}
+                                              className="cursor-pointer"
                                               checked={field.value?.includes(permission.id)}
                                               onCheckedChange={(checked) => {
                                                 const currentValues = field.value || [];
@@ -262,7 +299,10 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                           </FormControl>
                                           <label
                                             htmlFor={permission.id}
-                                            className="text-xs text-muted-foreground leading-none "
+                                            className={cn(
+                                              "text-xs text-muted-foreground leading-none cursor-pointer",
+                                              field.value?.includes(permission.id) && "font-bold text-emerald-500"
+                                            )}
                                           >
                                             {permission.description}
                                           </label>

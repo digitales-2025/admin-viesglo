@@ -1,13 +1,14 @@
 "use client";
 
-import { Check, Loader2, Minus } from "lucide-react";
+import React from "react";
+import { Check, Circle, Loader2, Minus } from "lucide-react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Separator } from "@/shared/components/ui/separator";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { useRolePermissions } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
-import { groupedPermission, labelPermission } from "../_utils/groupedPermission";
+import { groupedPermission, iconResource, labelPermission, labelResource } from "../_utils/groupedPermission";
 
 interface RolePermissionsViewProps {
   role: Role;
@@ -64,7 +65,7 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
                 <TableRow>
                   {allActions.map((action) => (
                     <TableHead key={action} className="text-center capitalize font-medium text-sm py-2">
-                      {labelPermission[action as keyof typeof labelPermission]}
+                      {labelPermission[action as keyof typeof labelPermission] || action}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -75,7 +76,19 @@ export function RolePermissionsView({ role }: RolePermissionsViewProps) {
 
                   return (
                     <TableRow key={resource}>
-                      <TableCell className="font-medium text-start capitalize">{resource}</TableCell>
+                      <TableCell className="font-medium text-start capitalize flex items-center gap-2">
+                        {(() => {
+                          const IconComponent = iconResource[resource as keyof typeof iconResource];
+                          return IconComponent ? (
+                            <IconComponent className="w-4 h-4 text-muted-foreground/70" />
+                          ) : (
+                            <Circle className="text-muted-foreground/70 w-4 h-4" />
+                          );
+                        })()}
+                        <span className="font-medium">
+                          {labelResource[resource as keyof typeof labelResource] || resource}
+                        </span>
+                      </TableCell>
                       {allActions.map((action) => (
                         <TableCell key={action} className="text-end">
                           <div className="flex justify-center items-center">
