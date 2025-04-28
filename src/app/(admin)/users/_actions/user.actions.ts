@@ -1,5 +1,6 @@
 "use server";
 
+import { Permission } from "@/auth/domain/entities/Role";
 import { http } from "@/lib/http/serverFetch";
 import { User, UserCreate } from "../_types/user.types";
 
@@ -87,5 +88,22 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error?
   } catch (error: any) {
     console.error(`Error al eliminar usuario ${id}:`, error);
     return { success: false, error: error.message || "Error al eliminar usuario" };
+  }
+}
+
+/**
+ * Obtiene los permisos de un usuario
+ */
+export async function getUserPermissions(
+  id: string
+): Promise<{ data: Permission[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<Permission[]>(`${API_ENDPOINT}/${id}/permissions`);
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener permisos del usuario" };
+    }
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, data: [], error: error.message || "Error al obtener permisos del usuario" };
   }
 }
