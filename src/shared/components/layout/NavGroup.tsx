@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import { Badge } from "@/shared/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import {
@@ -143,12 +144,20 @@ export function NavGroup({ title, items }: NavGroup) {
   const { state } = useSidebar();
   const location = usePathname();
   const href = location.split("?")[0];
+  const { hasPermission } = useAuth();
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const key = `${item.title}-${item.url}`;
+
+          const isAccessible = item.permissions
+            ? item.permissions?.some((permission) => hasPermission(permission.resource, permission.action)) || false
+            : true;
+
+          if (!isAccessible) return null;
 
           if (!item.items) return <SidebarMenuLink key={key} item={item} href={href} />;
 

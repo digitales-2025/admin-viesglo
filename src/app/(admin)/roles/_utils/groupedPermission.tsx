@@ -15,7 +15,7 @@ import {
 
 import { Permission } from "../_types/roles";
 
-enum EnumPermission {
+export enum EnumPermission {
   create = "create",
   read = "read",
   update = "update",
@@ -48,7 +48,8 @@ export const labelPermission = {
   [EnumPermission.upload]: "Subir",
   [EnumPermission.edit]: "Editar",
 };
-enum EnumResource {
+
+export enum EnumResource {
   users = "users",
   roles = "roles",
   projects = "projects",

@@ -10,7 +10,7 @@ interface ProtectedComponentProps {
   fallback?: ReactNode;
   allowedUserTypes?: UserType[];
   allowedRoles?: string[];
-  requiredPermissions?: string[];
+  requiredPermissions?: { resource: string; action: string }[];
 }
 
 /**
@@ -65,7 +65,7 @@ export function ProtectedComponent({
         // Verificar permisos
         if (requiredPermissions.length > 0) {
           const permissionChecks = await Promise.all(
-            requiredPermissions.map((permission) => hasPermission(permission))
+            requiredPermissions.map((permission) => hasPermission(permission.resource, permission.action))
           );
           if (!permissionChecks.some(Boolean)) {
             setIsAuthorized(false);

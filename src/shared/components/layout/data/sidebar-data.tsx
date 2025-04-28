@@ -15,6 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
+import { EnumPermission, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
 import { type SidebarData } from "./types";
 
 export const sidebarData: SidebarData = {
@@ -36,11 +37,13 @@ export const sidebarData: SidebarData = {
           title: "Seguimiento",
           icon: Layers,
           url: "/tracking",
+          permissions: [{ resource: EnumResource.projects, action: EnumPermission.read }],
         },
         {
           title: "Salud Ocupacional",
           icon: SquareActivity,
           url: "/medical-records",
+          permissions: [{ resource: EnumResource.occupationalHealth, action: EnumPermission.read }],
         },
       ],
     },
@@ -51,16 +54,19 @@ export const sidebarData: SidebarData = {
           title: "Clínicas",
           icon: Hospital,
           url: "/clinics",
+          permissions: [{ resource: EnumResource.clinics, action: EnumPermission.read }],
         },
         {
           title: "Clientes",
           icon: Building,
           url: "/clients",
+          permissions: [{ resource: EnumResource.clients, action: EnumPermission.read }],
         },
         {
           title: "Servicios",
           icon: BriefcaseBusiness,
           url: "/services",
+          permissions: [{ resource: EnumResource.services, action: EnumPermission.read }],
         },
       ],
     },
@@ -71,11 +77,13 @@ export const sidebarData: SidebarData = {
           title: "Cotizaciones",
           icon: Files,
           url: "/quotation",
+          permissions: [{ resource: EnumResource.quotations, action: EnumPermission.read }],
         },
         {
           title: "Pagos",
           icon: Banknote,
           url: "/payment",
+          permissions: [{ resource: EnumResource.payments, action: EnumPermission.read }],
         },
       ],
     },
@@ -86,6 +94,7 @@ export const sidebarData: SidebarData = {
           title: "Certificados",
           icon: GraduationCap,
           url: "/certificates",
+          permissions: [{ resource: EnumResource.trainings, action: EnumPermission.read }],
         },
       ],
     },
@@ -100,12 +109,18 @@ export const sidebarData: SidebarData = {
               title: "Usuarios",
               icon: UsersRound,
               url: "/users",
+              permissions: [{ resource: EnumResource.users, action: EnumPermission.read }],
             },
             {
               title: "Roles y permisos",
               icon: KeyRound,
               url: "/roles",
+              permissions: [{ resource: EnumResource.roles, action: EnumPermission.read }],
             },
+          ],
+          permissions: [
+            { resource: EnumResource.users, action: EnumPermission.read },
+            { resource: EnumResource.roles, action: EnumPermission.read },
           ],
         },
         {

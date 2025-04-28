@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useCurrentUser, useLogout } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { useAuthPermissions, useCurrentUser, useLogout } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { AuthUseCase } from "../../application/usecases/AuthUseCase";
 import { getUserDashboardPath, User } from "../../domain/entities/User";
 import { ForbiddenError, UnauthorizedError } from "../../domain/errors/AuthErrors";
@@ -16,7 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   hasRole: (role: string) => Promise<boolean>;
-  hasPermission: (permission: string) => Promise<boolean>;
+  hasPermission: (resource: string, action: string) => boolean;
   authorizeUser: (requiredRoles?: string[], requiredPermissions?: string[]) => Promise<User | null>;
   redirectToDashboard: () => void;
 }
@@ -30,6 +30,7 @@ const authUseCase = new AuthUseCase(authRepository);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Utilizamos el hook useCurrentUser en lugar de la lógica interna
   const { data: currentUserData, isLoading: isUserLoading, error } = useCurrentUser();
+  const { data: permissions, isLoading: isPermissionsLoading, error: permissionsError } = useAuthPermissions();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -94,23 +95,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return user.roles.includes(role);
   };
 
-  const hasPermission = async () //permission: string
-  : Promise<boolean> => {
-    // TODO: Implementar la lógica para verificar si el usuario tiene el permiso
+  const hasPermission = (resource: string, action: string): boolean => {
     if (!user) return false;
+
+    if (isPermissionsLoading || permissionsError) return false;
 
     // Ejemplo básico: el superadmin tiene todos los permisos
     if (user.roles.includes("superadmin")) {
       return true;
     }
-
-    // En una implementación real, aquí verificaríamos el permiso específico
-    return false;
+    return permissions?.some((permission) => permission.resource === resource && permission.action === action) || false;
   };
 
   const authorizeUser = async (requiredRoles?: string[]): Promise<User | null> => {
-    // requiredPermissions?: string[]
-    // TODO: Implementar la lógica para verificar si el usuario tiene los roles y permisos necesarios
     try {
       if (!user) {
         throw new UnauthorizedError("Usuario no autenticado");
