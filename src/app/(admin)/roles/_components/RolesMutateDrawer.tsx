@@ -54,10 +54,11 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const form = useForm<RolesForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: currentRow?.name || "",
-      description: currentRow?.description || "",
-      permissionsIds: currentRow?.permissionIds || [],
+      name: "",
+      description: "",
+      permissionsIds: [],
     },
+    mode: "onChange",
   });
   const onSubmit = (data: RolesForm) => {
     if (isUpdate && currentRow?.id) {
@@ -103,9 +104,25 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         description: currentRow.description || "",
         permissionsIds: currentRow.permissionIds || [],
       });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        permissionsIds: [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
+
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        name: "",
+        description: "",
+        permissionsIds: [],
+      });
+    }
+  }, [open, form]);
 
   const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
   const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
