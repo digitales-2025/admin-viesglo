@@ -112,7 +112,7 @@ export function DataTable<TData, TValue>({
   return (
     <div className="space-y-4">
       {isLoading && (
-        <div className="flex flex-col gap-4">
+        <div className="inline-flex gap-4">
           <Skeleton className="h-8 w-full" />
           <Skeleton className="h-8 w-full sm:flex hidden" />
         </div>

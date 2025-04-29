@@ -209,7 +209,6 @@ export function NavGroup({ title, items }: NavGroup) {
       isMounted = false;
     };
   }, [items, hasPermission]);
-
   // Si no hay elementos accesibles, no mostrar el grupo
   if (!accessibleItems) return null;
 
