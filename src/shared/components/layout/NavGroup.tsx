@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
@@ -140,11 +140,78 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
     </SidebarMenuItem>
   );
 };
+
 export function NavGroup({ title, items }: NavGroup) {
   const { state } = useSidebar();
   const location = usePathname();
   const href = location.split("?")[0];
   const { hasPermission } = useAuth();
+  const [accessibleItems, setAccessibleItems] = useState<boolean>(false);
+  const [accessibleItemsMap, setAccessibleItemsMap] = useState<Record<string, boolean>>({});
+
+  // Verificar permisos cuando el componente se carga o cuando los items cambian
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkPermissions = async () => {
+      // Verificar permisos para todos los items
+      const itemPermissionsMap: Record<string, boolean> = {};
+
+      // Función recursiva para verificar permisos
+      const checkItemPermissions = async (itemsToCheck: NavItem[]): Promise<boolean> => {
+        // Usar Promise.all para hacer todas las verificaciones en paralelo
+        const results = await Promise.all(
+          itemsToCheck.map(async (item) => {
+            const key = `${item.title}-${item.url}`;
+
+            // Verificar permisos del elemento actual
+            let hasAccess = true;
+            if (item.permissions && item.permissions.length > 0) {
+              // Verificar si tiene al menos uno de los permisos
+              const permissionChecks = await Promise.all(
+                item.permissions.map((permission) => hasPermission(permission.resource || "", permission.action || ""))
+              );
+              hasAccess = permissionChecks.some(Boolean);
+            }
+
+            // Verificar permisos de los hijos recursivamente
+            let childrenHaveAccess = false;
+            if (item.items && item.items.length > 0) {
+              childrenHaveAccess = await checkItemPermissions(item.items);
+            }
+
+            // El item es accesible si tiene permiso directo o si alguno de sus hijos tiene permiso
+            const isAccessible = hasAccess || childrenHaveAccess;
+            itemPermissionsMap[key] = isAccessible;
+
+            return isAccessible;
+          })
+        );
+
+        // El grupo es accesible si al menos uno de sus items es accesible
+        return results.some(Boolean);
+      };
+
+      // Ejecutar la verificación recursiva
+      const hasAnyAccessibleItem = await checkItemPermissions(items);
+
+      // Solo actualizar el estado si el componente sigue montado
+      if (isMounted) {
+        setAccessibleItems(hasAnyAccessibleItem);
+        setAccessibleItemsMap(itemPermissionsMap);
+      }
+    };
+
+    checkPermissions();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [items, hasPermission]);
+
+  // Si no hay elementos accesibles, no mostrar el grupo
+  if (!accessibleItems) return null;
 
   return (
     <SidebarGroup>
@@ -153,11 +220,8 @@ export function NavGroup({ title, items }: NavGroup) {
         {items.map((item) => {
           const key = `${item.title}-${item.url}`;
 
-          const isAccessible = item.permissions
-            ? item.permissions?.some((permission) => hasPermission(permission.resource, permission.action)) || false
-            : true;
-
-          if (!isAccessible) return null;
+          // Verificar si este elemento es accesible según el mapa calculado
+          if (!accessibleItemsMap[key]) return null;
 
           if (!item.items) return <SidebarMenuLink key={key} item={item} href={href} />;
 
