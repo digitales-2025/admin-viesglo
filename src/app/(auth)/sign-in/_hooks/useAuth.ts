@@ -154,6 +154,7 @@ export function useCurrentUser() {
     queryFn: async () => {
       const response = await currentUser();
       if (!response.success) {
+        await logout();
         throw new Error(response.error || "Error al obtener el usuario");
       }
       return response.data;
