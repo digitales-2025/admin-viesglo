@@ -267,35 +267,35 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   };
 
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn("space-y-2 w-full", className)}>
       <Form {...form}>
-        <div className="flex flex-wrap gap-2 items-end">
-          <div className="grow-[3] min-w-[150px]">
+        <div className="flex flex-col gap-2 w-full">
+          <div className="w-full">
             <FormField
               control={form.control}
               name="search"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="w-full">
                   <FormControl>
-                    <div className="flex w-full items-center space-x-2">
-                      <div className="relative flex-1">
+                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 w-full">
+                      <div className="relative w-full">
                         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                         <Input
                           type="search"
                           placeholder={isMobile ? "Buscar..." : "Buscar proyectos..."}
-                          className={cn("h-9 sm:h-10 w-full pl-8", appliedFilters.length > 0 && "rounded-b-none")}
+                          className={cn("w-full pl-8", appliedFilters.length > 0 && "rounded-b-none")}
                           {...field}
                         />
                       </div>
-                      <div className="flex space-x-1">
+                      <div className="flex gap-2 w-full">
                         <Button
                           type="button"
                           variant="outline"
-                          size={isMobile ? "sm" : "default"}
-                          className="h-9 sm:h-10"
+                          size={isMobile ? "icon" : "default"}
                           onClick={handleSimpleSearch}
                         >
-                          Buscar
+                          <Search className="h-4 w-4 lg:hidden block" />
+                          <span className="hidden lg:block">Buscar</span>
                         </Button>
                         <Popover open={isOpen} onOpenChange={setIsOpen}>
                           <PopoverTrigger asChild>
@@ -303,15 +303,15 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                               type="button"
                               variant="outline"
                               size={isMobile ? "icon" : "default"}
-                              className={cn("h-9 sm:h-10", isOpen && "border-primary")}
+                              className={cn(isOpen && "border-primary")}
                             >
                               <SlidersHorizontal className="h-4 w-4" />
-                              {!isMobile && <span className="ml-2">Filtros</span>}
+                              {!isMobile && <span className="ml-2 lg:block hidden">Filtros</span>}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent align="end" className="w-full sm:w-[400px] p-4">
+                          <PopoverContent align="end" className="w-[calc(100vw-2rem)] sm:w-[400px] p-4">
                             <form onSubmit={form.handleSubmit(handleSearch)} className="grid gap-4">
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                   <FormField
                                     control={form.control}
@@ -364,7 +364,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
                               <div className="space-y-2">
                                 <FormLabel>Fecha de inicio</FormLabel>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                   <FormField
                                     control={form.control}
                                     name="startDateFrom"
@@ -402,7 +402,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
                               <div className="space-y-2">
                                 <FormLabel>Fecha de finalización</FormLabel>
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                   <FormField
                                     control={form.control}
                                     name="endDateFrom"
@@ -466,15 +466,19 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       </Form>
 
       {appliedFilters.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 rounded-b-md border-b border-l border-r p-1 shadow-sm">
+        <div className="flex flex-wrap gap-1.5 rounded-b-md border-b border-l border-r p-1.5 shadow-sm">
           {appliedFilters.map((filter, index) => (
-            <Badge key={`${filter}-${index}`} variant="secondary" className="flex items-center gap-1 text-xs h-6">
-              {filter}
+            <Badge
+              key={`${filter}-${index}`}
+              variant="secondary"
+              className="flex items-center gap-1 text-xs h-6 max-w-full overflow-hidden"
+            >
+              <span className="truncate">{filter}</span>
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => removeFilter(filter)}
-                className="h-4 w-4 p-0 hover:bg-transparent"
+                className="h-4 w-4 p-0 hover:bg-transparent flex-shrink-0"
               >
                 <X className="h-3 w-3" />
                 <span className="sr-only">Eliminar {filter}</span>
@@ -482,7 +486,13 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
             </Badge>
           ))}
           {appliedFilters.length > 1 && (
-            <Button type="button" variant="ghost" size="sm" onClick={clearAllFilters} className="ml-auto h-6 text-xs">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearAllFilters}
+              className="ml-auto h-6 text-xs whitespace-nowrap"
+            >
               Limpiar todos
             </Button>
           )}
