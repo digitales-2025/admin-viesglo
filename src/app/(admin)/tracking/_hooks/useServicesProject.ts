@@ -7,6 +7,7 @@ import {
   createServiceFromTemplate,
   createServiceProject,
   deleteServiceProject,
+  getServiceById,
   getServicesProject,
   updateServiceProject,
 } from "../_actions/services-project.actions";
@@ -154,6 +155,22 @@ export function useCreateServiceFromTemplate() {
     },
     onError: () => {
       toast.error("Error al crear servicios desde plantilla");
+    },
+  });
+}
+
+/**
+ * Obtener un servicio de un proyecto por su Id
+ */
+export function useServiceById(serviceId: string) {
+  return useQuery({
+    queryKey: SERVICES_PROJECT_KEYS.detail(serviceId),
+    queryFn: async () => {
+      const response = await getServiceById(serviceId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener servicio por ID");
+      }
+      return response.data;
     },
   });
 }

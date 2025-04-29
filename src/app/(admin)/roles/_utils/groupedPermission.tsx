@@ -15,7 +15,7 @@ import {
 
 import { Permission } from "../_types/roles";
 
-export enum EnumPermission {
+export enum EnumAction {
   create = "create",
   read = "read",
   update = "update",
@@ -33,20 +33,20 @@ export enum EnumPermission {
 }
 
 export const labelPermission = {
-  [EnumPermission.create]: "Crear",
-  [EnumPermission.read]: "Visualizar",
-  [EnumPermission.update]: "Actualizar",
-  [EnumPermission.delete]: "Eliminar",
-  [EnumPermission.approve]: "Aprobar",
-  [EnumPermission.reject]: "Rechazar",
-  [EnumPermission.cancel]: "Cancelar",
-  [EnumPermission.process]: "Procesar",
-  [EnumPermission.print]: "Imprimir",
-  [EnumPermission.export]: "Exportar",
-  [EnumPermission.import]: "Importar",
-  [EnumPermission.download]: "Descargar",
-  [EnumPermission.upload]: "Subir",
-  [EnumPermission.edit]: "Editar",
+  [EnumAction.create]: "Crear",
+  [EnumAction.read]: "Visualizar",
+  [EnumAction.update]: "Actualizar",
+  [EnumAction.delete]: "Eliminar",
+  [EnumAction.approve]: "Aprobar",
+  [EnumAction.reject]: "Rechazar",
+  [EnumAction.cancel]: "Cancelar",
+  [EnumAction.process]: "Procesar",
+  [EnumAction.print]: "Imprimir",
+  [EnumAction.export]: "Exportar",
+  [EnumAction.import]: "Importar",
+  [EnumAction.download]: "Descargar",
+  [EnumAction.upload]: "Subir",
+  [EnumAction.edit]: "Editar",
 };
 
 export enum EnumResource {

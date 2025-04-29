@@ -2,6 +2,7 @@
 
 import { ReactNode, useEffect, useState } from "react";
 
+import { EnumAction, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
 import { UserType } from "../../domain/entities/User";
 import { useAuth } from "../providers/AuthProvider";
 
@@ -10,7 +11,7 @@ interface ProtectedComponentProps {
   fallback?: ReactNode;
   allowedUserTypes?: UserType[];
   allowedRoles?: string[];
-  requiredPermissions?: { resource: string; action: string }[];
+  requiredPermissions?: { resource: EnumResource; action: EnumAction }[];
 }
 
 /**

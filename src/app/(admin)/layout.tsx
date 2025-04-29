@@ -1,5 +1,6 @@
 "use client";
 
+import { RouteGuard } from "@/auth/presentation/guards/RouteGuard";
 import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
 import AdminLayout from "@/shared/components/layout/AdminLayout";
 import { Shell } from "@/shared/components/layout/Shell";
@@ -18,7 +19,9 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
 
   return (
     <AdminLayout>
-      <Shell>{children}</Shell>
+      <RouteGuard allowedUserTypes={["admin"]}>
+        <Shell>{children}</Shell>
+      </RouteGuard>
     </AdminLayout>
   );
 }
