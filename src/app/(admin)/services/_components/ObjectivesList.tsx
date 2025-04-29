@@ -64,7 +64,7 @@ export default function ObjectivesList() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <div className="flex items-center justify-between min-h-14">
+      <div className="flex items-start flex-wrap justify-between min-h-14">
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Objetivos</h3>
         </div>
