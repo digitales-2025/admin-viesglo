@@ -1,32 +1,45 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTableFacetedFilterOption } from "@/shared/components/data-table/DataTableFacetedFilter";
 import { groupFiltersByValue } from "@/shared/utils/filtersGroup";
 import { useUsers } from "../_hooks/useUsers";
 import { columnsUsers } from "./user.column";
 
 export default function UsersTable() {
   const { data: users, isLoading, error } = useUsers();
+
+  // Estado local para los filtros con tipos explícitos de DataTableFacetedFilterOption
+  const [filterActiveOptions, setFilterActiveOptions] = useState<DataTableFacetedFilterOption[]>([]);
+  const [filterRoleOptions, setFilterRoleOptions] = useState<DataTableFacetedFilterOption[]>([]);
+
+  // Actualizar filtros solo cuando los datos estén disponibles
+  useEffect(() => {
+    if (users && users.length > 0) {
+      // Filtro de activos
+      const activeOptions = groupFiltersByValue(users, "isActive");
+      setFilterActiveOptions(
+        activeOptions.map((option) => ({
+          label: option.label ? "Activo" : "Inactivo",
+          value: String(option.value), // Convertir a string para cumplir con el tipo
+        }))
+      );
+
+      // Filtro de roles
+      const roleOptions = groupFiltersByValue(users.flatMap((user) => user.roles) || [], "name");
+      setFilterRoleOptions(
+        roleOptions.map((option) => ({
+          label: option.label,
+          value: String(option.value), // Asegurar que value es siempre string
+        }))
+      );
+    }
+  }, [users]);
   const columns = useMemo(() => columnsUsers(), []);
 
-  const filterActiveOptions = useMemo(() => {
-    const options = groupFiltersByValue(users || [], "isActive");
-    return options.map((option) => ({
-      label: option.label ? "Activo" : "Inactivo",
-      value: option.value,
-    }));
-  }, [users]);
-
-  const filterRoleOptions = useMemo(() => {
-    const options = groupFiltersByValue(users?.flatMap((user) => user.roles) || [], "name");
-    return options.map((option) => ({
-      label: option.label,
-      value: option.value,
-    }));
-  }, [users]);
-
+  // Manejo de errores
   if (error) return <div className="text-center py-4 text-destructive">Error al cargar usuarios: {error.message}</div>;
 
   return (
@@ -35,8 +48,8 @@ export default function UsersTable() {
       data={users || []}
       isLoading={isLoading}
       filterOptions={[
-        { label: "Estado", value: "estado", options: filterActiveOptions || [] },
-        { label: "Rol", value: "rol", options: filterRoleOptions || [] },
+        { label: "Estado", value: "estado", options: filterActiveOptions },
+        { label: "Rol", value: "rol", options: filterRoleOptions },
       ]}
     />
   );

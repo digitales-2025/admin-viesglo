@@ -1,5 +1,7 @@
 import { Loader2, Plus, SquareDashed } from "lucide-react";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
+import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -9,13 +11,14 @@ import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
 import { ServiceResponse } from "../_types/services.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import CardItem from "./CardItem";
 
 export default function ServicesList() {
   const { data: services, isLoading, error } = useServices();
   const { open } = useDialogStore();
   const { setSelectedService, selectedService, setSelectedObjective, setSelectedActivity } = useServiceStore();
-
+  const { hasPermission } = useAuth();
   if (error) return <div>Error: {error.message}</div>;
 
   const handleDelete = (service: ServiceResponse) => {
@@ -36,15 +39,17 @@ export default function ServicesList() {
 
   return (
     <div className="flex flex-col gap-4 h-full">
-      <div className="flex items-center justify-between min-h-3.5">
+      <div className="flex items-start flex-wrap justify-between min-h-3.5">
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Servicios</h3>
           <p className="text-sm text-muted-foreground">Aquí puedes ver todos los servicios que tienes disponibles.</p>
         </div>
-        <Button size="sm" disabled={isLoading} variant="outline" onClick={() => open("services", "create")}>
-          <Plus className="w-4 h-4" />
-          Nuevo Servicio
-        </Button>
+        <ProtectedComponent requiredPermissions={[{ resource: EnumResource.services, action: EnumAction.create }]}>
+          <Button size="sm" disabled={isLoading} variant="outline" onClick={() => open("services", "create")}>
+            <Plus className="w-4 h-4" />
+            Nuevo Servicio
+          </Button>
+        </ProtectedComponent>
       </div>
       <Separator />
       {isLoading ? (
@@ -65,6 +70,10 @@ export default function ServicesList() {
                   onDelete={() => handleDelete(service)}
                   onClick={() => handleServiceClick(service)}
                   className={cn(selectedService?.id === service.id && "border-sky-400  outline-4 outline-sky-300/10")}
+                  permissions={{
+                    update: hasPermission(EnumResource.services, EnumAction.update),
+                    delete: hasPermission(EnumResource.services, EnumAction.delete),
+                  }}
                 />
               ))
             ) : (

@@ -12,9 +12,7 @@ export default function RolesTable() {
   // Crear columnas con la función de expansión y el ID de la fila expandida
   const columns = useMemo(() => columnsRoles(), []);
 
-  if (isLoading) return <div className="text-center py-4">Cargando roles...</div>;
-
   if (error) return <div className="text-center py-4 text-destructive">Error al cargar roles: {error.message}</div>;
 
-  return <DataTable columns={columns} data={roles || []} />;
+  return <DataTable columns={columns} data={roles || []} isLoading={isLoading} />;
 }

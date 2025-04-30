@@ -1,10 +1,9 @@
 "use client";
 
 import { useMemo } from "react";
-import { DownloadCloud } from "lucide-react";
 
+import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { Button } from "@/shared/components/ui/button";
 import { useClients } from "../_hooks/useClients";
 import { columnsClients } from "./clients.column";
 
@@ -13,21 +12,7 @@ export default function ClientsTable() {
 
   const columns = useMemo(() => columnsClients(), []);
 
-  if (error) {
-    console.log("🚀 ~ ClientsTable ~ error:", error);
-    return <div className="text-center py-4">Error al cargar clientes</div>;
-  }
+  if (error) return <AlertMessage variant="destructive" title="Error al cargar clientes" description={error.message} />;
 
-  return (
-    <DataTable
-      columns={columns}
-      data={clients || []}
-      isLoading={isLoading}
-      actions={
-        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-          <DownloadCloud /> Descargar
-        </Button>
-      }
-    />
-  );
+  return <DataTable columns={columns} data={clients || []} isLoading={isLoading} />;
 }

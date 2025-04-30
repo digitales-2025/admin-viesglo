@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, ChevronDown, ChevronLeft, ChevronRight, Expand, File, Folder, FolderOpen, Trash } from "lucide-react";
+import { Check, ChevronDown, ChevronRight, Expand, File, Folder, FolderOpen, Minimize, Trash } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -202,7 +202,7 @@ export default function TreeServices({ services, value = [], onChange, className
           Expandir
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={collapseAll}>
-          <ChevronLeft className="size-4 mr-2" />
+          <Minimize className="size-4 mr-2" />
           Contraer
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={clearAll}>

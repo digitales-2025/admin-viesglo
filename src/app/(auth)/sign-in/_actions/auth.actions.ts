@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 import { z } from "zod";
 
+import { Permission } from "@/auth/domain/entities/Role";
 import { getUserDashboardPath } from "@/auth/domain/entities/User";
 import { http } from "@/lib/http/clientFetch";
 import { http as httpApi } from "@/lib/http/serverFetch";
@@ -13,6 +14,8 @@ const loginSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(1, "Contraseña requerida"),
 });
+
+const API_ENDPOINT = "/auth";
 
 export async function login(credentials: SignIn) {
   // Validar datos
@@ -30,7 +33,7 @@ export async function login(credentials: SignIn) {
       password: credentials.password,
     };
 
-    const { data: responseData, headers } = await http.post<AuthResponse>("/auth/login", loginData);
+    const { data: responseData, headers } = await http.post<AuthResponse>(`${API_ENDPOINT}/login`, loginData);
     if (!responseData?.id) {
       return { error: "Credenciales inválidas" };
     }
@@ -116,7 +119,7 @@ export async function logout() {
 
     // Notificar al backend del logout para invalidar el token en el servidor
     try {
-      await httpApi.post("/auth/logout");
+      await httpApi.post(`${API_ENDPOINT}/logout`);
     } catch (error) {
       console.error("Error al notificar logout al backend:", error);
       // Continuar con el logout local incluso si falla la notificación al backend
@@ -148,7 +151,7 @@ export async function currentUser(): Promise<{ success: boolean; data: AuthRespo
   try {
     // Llamamos a /auth/me, que verificará el access_token
     // Si está expirado, el backend lo renovará automáticamente usando el refresh_token
-    const [data, error] = await httpApi.get<AuthResponse>("/auth/me", {
+    const [data, error] = await httpApi.get<AuthResponse>(`${API_ENDPOINT}/me`, {
       // Asegurarnos de que se envían las cookies
       headers: {
         Cookie: `refresh_token=${refreshToken}${accessToken ? `; access_token=${accessToken}` : ""}`,
@@ -172,12 +175,24 @@ export async function updatePassword(
   data: UpdatePassword
 ): Promise<{ success: boolean; data: string | null; error?: string }> {
   try {
-    const [response, error] = await httpApi.put<string>("/auth/update-password", data);
+    const [response, error] = await httpApi.put<string>(`${API_ENDPOINT}/update-password`, data);
     if (error) {
       throw new Error(error.message);
     }
     return { success: true, data: response };
   } catch (error: any) {
     return { success: false, data: null, error: error.message || "Error al actualizar la contraseña" };
+  }
+}
+
+export async function getUserPermissions(): Promise<{ data: Permission[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await httpApi.get<Permission[]>(`${API_ENDPOINT}/permissions`);
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener permisos del usuario" };
+    }
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, data: [], error: error.message || "Error al obtener permisos del usuario" };
   }
 }

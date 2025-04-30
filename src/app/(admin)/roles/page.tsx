@@ -1,8 +1,11 @@
 import { Metadata } from "next";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
+import AlertMessage from "@/shared/components/alerts/Alert";
 import RolesDialogs from "./_components/RolesDialogs";
 import { RolesExpandableTable } from "./_components/RolesExpandableTable";
 import RolesPrimaryButtons from "./_components/RolesPrimaryButtons";
+import { EnumAction, EnumResource } from "./_utils/groupedPermission";
 
 export const metadata: Metadata = {
   title: "Administrador de roles",
@@ -10,7 +13,16 @@ export const metadata: Metadata = {
 
 export default function RolesPage() {
   return (
-    <>
+    <ProtectedComponent
+      requiredPermissions={[{ resource: EnumResource.roles, action: EnumAction.read }]}
+      fallback={
+        <AlertMessage
+          variant="destructive"
+          title="No tienes permisos para ver este contenido"
+          description="Por favor, contacta al administrador. O intenta iniciar sesión con otro usuario."
+        />
+      }
+    >
       <div className="mb-2 flex flex-wrap items-center justify-between space-y-2">
         <div>
           <h2 className="text-2xl font-bold tracking-tight">Administrador de roles</h2>
@@ -22,6 +34,6 @@ export default function RolesPage() {
         <RolesExpandableTable />
       </div>
       <RolesDialogs />
-    </>
+    </ProtectedComponent>
   );
 }

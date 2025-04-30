@@ -62,7 +62,7 @@ export default function ContainerServices() {
       <div className="hidden md:block h-[calc(100vh-160px)]">
         <ResizablePanelGroup
           direction="horizontal"
-          className="h-full max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full border-y"
+          className="h-full max-h-[calc(100vh-160px)] min-h-[calc(100vh-160px)] w-full border rounded-md"
         >
           <ResizablePanel defaultSize={40} minSize={30} className="p-4 flex flex-col">
             <ServicesList />

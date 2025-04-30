@@ -52,7 +52,7 @@ const ProjectServices = memo(function ProjectServices({ project }: ProjectServic
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="flex justify-between items-center flex-shrink-0 mb-2 sm:mb-4">
+      <div className="flex justify-between items-center flex-shrink-0 mb-2 sm:mb-4 flex-wrap gap-y-2">
         <div className="flex items-center gap-1 sm:gap-2">
           <h3 className="text-base sm:text-lg font-bold flex items-center gap-1 sm:gap-2">
             Servicios{" "}
@@ -78,7 +78,7 @@ const ProjectServices = memo(function ProjectServices({ project }: ProjectServic
         <Button
           variant="outline"
           size={isMobile ? "sm" : "default"}
-          className="text-xs sm:text-sm font-medium h-8 sm:h-9"
+          className="text-xs sm:text-sm font-medium h-8 sm:h-9 "
           onClick={() => open("project-services", "create")}
         >
           <PlusCircle className="size-3 sm:size-4 mr-1 sm:mr-2" />
@@ -86,13 +86,13 @@ const ProjectServices = memo(function ProjectServices({ project }: ProjectServic
         </Button>
       </div>
       {services.length > 0 ? (
-        <ScrollArea className="flex-grow min-h-0 bg-muted rounded-md p-2 sm:p-4 relative">
+        <ScrollArea className="flex-grow  bg-muted rounded-2xl p-2 relative">
           {services.length > 2 && !isMobile && (
             <div className="absolute bottom-2 right-2 z-10 bg-background/80 text-muted-foreground text-xs px-2 py-1 rounded-sm border backdrop-blur-sm">
               Desplaza para ver más
             </div>
           )}
-          <div className="flex flex-col gap-2 sm:gap-4 pr-2 sm:pr-4">
+          <div className="flex flex-col gap-2">
             {services.map((service) => (
               <ProjectServiceCard key={service.id} service={service} />
             ))}

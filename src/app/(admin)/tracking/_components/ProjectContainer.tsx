@@ -1,6 +1,6 @@
 "use client";
 
-import { Briefcase } from "lucide-react";
+import { ArrowLeft, Briefcase } from "lucide-react";
 
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/components/ui/resizable";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
@@ -30,20 +30,7 @@ export default function ProjectsContainer() {
                 onClick={() => useProjectStore.getState().setSelectedProject(null)}
                 className="absolute top-4 left-4 z-10 p-2 bg-secondary rounded-full mb-4"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
+                <ArrowLeft className="h-5 w-5" />
               </button>
               <ProjectDetail />
             </div>
@@ -54,15 +41,15 @@ export default function ProjectsContainer() {
         <ResizablePanelGroup
           direction="horizontal"
           className={cn(
-            "h-full w-full border-y",
+            "h-full w-full border rounded-md",
             "flex-1 overflow-hidden" // Permitir que se expanda sin tamaños fijos
           )}
         >
-          <ResizablePanel defaultSize={35} minSize={30} maxSize={45} className="py-4 flex flex-col">
+          <ResizablePanel defaultSize={50} minSize={50} maxSize={60} className="py-4 flex flex-col">
             <ProjectList />
           </ResizablePanel>
           <ResizableHandle withHandle />
-          <ResizablePanel defaultSize={65} minSize={55} className="p-4 flex flex-col">
+          <ResizablePanel defaultSize={50} minSize={40} className="p-4 flex flex-col">
             {selectedProject ? (
               <ProjectDetail />
             ) : (
