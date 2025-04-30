@@ -113,7 +113,6 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
   },
   {
     id: "actions",
-    header: "Acciones",
     cell: ({ row }) => <CertificatesTableActions certificate={row.original} />,
   },
 ];
