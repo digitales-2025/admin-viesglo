@@ -106,6 +106,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/permissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener permisos del usuario autenticado */
+    get: operations["AuthController_getPermissions_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users": {
     parameters: {
       query?: never;
@@ -1235,6 +1252,43 @@ export interface paths {
     head?: never;
     /** Mark payment as paid or unpaid */
     patch: operations["PaymentController_markStatus_v1"];
+    trace?: never;
+  };
+  "/api/v1/quotation-groups": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los grupos de cotizaciones */
+    get: operations["QuotationGroupsController_getAll_v1"];
+    put?: never;
+    /** Crear un grupo de cotizaciones */
+    post: operations["QuotationGroupsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/quotation-groups/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un grupo de cotizaciones por ID */
+    get: operations["QuotationGroupsController_getById_v1"];
+    /** Actualizar un grupo de cotizaciones por ID */
+    put: operations["QuotationGroupsController_update_v1"];
+    post?: never;
+    /** Eliminar un grupo de cotizaciones por ID */
+    delete: operations["QuotationGroupsController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
 }
@@ -2704,6 +2758,28 @@ export interface components {
        */
       responsibleUserId?: string | null;
     };
+    QuotationGroupResponseDto: {
+      /**
+       * @description ID del grupo de cotizaciones
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Nombre del grupo de cotizaciones
+       * @example Grupo de cotizaciones 1
+       */
+      name: string;
+      /**
+       * @description Descripción del grupo de cotizaciones
+       * @example Grupo de cotizaciones para la empresa 1
+       */
+      description: string;
+      /**
+       * @description Estado del grupo de cotizaciones
+       * @example true
+       */
+      isActive: boolean;
+    };
     QuotationResponseDto: {
       /**
        * @description ID único de la cotización
@@ -2790,6 +2866,8 @@ export interface components {
        * @example false
        */
       isConcrete: boolean;
+      /** @description Grupo de cotización */
+      quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
     };
     CreateQuotationDto: {
       /**
@@ -2863,6 +2941,11 @@ export interface components {
        * @example juan.perez@empresa.com
        */
       email: string;
+      /**
+       * @description Id del grupo de cotizaciones
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      quotationGroupId: string;
     };
     UpdateQuotationDto: {
       /**
@@ -3602,6 +3685,30 @@ export interface components {
        */
       billingCode: string;
     };
+    CreateQuotationGroupDto: {
+      /**
+       * @description Nombre del grupo de cotizaciones
+       * @example Grupo de cotizaciones 1
+       */
+      name: string;
+      /**
+       * @description Descripción del grupo de cotizaciones
+       * @example Grupo de cotizaciones para la empresa 1
+       */
+      description?: string;
+    };
+    UpdateQuotationGroupDto: {
+      /**
+       * @description Nombre del grupo de cotizaciones
+       * @example Grupo de cotizaciones 1
+       */
+      name?: string;
+      /**
+       * @description Descripción del grupo de cotizaciones
+       * @example Grupo de cotizaciones para la empresa 1
+       */
+      description?: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -3731,6 +3838,26 @@ export interface operations {
     };
     responses: {
       /** @description Respuesta sobre la validez del token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenVerificationResponse"];
+        };
+      };
+    };
+  };
+  AuthController_getPermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Devuelve los permisos del usuario autenticado */
       200: {
         headers: {
           [name: string]: unknown;
@@ -6635,6 +6762,118 @@ export interface operations {
       };
       /** @description Payment not found */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationGroupsController_getAll_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de grupos de cotizaciones */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationGroupResponseDto"][];
+        };
+      };
+    };
+  };
+  QuotationGroupsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateQuotationGroupDto"];
+      };
+    };
+    responses: {
+      /** @description Grupo de cotizaciones creado correctamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationGroupResponseDto"];
+        };
+      };
+    };
+  };
+  QuotationGroupsController_getById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Grupo de cotizaciones encontrado correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationGroupResponseDto"];
+        };
+      };
+    };
+  };
+  QuotationGroupsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateQuotationGroupDto"];
+      };
+    };
+    responses: {
+      /** @description Grupo de cotizaciones actualizado correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["QuotationGroupResponseDto"];
+        };
+      };
+    };
+  };
+  QuotationGroupsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Grupo de cotizaciones eliminado correctamente */
+      200: {
         headers: {
           [name: string]: unknown;
         };
