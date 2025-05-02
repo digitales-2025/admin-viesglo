@@ -17,7 +17,7 @@ import { cn } from "@/shared/lib/utils";
 
 export type ComboboxOption = {
   value: string;
-  label: string;
+  label: string | React.ReactNode;
 };
 
 type ComboboxProps = {

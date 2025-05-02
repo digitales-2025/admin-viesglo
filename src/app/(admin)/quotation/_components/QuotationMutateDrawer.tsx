@@ -279,7 +279,12 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                               width="w-full"
                               options={
                                 quotationGroups?.map((group) => ({
-                                  label: group.name,
+                                  label: (
+                                    <div className="inline-flex items-center gap-2">
+                                      <span className="text-xs text-muted-foreground">({group.code})</span>
+                                      <span className="text-sm font-semibold">{group.name}</span>
+                                    </div>
+                                  ),
                                   value: group.id,
                                 })) || []
                               }

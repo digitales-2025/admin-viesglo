@@ -1,6 +1,8 @@
 import { components } from "@/lib/api/types/api";
 
-export type QuotationResponse = components["schemas"]["QuotationResponseDto"];
+export type QuotationResponse = Omit<components["schemas"]["QuotationResponseDto"], "quotationGroup"> & {
+  quotationGroup: QuotationGroupResponse;
+};
 
 export type QuotationCreate = components["schemas"]["CreateQuotationDto"];
 

@@ -2770,6 +2770,11 @@ export interface components {
        */
       name: string;
       /**
+       * @description Código del grupo de cotizaciones
+       * @example COT
+       */
+      code: string;
+      /**
        * @description Descripción del grupo de cotizaciones
        * @example Grupo de cotizaciones para la empresa 1
        */
@@ -3692,6 +3697,11 @@ export interface components {
        */
       name: string;
       /**
+       * @description Código del grupo de cotizaciones
+       * @example COT
+       */
+      code: string;
+      /**
        * @description Descripción del grupo de cotizaciones
        * @example Grupo de cotizaciones para la empresa 1
        */
@@ -3703,6 +3713,11 @@ export interface components {
        * @example Grupo de cotizaciones 1
        */
       name?: string;
+      /**
+       * @description Código del grupo de cotizaciones
+       * @example COT
+       */
+      code?: string;
       /**
        * @description Descripción del grupo de cotizaciones
        * @example Grupo de cotizaciones para la empresa 1
