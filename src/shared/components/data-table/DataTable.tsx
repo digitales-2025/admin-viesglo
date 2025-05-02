@@ -119,12 +119,18 @@ export function DataTable<TData, TValue>({
           "Proporcione serverPagination y serverFilters cuando use mode='server'."
       );
     }
-
     if (!isServerMode && hasServerConfig) {
       console.warn(
         "DataTable: configuración de servidor proporcionada pero modo='client'. " +
           "Cambie a mode='server' o elimine serverPagination y serverFilters."
       );
+    }
+    // Añadir la version de que se configuro de manera correcta tambien en color verde
+    if (isServerMode && hasServerConfig) {
+      console.log("\x1b[32mDataTable: configuración de servidor proporcionada y modo servidor especificado.\x1b[0m");
+    }
+    if (!isServerMode && !hasServerConfig) {
+      console.log("\x1b[32mDataTable: configuración de servidor proporcionada y modo servidor especificado.\x1b[0m");
     }
   }, [isServerMode, hasServerConfig]);
 

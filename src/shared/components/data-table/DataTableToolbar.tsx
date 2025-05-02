@@ -70,6 +70,8 @@ export function DataTableToolbar<TData>({
       });
     }
   };
+  const showClearButton = isFiltered || (Boolean(useServerFilters) && serverSearchValue !== "");
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
@@ -132,7 +134,7 @@ export function DataTableToolbar<TData>({
           </div>
         )}
 
-        {(isFiltered || (useServerFilters && serverSearchValue)) && (
+        {showClearButton && (
           <Button variant="ghost" onClick={handleClearFilters} className="h-8 px-2 lg:px-3">
             Limpiar
             <X className="ml-2 h-4 w-4" />
