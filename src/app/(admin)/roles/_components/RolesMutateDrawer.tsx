@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Circle, Loader2, ShieldCheckIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
@@ -27,7 +28,7 @@ import {
 import { usePermissions } from "../_hooks/usePermissions";
 import { useCreateRole, useUpdateRole } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
-import { groupedPermission } from "../_utils/groupedPermission";
+import { EnumAction, groupedPermission, iconResource, labelResource } from "../_utils/groupedPermission";
 
 interface Props {
   open: boolean;
@@ -54,10 +55,11 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const form = useForm<RolesForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: currentRow?.name || "",
-      description: currentRow?.description || "",
-      permissionsIds: currentRow?.permissionIds || [],
+      name: "",
+      description: "",
+      permissionsIds: [],
     },
+    mode: "onChange",
   });
   const onSubmit = (data: RolesForm) => {
     if (isUpdate && currentRow?.id) {
@@ -103,9 +105,25 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
         description: currentRow.description || "",
         permissionsIds: currentRow.permissionIds || [],
       });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        permissionsIds: [],
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
+
+  useEffect(() => {
+    if (!open) {
+      form.reset({
+        name: "",
+        description: "",
+        permissionsIds: [],
+      });
+    }
+  }, [open, form]);
 
   const [openGroups, setOpenGroups] = useState<string[]>(["database"]);
   const { data: permissions, isLoading: isLoadingPermissions } = usePermissions();
@@ -113,6 +131,73 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const groupedPermissions = groupedPermission(permissions || []);
   const toggleGroup = (groupId: string) => {
     setOpenGroups((prev) => (prev.includes(groupId) ? prev.filter((g) => g !== groupId) : [...prev, groupId]));
+  };
+
+  // Encontrar permiso de 'read' para cada grupo
+  const getReadPermissionId = (groupActions: any[]) => {
+    const readPermission = groupActions.find((action) => action.action === EnumAction.read || action.action === "read");
+    return readPermission?.id || null;
+  };
+
+  // Verificar si hay permisos activos además del 'read' en un grupo
+  const hasActivePermissionsBesidesRead = (groupActions: any[], readPermissionId: string | null) => {
+    if (!readPermissionId) return false;
+    return groupActions.some(
+      (action) => action.id !== readPermissionId && form.getValues("permissionsIds")?.includes(action.id)
+    );
+  };
+
+  // Manejar el cambio de estado del checkbox de grupo (header)
+  const handleGroupCheckboxChange = (checked: boolean, groupActions: any[]) => {
+    const readPermissionId = getReadPermissionId(groupActions);
+    if (!readPermissionId) return;
+
+    const currentValues = form.getValues("permissionsIds") || [];
+
+    if (checked) {
+      // Si se marca, agregar el permiso de lectura si no está ya incluido
+      if (!currentValues.includes(readPermissionId)) {
+        form.setValue("permissionsIds", [...currentValues, readPermissionId], { shouldValidate: true });
+      }
+    } else {
+      // Si se desmarca, quitar todos los permisos del grupo
+      const updatedPermissions = currentValues.filter((id) => !groupActions.some((action) => action.id === id));
+      form.setValue("permissionsIds", updatedPermissions, { shouldValidate: true });
+    }
+  };
+
+  // Manejar el cambio de estado de cualquier permiso individual
+  const handlePermissionChange = (checked: boolean, permissionId: string, groupActions: any[]) => {
+    const readPermissionId = getReadPermissionId(groupActions);
+    const currentValues = form.getValues("permissionsIds") || [];
+
+    if (checked) {
+      // Si se marca cualquier permiso, asegurarse de que 'read' también esté marcado
+      const newValues = [...currentValues, permissionId];
+
+      if (readPermissionId && !newValues.includes(readPermissionId)) {
+        newValues.push(readPermissionId);
+      }
+
+      form.setValue("permissionsIds", newValues, { shouldValidate: true });
+    } else {
+      // Si se desmarca, quitar solo ese permiso
+      // Si es el permiso 'read', quitar también todos los demás permisos del grupo
+      const isReadPermission = permissionId === readPermissionId;
+
+      if (isReadPermission) {
+        // Si es 'read', quitar todos los permisos del grupo
+        const updatedPermissions = currentValues.filter((id) => !groupActions.some((action) => action.id === id));
+        form.setValue("permissionsIds", updatedPermissions, { shouldValidate: true });
+      } else {
+        // Si no es 'read', solo quitar ese permiso específico
+        form.setValue(
+          "permissionsIds",
+          currentValues.filter((value) => value !== permissionId),
+          { shouldValidate: true }
+        );
+      }
+    }
   };
 
   return (
@@ -150,7 +235,11 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Nombre</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese un nombre" disabled={isPending} />
+                        <Input
+                          {...field}
+                          placeholder="Ingrese el nombre del rol (Ej: Administrador)"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -163,105 +252,186 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem className="space-y-1">
                       <FormLabel>Descripción</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder="Ingrese una descripción" disabled={isPending} />
+                        <Input
+                          {...field}
+                          placeholder="Ingrese una descripción del rol (Ej: Rol para administradores)"
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="permissionsIds"
-                  render={() => (
-                    <FormItem>
-                      <div className="space-y-6">
-                        {groupedPermissions.map((group) => (
-                          <Collapsible
-                            key={group.resource}
-                            open={openGroups.includes(group.resource)}
-                            onOpenChange={() => toggleGroup(group.resource)}
-                            className="border rounded-md bg-background"
-                          >
-                            <CollapsibleTrigger asChild>
-                              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-muted/50">
-                                <div className="flex items-center gap-3">
-                                  <Checkbox
-                                    id={`group-${group.resource}`}
-                                    checked={group.actions.every((p) =>
-                                      form.getValues("permissionsIds")?.includes(p.id)
+                <fieldset className="space-y-6 border p-4 rounded-md">
+                  <legend className="text-sm font-medium flex items-center gap-2">
+                    <ShieldCheckIcon className="w-4 h-4 text-emerald-500" />
+                    Permisos
+                  </legend>
+                  <FormField
+                    control={form.control}
+                    name="permissionsIds"
+                    render={() => (
+                      <FormItem>
+                        <div className="space-y-6">
+                          {groupedPermissions.map((group) => {
+                            const readPermissionId = getReadPermissionId(group.actions);
+                            const isReadChecked = readPermissionId
+                              ? form.getValues("permissionsIds")?.includes(readPermissionId)
+                              : false;
+                            const hasOtherActivePermissions = hasActivePermissionsBesidesRead(
+                              group.actions,
+                              readPermissionId
+                            );
+
+                            return (
+                              <Collapsible
+                                key={group.resource}
+                                open={openGroups.includes(group.resource)}
+                                onOpenChange={() => toggleGroup(group.resource)}
+                                className="border rounded-md bg-background overflow-hidden"
+                              >
+                                <CollapsibleTrigger asChild>
+                                  <div
+                                    className={cn(
+                                      "flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors",
+                                      isReadChecked && "bg-emerald-50 hover:bg-emerald-100"
                                     )}
-                                    className="data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground"
-                                  />
-                                  <div>
-                                    <Label
-                                      htmlFor={`group-${group.resource}`}
-                                      className="font-medium cursor-pointer flex items-center"
-                                    >
-                                      <span className="ml-2 capitalize font-semibold">{group.resource}</span>
-                                    </Label>
-                                  </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge variant="outline">
-                                    {
-                                      group.actions.filter((p) => form.getValues("permissionsIds")?.includes(p.id))
-                                        .length
-                                    }{" "}
-                                    / {group.actions.length}
-                                  </Badge>
-                                  <ChevronDown
-                                    className={`h-5 w-5 transition-transform ${openGroups.includes(group.resource) ? "transform rotate-180" : ""}`}
-                                  />
-                                </div>
-                              </div>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <Separator />
-                              <div className="p-4 space-y-3">
-                                {group.actions.map((permission) => (
-                                  <FormField
-                                    key={permission.id}
-                                    control={form.control}
-                                    name="permissionsIds"
-                                    render={({ field }) => {
-                                      return (
-                                        <FormItem
-                                          key={permission.id}
-                                          className="flex flex-row items-start space-x-3 space-y-0"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <Checkbox
+                                        id={`group-${group.resource}`}
+                                        checked={isReadChecked}
+                                        onCheckedChange={(checked) =>
+                                          handleGroupCheckboxChange(!!checked, group.actions)
+                                        }
+                                        className={cn(
+                                          "data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white data-[state=checked]:border-emerald-500",
+                                          "border-muted-foreground transition-colors "
+                                        )}
+                                        onClick={(e) => e.stopPropagation()}
+                                      />
+                                      <div>
+                                        <Label
+                                          htmlFor={`group-${group.resource}`}
+                                          className="font-medium cursor-pointer flex items-center"
                                         >
-                                          <FormControl>
-                                            <Checkbox
-                                              id={permission.id}
-                                              checked={field.value?.includes(permission.id)}
-                                              onCheckedChange={(checked) => {
-                                                const currentValues = field.value || [];
-                                                return checked
-                                                  ? field.onChange([...currentValues, permission.id])
-                                                  : field.onChange(
-                                                      currentValues.filter((value) => value !== permission.id)
-                                                    );
-                                              }}
-                                            />
-                                          </FormControl>
-                                          <label
-                                            htmlFor={permission.id}
-                                            className="text-xs text-muted-foreground leading-none "
-                                          >
-                                            {permission.description}
-                                          </label>
-                                        </FormItem>
-                                      );
-                                    }}
-                                  />
-                                ))}
-                              </div>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        ))}
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                                          <span className="first-letter:uppercase font-semibold flex items-center gap-2">
+                                            {(() => {
+                                              const IconComponent =
+                                                iconResource[group.resource as keyof typeof iconResource];
+                                              return IconComponent ? (
+                                                <IconComponent
+                                                  className={cn(
+                                                    "w-4 h-4 shrink-0 transition-colors",
+                                                    isReadChecked ? "text-emerald-600" : "text-muted-foreground/70"
+                                                  )}
+                                                />
+                                              ) : (
+                                                <Circle
+                                                  className={cn(
+                                                    "w-4 h-4 shrink-0 transition-colors",
+                                                    isReadChecked ? "text-emerald-600" : "text-muted-foreground/70"
+                                                  )}
+                                                />
+                                              );
+                                            })()}
+                                            <span
+                                              className={cn("transition-colors", isReadChecked && "text-emerald-700")}
+                                            >
+                                              {labelResource[group.resource as keyof typeof labelResource] ||
+                                                group.resource}
+                                            </span>
+                                          </span>
+                                        </Label>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Badge
+                                        variant={isReadChecked ? "success" : "outline"}
+                                        className={cn(hasOtherActivePermissions && "bg-emerald-100 text-emerald-800")}
+                                      >
+                                        <span
+                                          className={cn(
+                                            "transition-colors",
+                                            isReadChecked && "text-emerald-700 font-semibold"
+                                          )}
+                                        >
+                                          {
+                                            group.actions.filter((p) =>
+                                              form.getValues("permissionsIds")?.includes(p.id)
+                                            ).length
+                                          }{" "}
+                                        </span>
+                                        / {group.actions.length}
+                                      </Badge>
+                                      <ChevronDown
+                                        className={`h-5 w-5 transition-transform ${
+                                          openGroups.includes(group.resource) ? "transform rotate-180" : ""
+                                        } ${isReadChecked ? "text-emerald-600" : "text-muted-foreground"}`}
+                                      />
+                                    </div>
+                                  </div>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                  <Separator className={cn(isReadChecked && "bg-emerald-200")} />
+                                  <div className={cn("p-4 space-y-3", isReadChecked && "bg-emerald-50/50")}>
+                                    {group.actions
+                                      .filter((permission) => permission.id !== readPermissionId)
+                                      .map((permission) => (
+                                        <FormField
+                                          key={permission.id}
+                                          control={form.control}
+                                          name="permissionsIds"
+                                          render={({ field }) => {
+                                            const isChecked = field.value?.includes(permission.id);
+                                            const isDisabled = !isReadChecked;
+
+                                            return (
+                                              <FormItem
+                                                key={permission.id}
+                                                className="flex flex-row items-center space-x-1 space-y-1"
+                                              >
+                                                <FormControl>
+                                                  <Checkbox
+                                                    id={permission.id}
+                                                    className={cn(
+                                                      "cursor-pointer data-[state=checked]:bg-emerald-500",
+                                                      "data-[state=checked]:text-white transition-colors data-[state=checked]:border-emerald-500",
+                                                      "border-emerald-400",
+                                                      isDisabled && "opacity-50 cursor-not-allowed"
+                                                    )}
+                                                    checked={isChecked}
+                                                    disabled={isDisabled}
+                                                    onCheckedChange={(checked) =>
+                                                      handlePermissionChange(!!checked, permission.id, group.actions)
+                                                    }
+                                                  />
+                                                </FormControl>
+                                                <label
+                                                  htmlFor={permission.id}
+                                                  className={cn(
+                                                    "text-xs text-muted-foreground leading-none cursor-pointer",
+                                                    isChecked && "font-bold text-emerald-600",
+                                                    isDisabled && "opacity-50 cursor-not-allowed"
+                                                  )}
+                                                >
+                                                  {permission.description}
+                                                </label>
+                                              </FormItem>
+                                            );
+                                          }}
+                                        />
+                                      ))}
+                                  </div>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
+                          })}
+                        </div>
+                      </FormItem>
+                    )}
+                  />
+                </fieldset>
               </form>
             </Form>
           )}

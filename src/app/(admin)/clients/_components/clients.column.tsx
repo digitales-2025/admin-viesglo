@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, MapPin, Minus, Phone } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -109,11 +109,20 @@ export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
     id: "clinicas",
     accessorKey: "clinics",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Clínicas" />,
-    cell: ({ row }) => <AvatarStack users={row.original.clinics} limit={3} size="sm" />,
+    cell: ({ row }) => (
+      <div className="min-w-[150px]">
+        {row.original.clinics.length > 0 ? (
+          <AvatarStack users={row.original.clinics} limit={3} size="sm" />
+        ) : (
+          <Minus className="text-muted-foreground" />
+        )}
+      </div>
+    ),
+    enableSorting: false,
   },
   {
     id: "actions",
-    header: "Acciones",
+    size: 20,
     cell: ({ row }) => <ClientsTableActions client={row.original} />,
   },
 ];

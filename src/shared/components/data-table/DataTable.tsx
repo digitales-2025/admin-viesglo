@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Fragment, useEffect } from "react";
 import {
   Column,
   ColumnDef,
@@ -23,6 +24,7 @@ import { DataTablePagination } from "@/shared/components/data-table/DataTablePag
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
+import { Skeleton } from "../ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -33,6 +35,9 @@ interface DataTableProps<TData, TValue> {
   filterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
   pagination?: boolean;
   className?: string;
+  viewOptions?: boolean;
+  getSubRows?: (row: TData) => TData[] | undefined;
+  renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
 }
 
@@ -46,6 +51,9 @@ export function DataTable<TData, TValue>({
   filterOptions,
   onClickRow,
   className,
+  viewOptions = true,
+  getSubRows,
+  renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -68,6 +76,7 @@ export function DataTable<TData, TValue>({
     },
     manualPagination: !pagination,
     enableRowSelection: true,
+    getSubRows,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -92,9 +101,25 @@ export function DataTable<TData, TValue>({
     };
   };
 
+  useEffect(() => {
+    if (data) {
+      table.setRowSelection({});
+      table.resetExpanded();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   return (
     <div className="space-y-4">
-      {toolBar && <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} />}
+      {isLoading && (
+        <div className="inline-flex gap-4">
+          <Skeleton className="h-8 w-full" />
+          <Skeleton className="h-8 w-full sm:flex hidden" />
+        </div>
+      )}
+      {toolBar && !isLoading && (
+        <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} viewOptions={viewOptions} />
+      )}
       <div className={cn("rounded-md border", className)}>
         <Table>
           <TableHeader>
@@ -123,20 +148,30 @@ export function DataTable<TData, TValue>({
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={onClickRow ? () => onClickRow(row.original) : undefined}
-                >
-                  {row.getVisibleCells().map((cell) => {
-                    const { column } = cell;
-                    return (
-                      <TableCell key={cell.id} style={{ ...getCommonPinningStyles(column) }}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                <Fragment key={row.id}>
+                  <TableRow
+                    data-state={row.getIsSelected() && "selected"}
+                    onClick={onClickRow ? () => onClickRow(row.original) : undefined}
+                  >
+                    {row.getVisibleCells().map((cell) => {
+                      const { column } = cell;
+                      return (
+                        <TableCell key={cell.id} style={{ ...getCommonPinningStyles(column) }}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                  {row.getIsExpanded() && (
+                    <TableRow key={row.id}>
+                      <TableCell colSpan={columns.length}>
+                        {renderExpandedRow
+                          ? renderExpandedRow(row.original) // Renderizado dinámico
+                          : "No hay datos disponibles"}
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
+                    </TableRow>
+                  )}
+                </Fragment>
               ))
             ) : (
               <TableRow>

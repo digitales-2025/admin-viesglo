@@ -4,7 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
-import { createUser, deleteUser, getUser, getUsers, updateUser } from "../_actions/user.actions";
+import { createUser, deleteUser, getUser, getUserPermissions, getUsers, updateUser } from "../_actions/user.actions";
 import { UserCreate, UserUpdate } from "../_types/user.types";
 
 export const USERS_KEYS = {
@@ -133,6 +133,19 @@ export function useDeleteUser() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar usuario");
+    },
+  });
+}
+// Hook para obtener los permisos de un usuario
+export function useUserPermissions(id: string) {
+  return useQuery({
+    queryKey: USERS_KEYS.permissionsDetail(id),
+    queryFn: async () => {
+      const response = await getUserPermissions(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener permisos del usuario");
+      }
+      return response.data;
     },
   });
 }

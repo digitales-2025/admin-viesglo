@@ -5,6 +5,7 @@ import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { ClockArrowUp, Edit, MoreVertical, Trash, User } from "lucide-react";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -21,6 +22,7 @@ import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import { ProjectResponse } from "../_types/tracking.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface ProjectCardProps {
   className?: string;
@@ -59,39 +61,54 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <span className="first-letter:uppercase text-wrap text-sm sm:text-base line-clamp-2">
             {project.typeContract}
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-muted-foreground h-7 w-7 sm:h-8 sm:w-8">
-                <MoreVertical className="size-4 sm:size-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  open("projects", "edit", project);
-                }}
-                className="text-xs sm:text-sm"
-              >
-                Editar
-                <DropdownMenuShortcut>
-                  <Edit className="size-3 sm:size-4" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={(e) => {
-                  e.stopPropagation();
-                  open("projects", "delete", project);
-                }}
-                className="text-xs sm:text-sm"
-              >
-                Eliminar
-                <DropdownMenuShortcut>
-                  <Trash className="size-3 sm:size-4" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ProtectedComponent
+            requiredPermissions={[
+              { resource: EnumResource.projects, action: EnumAction.update },
+              { resource: EnumResource.projects, action: EnumAction.delete },
+            ]}
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-muted-foreground h-7 w-7 sm:h-8 sm:w-8">
+                  <MoreVertical className="size-4 sm:size-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <ProtectedComponent
+                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.update }]}
+                >
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      open("projects", "edit", project);
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    Editar
+                    <DropdownMenuShortcut>
+                      <Edit className="size-3 sm:size-4" />
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </ProtectedComponent>
+                <ProtectedComponent
+                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+                >
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      open("projects", "delete", project);
+                    }}
+                    className="text-xs sm:text-sm"
+                  >
+                    Eliminar
+                    <DropdownMenuShortcut>
+                      <Trash className="size-3 sm:size-4" />
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </ProtectedComponent>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ProtectedComponent>
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm line-clamp-2">{project.description}</CardDescription>
       </CardHeader>
@@ -107,7 +124,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           className="bg-slate-500/10 h-1.5 sm:h-2"
         />
         <div className="flex flex-row gap-1 sm:gap-2 items-center">
-          <span className="text-xs sm:text-sm font-medium">{project.progress?.toFixed(2)}%</span>
+          <span className="text-xs sm:text-sm font-medium">{project.progress?.toFixed(0)}%</span>
           <span className={cn("text-muted-foreground", isMobile ? "sr-only" : "text-xs")}>Completado</span>
         </div>
       </CardContent>

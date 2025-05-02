@@ -40,6 +40,35 @@ export async function getClient(
 }
 
 /**
+ * Busca un cliente por su RUC
+ */
+export async function getClientByRuc(
+  ruc: string
+): Promise<{ data: ClientResponse | null; success: boolean; error?: string }> {
+  try {
+    // Como no hay un endpoint específico para búsqueda por RUC,
+    // usamos la función de búsqueda y luego filtramos por RUC exacto
+    const searchResponse = await searchClients(ruc);
+
+    if (!searchResponse.success) {
+      return { success: false, data: null, error: searchResponse.error || "Error al buscar cliente por RUC" };
+    }
+
+    // Filtramos el cliente que coincida exactamente con el RUC
+    const clientFound = searchResponse.data.find((client) => client.ruc === ruc);
+
+    if (!clientFound) {
+      return { success: true, data: null }; // No es un error, simplemente no se encontró
+    }
+
+    return { success: true, data: clientFound };
+  } catch (error) {
+    console.error("Error al buscar cliente por RUC", error);
+    return { success: false, data: null, error: "Error al buscar cliente por RUC" };
+  }
+}
+
+/**
  * Crea un nuevo cliente
  */
 export async function createClient(
@@ -107,5 +136,23 @@ export async function searchClients(
   } catch (error) {
     console.error("Error al buscar clientes", error);
     return { success: false, data: [], error: "Error al buscar clientes" };
+  }
+}
+
+/**
+ * Obtener los clientes asociados a una clínica específica
+ */
+export async function getClientsByClinic(
+  clinicId: string
+): Promise<{ data: ClientResponse[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<ClientResponse[]>(`${API_ENDPOINT}/by-clinic/${clinicId}`);
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener clientes por clínica" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al obtener clientes por clínica", error);
+    return { success: false, data: [], error: "Error al obtener clientes por clínica" };
   }
 }

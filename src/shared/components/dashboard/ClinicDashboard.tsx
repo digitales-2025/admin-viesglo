@@ -11,7 +11,7 @@ export default function ClinicDashboard() {
           <ShellTitle title="Clinic Dashboard" />
         </ShellHeader>
       </Shell>
-      nose que voy a poner aqui
+      Información de la clínica
     </ClinicDashboardLayout>
   );
 }

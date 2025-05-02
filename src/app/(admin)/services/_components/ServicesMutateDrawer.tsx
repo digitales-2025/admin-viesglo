@@ -29,7 +29,6 @@ interface Props {
 const formSchema = z.object({
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().optional(),
-  objectives: z.array(z.string()).optional(),
 }) satisfies z.ZodType<ServiceCreate>;
 type ServicesForm = z.infer<typeof formSchema>;
 
@@ -44,7 +43,6 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
     defaultValues: {
       name: "",
       description: "",
-      objectives: [],
     },
   });
 
@@ -80,7 +78,6 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
       form.reset({
         name: "",
         description: "",
-        objectives: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,7 +89,6 @@ export default function ServicesMutateDrawer({ open, onOpenChange, currentRow }:
       form.reset({
         name: "",
         description: "",
-        objectives: [],
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

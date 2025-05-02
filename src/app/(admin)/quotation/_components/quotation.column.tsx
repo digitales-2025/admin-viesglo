@@ -118,10 +118,11 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
     accessorKey: "isConcrete",
     header: ({ column }) => <DataTableColumnHeader column={column} title="¿Se Concreto?" />,
     cell: ({ row }) => <ConcreteCell quotation={row.original} />,
+    enableSorting: false,
   },
   {
     id: "actions",
-    header: "Acciones",
+    size: 20,
     cell: ({ row }) => <QuotationTableActions quotation={row.original} />,
   },
 ];

@@ -106,3 +106,22 @@ export async function createServiceFromTemplate(
     return { success: false, data: null, error: "Error al crear servicios desde plantilla" };
   }
 }
+
+export async function getServiceById(
+  serviceId: string
+): Promise<{ data: ProjectServiceResponse | null; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<ProjectServiceResponse>(`${API_ENDPOINT}/${serviceId}`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al obtener servicio por ID");
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al obtener servicio por ID", error);
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : "Error al obtener servicio por ID",
+    };
+  }
+}

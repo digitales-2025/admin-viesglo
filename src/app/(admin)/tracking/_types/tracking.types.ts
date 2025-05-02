@@ -30,8 +30,7 @@ export type ProjectActivityResponse = Omit<components["schemas"]["ProjectActivit
 export type CreateProjectActivity = components["schemas"]["CreateProjectActivityDto"];
 export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivityDto"];
 
-// Upload evidencia
-export type UploadEvidence = components["schemas"]["UploadEvidenceDto"];
+export type TrackingActivityDto = components["schemas"]["TrackingActivityDto"];
 
 // Paginación
 export type ProjectPaginationResponse = Omit<components["schemas"]["PaginatedProjectResponseDto"], "data"> & {
@@ -51,3 +50,10 @@ export type ProjectFilters = {
   clientId?: string;
   isActive?: string;
 };
+
+export enum FileType {
+  PDF = "PDF",
+  IMAGE = "IMAGE",
+  DOCUMENT = "DOCUMENT",
+  OTHER = "OTHER",
+}

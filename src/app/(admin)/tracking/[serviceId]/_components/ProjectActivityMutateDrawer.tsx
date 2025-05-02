@@ -116,7 +116,13 @@ export default function ProjectActivityMutateDrawer({
         evidenceRequired: currentRow.evidenceRequired,
       });
     } else {
-      form.reset();
+      form.reset({
+        name: "",
+        description: "",
+        responsibleUserId: "",
+        scheduledDate: "",
+        evidenceRequired: false,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isUpdate, currentRow?.id]);
@@ -124,7 +130,13 @@ export default function ProjectActivityMutateDrawer({
   // Resetear al cerrar el modal
   useEffect(() => {
     if (!open) {
-      form.reset();
+      form.reset({
+        name: "",
+        description: "",
+        responsibleUserId: "",
+        scheduledDate: "",
+        evidenceRequired: false,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -165,7 +177,7 @@ export default function ProjectActivityMutateDrawer({
                       <FormItem>
                         <FormLabel>Nombre</FormLabel>
                         <FormControl>
-                          <Input {...field} />
+                          <Input {...field} disabled={isPending} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -178,7 +190,7 @@ export default function ProjectActivityMutateDrawer({
                       <FormItem>
                         <FormLabel>Descripción</FormLabel>
                         <FormControl>
-                          <Textarea {...field} />
+                          <Textarea {...field} disabled={isPending} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -217,6 +229,7 @@ export default function ProjectActivityMutateDrawer({
                                   })) || []
                               );
                             }}
+                            disabled={isPending}
                           />
                         </FormControl>
                         <FormMessage />
