@@ -28,6 +28,7 @@ interface DataTableToolbarProps<TData> {
     multiSelect?: boolean;
   }[];
   onServerFilterChange?: (columnId: string, value: any) => void;
+  serverFilterLoading?: boolean;
 }
 
 export function DataTableToolbar<TData>({
@@ -45,6 +46,7 @@ export function DataTableToolbar<TData>({
   onServerSearchChange,
   serverFilterOptions,
   onServerFilterChange,
+  serverFilterLoading,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
   const useServerFilters = hasServerPagination && onServerSearchChange;
@@ -126,7 +128,7 @@ export function DataTableToolbar<TData>({
         )}
 
         {/* Filtros del servidor */}
-        {useServerFilters && serverFilterOptions && (
+        {useServerFilters && !serverFilterLoading && serverFilterOptions && (
           <div className="flex gap-x-2">
             {serverFilterOptions.map((f) => (
               <DataTableFacetedFilter

@@ -23,7 +23,7 @@ export interface DataTableFacetedFilterOption {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-interface DataTableFacetedFilterProps<TData, TValue> {
+export interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   options: DataTableFacetedFilterOption[];
@@ -136,10 +136,10 @@ export function DataTableFacetedFilter<TData, TValue>({
           <CommandList>
             <CommandEmpty>No se encontraron resultados.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => {
+              {options.map((option, index) => {
                 const isSelected = selectedValues.has(option.value);
                 return (
-                  <CommandItem key={option.value} onSelect={() => handleSelect(option.value)}>
+                  <CommandItem key={index} onSelect={() => handleSelect(option.value)}>
                     <div
                       className={cn(
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",

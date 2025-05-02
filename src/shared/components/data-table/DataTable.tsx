@@ -77,6 +77,7 @@ interface DataTableProps<TData, TValue> {
     multiSelect?: boolean;
     options: DataTableFacetedFilterOption[];
   }[];
+  serverFilterLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
@@ -96,6 +97,7 @@ export function DataTable<TData, TValue>({
   serverPagination,
   serverFilters,
   serverFilterOptions,
+  serverFilterLoading,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -218,6 +220,7 @@ export function DataTable<TData, TValue>({
           onServerSearchChange={isServerMode ? handleServerSearchChange : undefined}
           serverFilterOptions={isServerMode ? serverFilterOptions : undefined}
           onServerFilterChange={isServerMode ? handleServerFilterChange : undefined}
+          serverFilterLoading={serverFilterLoading}
         />
       )}
       <div className={cn("rounded-md border", className)}>

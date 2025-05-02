@@ -1,52 +1,67 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DownloadCloud } from "lucide-react";
+import { Check, Circle, DownloadCloud, Group, Locate } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Button } from "@/shared/components/ui/button";
+import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
+import { useQuotationGroups } from "../_hooks/useQuotationGroups";
 import { useQuotations } from "../_hooks/useQuotations";
 import { QuotationFilters } from "../_types/quotation.types";
 import { columnsQuotation } from "./quotation.column";
 
-// Opciones de filtro para las cotizaciones
-const SERVER_FILTER_OPTIONS = [
-  {
-    label: "Servicio",
-    value: "service",
-    multiSelect: true,
-    options: [
-      { label: "Consultoría", value: "Consultoría" },
-      { label: "Capacitación", value: "Capacitación" },
-      { label: "Auditoría", value: "Auditoría" },
-    ],
-  },
-  {
-    label: "Departamento",
-    value: "department",
-    multiSelect: true,
-    options: [
-      { label: "Moquegua", value: "Moquegua" },
-      { label: "Ica", value: "Ica" },
-      { label: "Arequipa", value: "Arequipa" },
-      { label: "Cusco", value: "Cusco" },
-      { label: "Trujillo", value: "Trujillo" },
-    ],
-  },
-  {
-    label: "Estado",
-    value: "isConcrete",
-    multiSelect: false,
-    options: [
-      { label: "Concretada", value: "true" },
-      { label: "No concretada", value: "false" },
-    ],
-  },
-];
-
 export default function QuotationTable() {
-  // Estado para los filtros
+  const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
+  const { departmentOptions } = useUbigeo();
+  const [quotationGroupOptions, setQuotationGroupOptions] = useState([
+    {
+      label: "Estado",
+      value: "isConcrete",
+      multiSelect: false,
+      options: [
+        { label: "Concretada", value: "true", icon: Check },
+        { label: "No concretada", value: "false", icon: Circle },
+      ],
+    },
+  ]);
+
+  useEffect(() => {
+    if (quotationGroups) {
+      setQuotationGroupOptions([
+        ...quotationGroupOptions,
+        {
+          label: "Grupo de cotizaciones",
+          value: "quotationGroup",
+          multiSelect: true,
+          options: quotationGroups?.map((quotationGroup) => ({
+            label: quotationGroup.name,
+            value: quotationGroup.id,
+            icon: Group,
+          })),
+        },
+      ]);
+    }
+  }, [quotationGroups, isLoadingQuotationGroups]);
+  useEffect(() => {
+    if (departmentOptions) {
+      setQuotationGroupOptions([
+        ...quotationGroupOptions,
+        {
+          label: "Departamento",
+          value: "department",
+          multiSelect: true,
+          options: departmentOptions.map((departament) => ({
+            label: departament.label,
+            value: departament.value,
+            icon: Locate,
+          })),
+        },
+      ]);
+    }
+  }, [departmentOptions]);
+
   const [filters, setFilters] = useState<QuotationFilters>({
     page: 1,
     limit: 10,
@@ -175,7 +190,8 @@ export default function QuotationTable() {
       mode="server"
       serverPagination={serverPagination}
       serverFilters={serverFilters}
-      serverFilterOptions={SERVER_FILTER_OPTIONS}
+      serverFilterOptions={quotationGroupOptions}
+      serverFilterLoading={isLoadingQuotationGroups}
     />
   );
 }

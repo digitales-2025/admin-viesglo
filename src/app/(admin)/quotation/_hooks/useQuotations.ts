@@ -32,7 +32,6 @@ export const QUOTATIONS_KEYS = {
  * Hook para obtener todas las cotizaciones con filtros opcionales
  */
 export function useQuotations(filters?: QuotationFilters) {
-  console.log("🚀 ~ useQuotations ~ filters:", filters);
   return useQuery({
     queryKey: QUOTATIONS_KEYS.list(filters),
     queryFn: async () => {
