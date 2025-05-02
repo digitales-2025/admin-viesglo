@@ -25,7 +25,6 @@ import { DataTablePagination } from "@/shared/components/data-table/DataTablePag
 import { DataTableToolbar } from "@/shared/components/data-table/DataTableToolbar";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
 import { cn } from "@/shared/lib/utils";
-import { Skeleton } from "../ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -40,7 +39,17 @@ interface DataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
-  // Soporte para paginación en el servidor
+
+  /**
+   * Modo de paginación y filtrado:
+   * - "client": Paginación y filtrado en el cliente (por defecto)
+   * - "server": Paginación y filtrado en el servidor
+   */
+  mode?: "client" | "server";
+
+  /**
+   * Configuración para paginación en el servidor (solo si mode="server")
+   */
   serverPagination?: {
     currentPage: number;
     totalPages: number;
@@ -49,13 +58,19 @@ interface DataTableProps<TData, TValue> {
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
   };
-  // Soporte para búsqueda/filtros en el servidor
+
+  /**
+   * Configuración para filtrado en el servidor (solo si mode="server")
+   */
   serverFilters?: {
     filters: Record<string, any>;
     onSearchChange: (search: string) => void;
     onFilterChange: (columnId: string, value: any) => void;
   };
-  // Filtros específicos para el servidor, separados de los filtros de la tabla
+
+  /**
+   * Opciones de filtro para el servidor (solo si mode="server")
+   */
   serverFilterOptions?: {
     label: string;
     value: string;
@@ -76,6 +91,7 @@ export function DataTable<TData, TValue>({
   viewOptions = true,
   getSubRows,
   renderExpandedRow,
+  mode = "client",
   serverPagination,
   serverFilters,
   serverFilterOptions,
@@ -86,17 +102,35 @@ export function DataTable<TData, TValue>({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({
     left: ["select"],
-    // right: ["actions"],
   });
 
   // Estado para manejar el valor de búsqueda global del servidor
   const [serverSearchValue, setServerSearchValue] = React.useState("");
 
-  const hasServerFilters = !!serverFilters;
+  // Validar configuración consistente
+  const isServerMode = mode === "server";
+  const hasServerConfig = !!serverPagination && !!serverFilters;
 
-  // Manejador personalizado para los filtros de columna cuando se usa filtrado del servidor
-  const handleServerColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updaterOrValue) => {
-    // Este manejador solo se usa para los filtros de la tabla, no los del servidor
+  // Verificar configuración inconsistente y mostrar advertencia en desarrollo
+  React.useEffect(() => {
+    if (isServerMode && !hasServerConfig) {
+      console.warn(
+        "DataTable: modo servidor especificado pero falta configuración. " +
+          "Proporcione serverPagination y serverFilters cuando use mode='server'."
+      );
+    }
+
+    if (!isServerMode && hasServerConfig) {
+      console.warn(
+        "DataTable: configuración de servidor proporcionada pero modo='client'. " +
+          "Cambie a mode='server' o elimine serverPagination y serverFilters."
+      );
+    }
+  }, [isServerMode, hasServerConfig]);
+
+  // Manejador personalizado para los filtros de columna
+  const handleColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updaterOrValue) => {
+    // En modo servidor, deberíamos manejar los filtros de manera diferente
     setColumnFilters(updaterOrValue);
   };
 
@@ -109,15 +143,15 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
       columnPinning,
-      globalFilter: serverSearchValue,
+      globalFilter: isServerMode ? serverSearchValue : undefined,
     },
-    manualPagination: !!serverPagination, // Activar paginación manual si hay paginación de servidor
-    manualFiltering: hasServerFilters, // Activar filtrado manual si hay filtros de servidor
+    manualPagination: isServerMode, // Activar paginación manual en modo servidor
+    manualFiltering: isServerMode, // Activar filtrado manual en modo servidor
     enableRowSelection: true,
     getSubRows,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: handleServerColumnFiltersChange,
+    onColumnFiltersChange: handleColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
@@ -139,6 +173,7 @@ export function DataTable<TData, TValue>({
     };
   };
 
+  // Resetear selección cuando cambian los datos
   useEffect(() => {
     if (data) {
       table.setRowSelection({});
@@ -151,38 +186,31 @@ export function DataTable<TData, TValue>({
   const handleServerSearchChange = (value: string) => {
     setServerSearchValue(value);
 
-    if (hasServerFilters) {
+    if (isServerMode && serverFilters) {
       serverFilters.onSearchChange(value);
     }
   };
 
   // Manejador para cambios en los filtros del servidor
   const handleServerFilterChange = (columnId: string, value: any) => {
-    if (hasServerFilters) {
+    if (isServerMode && serverFilters) {
       serverFilters.onFilterChange(columnId, value);
     }
   };
 
   return (
     <div className="space-y-4">
-      {isLoading && (
-        <div className="inline-flex gap-4">
-          <Skeleton className="h-8 w-full" />
-          <Skeleton className="h-8 w-full sm:flex hidden" />
-        </div>
-      )}
-      {toolBar && !isLoading && (
-        <DataTableToolbar
+      {toolBar && (
+        <DataTableToolbar<TData>
           table={table}
           actions={actions}
-          filterOptions={filterOptions}
+          filterOptions={isServerMode ? undefined : filterOptions}
           viewOptions={viewOptions}
-          // Separamos los filtros de la tabla de los filtros del servidor
-          hasServerPagination={!!serverPagination}
+          hasServerPagination={isServerMode}
           serverSearchValue={serverSearchValue}
-          onServerSearchChange={hasServerFilters ? handleServerSearchChange : undefined}
-          serverFilterOptions={serverFilterOptions}
-          onServerFilterChange={hasServerFilters ? handleServerFilterChange : undefined}
+          onServerSearchChange={isServerMode ? handleServerSearchChange : undefined}
+          serverFilterOptions={isServerMode ? serverFilterOptions : undefined}
+          onServerFilterChange={isServerMode ? handleServerFilterChange : undefined}
         />
       )}
       <div className={cn("rounded-md border", className)}>
@@ -248,7 +276,9 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {pagination && <DataTablePagination table={table} serverPagination={serverPagination} />}
+      {pagination && (
+        <DataTablePagination table={table} serverPagination={isServerMode ? serverPagination : undefined} />
+      )}
     </div>
   );
 }

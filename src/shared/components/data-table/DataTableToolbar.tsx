@@ -43,7 +43,6 @@ export function DataTableToolbar<TData>({
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
   const useServerFilters = hasServerPagination && onServerSearchChange;
-
   // Function to handle clearing all filters and notify external handlers
   const handleClearFilters = () => {
     // Limpiar filtros de la tabla si no estamos usando filtros del servidor
@@ -71,7 +70,6 @@ export function DataTableToolbar<TData>({
       });
     }
   };
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
