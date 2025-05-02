@@ -18,7 +18,6 @@ const API_ENDPOINT = "/quotations";
 export async function getQuotations(
   filters?: QuotationFilters
 ): Promise<{ data: QuotationResponse[]; meta?: PaginatedQuotationResponse["meta"]; success: boolean; error?: string }> {
-  console.log("🚀 ~ filters:", filters);
   try {
     // Construir los parámetros de consulta a partir de los filtros
     const queryParams = new URLSearchParams();
@@ -34,7 +33,9 @@ export async function getQuotations(
               });
             }
           } else {
-            queryParams.append(key, String(value));
+            // Para booleanos, asegurarse de que se convierten correctamente a string
+            const paramValue = typeof value === "boolean" ? String(value) : String(value);
+            queryParams.append(key, paramValue);
           }
         }
       });
@@ -46,8 +47,6 @@ export async function getQuotations(
 
     const queryString = queryParams.toString();
     const url = `${API_ENDPOINT}/paginated${queryString ? `?${queryString}` : ""}`;
-
-    console.log("URL de consulta:", url);
 
     const [response, err] = await http.get<PaginatedQuotationResponse>(url);
 

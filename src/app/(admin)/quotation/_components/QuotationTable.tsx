@@ -99,9 +99,12 @@ export default function QuotationTable() {
         return { ...newFilters, page: 1 };
       }
 
-      // Para isConcrete (boolean), seguimos usando solo el primer valor
+      // Para isConcrete (boolean), necesitamos convertir correctamente el string a booleano
       if (columnId === "isConcrete") {
-        const boolValue = Array.isArray(value) ? value[0] === "true" : value === "true";
+        // Si es un array, tomamos el primer valor, sino usamos el valor directamente
+        const stringValue = Array.isArray(value) ? value[0] : value;
+        // Convertir explícitamente el string "true"/"false" a booleano
+        const boolValue = stringValue === "true";
         return {
           ...prev,
           [columnId]: boolValue,
