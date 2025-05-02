@@ -48,6 +48,7 @@ export default function QuotationTable() {
     page: 1,
     limit: 10,
   });
+  console.log("🚀 ~ QuotationTable ~ filters:", filters);
 
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
@@ -100,6 +101,7 @@ export default function QuotationTable() {
       // Si es un array con valores, tomamos el primer valor para filtros simples
       const filterValue = Array.isArray(value) ? (columnId === "isConcrete" ? value[0] === "true" : value[0]) : value;
 
+      console.log("🚀 ~ setFilters ~ filterValue:", filterValue);
       // Actualizamos el filtro
       return {
         ...prev,

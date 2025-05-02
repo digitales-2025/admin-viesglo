@@ -21,7 +21,6 @@ export async function getQuotations(
   try {
     // Construir los parámetros de consulta a partir de los filtros
     const queryParams = new URLSearchParams();
-
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
