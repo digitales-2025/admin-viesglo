@@ -36,27 +36,37 @@ export function DataTableFacetedFilter<TData, TValue>({
   options,
   onFilterChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  // Estado local para manejar los valores seleccionados cuando no hay columna
+  const [localSelectedValues, setLocalSelectedValues] = React.useState<Set<string>>(new Set());
+
+  // Usar el filtro de la columna si existe, de lo contrario usar el estado local
   const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const selectedValues = column ? new Set(column.getFilterValue() as string[]) : localSelectedValues;
 
   // Handler for selecting/deselecting a filter value
   const handleSelect = (value: string) => {
-    const isSelected = selectedValues.has(value);
+    // Crear una copia de los valores seleccionados para modificarla
+    const newSelectedValues = new Set(selectedValues);
 
-    // Update local selection set
-    if (isSelected) {
-      selectedValues.delete(value);
+    // Actualizar el conjunto de valores seleccionados
+    if (newSelectedValues.has(value)) {
+      newSelectedValues.delete(value);
     } else {
-      selectedValues.add(value);
+      newSelectedValues.add(value);
     }
 
-    // Convert to array for the column filter
-    const filterValues = Array.from(selectedValues);
+    // Convertir a array para el filtro
+    const filterValues = Array.from(newSelectedValues);
 
-    // Update the column filter
-    column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    // Si hay una columna, actualizar su filtro
+    if (column) {
+      column.setFilterValue(filterValues.length ? filterValues : undefined);
+    } else {
+      // Si no hay columna, actualizar el estado local
+      setLocalSelectedValues(newSelectedValues);
+    }
 
-    // Notify external handler if provided
+    // Notificar al manejador externo si existe
     if (onFilterChange) {
       onFilterChange(filterValues);
     }
@@ -64,10 +74,15 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   // Handler for clearing all filters
   const handleClearFilters = () => {
-    // Update the column filter
-    column?.setFilterValue(undefined);
+    // Si hay una columna, limpiar su filtro
+    if (column) {
+      column.setFilterValue(undefined);
+    } else {
+      // Si no hay columna, limpiar el estado local
+      setLocalSelectedValues(new Set());
+    }
 
-    // Notify external handler if provided
+    // Notificar al manejador externo si existe
     if (onFilterChange) {
       onFilterChange([]);
     }

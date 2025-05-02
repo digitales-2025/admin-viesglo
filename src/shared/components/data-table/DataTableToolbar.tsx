@@ -14,6 +14,15 @@ interface DataTableToolbarProps<TData> {
   actions?: React.ReactNode;
   onFilterChange?: (filterKey: string, values: string[]) => void;
   viewOptions?: boolean;
+
+  // Propiedades para la paginación del servidor
+  hasServerPagination?: boolean;
+
+  // Propiedades para búsqueda y filtros del servidor
+  serverSearchValue?: string;
+  onServerSearchChange?: (search: string) => void;
+  serverFilterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
+  onServerFilterChange?: (columnId: string, value: any) => void;
 }
 
 export function DataTableToolbar<TData>({
@@ -24,18 +33,41 @@ export function DataTableToolbar<TData>({
   actions,
   onFilterChange,
   viewOptions = true,
+
+  // Propiedades del servidor
+  hasServerPagination,
+  serverSearchValue = "",
+  onServerSearchChange,
+  serverFilterOptions,
+  onServerFilterChange,
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0 || Boolean(table.getState().globalFilter);
+  const useServerFilters = hasServerPagination && onServerSearchChange;
 
   // Function to handle clearing all filters and notify external handlers
   const handleClearFilters = () => {
-    table.resetColumnFilters();
-    table.setGlobalFilter("");
+    // Limpiar filtros de la tabla si no estamos usando filtros del servidor
+    if (!useServerFilters) {
+      table.resetColumnFilters();
+      table.setGlobalFilter("");
+    }
 
-    // Also notify external handlers that filters have been cleared
+    // Notificar a los manejadores externos que los filtros han sido limpiados
     if (onFilterChange && filterOptions) {
       filterOptions.forEach((option) => {
         onFilterChange(option.value, []);
+      });
+    }
+
+    // Si tenemos búsqueda del servidor, limpiarla
+    if (onServerSearchChange) {
+      onServerSearchChange("");
+    }
+
+    // Si tenemos filtros del servidor, limpiarlos
+    if (onServerFilterChange && serverFilterOptions) {
+      serverFilterOptions.forEach((option) => {
+        onServerFilterChange(option.value, null);
       });
     }
   };
@@ -43,26 +75,38 @@ export function DataTableToolbar<TData>({
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
-        <Input
-          placeholder={placeholder}
-          value={
-            searchColumn
-              ? ((table.getColumn(searchColumn)?.getFilterValue() as string) ?? "")
-              : ((table.getState().globalFilter as string) ?? "")
-          }
-          onChange={
-            searchColumn
-              ? (event) => table.getColumn(searchColumn)?.setFilterValue(event.target.value)
-              : (event) => {
-                  if (table.getState().columnFilters.length > 0) {
-                    table.resetColumnFilters();
-                  }
-                  table.setGlobalFilter(event.target.value);
+        {/* Búsqueda: muestra el input de búsqueda del servidor o de la tabla según corresponda */}
+        {useServerFilters ? (
+          <Input
+            placeholder={placeholder}
+            value={serverSearchValue}
+            onChange={(event) => onServerSearchChange(event.target.value)}
+            className="h-8 w-[150px] lg:w-[250px]"
+          />
+        ) : (
+          <Input
+            placeholder={placeholder}
+            value={
+              searchColumn
+                ? ((table.getColumn(searchColumn)?.getFilterValue() as string) ?? "")
+                : ((table.getState().globalFilter as string) ?? "")
+            }
+            onChange={(event) => {
+              if (searchColumn) {
+                table.getColumn(searchColumn)?.setFilterValue(event.target.value);
+              } else {
+                if (table.getState().columnFilters.length > 0) {
+                  table.resetColumnFilters();
                 }
-          }
-          className="h-8 w-[150px] lg:w-[250px]"
-        />
-        {filterOptions && (
+                table.setGlobalFilter(event.target.value);
+              }
+            }}
+            className="h-8 w-[150px] lg:w-[250px]"
+          />
+        )}
+
+        {/* Filtros de la tabla */}
+        {!useServerFilters && filterOptions && (
           <div className="flex gap-x-2">
             {filterOptions.map((f) => (
               <DataTableFacetedFilter
@@ -75,7 +119,22 @@ export function DataTableToolbar<TData>({
             ))}
           </div>
         )}
-        {isFiltered && (
+
+        {/* Filtros del servidor */}
+        {useServerFilters && serverFilterOptions && (
+          <div className="flex gap-x-2">
+            {serverFilterOptions.map((f) => (
+              <DataTableFacetedFilter
+                key={f.value}
+                title={f.label}
+                options={f.options}
+                onFilterChange={onServerFilterChange ? (values) => onServerFilterChange(f.value, values) : undefined}
+              />
+            ))}
+          </div>
+        )}
+
+        {(isFiltered || (useServerFilters && serverSearchValue)) && (
           <Button variant="ghost" onClick={handleClearFilters} className="h-8 px-2 lg:px-3">
             Limpiar
             <X className="ml-2 h-4 w-4" />

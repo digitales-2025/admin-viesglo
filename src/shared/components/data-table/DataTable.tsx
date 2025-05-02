@@ -14,6 +14,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  OnChangeFn,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -48,6 +49,18 @@ interface DataTableProps<TData, TValue> {
     onPageChange: (page: number) => void;
     onPageSizeChange: (pageSize: number) => void;
   };
+  // Soporte para búsqueda/filtros en el servidor
+  serverFilters?: {
+    filters: Record<string, any>;
+    onSearchChange: (search: string) => void;
+    onFilterChange: (columnId: string, value: any) => void;
+  };
+  // Filtros específicos para el servidor, separados de los filtros de la tabla
+  serverFilterOptions?: {
+    label: string;
+    value: string;
+    options: DataTableFacetedFilterOption[];
+  }[];
 }
 
 export function DataTable<TData, TValue>({
@@ -64,6 +77,8 @@ export function DataTable<TData, TValue>({
   getSubRows,
   renderExpandedRow,
   serverPagination,
+  serverFilters,
+  serverFilterOptions,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -74,6 +89,17 @@ export function DataTable<TData, TValue>({
     // right: ["actions"],
   });
 
+  // Estado para manejar el valor de búsqueda global del servidor
+  const [serverSearchValue, setServerSearchValue] = React.useState("");
+
+  const hasServerFilters = !!serverFilters;
+
+  // Manejador personalizado para los filtros de columna cuando se usa filtrado del servidor
+  const handleServerColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updaterOrValue) => {
+    // Este manejador solo se usa para los filtros de la tabla, no los del servidor
+    setColumnFilters(updaterOrValue);
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -83,13 +109,15 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
       columnPinning,
+      globalFilter: serverSearchValue,
     },
     manualPagination: !!serverPagination, // Activar paginación manual si hay paginación de servidor
+    manualFiltering: hasServerFilters, // Activar filtrado manual si hay filtros de servidor
     enableRowSelection: true,
     getSubRows,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
+    onColumnFiltersChange: handleServerColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
     getCoreRowModel: getCoreRowModel(),
@@ -119,6 +147,22 @@ export function DataTable<TData, TValue>({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
+  // Manejador para cambios en la búsqueda del servidor
+  const handleServerSearchChange = (value: string) => {
+    setServerSearchValue(value);
+
+    if (hasServerFilters) {
+      serverFilters.onSearchChange(value);
+    }
+  };
+
+  // Manejador para cambios en los filtros del servidor
+  const handleServerFilterChange = (columnId: string, value: any) => {
+    if (hasServerFilters) {
+      serverFilters.onFilterChange(columnId, value);
+    }
+  };
+
   return (
     <div className="space-y-4">
       {isLoading && (
@@ -128,7 +172,18 @@ export function DataTable<TData, TValue>({
         </div>
       )}
       {toolBar && !isLoading && (
-        <DataTableToolbar table={table} actions={actions} filterOptions={filterOptions} viewOptions={viewOptions} />
+        <DataTableToolbar
+          table={table}
+          actions={actions}
+          filterOptions={filterOptions}
+          viewOptions={viewOptions}
+          // Separamos los filtros de la tabla de los filtros del servidor
+          hasServerPagination={!!serverPagination}
+          serverSearchValue={serverSearchValue}
+          onServerSearchChange={hasServerFilters ? handleServerSearchChange : undefined}
+          serverFilterOptions={serverFilterOptions}
+          onServerFilterChange={hasServerFilters ? handleServerFilterChange : undefined}
+        />
       )}
       <div className={cn("rounded-md border", className)}>
         <Table>
