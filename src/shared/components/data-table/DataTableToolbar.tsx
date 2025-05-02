@@ -21,7 +21,12 @@ interface DataTableToolbarProps<TData> {
   // Propiedades para búsqueda y filtros del servidor
   serverSearchValue?: string;
   onServerSearchChange?: (search: string) => void;
-  serverFilterOptions?: { label: string; value: string; options: DataTableFacetedFilterOption[] }[];
+  serverFilterOptions?: {
+    label: string;
+    value: string;
+    options: DataTableFacetedFilterOption[];
+    multiSelect?: boolean;
+  }[];
   onServerFilterChange?: (columnId: string, value: any) => void;
 }
 
@@ -128,6 +133,7 @@ export function DataTableToolbar<TData>({
                 key={f.value}
                 title={f.label}
                 options={f.options}
+                multiSelect={f.multiSelect !== undefined ? f.multiSelect : true}
                 onFilterChange={onServerFilterChange ? (values) => onServerFilterChange(f.value, values) : undefined}
               />
             ))}

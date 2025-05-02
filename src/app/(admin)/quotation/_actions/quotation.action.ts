@@ -18,13 +18,24 @@ const API_ENDPOINT = "/quotations";
 export async function getQuotations(
   filters?: QuotationFilters
 ): Promise<{ data: QuotationResponse[]; meta?: PaginatedQuotationResponse["meta"]; success: boolean; error?: string }> {
+  console.log("🚀 ~ filters:", filters);
   try {
     // Construir los parámetros de consulta a partir de los filtros
     const queryParams = new URLSearchParams();
     if (filters) {
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
-          queryParams.append(key, String(value));
+          // Manejar arrays - agregar múltiples parámetros con el mismo nombre
+          if (Array.isArray(value)) {
+            // Si es un array vacío, no agregar el parámetro
+            if (value.length > 0) {
+              value.forEach((item) => {
+                queryParams.append(key, String(item));
+              });
+            }
+          } else {
+            queryParams.append(key, String(value));
+          }
         }
       });
     }
@@ -35,6 +46,8 @@ export async function getQuotations(
 
     const queryString = queryParams.toString();
     const url = `${API_ENDPOINT}/paginated${queryString ? `?${queryString}` : ""}`;
+
+    console.log("URL de consulta:", url);
 
     const [response, err] = await http.get<PaginatedQuotationResponse>(url);
 

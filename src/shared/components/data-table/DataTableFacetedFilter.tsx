@@ -28,6 +28,7 @@ interface DataTableFacetedFilterProps<TData, TValue> {
   title?: string;
   options: DataTableFacetedFilterOption[];
   onFilterChange?: (values: string[]) => void;
+  multiSelect?: boolean;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
@@ -35,6 +36,7 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options,
   onFilterChange,
+  multiSelect = true,
 }: DataTableFacetedFilterProps<TData, TValue>) {
   // Estado local para manejar los valores seleccionados cuando no hay columna
   const [localSelectedValues, setLocalSelectedValues] = React.useState<Set<string>>(new Set());
@@ -47,6 +49,11 @@ export function DataTableFacetedFilter<TData, TValue>({
   const handleSelect = (value: string) => {
     // Crear una copia de los valores seleccionados para modificarla
     const newSelectedValues = new Set(selectedValues);
+
+    // Si es selección única y estamos seleccionando un nuevo valor, limpiamos los previos
+    if (!multiSelect) {
+      newSelectedValues.clear();
+    }
 
     // Actualizar el conjunto de valores seleccionados
     if (newSelectedValues.has(value)) {

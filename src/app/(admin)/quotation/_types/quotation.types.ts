@@ -27,11 +27,11 @@ export type PaginatedQuotationResponse = {
 };
 
 export type QuotationFilters = {
-  code?: string;
+  code?: string | string[];
   ruc?: string;
   businessName?: string;
-  service?: string;
-  department?: string;
+  service?: string | string[];
+  department?: string | string[];
   isConcrete?: boolean;
   search?: string;
   page?: number;

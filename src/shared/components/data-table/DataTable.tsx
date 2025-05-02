@@ -74,6 +74,7 @@ interface DataTableProps<TData, TValue> {
   serverFilterOptions?: {
     label: string;
     value: string;
+    multiSelect?: boolean;
     options: DataTableFacetedFilterOption[];
   }[];
 }

@@ -15,6 +15,7 @@ const SERVER_FILTER_OPTIONS = [
   {
     label: "Servicio",
     value: "service",
+    multiSelect: true,
     options: [
       { label: "Consultoría", value: "Consultoría" },
       { label: "Capacitación", value: "Capacitación" },
@@ -24,6 +25,7 @@ const SERVER_FILTER_OPTIONS = [
   {
     label: "Departamento",
     value: "department",
+    multiSelect: true,
     options: [
       { label: "Moquegua", value: "Moquegua" },
       { label: "Ica", value: "Ica" },
@@ -35,6 +37,7 @@ const SERVER_FILTER_OPTIONS = [
   {
     label: "Estado",
     value: "isConcrete",
+    multiSelect: false,
     options: [
       { label: "Concretada", value: "true" },
       { label: "No concretada", value: "false" },
@@ -48,8 +51,6 @@ export default function QuotationTable() {
     page: 1,
     limit: 10,
   });
-  console.log("🚀 ~ QuotationTable ~ filters:", filters);
-
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
@@ -98,15 +99,31 @@ export default function QuotationTable() {
         return { ...newFilters, page: 1 };
       }
 
-      // Si es un array con valores, tomamos el primer valor para filtros simples
-      const filterValue = Array.isArray(value) ? (columnId === "isConcrete" ? value[0] === "true" : value[0]) : value;
+      // Para isConcrete (boolean), seguimos usando solo el primer valor
+      if (columnId === "isConcrete") {
+        const boolValue = Array.isArray(value) ? value[0] === "true" : value === "true";
+        return {
+          ...prev,
+          [columnId]: boolValue,
+          page: 1,
+        };
+      }
 
-      console.log("🚀 ~ setFilters ~ filterValue:", filterValue);
-      // Actualizamos el filtro
+      // Para service y department, permitimos múltiples valores (array)
+      if (columnId === "service" || columnId === "department") {
+        return {
+          ...prev,
+          [columnId]: Array.isArray(value) ? value : [value],
+          page: 1,
+        };
+      }
+
+      // Para otros filtros, usamos el primer valor si es un array
+      const filterValue = Array.isArray(value) ? value[0] : value;
       return {
         ...prev,
         [columnId]: filterValue,
-        page: 1, // Resetear a la primera página al cambiar filtros
+        page: 1,
       };
     });
   }, []);
