@@ -886,6 +886,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/quotations/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar cotizaciones con paginación */
+    get: operations["QuotationController_searchQuotationsPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/quotations/{id}": {
     parameters: {
       query?: never;
@@ -2873,6 +2890,33 @@ export interface components {
       isConcrete: boolean;
       /** @description Grupo de cotización */
       quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
+    };
+    PaginatedQuotationResponseDto: {
+      /** @description Lista de cotizaciones paginadas */
+      data: components["schemas"]["QuotationResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     CreateQuotationDto: {
       /**
@@ -5835,6 +5879,45 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  QuotationController_searchQuotationsPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización */
+        code?: string;
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio */
+        service?: string;
+        /** @description Filtrar por departamento */
+        department?: string;
+        /** @description Filtrar solo cotizaciones concretadas */
+        isConcrete?: boolean;
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cotizaciones encontradas exitosamente (paginadas) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedQuotationResponseDto"];
+        };
       };
     };
   };

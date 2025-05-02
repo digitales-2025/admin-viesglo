@@ -39,6 +39,15 @@ interface DataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
+  // Soporte para paginación en el servidor
+  serverPagination?: {
+    currentPage: number;
+    totalPages: number;
+    pageSize: number;
+    totalItems: number;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (pageSize: number) => void;
+  };
 }
 
 export function DataTable<TData, TValue>({
@@ -54,6 +63,7 @@ export function DataTable<TData, TValue>({
   viewOptions = true,
   getSubRows,
   renderExpandedRow,
+  serverPagination,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -74,7 +84,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
       columnPinning,
     },
-    manualPagination: !pagination,
+    manualPagination: !!serverPagination, // Activar paginación manual si hay paginación de servidor
     enableRowSelection: true,
     getSubRows,
     onRowSelectionChange: setRowSelection,
@@ -183,7 +193,7 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {pagination && <DataTablePagination table={table} />}
+      {pagination && <DataTablePagination table={table} serverPagination={serverPagination} />}
     </div>
   );
 }
