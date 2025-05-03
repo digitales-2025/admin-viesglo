@@ -9,7 +9,8 @@ import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-for
 import { toast } from "sonner";
 import * as z from "zod";
 
-import { useMedicalRecordDetails } from "@/app/(admin)/medical-records/_hooks/useMedicalRecords";
+import { useMedicalRecord, useUpdateMedicalRecord } from "@/app/(admin)/medical-records/_hooks/useMedicalRecords";
+import { MedicalRecordUpdate } from "@/app/(admin)/medical-records/_types/medical-record.types";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
@@ -58,47 +59,25 @@ const formSchema = z.object({
   }),
   diagnosticos: z.object({
     hallazgosLaboratorio: z.array(z.string()).optional(),
-    diagnosticoOftalmologia: z.string().optional(),
-    diagnosticoMusculoesqueletico: z.string().optional(),
-    alteracionDiagnosticoPsicologia: z.string().optional(),
-    diagnosticoAudiometria: z.string().optional(),
-    diagnosticoEspirometria: z.string().optional(),
-    diagnosticoEkg: z.string().optional(),
-    resultadoTestSomnolencia: z.string().optional(),
-    customFields: z
-      .array(
-        z.object({
-          name: z.string(),
-          value: z.string(),
-        })
-      )
-      .optional(),
+    diagnosticoOftalmologia: z.array(z.string()).optional(),
+    diagnosticoMusculoesqueletico: z.array(z.string()).optional(),
+    alteracionDiagnosticoPsicologia: z.array(z.string()).optional(),
+    diagnosticoAudiometria: z.array(z.string()).optional(),
+    diagnosticoEspirometria: z.array(z.string()).optional(),
+    diagnosticoEkg: z.array(z.string()).optional(),
+    resultadoTestSomnolencia: z.array(z.string()).optional(),
   }),
-  customSections: z
-    .array(
-      z.object({
-        name: z.string(),
-        fields: z.array(
-          z.object({
-            name: z.string(),
-            value: z.string(),
-          })
-        ),
-      })
-    )
-    .optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
-  const { data, isLoading, updateMedicalRecord } = useMedicalRecordDetails(recordId);
+  const { data, isLoading } = useMedicalRecord(recordId);
+  const updateMedicalRecord = useUpdateMedicalRecord();
   const [activeTab, setActiveTab] = useState("datosFiliacion");
   const [isAddFieldDialogOpen, setIsAddFieldDialogOpen] = useState(false);
-  const [isAddSectionDialogOpen, setIsAddSectionDialogOpen] = useState(false);
   const [currentSection, setCurrentSection] = useState("");
   const [newFieldName, setNewFieldName] = useState("");
-  const [newSectionName, setNewSectionName] = useState("");
 
   // Initialize form with React Hook Form
   const methods = useForm<FormValues>({
@@ -121,16 +100,14 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
       },
       diagnosticos: {
         hallazgosLaboratorio: [],
-        diagnosticoOftalmologia: "",
-        diagnosticoMusculoesqueletico: "",
-        alteracionDiagnosticoPsicologia: "",
-        diagnosticoAudiometria: "",
-        diagnosticoEspirometria: "",
-        diagnosticoEkg: "",
-        resultadoTestSomnolencia: "",
-        customFields: [],
+        diagnosticoOftalmologia: [],
+        diagnosticoMusculoesqueletico: [],
+        alteracionDiagnosticoPsicologia: [],
+        diagnosticoAudiometria: [],
+        diagnosticoEspirometria: [],
+        diagnosticoEkg: [],
+        resultadoTestSomnolencia: [],
       },
-      customSections: [],
     },
   });
 
@@ -138,8 +115,6 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
     control,
     handleSubmit,
     reset,
-    watch,
-    setValue,
     formState: { errors, isDirty },
   } = methods;
 
@@ -156,34 +131,6 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
     remove: removeAptitudField,
   } = useFieldArray({ control, name: "aptitud.customFields" });
 
-  const {
-    fields: diagnosticosCustomFields,
-    append: appendDiagnosticosField,
-    remove: removeDiagnosticosField,
-  } = useFieldArray({ control, name: "diagnosticos.customFields" });
-
-  // For hallazgosLaboratorio, we'll use direct array manipulation
-  // since useFieldArray has restrictions on path patterns
-  const hallazgosLaboratorio = watch("diagnosticos.hallazgosLaboratorio") || [];
-  const appendHallazgo = (value: string = "") => {
-    const current = hallazgosLaboratorio.slice();
-    setValue("diagnosticos.hallazgosLaboratorio", [...current, value]);
-  };
-  const removeHallazgo = (index: number) => {
-    const current = hallazgosLaboratorio.slice();
-    current.splice(index, 1);
-    setValue("diagnosticos.hallazgosLaboratorio", current);
-  };
-
-  const {
-    fields: customSections,
-    append: appendCustomSection,
-    remove: removeCustomSection,
-  } = useFieldArray({
-    control,
-    name: "customSections",
-  });
-
   const handleAddField = () => {
     if (!newFieldName.trim()) {
       toast.error("El nombre del campo no puede estar vacío");
@@ -197,37 +144,14 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
       case "aptitud":
         appendAptitudField({ name: newFieldName, value: "" });
         break;
-      case "diagnosticos":
-        appendDiagnosticosField({ name: newFieldName, value: "" });
-        break;
       default:
-        const sectionIndex = customSections.findIndex((section) => section.name === currentSection);
-        if (sectionIndex !== -1) {
-          const currentFields = watch(`customSections.${sectionIndex}.fields`) || [];
-          setValue(`customSections.${sectionIndex}.fields`, [...currentFields, { name: newFieldName, value: "" }]);
-        }
+        toast.error(`La sección "${currentSection}" no soporta campos personalizados.`);
+        break;
     }
 
     setNewFieldName("");
     setIsAddFieldDialogOpen(false);
   };
-
-  const handleAddSection = () => {
-    if (!newSectionName.trim()) {
-      toast.error("El nombre de la sección no puede estar vacío");
-      return;
-    }
-
-    appendCustomSection({
-      name: newSectionName,
-      fields: [],
-    });
-
-    setNewSectionName("");
-    setIsAddSectionDialogOpen(false);
-  };
-
-  const aptitudValue = watch("aptitud.aptitud");
 
   // Initialize form data once data is loaded
   if (data && !isDirty) {
@@ -250,16 +174,14 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
       },
       diagnosticos: {
         hallazgosLaboratorio: [],
-        diagnosticoOftalmologia: "",
-        diagnosticoMusculoesqueletico: "",
-        alteracionDiagnosticoPsicologia: "",
-        diagnosticoAudiometria: "",
-        diagnosticoEspirometria: "",
-        diagnosticoEkg: "",
-        resultadoTestSomnolencia: "",
-        customFields: [],
+        diagnosticoOftalmologia: [],
+        diagnosticoMusculoesqueletico: [],
+        alteracionDiagnosticoPsicologia: [],
+        diagnosticoAudiometria: [],
+        diagnosticoEspirometria: [],
+        diagnosticoEkg: [],
+        resultadoTestSomnolencia: [],
       },
-      customSections: [],
     };
 
     // Map basic data from medical record
@@ -271,34 +193,34 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
     if (data.secondLastName) formattedData.datosFiliacion.apellidoMaterno = data.secondLastName;
     if (data.aptitude) formattedData.aptitud.aptitud = data.aptitude;
 
-    // Try to parse and assign customData if available
-    if (data.customData) {
+    // Try to parse and assign details if available
+    if (data.details) {
       try {
-        // Parse customData if it's a string
-        const customData = typeof data.customData === "string" ? JSON.parse(data.customData) : data.customData;
+        // Use the details object directly
+        const details = data.details;
 
-        // Assign properties if they exist in the customData
-        if (customData.datosFiliacion)
+        // Assign properties if they exist in the details
+        if (details.datosFiliacion)
           formattedData.datosFiliacion = {
             ...formattedData.datosFiliacion,
-            ...customData.datosFiliacion,
+            ...details.datosFiliacion,
           };
 
-        if (customData.aptitud)
+        if (details.aptitud)
           formattedData.aptitud = {
             ...formattedData.aptitud,
-            ...customData.aptitud,
+            ...details.aptitud,
           };
 
-        if (customData.diagnosticos)
+        if (details.diagnosticos)
           formattedData.diagnosticos = {
             ...formattedData.diagnosticos,
-            ...customData.diagnosticos,
+            ...details.diagnosticos,
+            // Ensure customFields isn't carried over if it exists in old data
+            customFields: undefined,
           };
-
-        if (customData.customSections) formattedData.customSections = customData.customSections;
       } catch (error) {
-        console.error("Error parsing customData:", error);
+        console.error("Error using details data:", error);
       }
     }
 
@@ -315,10 +237,22 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      // Convert the values to a custom data structure expected by the API
+      // Create a basic update object with the form values
+      const updateData: MedicalRecordUpdate = {
+        dni: values.datosFiliacion.dni,
+        firstName: values.datosFiliacion.nombres,
+        // Extract second name if space exists
+        secondName: "",
+        firstLastName: values.datosFiliacion.apellidoPaterno,
+        secondLastName: values.datosFiliacion.apellidoMaterno || "",
+        aptitude: values.aptitud.aptitud as any,
+        restrictions: values.aptitud.restricciones,
+      };
+
+      // Send the update
       await updateMedicalRecord.mutateAsync({
         id: recordId,
-        details: { customData: JSON.stringify(values) },
+        data: updateData,
       });
 
       toast.success("Registro médico actualizado correctamente");
@@ -349,16 +283,14 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
         },
         diagnosticos: {
           hallazgosLaboratorio: [],
-          diagnosticoOftalmologia: "",
-          diagnosticoMusculoesqueletico: "",
-          alteracionDiagnosticoPsicologia: "",
-          diagnosticoAudiometria: "",
-          diagnosticoEspirometria: "",
-          diagnosticoEkg: "",
-          resultadoTestSomnolencia: "",
-          customFields: [],
+          diagnosticoOftalmologia: [],
+          diagnosticoMusculoesqueletico: [],
+          alteracionDiagnosticoPsicologia: [],
+          diagnosticoAudiometria: [],
+          diagnosticoEspirometria: [],
+          diagnosticoEkg: [],
+          resultadoTestSomnolencia: [],
         },
-        customSections: [],
       };
 
       // Map basic data from medical record
@@ -370,34 +302,34 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
       if (data.secondLastName) formattedData.datosFiliacion.apellidoMaterno = data.secondLastName;
       if (data.aptitude) formattedData.aptitud.aptitud = data.aptitude;
 
-      // Try to parse and assign customData if available
-      if (data.customData) {
+      // Try to parse and assign details if available
+      if (data.details) {
         try {
-          // Parse customData if it's a string
-          const customData = typeof data.customData === "string" ? JSON.parse(data.customData) : data.customData;
+          // Use the details object directly
+          const details = data.details;
 
-          // Assign properties if they exist in the customData
-          if (customData.datosFiliacion)
+          // Assign properties if they exist in the details
+          if (details.datosFiliacion)
             formattedData.datosFiliacion = {
               ...formattedData.datosFiliacion,
-              ...customData.datosFiliacion,
+              ...details.datosFiliacion,
             };
 
-          if (customData.aptitud)
+          if (details.aptitud)
             formattedData.aptitud = {
               ...formattedData.aptitud,
-              ...customData.aptitud,
+              ...details.aptitud,
             };
 
-          if (customData.diagnosticos)
+          if (details.diagnosticos)
             formattedData.diagnosticos = {
               ...formattedData.diagnosticos,
-              ...customData.diagnosticos,
+              ...details.diagnosticos,
+              // Ensure customFields isn't carried over if it exists in old data
+              customFields: undefined,
             };
-
-          if (customData.customSections) formattedData.customSections = customData.customSections;
         } catch (error) {
-          console.error("Error parsing customData:", error);
+          console.error("Error using details data:", error);
         }
       }
 
@@ -700,27 +632,6 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
                   )}
                 </div>
 
-                {aptitudValue === "Apto con Restricciones" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="restricciones">RESTRICCIONES</Label>
-                    <Controller
-                      name="aptitud.restricciones"
-                      control={control}
-                      render={({ field }) => <Textarea id="restricciones" {...field} rows={4} />}
-                    />
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <Label htmlFor="antecedentesPersonales">ANTECEDENTES PERSONALES</Label>
-                  <Controller
-                    name="aptitud.antecedentesPersonales"
-                    control={control}
-                    render={({ field }) => <Textarea id="antecedentesPersonales" {...field} rows={4} />}
-                  />
-                </div>
-
-                {/* Custom fields for Aptitud */}
                 {aptitudCustomFields.length > 0 && (
                   <>
                     <Separator className="my-6" />
@@ -777,36 +688,12 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="hallazgosLaboratorio">HALLAZGOS DE LABORATORIO</Label>
-                  <div className="space-y-2">
-                    {hallazgosLaboratorio.map((value, index) => (
-                      <div key={`hallazgo-${index}`} className="flex gap-2">
-                        <Input
-                          id={`hallazgo-${index}`}
-                          value={value}
-                          onChange={(e) => {
-                            const updated = [...hallazgosLaboratorio];
-                            updated[index] = e.target.value;
-                            setValue("diagnosticos.hallazgosLaboratorio", updated);
-                          }}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeHallazgo(index)}
-                          className="h-10 w-10 text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                  <Button type="button" variant="outline" size="sm" onClick={() => appendHallazgo("")} className="mt-2">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar hallazgo
-                  </Button>
+                  <Label htmlFor="hallazgosLaboratorio">HALLAZGOS LABORATORIO</Label>
+                  <Controller
+                    name="diagnosticos.hallazgosLaboratorio"
+                    control={control}
+                    render={({ field }) => <Textarea id="hallazgosLaboratorio" {...field} rows={3} />}
+                  />
                 </div>
 
                 <div className="space-y-2">
@@ -871,132 +758,10 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
                     render={({ field }) => <Textarea id="resultadoTestSomnolencia" {...field} rows={3} />}
                   />
                 </div>
-
-                {/* Custom fields for Diagnósticos */}
-                {diagnosticosCustomFields.length > 0 && (
-                  <>
-                    <Separator className="my-6" />
-                    <div className="space-y-6">
-                      {diagnosticosCustomFields.map((field, index) => (
-                        <div key={field.id} className="space-y-2 relative">
-                          <Label htmlFor={`diagnosticos-custom-${index}`}>{field.name}</Label>
-                          <div className="flex gap-2">
-                            <Controller
-                              name={`diagnosticos.customFields.${index}.value`}
-                              control={control}
-                              render={({ field: inputField }) => (
-                                <Textarea
-                                  id={`diagnosticos-custom-${index}`}
-                                  {...inputField}
-                                  className="flex-1"
-                                  rows={3}
-                                />
-                              )}
-                            />
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => removeDiagnosticosField(index)}
-                              className="h-10 w-10 text-muted-foreground hover:text-destructive self-start"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </>
-                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
-
-        {/* Custom Sections */}
-        {customSections.length > 0 && (
-          <div className="mt-6 space-y-6">
-            {customSections.map((section, sectionIndex) => {
-              const fields = watch(`customSections.${sectionIndex}.fields`) || [];
-
-              return (
-                <Card key={section.id}>
-                  <CardHeader>
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{section.name}</span>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            setCurrentSection(section.name);
-                            setIsAddFieldDialogOpen(true);
-                          }}
-                        >
-                          <Plus className="h-4 w-4 mr-2" />
-                          Agregar campo
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive/90"
-                          onClick={() => removeCustomSection(sectionIndex)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Eliminar sección
-                        </Button>
-                      </div>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    {fields.map((field, fieldIndex) => (
-                      <div key={fieldIndex} className="space-y-2 relative">
-                        <Label htmlFor={`custom-section-${sectionIndex}-field-${fieldIndex}`}>{field.name}</Label>
-                        <div className="flex gap-2">
-                          <Controller
-                            name={`customSections.${sectionIndex}.fields.${fieldIndex}.value`}
-                            control={control}
-                            render={({ field: inputField }) => (
-                              <Textarea
-                                id={`custom-section-${sectionIndex}-field-${fieldIndex}`}
-                                {...inputField}
-                                className="flex-1"
-                                rows={3}
-                              />
-                            )}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              const currentFields = [...fields];
-                              currentFields.splice(fieldIndex, 1);
-                              setValue(`customSections.${sectionIndex}.fields`, currentFields);
-                            }}
-                            className="h-10 w-10 text-muted-foreground hover:text-destructive self-start"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
-        {/* Add Section Button */}
-        <div className="flex justify-center mt-8">
-          <Button type="button" variant="outline" onClick={() => setIsAddSectionDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Añadir Sección
-          </Button>
-        </div>
 
         {/* Fixed Action Bar */}
         <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 flex justify-end gap-4 z-10">
@@ -1040,34 +805,6 @@ export function MedicalRecordDetailsForm({ recordId }: { recordId: string }) {
                 Cancelar
               </Button>
               <Button type="button" onClick={handleAddField}>
-                Añadir
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Add Section Dialog */}
-        <Dialog open={isAddSectionDialogOpen} onOpenChange={setIsAddSectionDialogOpen}>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Añadir Nueva Sección</DialogTitle>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="newSectionName">Nombre de la Sección</Label>
-                <Input
-                  id="newSectionName"
-                  value={newSectionName}
-                  onChange={(e) => setNewSectionName(e.target.value)}
-                  placeholder="Ej: Exámenes Adicionales"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setIsAddSectionDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button type="button" onClick={handleAddSection}>
                 Añadir
               </Button>
             </DialogFooter>
