@@ -1,15 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Circle, DownloadCloud, Group, Locate } from "lucide-react";
+import { Check, Circle, DownloadCloud, Locate } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
+import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
 import { useQuotationGroups } from "../_hooks/useQuotationGroups";
 import { useQuotations } from "../_hooks/useQuotations";
 import { QuotationFilters } from "../_types/quotation.types";
+import { CustomFilterGroup, CustomFilterOption } from "../../../../shared/components/data-table/custom-types";
 import { columnsQuotation } from "./quotation.column";
 
 export default function QuotationTable() {
@@ -33,21 +35,27 @@ export default function QuotationTable() {
   );
 
   // Usamos useMemo para construir las opciones de filtro de manera declarativa
-  const quotationGroupOptions = useMemo(() => {
+  const quotationGroupOptions: CustomFilterGroup[] = useMemo(() => {
     // Empezamos con las opciones base
-    const options = [...baseFilterOptions];
+    const options = [...baseFilterOptions] as CustomFilterGroup[];
 
     // Añadir grupos de cotización si están disponibles
     if (quotationGroups && quotationGroups.length > 0) {
       options.push({
         label: "Grupo de cotizaciones",
-        value: "quotationGroup",
+        value: "code",
         multiSelect: true,
-        options: quotationGroups.map((quotationGroup) => ({
-          label: quotationGroup.name,
-          value: quotationGroup.id,
-          icon: Group,
-        })),
+        options: quotationGroups.map(
+          (quotationGroup): CustomFilterOption => ({
+            label: (
+              <div className="inline-flex justify-center items-center space-x-1">
+                <span className="text-muted-foreground text-xs font-semibold">( {quotationGroup.code} )</span>
+                <span> {quotationGroup.name}</span>
+              </div>
+            ),
+            value: quotationGroup.id,
+          })
+        ),
       });
     }
 
@@ -57,11 +65,13 @@ export default function QuotationTable() {
         label: "Departamento",
         value: "department",
         multiSelect: true,
-        options: departmentOptions.map((departament) => ({
-          label: departament.label,
-          value: departament.value,
-          icon: Locate,
-        })),
+        options: departmentOptions.map(
+          (departament): CustomFilterOption => ({
+            label: departament.label,
+            value: departament.value,
+            icon: Locate,
+          })
+        ),
       });
     }
 
@@ -72,6 +82,7 @@ export default function QuotationTable() {
     page: 1,
     limit: 10,
   });
+  console.log("🚀 ~ QuotationTable ~ filters:", filters);
 
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
@@ -135,7 +146,7 @@ export default function QuotationTable() {
       }
 
       // Para service y department, permitimos múltiples valores (array)
-      if (columnId === "service" || columnId === "department") {
+      if (columnId === "code" || columnId === "department") {
         return {
           ...prev,
           [columnId]: Array.isArray(value) ? value : [value],
@@ -192,7 +203,7 @@ export default function QuotationTable() {
   return (
     <>
       {isLoadingQuotationGroups ? (
-        <div className="text-center py-4">Cargando grupos de cotizaciones...</div>
+        <Loading text="Cargando grupos de cotizacion" />
       ) : (
         <DataTable
           columns={columns}
@@ -202,7 +213,7 @@ export default function QuotationTable() {
           mode="server"
           serverPagination={serverPagination}
           serverFilters={serverFilters}
-          serverFilterOptions={quotationGroupOptions}
+          serverFilterOptions={quotationGroupOptions as any}
           serverFilterLoading={isLoadingQuotationGroups}
         />
       )}
