@@ -49,13 +49,6 @@ export const columnsMedicalRecord = ({
   // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
-      // const hasCertificate = hasAptitudeCertificate(record.files);
-      // // if (!hasCertificate) {
-      // //   toast.error("No hay documento disponible");
-      // //   return;
-      // // }
-
-      // La función de descarga ahora maneja internamente los toasts y la descarga
       await downloadCertificate(record.id);
     } catch (error) {
       console.warn("Error inesperado al descargar certificado", error);
@@ -65,7 +58,6 @@ export const columnsMedicalRecord = ({
   // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
-      // La función de descarga ahora maneja internamente los toasts y la descarga
       await downloadReport(record.id);
     } catch (error) {
       console.warn("Error inesperado al descargar informe", error);
