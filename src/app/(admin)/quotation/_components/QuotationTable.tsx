@@ -15,57 +15,64 @@ import { columnsQuotation } from "./quotation.column";
 export default function QuotationTable() {
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
-  const [quotationGroupOptions, setQuotationGroupOptions] = useState([
-    {
-      label: "Estado",
-      value: "isConcrete",
-      multiSelect: false,
-      options: [
-        { label: "Concretada", value: "true", icon: Check },
-        { label: "No concretada", value: "false", icon: Circle },
-      ],
-    },
-  ]);
 
-  useEffect(() => {
-    if (quotationGroups) {
-      setQuotationGroupOptions([
-        ...quotationGroupOptions,
-        {
-          label: "Grupo de cotizaciones",
-          value: "quotationGroup",
-          multiSelect: true,
-          options: quotationGroups?.map((quotationGroup) => ({
-            label: quotationGroup.name,
-            value: quotationGroup.id,
-            icon: Group,
-          })),
-        },
-      ]);
+  // Estado inicial para el filtro de 'Estado' que siempre estará disponible
+  const baseFilterOptions = useMemo(
+    () => [
+      {
+        label: "Estado",
+        value: "isConcrete",
+        multiSelect: false,
+        options: [
+          { label: "Concretada", value: "true", icon: Check },
+          { label: "No concretada", value: "false", icon: Circle },
+        ],
+      },
+    ],
+    []
+  );
+
+  // Usamos useMemo para construir las opciones de filtro de manera declarativa
+  const quotationGroupOptions = useMemo(() => {
+    // Empezamos con las opciones base
+    const options = [...baseFilterOptions];
+
+    // Añadir grupos de cotización si están disponibles
+    if (quotationGroups && quotationGroups.length > 0) {
+      options.push({
+        label: "Grupo de cotizaciones",
+        value: "quotationGroup",
+        multiSelect: true,
+        options: quotationGroups.map((quotationGroup) => ({
+          label: quotationGroup.name,
+          value: quotationGroup.id,
+          icon: Group,
+        })),
+      });
     }
-  }, [quotationGroups, isLoadingQuotationGroups]);
-  useEffect(() => {
-    if (departmentOptions) {
-      setQuotationGroupOptions([
-        ...quotationGroupOptions,
-        {
-          label: "Departamento",
-          value: "department",
-          multiSelect: true,
-          options: departmentOptions.map((departament) => ({
-            label: departament.label,
-            value: departament.value,
-            icon: Locate,
-          })),
-        },
-      ]);
+
+    // Añadir departamentos si están disponibles
+    if (departmentOptions && departmentOptions.length > 0) {
+      options.push({
+        label: "Departamento",
+        value: "department",
+        multiSelect: true,
+        options: departmentOptions.map((departament) => ({
+          label: departament.label,
+          value: departament.value,
+          icon: Locate,
+        })),
+      });
     }
-  }, [departmentOptions]);
+
+    return options;
+  }, [baseFilterOptions, quotationGroups, departmentOptions]);
 
   const [filters, setFilters] = useState<QuotationFilters>({
     page: 1,
     limit: 10,
   });
+
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
@@ -179,19 +186,26 @@ export default function QuotationTable() {
     }),
     [filters, handleSearchChange, handleFilterChange]
   );
+
   if (error) return <div className="text-center py-4">Error al cargar cotizaciones</div>;
 
   return (
-    <DataTable
-      columns={columns}
-      data={quotations}
-      isLoading={isLoading}
-      actions={actions}
-      mode="server"
-      serverPagination={serverPagination}
-      serverFilters={serverFilters}
-      serverFilterOptions={quotationGroupOptions}
-      serverFilterLoading={isLoadingQuotationGroups}
-    />
+    <>
+      {isLoadingQuotationGroups ? (
+        <div className="text-center py-4">Cargando grupos de cotizaciones...</div>
+      ) : (
+        <DataTable
+          columns={columns}
+          data={quotations}
+          isLoading={isLoading}
+          actions={actions}
+          mode="server"
+          serverPagination={serverPagination}
+          serverFilters={serverFilters}
+          serverFilterOptions={quotationGroupOptions}
+          serverFilterLoading={isLoadingQuotationGroups}
+        />
+      )}
+    </>
   );
 }
