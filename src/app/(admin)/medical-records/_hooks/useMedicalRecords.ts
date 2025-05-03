@@ -7,31 +7,22 @@ import { toast } from "sonner";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   addDiagnostic,
+  addMultipleDiagnostics,
   createMedicalRecord,
   deleteDiagnostic,
   deleteMedicalRecord,
   downloadAptitudeCertificate,
   downloadMedicalReport,
-  getAllMedicalCategories,
   getAptitudeCertificateInfo,
   getDiagnostics,
   getMedicalRecord,
   getMedicalRecords,
   getMedicalReportInfo,
-  updateCustomSections,
   updateMedicalRecord,
-  updateMedicalRecordDetails,
   uploadAptitudeCertificate,
   uploadMedicalReport,
 } from "../_actions/medical-record.action";
-import {
-  CategoriesList,
-  CreateDiagnostic,
-  MedicalRecordsFilter,
-  MedicalRecordUpdate,
-  UpdateCustomSections,
-  UpdateMedicalRecordDetails,
-} from "../_types/medical-record.types";
+import { CreateDiagnostic, MedicalRecordsFilter, MedicalRecordUpdate } from "../_types/medical-record.types";
 
 export const MEDICAL_RECORDS_KEYS = {
   all: ["medical-records"] as const,
@@ -39,7 +30,6 @@ export const MEDICAL_RECORDS_KEYS = {
   list: (filters: MedicalRecordsFilter) => [...MEDICAL_RECORDS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...MEDICAL_RECORDS_KEYS.all, id] as const,
   diagnostics: (id: string) => [...MEDICAL_RECORDS_KEYS.detail(id), "diagnostics"] as const,
-  medicalCategories: () => [...MEDICAL_RECORDS_KEYS.all, "categories"] as const,
 };
 
 /**
@@ -57,7 +47,7 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
   useEffect(() => {
     filtersRef.current = filters;
 
-    if (filters && (filters.categoryId || filters.conditionId || filters.clientId)) {
+    if (filters && filters.clientId) {
       console.log(`🔄 Hook useMedicalRecords - filtros activos:`, JSON.stringify(filters, null, 2));
     }
   }, [filters]);
@@ -66,20 +56,35 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
     // Incluimos los filtros en la query key para que React Query detecte cambios
     queryKey: [...MEDICAL_RECORDS_KEYS.list(filters || {})],
     queryFn: async () => {
-      // Usamos la referencia actual de los filtros para asegurarnos de usar los más recientes
-      const currentFilters = filtersRef.current;
-      console.log(`🔍 Ejecutando consulta de registros médicos con filtros:`, JSON.stringify(currentFilters, null, 2));
-      const response = await getMedicalRecords(currentFilters);
-      if (!response.success) {
-        console.error(`❌ Error en consulta de registros médicos:`, response.error);
-        throw new Error(response.error || "Error al obtener registros médicos");
+      try {
+        // Usamos la referencia actual de los filtros para asegurarnos de usar los más recientes
+        const currentFilters = filtersRef.current;
+        console.log(
+          `🔍 Ejecutando consulta de registros médicos con filtros:`,
+          JSON.stringify(currentFilters, null, 2)
+        );
+        const response = await getMedicalRecords(currentFilters);
+        if (!response.success) {
+          console.error(`❌ Error en consulta de registros médicos:`, response.error);
+          throw new Error(response.error || "Error al obtener registros médicos");
+        }
+        console.log(`✅ Consulta exitosa - Registros obtenidos: ${response.data.length}`);
+        return response.data;
+      } catch (error) {
+        console.error("Error en useMedicalRecords:", error);
+        throw error;
       }
-      console.log(`✅ Consulta exitosa - Registros obtenidos: ${response.data.length}`);
-      return response.data;
     },
 
     // Asegurarnos de que se actualice cuando cambie el ID de usuario
     enabled: !!_userId,
+
+    // Agregar reintentos para manejar problemas temporales de red
+    retry: 2,
+
+    // Mostrar datos obsoletos mientras se recarga
+    staleTime: 5 * 60 * 1000, // 5 minutos
+    placeholderData: (oldData) => oldData, // Usar datos previos como placeholder mientras se carga
   });
 }
 
@@ -354,92 +359,6 @@ export function useDownloadMedicalReport() {
 }
 
 /**
- * Hook para obtener y actualizar los detalles de un registro médico
- */
-export function useMedicalRecordDetails(id: string) {
-  const queryClient = useQueryClient();
-
-  console.log(`🔍 Obteniendo detalles del registro médico con ID: ${id}`);
-
-  // Reutilizamos el hook existente para obtener los datos del registro médico
-  const { data, isLoading, error } = useMedicalRecord(id);
-
-  // Log cuando los datos cambian
-  useEffect(() => {
-    if (data) {
-      console.log(`✅ Datos del registro médico obtenidos:`, JSON.stringify(data).substring(0, 200) + "...");
-      console.log(`📋 customData disponible:`, data.customData ? "Sí" : "No");
-      console.log(`🔢 Tipo de customData:`, typeof data.customData);
-    } else if (error) {
-      console.error(`❌ Error al obtener datos del registro médico:`, error);
-    }
-  }, [data, error]);
-
-  // Creamos una mutación para actualizar los detalles del registro médico
-  const updateMedicalRecord = useMutation({
-    mutationFn: async ({ id, details }: { id: string; details: UpdateMedicalRecordDetails }) => {
-      console.log(`📤 Enviando actualización para registro médico ${id}`);
-      const response = await updateMedicalRecordDetails(id, details);
-      if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
-        throw new Error(response.error || "Error al actualizar detalles del registro médico");
-      }
-      console.log(`📥 Respuesta exitosa del servidor:`, JSON.stringify(response.data).substring(0, 200) + "...");
-      return response.data;
-    },
-    onSuccess: (_, variables) => {
-      // Invalidamos la consulta para forzar una recarga de los datos
-      console.log(`🔄 Invalidando consulta para forzar recarga de datos del registro ${variables.id}`);
-      queryClient.invalidateQueries({
-        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
-      });
-    },
-    onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
-      toast.error(error.message || "Error al actualizar detalles del registro médico");
-    },
-  });
-
-  return {
-    data,
-    isLoading,
-    error,
-    updateMedicalRecord,
-  };
-}
-
-/**
- * Hook para actualizar las secciones personalizadas de un registro médico
- */
-export function useUpdateCustomSections() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ id, customSections }: { id: string; customSections: UpdateCustomSections }) => {
-      console.log(`📤 Enviando actualización de secciones personalizadas para registro médico ${id}`);
-      const response = await updateCustomSections(id, customSections);
-      if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
-        throw new Error(response.error || "Error al actualizar secciones personalizadas");
-      }
-      console.log(`📥 Respuesta exitosa del servidor:`, JSON.stringify(response.data).substring(0, 200) + "...");
-      return response.data;
-    },
-    onSuccess: (_, variables) => {
-      // Invalidamos la consulta para forzar una recarga de los datos
-      console.log(`🔄 Invalidando consulta para forzar recarga de datos del registro ${variables.id}`);
-      queryClient.invalidateQueries({
-        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
-      });
-    },
-    onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
-      toast.error(error.message || "Error al actualizar secciones personalizadas");
-    },
-  });
-}
-
-/**
  * Hook para actualizar un registro médico
  */
 export function useUpdateMedicalRecord() {
@@ -601,19 +520,68 @@ export function useDeleteDiagnostic() {
 }
 
 /**
- * Hook para obtener todas las categorías médicas y sus condiciones
+ * Hook para agregar múltiples diagnósticos a un registro médico
  */
-export function useMedicalCategories() {
-  return useQuery<CategoriesList>({
-    queryKey: [...MEDICAL_RECORDS_KEYS.medicalCategories()],
-    queryFn: async () => {
-      const response = await getAllMedicalCategories();
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener categorías médicas");
+export function useAddMultipleDiagnostics() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, diagnostics }: { id: string; diagnostics: any[] }) => {
+      console.log(`➕ (Hook) Agregando múltiples diagnósticos (${diagnostics.length}) al registro médico ${id}`);
+
+      if (diagnostics.length === 0) {
+        console.warn("⚠️ No hay diagnósticos para agregar");
+        return [];
       }
-      return response.data as CategoriesList;
+
+      // Verificar estructura de diagnósticos antes de enviar
+      diagnostics.forEach((diagnostic, index) => {
+        if (!diagnostic.diagnosticId) {
+          console.error(`❌ (Hook) Error: Diagnóstico #${index + 1} sin diagnosticId`);
+        }
+        if (!diagnostic.values) {
+          console.warn(`⚠️ (Hook) Advertencia: Diagnóstico #${index + 1} (${diagnostic.diagnosticId}) sin valores`);
+        }
+      });
+
+      console.log(`📊 (Hook) Datos a enviar:`, JSON.stringify({ diagnostics }, null, 2));
+
+      const response = await addMultipleDiagnostics(id, diagnostics);
+      if (!response.success) {
+        console.error(`❌ Error en la respuesta del servidor:`, response.error);
+        throw new Error(response.error || "Error al agregar diagnósticos");
+      }
+      console.log(
+        `✅ Diagnósticos agregados con éxito. Respuesta:`,
+        JSON.stringify(response.data).substring(0, 200) + "..."
+      );
+      return response.data;
     },
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
+    onSuccess: (data, variables) => {
+      console.log(`🔄 Invalidando consultas después de agregar diagnósticos al registro médico ${variables.id}`);
+
+      // Invalidar absolutamente todas las consultas relacionadas para forzar una recarga completa
+
+      // 1. Invalidar la consulta de diagnósticos específica
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.id)],
+      });
+
+      // 2. Invalidar los detalles del registro médico
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
+      });
+
+      // 3. Invalidar también la lista de registros por si acaso
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.lists()],
+      });
+
+      toast.success("Diagnósticos actualizados correctamente");
+    },
+    onError: (error: Error) => {
+      console.error(`❌ Error en la mutación:`, error);
+      toast.error(error.message || "Error al agregar diagnósticos");
+    },
   });
 }

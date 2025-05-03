@@ -2,7 +2,7 @@
 
 import { http } from "@/lib/http/serverFetch";
 import {
-  CategoriesList,
+  BulkDiagnosticsRequest,
   CreateDiagnostic,
   MedicalRecordFileInfo,
   MedicalRecordResponse,
@@ -28,16 +28,6 @@ export async function getMedicalRecords(
       queryParams.append("clientId", filters.clientId);
     }
 
-    if (filters?.categoryId) {
-      console.log(`🔎 Filtrando por categoryId: ${filters.categoryId}`);
-      queryParams.append("categoryId", filters.categoryId);
-    }
-
-    if (filters?.conditionId) {
-      console.log(`🔎 Filtrando por conditionId: ${filters.conditionId}`);
-      queryParams.append("conditionId", filters.conditionId);
-    }
-
     const queryString = queryParams.toString();
     const endpoint = `${API_ENDPOINT}${queryString ? `?${queryString}` : ""}`;
 
@@ -51,9 +41,6 @@ export async function getMedicalRecords(
     }
 
     console.log(`✅ Registros médicos obtenidos. Cantidad: ${data.length}`);
-    if (filters?.categoryId || filters?.conditionId) {
-      console.log(`🏷️ Filtros aplicados: ${JSON.stringify(filters)}`);
-    }
 
     return { success: true, data };
   } catch (error) {
@@ -380,7 +367,11 @@ export async function getDiagnostics(id: string): Promise<{ data: any[]; success
   try {
     console.log(`🔍 Obteniendo diagnósticos del registro médico con ID: ${id}`);
 
-    const [data, err] = await http.get<any[]>(`${API_ENDPOINT}/${id}/diagnostics`);
+    // Endpoint correcto según diagnostics.controller.ts
+    const endpoint = `/diagnostics/medical-records/${id}/diagnostics`;
+    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const [data, err] = await http.get<any[]>(endpoint);
 
     if (err !== null) {
       console.error(`❌ Error al obtener diagnósticos:`, err);
@@ -406,7 +397,11 @@ export async function addDiagnostic(
     console.log(`➕ Agregando diagnóstico al registro médico con ID: ${id}`);
     console.log(`📊 Datos enviados:`, JSON.stringify(diagnostic));
 
-    const [data, err] = await http.post<any>(`${API_ENDPOINT}/${id}/diagnostics`, diagnostic);
+    // Endpoint correcto según diagnostics.controller.ts
+    const endpoint = `/diagnostics/medical-records/${id}/diagnostics`;
+    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const [data, err] = await http.post<any>(endpoint, diagnostic);
 
     if (err !== null) {
       console.error(`❌ Error al agregar diagnóstico:`, err);
@@ -431,9 +426,23 @@ export async function deleteDiagnostic(
   try {
     console.log(`🗑️ Eliminando diagnóstico ${diagnosticId} del registro médico con ID: ${id}`);
 
-    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}/diagnostics/${diagnosticId}`);
+    // Endpoint correcto según diagnostics.controller.ts
+    const endpoint = `/diagnostics/medical-records/${id}/diagnostics/${diagnosticId}`;
+    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const [_, err] = await http.delete(endpoint);
 
     if (err !== null) {
+      // Verificar si es un 404, lo que podría significar que no está implementado
+      if (err.statusCode === 404) {
+        console.error(`❌ Error 404: El endpoint para eliminar diagnósticos no está implementado en el servidor.`);
+        console.error(`❌ IMPORTANTE: Debe implementar la ruta DELETE ${endpoint} en el servidor.`);
+        return {
+          success: false,
+          error: `El endpoint para eliminar diagnósticos no está implementado (404). Contacte al administrador del sistema.`,
+        };
+      }
+
       console.error(`❌ Error al eliminar diagnóstico:`, err);
       return { success: false, error: err.message || "Error al eliminar diagnóstico" };
     }
@@ -450,14 +459,14 @@ export async function deleteDiagnostic(
  * Obtiene todas las categorías médicas y sus condiciones
  */
 export async function getAllMedicalCategories(): Promise<{
-  data: CategoriesList | null;
+  data: any | null;
   success: boolean;
   error?: string;
 }> {
   try {
     console.log(`🔍 Obteniendo todas las categorías médicas y sus condiciones`);
 
-    const [data, err] = await http.get<CategoriesList>(`${API_ENDPOINT}/categories/all`);
+    const [data, err] = await http.get<any>(`${API_ENDPOINT}/categories/all`);
 
     if (err !== null) {
       console.error(`❌ Error al obtener categorías médicas:`, err);
@@ -469,5 +478,98 @@ export async function getAllMedicalCategories(): Promise<{
   } catch (error) {
     console.error("❌ Error al obtener categorías médicas", error);
     return { success: false, data: null, error: "Error al obtener categorías médicas" };
+  }
+}
+
+/**
+ * Agrega múltiples diagnósticos a un registro médico
+ */
+export async function addMultipleDiagnostics(
+  id: string,
+  diagnostics: CreateDiagnostic[]
+): Promise<{ data: any; success: boolean; error?: string }> {
+  try {
+    console.log(`➕ Agregando múltiples diagnósticos al registro médico con ID: ${id}`);
+    console.log(`📊 Cantidad de diagnósticos: ${diagnostics.length}`);
+
+    // Log exact endpoint we're calling
+    const endpoint = `/diagnostics/medical-records/${id}/bulk-diagnostics`;
+    console.log(`🔍 Endpoint completo: ${process.env.BACKEND_URL}${endpoint}`);
+
+    // Realizar una copia profunda y asegurar la estructura correcta
+    const normalizedDiagnostics = diagnostics.map((diagnostic, index) => {
+      console.log(`🔍 Verificando estructura de diagnóstico #${index + 1}:`);
+      console.log(`   - Tipo de diagnosticId:`, typeof diagnostic.diagnosticId);
+      console.log(`   - Tipo de values:`, typeof diagnostic.values);
+      console.log(`   - ¿Values es array?:`, Array.isArray(diagnostic.values));
+
+      if (Array.isArray(diagnostic.values)) {
+        // Verificar que todos los elementos sean strings
+        const allStrings = diagnostic.values.every((v) => typeof v === "string");
+        console.log(`   - ¿Todos los valores son strings?:`, allStrings);
+
+        if (!allStrings) {
+          console.log(
+            `   - Valores que no son strings:`,
+            diagnostic.values.filter((v) => typeof v !== "string")
+          );
+        }
+      }
+
+      // Normalizar la estructura
+      return {
+        diagnosticId: diagnostic.diagnosticId,
+        // Asegurar que values sea un array de strings
+        values: Array.isArray(diagnostic.values)
+          ? diagnostic.values.map((v) => String(v))
+          : [String(diagnostic.values || "")],
+        isReportIncluded: diagnostic.isReportIncluded !== undefined ? diagnostic.isReportIncluded : true,
+      };
+    });
+
+    // Format payload according to the CreateMultipleDiagnosticsDto
+    const payload: BulkDiagnosticsRequest = { diagnostics: normalizedDiagnostics };
+    console.log(`📤 Payload exacto a enviar (después de normalizar):`, JSON.stringify(payload));
+
+    // Verificar contra el ejemplo de la API
+    const ejemploAPI = {
+      diagnostics: [
+        {
+          diagnosticId: "550e8400-e29b-41d4-a716-446655440000",
+          values: ["Valor 1", "Valor 2", "Observación adicional"],
+          isReportIncluded: false,
+        },
+      ],
+    };
+
+    console.log(`📝 Ejemplo API esperado:`, JSON.stringify(ejemploAPI));
+
+    // Realizar la llamada a la API con manejo de errores mejorado
+    console.log(`📡 Enviando petición POST a: ${endpoint}`);
+    const [data, err] = await http.post<any>(endpoint, payload);
+
+    if (err !== null) {
+      console.error(`❌ Error al agregar múltiples diagnósticos:`, err);
+      console.error(`❌ Código de error:`, err.statusCode);
+      console.error(`❌ Mensaje de error:`, err.message);
+      console.error(`❌ Detalles completos del error:`, JSON.stringify(err));
+
+      return {
+        success: false,
+        data: null,
+        error: err.message || "Error al agregar múltiples diagnósticos",
+      };
+    }
+
+    console.log(`✅ Diagnósticos agregados correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al agregar múltiples diagnósticos", error);
+    console.error("❌ Stack trace:", error instanceof Error ? error.stack : "No stack trace disponible");
+    return {
+      success: false,
+      data: null,
+      error: "Error al agregar múltiples diagnósticos",
+    };
   }
 }
