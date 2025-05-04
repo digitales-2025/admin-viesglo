@@ -27,100 +27,36 @@ export function DiagnosticosSection({ isEditing, diagnosticsValues }: Diagnostic
   // Usar react-hook-form context
   const { control, setValue, getValues } = useFormContext<FormValues>();
 
-  // Log para diagnosticsValues al cargar el componente
-  useEffect(() => {
-    console.log("💊 DIAGNOSTICOSSECTION - Componente inicializado con: ", {
-      isEditing,
-      diagnosticsValues: diagnosticsValues?.map((d) => ({
-        id: d.id,
-        diagnosticId: d.diagnosticId,
-        diagnosticName: d.diagnosticName,
-        value: d.value,
-      })),
-    });
-
-    // Verificar estructura de diagnosticsValues
-    if (diagnosticsValues && diagnosticsValues.length > 0) {
-      console.log("💊 VERIFICACIÓN DE DIAGNÓSTICOS:");
-      diagnosticsValues.forEach((diag) => {
-        console.log(`   - ID: ${diag.diagnosticId}`);
-        console.log(`     Nombre: ${diag.diagnosticName}`);
-        console.log(`     Valores: [${diag.value?.join(", ") || ""}]`);
-      });
-    }
-  }, [isEditing, diagnosticsValues]);
-
-  // Inicializar los valores de diagnóstico desde los valores recibidos
+  // Inicializar los valores de diagnóstico de forma dinámica desde los valores recibidos
+  // Solo se debe ejecutar cuando se monta el componente, no en cada rerenderizado
   useEffect(() => {
     if (diagnosticsValues && diagnosticsValues.length > 0) {
-      console.log("💊 Cargando valores de diagnóstico directamente al formulario");
+      // Verificar si diagnosticos ya tiene valores - no sobreescribir si ya están cargados
+      const currentValues = getValues()?.diagnosticos || {};
+      const hasExistingValues = Object.keys(currentValues).some(
+        (key) => Array.isArray(currentValues[key]) && currentValues[key].length > 0
+      );
 
-      // Limpiamos primero cualquier valor existente para evitar duplicidades
-      const cleanValues = {
-        diagnosticoOftalmologia: [],
-        diagnosticoMusculoesqueletico: [],
-        alteracionDiagnosticoPsicologia: [],
-        diagnosticoAudiometria: [],
-        diagnosticoEspirometria: [],
-        diagnosticoEkg: [],
-        resultadoTestSomnolencia: [],
-        customFields: [],
-      };
-
-      setValue("diagnosticos", cleanValues as any, { shouldDirty: false });
-
-      // Recorrer cada valor de diagnóstico
-      diagnosticsValues.forEach((diag) => {
-        if (diag.diagnosticName && Array.isArray(diag.value)) {
-          // Usar directamente el nombre del diagnóstico para el campo
-          const fieldName = `diagnosticos.${diag.diagnosticName}`;
-          console.log(`💊 Estableciendo ${fieldName} con valores:`, diag.value);
-
-          // Verificar si valores son strings
-          if (diag.value.length > 0) {
-            const allStrings = diag.value.every((v) => typeof v === "string");
-            if (!allStrings) {
-              console.warn(`⚠️ ADVERTENCIA: No todos los valores son strings en ${diag.diagnosticName}:`, diag.value);
+      if (!hasExistingValues) {
+        // Inicializar dinámicamente desde los valores recibidos
+        const initialValues = diagnosticsValues.reduce(
+          (acc, diag) => {
+            if (diag.diagnosticName) {
+              // Asegurarse de que value es siempre un array y contiene valores válidos
+              acc[diag.diagnosticName] = Array.isArray(diag.value)
+                ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+                : [];
             }
-          }
-
-          // Establecer los valores en el formulario directamente
-          setValue(fieldName as any, diag.value, { shouldDirty: false });
-        }
-      });
-
-      // Log del estado del formulario después de cargar valores
-      setTimeout(() => {
-        const formValues = getValues().diagnosticos;
-
-        // Verificar que todos los campos necesarios estén presentes
-        console.log("💊 VERIFICACIÓN FINAL DEL FORMULARIO:");
-        diagnosticsValues.forEach((diag) => {
-          const fieldValue = (formValues as any)[diag.diagnosticName];
-          console.log(`   - Campo ${diag.diagnosticName}:`, fieldValue);
-
-          if (!fieldValue) {
-            console.warn(`⚠️ ADVERTENCIA: No se encontró el campo ${diag.diagnosticName} en el formulario`);
-          }
-        });
-
-        console.log(
-          "💊 Estado del formulario después de cargar diagnósticos:",
-          Object.keys(formValues).reduce(
-            (acc, key) => {
-              // Solo mostrar claves que tienen valores
-              if (
-                Array.isArray(formValues[key as keyof typeof formValues]) &&
-                (formValues[key as keyof typeof formValues] as any).length > 0
-              ) {
-                acc[key] = formValues[key as keyof typeof formValues];
-              }
-              return acc;
-            },
-            {} as Record<string, any>
-          )
+            return acc;
+          },
+          {} as Record<string, string[]>
         );
-      }, 100);
+
+        // Solo establecer si hay valores para inicializar
+        if (Object.keys(initialValues).length > 0) {
+          setValue("diagnosticos", initialValues, { shouldDirty: false });
+        }
+      }
     }
   }, [diagnosticsValues, setValue, getValues]);
 

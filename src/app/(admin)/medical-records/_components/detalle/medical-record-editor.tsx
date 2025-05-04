@@ -48,15 +48,7 @@ const formSchema = z.object({
     restricciones: z.string().optional(),
     personalHistory: z.string().optional(),
   }),
-  diagnosticos: z.object({
-    diagnosticoOftalmologia: z.array(z.string()).default([]),
-    diagnosticoMusculoesqueletico: z.array(z.string()).default([]),
-    alteracionDiagnosticoPsicologia: z.array(z.string()).default([]),
-    diagnosticoAudiometria: z.array(z.string()).default([]),
-    diagnosticoEspirometria: z.array(z.string()).default([]),
-    diagnosticoEkg: z.array(z.string()).default([]),
-    resultadoTestSomnolencia: z.array(z.string()).default([]),
-  }),
+  diagnosticos: z.record(z.string(), z.array(z.string()).default([])),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -105,15 +97,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         restricciones: "",
         personalHistory: "",
       },
-      diagnosticos: {
-        diagnosticoOftalmologia: [],
-        diagnosticoMusculoesqueletico: [],
-        alteracionDiagnosticoPsicologia: [],
-        diagnosticoAudiometria: [],
-        diagnosticoEspirometria: [],
-        diagnosticoEkg: [],
-        resultadoTestSomnolencia: [],
-      },
+      diagnosticos: {},
     },
     mode: "onSubmit",
   });
@@ -175,15 +159,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           restricciones: data.restrictions || "",
           personalHistory: data.personalHistory || "",
         },
-        diagnosticos: {
-          diagnosticoOftalmologia: [],
-          diagnosticoMusculoesqueletico: [],
-          alteracionDiagnosticoPsicologia: [],
-          diagnosticoAudiometria: [],
-          diagnosticoEspirometria: [],
-          diagnosticoEkg: [],
-          resultadoTestSomnolencia: [],
-        },
+        diagnosticos: {},
       };
 
       reset(defaultValues);
@@ -307,39 +283,55 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       });
 
       // 2. Preparar y enviar diagnósticos
-      const diagnosticsPayload = [] as Array<{
-        diagnosticId: string;
-        values: string[];
-        isReportIncluded?: boolean;
-      }>;
+      console.log("Valores del formulario:", values.diagnosticos);
 
-      diagnosticsValues.forEach((diagnostic: any) => {
-        const diagnosticName = diagnostic.diagnosticName;
-        const diagnosticId = diagnostic.diagnosticId;
+      const diagnosticsPayload = diagnosticsValues
+        .filter((diagnostic: any) => diagnostic.diagnosticName && diagnostic.diagnosticId)
+        .map((diagnostic: any) => {
+          // Obtener los valores del formulario para este diagnóstico
+          const diagnosticName = diagnostic.diagnosticName;
+          const formValues = values.diagnosticos[diagnosticName] || [];
 
-        if (!diagnosticName || !diagnosticId) return;
+          // Asegurarse de que formValues es un array y contiene solo strings válidos
+          const cleanValues = Array.isArray(formValues)
+            ? formValues.map((v: any) => String(v || "").trim()).filter(Boolean)
+            : typeof formValues === "string"
+              ? [formValues].filter(Boolean)
+              : [];
 
-        // Obtener los valores del formulario para este diagnóstico
-        const formValues = (values.diagnosticos as any)[diagnosticName] || [];
+          console.log(`Diagnóstico ${diagnosticName}:`, {
+            original: formValues,
+            cleaned: cleanValues,
+          });
 
-        // Normalizar y filtrar valores vacíos
-        const formValuesStr = Array.isArray(formValues)
-          ? formValues.map((v: any) => String(v).trim()).filter(Boolean)
-          : [String(formValues)].filter(Boolean);
-
-        diagnosticsPayload.push({
-          diagnosticId: diagnosticId,
-          values: formValuesStr,
-          isReportIncluded: true,
+          return {
+            diagnosticId: diagnostic.diagnosticId,
+            values: cleanValues,
+          };
         });
-      });
+
+      // Debug para verificar el payload
+      console.log(
+        "Payload final de diagnósticos:",
+        diagnosticsPayload.map((d: { diagnosticId: string; values: string[] }) => ({
+          diagnosticId: d.diagnosticId,
+          valueCount: d.values.length,
+          values: d.values,
+        }))
+      );
 
       // Enviar diagnósticos si hay alguno
       if (diagnosticsPayload.length > 0) {
-        await addMultipleDiagnostics.mutateAsync({
-          id: recordId,
-          diagnostics: diagnosticsPayload,
-        });
+        try {
+          await addMultipleDiagnostics.mutateAsync({
+            id: recordId,
+            diagnostics: diagnosticsPayload,
+          });
+          console.log("Diagnósticos actualizados con éxito");
+        } catch (error) {
+          console.error("Error al actualizar diagnósticos:", error);
+          throw error;
+        }
       }
 
       toast.success("Registro médico actualizado exitosamente");
