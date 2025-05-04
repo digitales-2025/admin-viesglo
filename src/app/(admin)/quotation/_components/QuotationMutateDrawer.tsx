@@ -23,9 +23,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
-import { useQuotationGroups } from "../_hooks/useQuotationGroups";
 import { useCreateQuotation, useUpdateQuotation } from "../_hooks/useQuotations";
 import { QuotationCreate, QuotationResponse } from "../_types/quotation.types";
+import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 
 interface Props {
   open: boolean;

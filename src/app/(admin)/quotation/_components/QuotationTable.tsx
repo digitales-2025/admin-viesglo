@@ -8,10 +8,10 @@ import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
-import { useQuotationGroups } from "../_hooks/useQuotationGroups";
 import { useQuotations } from "../_hooks/useQuotations";
 import { QuotationFilters } from "../_types/quotation.types";
 import { CustomFilterGroup, CustomFilterOption } from "../../../../shared/components/data-table/custom-types";
+import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 import { columnsQuotation } from "./quotation.column";
 
 export default function QuotationTable() {
