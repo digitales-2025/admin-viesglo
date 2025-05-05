@@ -77,6 +77,22 @@ function SidebarProvider({
     [setOpenProp, open]
   );
 
+  // Load the sidebar state from cookie when the component mounts
+  React.useEffect(() => {
+    // Only read cookie if we're not controlled from outside
+    if (openProp === undefined) {
+      const cookies = document.cookie.split(";");
+      const sidebarCookie = cookies.find((cookie) => cookie.trim().startsWith(`${SIDEBAR_COOKIE_NAME}=`));
+
+      if (sidebarCookie) {
+        const cookieValue = sidebarCookie.split("=")[1].trim();
+        // Convert string 'true'/'false' to boolean
+        const savedState = cookieValue === "true";
+        _setOpen(savedState);
+      }
+    }
+  }, [openProp]);
+
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);

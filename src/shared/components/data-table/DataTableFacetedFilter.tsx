@@ -23,11 +23,12 @@ export interface DataTableFacetedFilterOption {
   icon?: React.ComponentType<{ className?: string }>;
 }
 
-interface DataTableFacetedFilterProps<TData, TValue> {
+export interface DataTableFacetedFilterProps<TData, TValue> {
   column?: Column<TData, TValue>;
   title?: string;
   options: DataTableFacetedFilterOption[];
   onFilterChange?: (values: string[]) => void;
+  multiSelect?: boolean;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
@@ -35,28 +36,44 @@ export function DataTableFacetedFilter<TData, TValue>({
   title,
   options,
   onFilterChange,
+  multiSelect = true,
 }: DataTableFacetedFilterProps<TData, TValue>) {
+  // Estado local para manejar los valores seleccionados cuando no hay columna
+  const [localSelectedValues, setLocalSelectedValues] = React.useState<Set<string>>(new Set());
+
+  // Usar el filtro de la columna si existe, de lo contrario usar el estado local
   const facets = column?.getFacetedUniqueValues();
-  const selectedValues = new Set(column?.getFilterValue() as string[]);
+  const selectedValues = column ? new Set(column.getFilterValue() as string[]) : localSelectedValues;
 
   // Handler for selecting/deselecting a filter value
   const handleSelect = (value: string) => {
-    const isSelected = selectedValues.has(value);
+    // Crear una copia de los valores seleccionados para modificarla
+    const newSelectedValues = new Set(selectedValues);
 
-    // Update local selection set
-    if (isSelected) {
-      selectedValues.delete(value);
-    } else {
-      selectedValues.add(value);
+    // Si es selección única y estamos seleccionando un nuevo valor, limpiamos los previos
+    if (!multiSelect) {
+      newSelectedValues.clear();
     }
 
-    // Convert to array for the column filter
-    const filterValues = Array.from(selectedValues);
+    // Actualizar el conjunto de valores seleccionados
+    if (newSelectedValues.has(value)) {
+      newSelectedValues.delete(value);
+    } else {
+      newSelectedValues.add(value);
+    }
 
-    // Update the column filter
-    column?.setFilterValue(filterValues.length ? filterValues : undefined);
+    // Convertir a array para el filtro
+    const filterValues = Array.from(newSelectedValues);
 
-    // Notify external handler if provided
+    // Si hay una columna, actualizar su filtro
+    if (column) {
+      column.setFilterValue(filterValues.length ? filterValues : undefined);
+    } else {
+      // Si no hay columna, actualizar el estado local
+      setLocalSelectedValues(newSelectedValues);
+    }
+
+    // Notificar al manejador externo si existe
     if (onFilterChange) {
       onFilterChange(filterValues);
     }
@@ -64,10 +81,15 @@ export function DataTableFacetedFilter<TData, TValue>({
 
   // Handler for clearing all filters
   const handleClearFilters = () => {
-    // Update the column filter
-    column?.setFilterValue(undefined);
+    // Si hay una columna, limpiar su filtro
+    if (column) {
+      column.setFilterValue(undefined);
+    } else {
+      // Si no hay columna, limpiar el estado local
+      setLocalSelectedValues(new Set());
+    }
 
-    // Notify external handler if provided
+    // Notificar al manejador externo si existe
     if (onFilterChange) {
       onFilterChange([]);
     }
@@ -76,7 +98,11 @@ export function DataTableFacetedFilter<TData, TValue>({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn("h-8 border-dashed", selectedValues?.size > 0 && "border-sky-500")}
+        >
           <PlusCircle className="mr-2 h-4 w-4" />
           {title}
           {selectedValues?.size > 0 && (
@@ -110,10 +136,10 @@ export function DataTableFacetedFilter<TData, TValue>({
           <CommandList>
             <CommandEmpty>No se encontraron resultados.</CommandEmpty>
             <CommandGroup>
-              {options.map((option) => {
+              {options.map((option, index) => {
                 const isSelected = selectedValues.has(option.value);
                 return (
-                  <CommandItem key={option.value} onSelect={() => handleSelect(option.value)}>
+                  <CommandItem key={index} onSelect={() => handleSelect(option.value)}>
                     <div
                       className={cn(
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
@@ -123,7 +149,9 @@ export function DataTableFacetedFilter<TData, TValue>({
                       <Check className={cn("h-4 w-4")} />
                     </div>
                     {option.icon && <option.icon className="mr-2 h-4 w-4 text-muted-foreground" />}
-                    <span>{option.label}</span>
+                    <span className="truncate capitalize" title={option.label}>
+                      {option.label}
+                    </span>
                     {facets?.get(option.value) && (
                       <span className="ml-auto flex h-4 w-4 items-center justify-center font-mono text-xs">
                         {facets.get(option.value)}

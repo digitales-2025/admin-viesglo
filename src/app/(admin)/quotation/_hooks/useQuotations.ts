@@ -11,28 +11,41 @@ import {
   getQuotations,
   updateQuotation,
 } from "../_actions/quotation.action";
-import { QuotationConcrete, QuotationCreate, QuotationUpdate } from "../_types/quotation.types";
+import {
+  PaginatedQuotationResponse,
+  QuotationConcrete,
+  QuotationCreate,
+  QuotationFilters,
+  QuotationResponse,
+  QuotationUpdate,
+} from "../_types/quotation.types";
 import { PAYMENTS_KEYS } from "../../payment/_hooks/usePayments";
 
 export const QUOTATIONS_KEYS = {
   all: ["quotations"] as const,
   lists: () => [...QUOTATIONS_KEYS.all, "list"] as const,
-  list: (filters: string) => [...QUOTATIONS_KEYS.lists(), { filters }] as const,
+  list: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...QUOTATIONS_KEYS.all, id] as const,
 };
 
 /**
- * Hook para obtener todas las cotizaciones
+ * Hook para obtener todas las cotizaciones con filtros opcionales
  */
-export function useQuotations() {
+export function useQuotations(filters?: QuotationFilters) {
   return useQuery({
-    queryKey: QUOTATIONS_KEYS.lists(),
+    queryKey: QUOTATIONS_KEYS.list(filters),
     queryFn: async () => {
-      const response = await getQuotations();
+      const response = await getQuotations(filters);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener cotizaciones");
       }
-      return response.data;
+      return {
+        data: response.data,
+        meta: response.meta,
+      } as {
+        data: QuotationResponse[];
+        meta: PaginatedQuotationResponse["meta"];
+      };
     },
   });
 }

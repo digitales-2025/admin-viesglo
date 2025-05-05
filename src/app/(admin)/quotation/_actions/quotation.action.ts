@@ -1,20 +1,64 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import { QuotationConcrete, QuotationCreate, QuotationResponse, QuotationUpdate } from "../_types/quotation.types";
+import {
+  PaginatedQuotationResponse,
+  QuotationConcrete,
+  QuotationCreate,
+  QuotationFilters,
+  QuotationResponse,
+  QuotationUpdate,
+} from "../_types/quotation.types";
 
 const API_ENDPOINT = "/quotations";
 
 /**
- * Obtiene todas las cotizaciones
+ * Obtiene todas las cotizaciones con paginación y filtros opcionales
  */
-export async function getQuotations(): Promise<{ data: QuotationResponse[]; success: boolean; error?: string }> {
+export async function getQuotations(
+  filters?: QuotationFilters
+): Promise<{ data: QuotationResponse[]; meta?: PaginatedQuotationResponse["meta"]; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<QuotationResponse[]>(API_ENDPOINT);
+    // Construir los parámetros de consulta a partir de los filtros
+    const queryParams = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Manejar arrays - agregar múltiples parámetros con el mismo nombre
+          if (Array.isArray(value)) {
+            // Si es un array vacío, no agregar el parámetro
+            if (value.length > 0) {
+              value.forEach((item) => {
+                queryParams.append(key, String(item));
+              });
+            }
+          } else {
+            // Para booleanos, asegurarse de que se convierten correctamente a string
+            const paramValue = typeof value === "boolean" ? String(value) : String(value);
+            queryParams.append(key, paramValue);
+          }
+        }
+      });
+    }
+
+    // Si no hay filtros específicos, usar los valores predeterminados
+    if (!queryParams.has("page")) queryParams.append("page", "1");
+    if (!queryParams.has("limit")) queryParams.append("limit", "10");
+
+    const queryString = queryParams.toString();
+    const url = `${API_ENDPOINT}/paginated${queryString ? `?${queryString}` : ""}`;
+
+    const [response, err] = await http.get<PaginatedQuotationResponse>(url);
+
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener cotizaciones" };
     }
-    return { success: true, data };
+
+    return {
+      success: true,
+      data: response.data,
+      meta: response.meta,
+    };
   } catch (error) {
     console.error("Error al obtener cotizaciones", error);
     return { success: false, data: [], error: "Error al obtener cotizaciones" };

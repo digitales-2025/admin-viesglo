@@ -10,6 +10,7 @@ export type DialogType =
   | "details"
   | "concrete"
   | "update"
+  | "togleActive"
   | null;
 
 interface DialogState<T = any> {
