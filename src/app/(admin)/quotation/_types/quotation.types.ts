@@ -37,3 +37,13 @@ export type QuotationFilters = {
   page?: number;
   limit?: number;
 };
+
+export enum TypePayment {
+  MONTHLY = "MONTHLY",
+  PUNCTUAL = "PUNCTUAL",
+}
+
+export const LabelTypePayment = {
+  [TypePayment.MONTHLY]: "Mensual",
+  [TypePayment.PUNCTUAL]: "Puntual",
+};

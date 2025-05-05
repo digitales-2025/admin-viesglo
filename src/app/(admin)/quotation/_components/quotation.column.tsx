@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, CheckCircle2, Mail, XCircle } from "lucide-react";
+import { format } from "date-fns";
+import { Banknote, Calendar, CheckCircle2, Mail, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Switch } from "@/shared/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { QuotationResponse } from "../_types/quotation.types";
+import { LabelTypePayment, QuotationResponse, TypePayment } from "../_types/quotation.types";
 import QuotationTableActions from "./QuotationTableActions";
 
 // Nuevo componente para la celda de isConcrete
@@ -104,6 +105,49 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
           }).format(row.getValue("monto"))}
         </Badge>
       </div>
+    ),
+  },
+  {
+    id: "tipo de pago",
+    accessorKey: "typePayment",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    cell: ({ row }) => (
+      <Badge
+        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        className="capitalize min-w-[150px]"
+      >
+        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de inicio",
+    accessorKey: "dateStart",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Inicio" />,
+    cell: ({ row }) => (
+      <Badge variant="outline" className="capitalize min-w-[150px]">
+        <Calendar className="size-3 text-muted-foreground" />
+        {row.getValue("fecha de inicio") ? (
+          format(row.getValue("fecha de inicio"), "dd/MM/yyyy")
+        ) : (
+          <span className="text-muted-foreground text-xs">No iniciada</span>
+        )}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de fin",
+    accessorKey: "dateEnd",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Concluida" />,
+    cell: ({ row }) => (
+      <Badge variant="outline" className="capitalize min-w-[150px]">
+        <Calendar className="size-3 text-muted-foreground" />
+        {row.getValue("fecha de fin") ? (
+          format(row.getValue("fecha de fin"), "dd/MM/yyyy")
+        ) : (
+          <span className="text-muted-foreground text-xs">No concluida</span>
+        )}
+      </Badge>
     ),
   },
   {

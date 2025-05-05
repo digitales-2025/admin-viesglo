@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { TZDate } from "@date-fns/tz";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -9,6 +10,7 @@ import { z } from "zod";
 import { Loading } from "@/shared/components/loading";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { PhoneInput } from "@/shared/components/ui/phone-input";
@@ -23,9 +25,10 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
+import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
 import { useCreateQuotation, useUpdateQuotation } from "../_hooks/useQuotations";
-import { QuotationCreate, QuotationResponse } from "../_types/quotation.types";
+import { QuotationCreate, QuotationResponse, TypePayment } from "../_types/quotation.types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 
 interface Props {
@@ -54,6 +57,9 @@ const baseSchema = {
   phone: z.string().refine(isValidPhoneNumber, "El teléfono debe ser un número válido."),
   email: z.string().email("El email no es válido."),
   quotationGroup: z.string().min(1, "Se debe seleccionar un grupo de cotización."),
+  typePayment: z.nativeEnum(TypePayment),
+  dateStart: z.date().optional(),
+  dateEnd: z.date().optional(),
 };
 
 const createSchema = z.object(baseSchema);
@@ -86,10 +92,12 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
       phone: "",
       email: "",
       quotationGroup: "",
+      typePayment: TypePayment.PUNCTUAL,
+      dateStart: undefined,
+      dateEnd: undefined,
     },
     mode: "onChange",
   });
-
   const watchedUbigeoValues = form.watch(["department", "province", "district"]);
   const [watchedDepartment, watchedProvince, watchedDistrict] = watchedUbigeoValues;
 
@@ -100,6 +108,9 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
       amount: parseFloat(data.amount),
       numberOfWorkers: parseInt(data.numberOfWorkers),
       quotationGroupId: quotationGroup,
+      typePayment: data.typePayment as TypePayment,
+      dateStart: data.dateStart?.toISOString(),
+      dateEnd: data.dateEnd?.toISOString(),
     };
 
     if (isUpdate) {
@@ -140,6 +151,9 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: currentRow.phone,
         email: currentRow.email,
         quotationGroup: currentRow.quotationGroup?.id,
+        typePayment: currentRow.typePayment as TypePayment,
+        dateStart: currentRow.dateStart ? new TZDate(currentRow.dateStart) : undefined,
+        dateEnd: currentRow.dateEnd ? new TZDate(currentRow.dateEnd) : undefined,
       });
     } else {
       form.reset({
@@ -158,9 +172,13 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: "",
         email: "",
         quotationGroup: "",
+        typePayment: TypePayment.MONTHLY,
+        dateStart: undefined,
+        dateEnd: undefined,
       });
     }
-  }, [isUpdate, currentRow, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isUpdate, currentRow?.id]);
 
   useEffect(() => {
     if (!open) {
@@ -180,12 +198,29 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: "",
         email: "",
         quotationGroup: "",
+        typePayment: TypePayment.MONTHLY,
+        dateStart: undefined,
+        dateEnd: undefined,
       });
     }
-  }, [open, form]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
   const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
+
+  // Limpiar errores previos
+  useEffect(() => {
+    form.clearErrors();
+
+    if (isUpdate) {
+      form.reset(form.getValues());
+    } else {
+      form.reset({
+        ...form.getValues(),
+      });
+    }
+  }, [isUpdate, form]);
 
   return (
     <>
@@ -197,7 +232,9 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
           onOpenChange={(v) => {
             if (!isPending) {
               onOpenChange(v);
-              if (!v) form.reset();
+              if (!v) {
+                form.reset();
+              }
             }
           }}
         >
@@ -314,6 +351,7 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                       )}
                     />
                   </fieldset>
+
                   <FormField
                     control={form.control}
                     name="amount"
@@ -327,6 +365,80 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                       </FormItem>
                     )}
                   />
+                  <FormField
+                    control={form.control}
+                    name="typePayment"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de Pago</FormLabel>
+                        <FormControl>
+                          <div className="flex items-center justify-center space-x-2">
+                            <span
+                              className={`text-sm font-medium ${field.value === TypePayment.MONTHLY ? "text-primary" : "text-muted-foreground"}`}
+                            >
+                              Pago Mensual
+                            </span>
+
+                            <Switch
+                              checked={field.value === TypePayment.PUNCTUAL}
+                              onCheckedChange={() =>
+                                field.onChange(
+                                  field.value === TypePayment.PUNCTUAL ? TypePayment.MONTHLY : TypePayment.PUNCTUAL
+                                )
+                              }
+                              aria-label="Cambiar entre pago mensual y pago único"
+                              className="data-[state=checked]:bg-primary"
+                            />
+
+                            <span
+                              className={`text-sm font-medium ${field.value === TypePayment.PUNCTUAL ? "text-primary" : "text-muted-foreground"}`}
+                            >
+                              Pago Único
+                            </span>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="dateStart"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel>Fecha de Inicio</FormLabel>
+                          <FormControl>
+                            <DatePicker
+                              selected={field.value}
+                              onSelect={(date) => field.onChange(date)}
+                              placeholder="Selecciona la fecha de inicio"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      );
+                    }}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="dateEnd"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fecha concluida</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            selected={field.value}
+                            onSelect={(date) => field.onChange(date)}
+                            placeholder="Selecciona la fecha de fin"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="address"

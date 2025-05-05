@@ -1308,6 +1308,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/quotation-groups/{id}/togle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activar/Desactivar grupo de cotización */
+    patch: operations["QuotationGroupsController_togleActive_v1"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2888,6 +2905,22 @@ export interface components {
        * @example false
        */
       isConcrete: boolean;
+      /**
+       * @description Tipo de pago
+       * @example MONTHLY
+       * @enum {string}
+       */
+      typePayment: "MONTHLY" | "PUNCTUAL";
+      /**
+       * @description Fecha de inicio
+       * @example 2024-01-01
+       */
+      dateStart: string;
+      /**
+       * @description Fecha de fin
+       * @example 2024-01-01
+       */
+      dateEnd: string;
       /** @description Grupo de cotización */
       quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
     };
@@ -2995,6 +3028,24 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       quotationGroupId: string;
+      /**
+       * @description Tipo de pago
+       * @example MONTHLY
+       * @enum {string}
+       */
+      typePayment: "MONTHLY" | "PUNCTUAL";
+      /**
+       * Format: date-time
+       * @description Fecha de inicio
+       * @example 2024-01-01
+       */
+      dateStart?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin
+       * @example 2024-01-01
+       */
+      dateEnd?: string;
     };
     UpdateQuotationDto: {
       /**
@@ -3078,6 +3129,29 @@ export interface components {
        * @example true
        */
       isConcrete?: boolean;
+      /**
+       * @description Id del grupo de cotizaciones
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      quotationGroupId?: string;
+      /**
+       * @description Tipo de pago
+       * @example MONTHLY
+       * @enum {string}
+       */
+      typePayment?: "MONTHLY" | "PUNCTUAL";
+      /**
+       * Format: date-time
+       * @description Fecha de inicio
+       * @example 2024-01-01
+       */
+      dateStart?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin
+       * @example 2024-01-01
+       */
+      dateEnd?: string;
     };
     ConcreteQuotationDto: {
       /**
@@ -5885,18 +5959,18 @@ export interface operations {
   QuotationController_searchQuotationsPaginated_v1: {
     parameters: {
       query?: {
-        /** @description Filtrar por código de cotización */
-        code?: string;
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
         /** @description Filtrar por RUC */
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio */
-        service?: string;
-        /** @description Filtrar por departamento */
-        department?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
-        isConcrete?: boolean;
+        isConcrete?: string;
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description Número de página */
@@ -6971,6 +7045,27 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Grupo de cotizaciones eliminado correctamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  QuotationGroupsController_togleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del grupo de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado de activación actualizado */
       200: {
         headers: {
           [name: string]: unknown;
