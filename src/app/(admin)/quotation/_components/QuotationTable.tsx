@@ -88,8 +88,6 @@ export default function QuotationTable() {
     page: 1,
     limit: 10,
   });
-  console.log("🚀 ~ QuotationTable ~ filters:", filters);
-
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
