@@ -60,6 +60,11 @@ export function DiagnosticosSection({ isEditing, diagnosticsValues }: Diagnostic
     }
   }, [diagnosticsValues, setValue, getValues]);
 
+  // Ordenar los diagnósticos alfabéticamente por diagnosticName para mantener un orden constante
+  const sortedDiagnostics = [...(diagnosticsValues || [])].sort((a, b) =>
+    a.diagnosticName.localeCompare(b.diagnosticName)
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -67,17 +72,16 @@ export function DiagnosticosSection({ isEditing, diagnosticsValues }: Diagnostic
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-6">
-          {/* Renderizar todos los diagnósticos disponibles */}
-          {diagnosticsValues &&
-            diagnosticsValues.map((diagnostic) => (
-              <DynamicListForm
-                key={diagnostic.id}
-                label={diagnostic.diagnosticName}
-                name={`diagnosticos.${diagnostic.diagnosticName}`}
-                control={control}
-                isEditing={isEditing}
-              />
-            ))}
+          {/* Renderizar todos los diagnósticos disponibles en orden alfabético */}
+          {sortedDiagnostics.map((diagnostic) => (
+            <DynamicListForm
+              key={diagnostic.id}
+              label={diagnostic.diagnosticName}
+              name={`diagnosticos.${diagnostic.diagnosticName}`}
+              control={control}
+              isEditing={isEditing}
+            />
+          ))}
         </div>
       </CardContent>
     </Card>

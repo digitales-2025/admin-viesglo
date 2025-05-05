@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -23,7 +23,6 @@ type FormValues = {
     genero?: string;
     fechaNacimiento?: Date;
     emodate?: Date;
-    edad?: number;
   };
 };
 
@@ -32,31 +31,40 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
   const {
     control,
     formState: { errors },
-    setValue,
+    getValues,
   } = useFormContext<FormValues>();
 
-  // Watch for changes to birthday to calculate age
+  // Watch the fecha nacimiento para calcular la edad
   const fechaNacimiento = useWatch({
     control,
     name: "datosFiliacion.fechaNacimiento",
   });
 
-  // Calculate age whenever birthday changes
+  // Estado local para almacenar la edad calculada
+  const [edadCalculada, setEdadCalculada] = useState<string>("Calculando...");
+
+  // Calcular la edad tanto cuando cambia fechaNacimiento como cuando cambia el modo
   useEffect(() => {
-    if (fechaNacimiento) {
-      const birthDate = new Date(fechaNacimiento);
-      const today = new Date();
-      let age = today.getFullYear() - birthDate.getFullYear();
-      const monthDiff = today.getMonth() - birthDate.getMonth();
+    // Intentar obtener el valor de fecha de nacimiento de diferentes fuentes
+    const fechaValue = fechaNacimiento || getValues("datosFiliacion.fechaNacimiento");
 
-      // Adjust age if birthday hasn't occurred yet this year
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-        age--;
-      }
-
-      setValue("datosFiliacion.edad", age);
+    if (!fechaValue) {
+      setEdadCalculada("No disponible");
+      return;
     }
-  }, [fechaNacimiento, setValue]);
+
+    const birthDate = new Date(fechaValue);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Ajustar la edad si el cumpleaños aún no ha ocurrido este año
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    setEdadCalculada(`${age} años`);
+  }, [fechaNacimiento, isEditing, getValues]);
 
   // Extraer y tipificar los errores específicos
   const dniError = errors.datosFiliacion?.dni;
@@ -242,15 +250,7 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
 
           <div className="space-y-3">
             <Label htmlFor="edad">Edad</Label>
-            <Controller
-              name="datosFiliacion.edad"
-              control={control}
-              render={({ field }) => (
-                <div className="py-2 px-3 border rounded-md bg-muted/20">
-                  {field.value !== undefined ? `${field.value} años` : "No registrado"}
-                </div>
-              )}
-            />
+            <div className="text-md font-medium py-2">{edadCalculada}</div>
           </div>
 
           <div className="space-y-3">

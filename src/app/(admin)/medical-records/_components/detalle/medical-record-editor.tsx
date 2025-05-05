@@ -41,7 +41,6 @@ const formSchema = z.object({
     genero: z.string().optional(),
     fechaNacimiento: z.date().optional(),
     emodate: z.date().optional(),
-    edad: z.number().optional(),
   }),
   aptitud: z.object({
     aptitud: z.string().min(1, "Aptitud es requerida"),
@@ -90,7 +89,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         genero: "",
         fechaNacimiento: new Date(),
         emodate: new Date(),
-        edad: 0,
       },
       aptitud: {
         aptitud: "",
@@ -127,10 +125,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
   // Inicializar datos del formulario cuando se cargan los datos de la API
   useEffect(() => {
     if (data && !isLoading) {
-      // Extract values from the details object which contains our custom fields
-      // If the field is in the main API response, prefer using that
-      const datosFiliacion = data.details?.datosFiliacion || {};
-
       // Mapear gender de la API a valores del formulario
       let generoValue = "";
       if (data.gender === "MALE") {
@@ -152,7 +146,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           genero: generoValue,
           fechaNacimiento: data.birthDate ? new Date(data.birthDate) : undefined,
           emodate: data.lastEmoDate ? new Date(data.lastEmoDate) : undefined,
-          edad: datosFiliacion.edad ? Number(datosFiliacion.edad) : undefined,
         },
         aptitud: {
           aptitud: data.aptitude || "",
@@ -263,25 +256,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         data: basicInfo,
       });
 
-      // Also update details to store additional data
-      const detailsUpdate = {
-        datosFiliacion: {
-          ...values.datosFiliacion,
-          // Convert Date objects to strings for storage in details
-          fechaNacimiento: values.datosFiliacion.fechaNacimiento || "",
-          emodate: values.datosFiliacion.emodate || "",
-        },
-      };
-
-      // Update the details through the appropriate API
-      await fetch(`/api/v1/medical-records/${recordId}/details`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(detailsUpdate),
-      });
-
       // 2. Preparar y enviar diagnósticos
       console.log("Valores del formulario:", values.diagnosticos);
 
@@ -290,9 +264,17 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         .map((diagnostic: any) => {
           // Obtener los valores del formulario para este diagnóstico
           const diagnosticName = diagnostic.diagnosticName;
-          const formValues = values.diagnosticos[diagnosticName] || [];
+          const formValues = values.diagnosticos[diagnosticName];
 
-          // Asegurarse de que formValues es un array y contiene solo strings válidos
+          // Si no hay valores en el formulario o son array vacío, usar los valores originales
+          if (!formValues || (Array.isArray(formValues) && formValues.length === 0)) {
+            return {
+              diagnosticId: diagnostic.diagnosticId,
+              values: diagnostic.value || [],
+            };
+          }
+
+          // Si hay valores en el formulario, usarlos (fueron modificados)
           const cleanValues = Array.isArray(formValues)
             ? formValues.map((v: any) => String(v || "").trim()).filter(Boolean)
             : typeof formValues === "string"
