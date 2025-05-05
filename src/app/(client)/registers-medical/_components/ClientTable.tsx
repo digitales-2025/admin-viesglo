@@ -1,47 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { DownloadCloud } from "lucide-react";
 
+import { useMedicalRecords } from "@/app/(admin)/medical-records/_hooks/useMedicalRecords";
+import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
-import { ClientWithResponse } from "../_types/client.types";
-import { columnsClients } from "./client.column";
+import { columnsMedicalRecord } from "./client-medical-record.column";
 
 export default function ClientTable() {
-  const [clients, setClients] = useState<ClientWithResponse[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const columns = useMemo(() => columnsClients(), []);
-
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const res = await fetch("/api/clients"); // endpoint para obtener los datos
-        if (!res.ok) throw new Error("Error al obtener los datos");
-        const data = await res.json();
-        setClients(data);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchClients();
-  }, []);
+  const { data: medicalRecord, isLoading, error } = useMedicalRecords();
+  const columns = useMemo(() => columnsMedicalRecord(), []);
 
   if (error) {
-    return <div className="text-center py-4">Error al cargar los registros médicos</div>;
+    return <AlertMessage title="ERROR" description="Error al obtener los registros médicos." variant="destructive" />;
   }
 
   return (
     <DataTable
       columns={columns}
-      data={clients}
-      isLoading={loading}
+      data={medicalRecord || []}
+      isLoading={isLoading}
       actions={
         <>
           <DatePickerWithRange />

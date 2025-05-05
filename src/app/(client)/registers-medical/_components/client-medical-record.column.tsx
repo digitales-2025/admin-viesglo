@@ -3,12 +3,11 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Download, FileText } from "lucide-react";
 
+import { MedicalRecordResponse } from "@/app/(admin)/medical-records/_types/medical-record.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClientWithResponse } from "../_types/client.types";
-import ClientsTableActions from "./ClientsTableActions";
 
-export const columnsClients = (): ColumnDef<ClientWithResponse>[] => [
+export const columnsMedicalRecord = (): ColumnDef<MedicalRecordResponse>[] => [
   {
     id: "clinica",
     accessorKey: "clinic",
@@ -74,10 +73,5 @@ export const columnsClients = (): ColumnDef<ClientWithResponse>[] => [
         Informe médico <FileText className="inline-block w-4 h-4 ml-1" />
       </a>
     ),
-  },
-  {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => <ClientsTableActions client={row.original} />,
   },
 ];

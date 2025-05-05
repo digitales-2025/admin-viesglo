@@ -7,7 +7,8 @@ import { useProjectStore } from "@/app/(admin)/tracking/_hooks/useProjectStore";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/shared/components/ui/resizable";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
-import ProjectStatusList from "./project-statusList";
+import ProjectStatusDetail from "./ProjectStatusDetail";
+import ProjectStatusList from "./ProjectStatusList";
 
 export default function ProjectStatusContainer() {
   const { selectedProject } = useProjectStore();
@@ -62,7 +63,7 @@ export default function ProjectStatusContainer() {
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={65} minSize={55} className="p-4 flex flex-col">
             {selectedProject ? (
-              <ProjectDetail />
+              <ProjectStatusDetail />
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-center p-6">
                 <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-4">

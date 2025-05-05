@@ -1,5 +1,5 @@
 import { Shell, ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
-import ProjectStatusContainer from "./_components/project-statusContainer";
+import ProjectStatusContainer from "./_components/ProjectStatusContainer";
 
 export default function ProjectPage() {
   return (

@@ -8,13 +8,12 @@ import { useProjectsPaginated } from "@/app/(admin)/tracking/_hooks/useProject";
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import AlertError from "@/shared/components/alerts/AlertError";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
-import ProjectCard from "./project-statusCard";
+import ProjectCard from "./ProjectStatusCard";
 
 const ProjectStatusList = memo(function ProjectList() {
   const [filters, setFilters] = useState<ProjectFilterValues>({});
   const listContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const { user } = useAuth(); // ← obtiene el usuario autenticado
 
   const limit = isMobile ? 5 : 10;
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage, refetch } = useProjectsPaginated(
@@ -26,6 +25,8 @@ const ProjectStatusList = memo(function ProjectList() {
   const [isNearBottom, setIsNearBottom] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
   const loadingRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     if (user?.id) {
@@ -72,7 +73,7 @@ const ProjectStatusList = memo(function ProjectList() {
   const handleSearch = (newFilters: ProjectFilterValues) => {
     setFilters({
       ...newFilters,
-      clientId: user?.id, // ← asegura que el filtro manual no borre el clientId
+      clientId: user?.id, //
     });
   };
 
