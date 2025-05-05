@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Circle, DownloadCloud, Locate } from "lucide-react";
 
+import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
@@ -48,7 +49,12 @@ export default function QuotationTable() {
         options: quotationGroups.map(
           (quotationGroup): CustomFilterOption => ({
             label: (
-              <div className="inline-flex justify-center items-center space-x-1">
+              <div
+                className={cn(
+                  "inline-flex justify-center items-center space-x-1",
+                  quotationGroup.isActive ? "" : "text-rose-600 dark:text-rose-800 line-through opacity-50"
+                )}
+              >
                 <span className="text-muted-foreground text-xs font-semibold">( {quotationGroup.code} )</span>
                 <span> {quotationGroup.name}</span>
               </div>

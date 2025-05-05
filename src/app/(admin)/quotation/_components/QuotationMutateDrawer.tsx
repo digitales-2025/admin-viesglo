@@ -284,7 +284,7 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                                     <div
                                       className={cn(
                                         "inline-flex items-center gap-2",
-                                        group.isActive ? "" : "text-rose-800 line-through"
+                                        group.isActive ? "" : "text-rose-600 dark:text-rose-800 line-through opacity-50"
                                       )}
                                     >
                                       <span className="text-xs text-muted-foreground">({group.code})</span>
