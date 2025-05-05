@@ -96,7 +96,7 @@ export const AutoComplete = ({
 
   return (
     <CommandPrimitive onKeyDown={handleKeyDown}>
-      <div className="relative">
+      <div className="relative border-input border rounded-md">
         <CommandInput
           ref={inputRef}
           value={inputValue}
@@ -121,11 +121,11 @@ export const AutoComplete = ({
       <div className="relative mt-1 border-none">
         <div
           className={cn(
-            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full rounded-xl bg-white outline-none ",
+            "animate-in fade-in-0 zoom-in-95 absolute top-0 z-10 w-full bg-background rounded-xl outline-none ",
             isOpen ? "block" : "hidden"
           )}
         >
-          <CommandList className="rounded-lg ring-1 ring-slate-200">
+          <CommandList className="rounded-lg ring-1 ring-muted">
             {isLoading ? (
               <CommandPrimitive.Loading>
                 <div className="p-1">
