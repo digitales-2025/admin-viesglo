@@ -23,6 +23,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
+import { cn } from "@/shared/lib/utils";
 import { useCreateQuotation, useUpdateQuotation } from "../_hooks/useQuotations";
 import { QuotationCreate, QuotationResponse } from "../_types/quotation.types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
@@ -280,7 +281,12 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                               options={
                                 quotationGroups?.map((group) => ({
                                   label: (
-                                    <div className="inline-flex items-center gap-2">
+                                    <div
+                                      className={cn(
+                                        "inline-flex items-center gap-2",
+                                        group.isActive ? "" : "text-rose-800 line-through"
+                                      )}
+                                    >
                                       <span className="text-xs text-muted-foreground">({group.code})</span>
                                       <span className="text-sm font-semibold">{group.name}</span>
                                     </div>
