@@ -6,13 +6,14 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import { currentUser, login, logout, updatePassword } from "../_actions/auth.actions";
+import { currentUser, getUserPermissions, login, logout, updatePassword } from "../_actions/auth.actions";
 import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
 
 export const AUTH_KEYS = {
   user: ["user"],
   lists: () => [...AUTH_KEYS.user, "lists"],
   detail: (id: string) => [...AUTH_KEYS.user, "detail", id],
+  permissions: () => [...AUTH_KEYS.user, "permission"],
 };
 
 interface AuthState {
@@ -153,6 +154,7 @@ export function useCurrentUser() {
     queryFn: async () => {
       const response = await currentUser();
       if (!response.success) {
+        await logout();
         throw new Error(response.error || "Error al obtener el usuario");
       }
       return response.data;
@@ -176,6 +178,19 @@ export function useUpdatePassword() {
     },
     onError: (error: Error) => {
       toast.error(`Error al actualizar la contraseña: ${error.message}`);
+    },
+  });
+}
+
+export function useAuthPermissions() {
+  return useQuery({
+    queryKey: AUTH_KEYS.permissions(),
+    queryFn: async () => {
+      const response = await getUserPermissions();
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener los permisos del usuario");
+      }
+      return response.data;
     },
   });
 }

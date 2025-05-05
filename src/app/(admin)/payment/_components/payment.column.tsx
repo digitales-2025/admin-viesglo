@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
 import { Banknote, Check, CheckCircle2, XCircle } from "lucide-react";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -14,6 +15,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
 import { PaymentResponse } from "../_types/payment.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 // Almacenamiento global para los estados
 const paymentStates = new Map<string, { date?: Date; code: string; isPaid?: boolean }>();
@@ -162,15 +164,17 @@ function ActionsCell({ payment }: { payment: PaymentResponse }) {
 
   return (
     <div className="flex items-center justify-center w-full">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleUpdate}
-        disabled={!date || !code || payment.isPaid}
-        className="h-8 w-8 p-0"
-      >
-        <Check className="h-4 w-4" />
-      </Button>
+      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleUpdate}
+          disabled={!date || !code || payment.isPaid}
+          className="h-8 w-8 p-0"
+        >
+          <Check className="h-4 w-4" />
+        </Button>
+      </ProtectedComponent>
     </div>
   );
 }
