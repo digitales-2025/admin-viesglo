@@ -198,14 +198,21 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: "",
         email: "",
         quotationGroup: "",
-        typePayment: TypePayment.MONTHLY,
         dateStart: undefined,
         dateEnd: undefined,
+        typePayment: TypePayment.MONTHLY,
       });
+    } else {
+      if (!isUpdate) {
+        form.reset({
+          ...form.getValues(),
+          dateStart: undefined,
+          dateEnd: undefined,
+        });
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
-
   // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
   const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
 
