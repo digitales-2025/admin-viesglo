@@ -21,7 +21,8 @@ export type UpdateMedicalRecordDetails = components["schemas"]["UpdateMedicalRec
 
 // Tipos para diagnósticos médicos
 export type CreateDiagnostic = {
-  diagnosticId: string;
+  diagnosticId?: string;
+  diagnosticValueId?: string;
   values: string[];
   isReportIncluded?: boolean;
 };

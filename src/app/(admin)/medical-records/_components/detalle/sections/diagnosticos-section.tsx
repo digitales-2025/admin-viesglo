@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui
 import { DynamicListForm } from "../dynamic-list-form";
 
 interface DiagnosticValue {
-  diagnosticId: string;
+  diagnosticId: string | null;
   diagnosticName: string;
   id: string;
   medicalRecordId: string;

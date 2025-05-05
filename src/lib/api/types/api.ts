@@ -106,6 +106,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/auth/permissions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener permisos del usuario autenticado */
+    get: operations["AuthController_getPermissions_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users": {
     parameters: {
       query?: never;
@@ -3908,6 +3925,26 @@ export interface operations {
     };
     responses: {
       /** @description Respuesta sobre la validez del token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TokenVerificationResponse"];
+        };
+      };
+    };
+  };
+  AuthController_getPermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Devuelve los permisos del usuario autenticado */
       200: {
         headers: {
           [name: string]: unknown;

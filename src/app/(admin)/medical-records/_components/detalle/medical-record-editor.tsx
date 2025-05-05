@@ -260,7 +260,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       console.log("Valores del formulario:", values.diagnosticos);
 
       const diagnosticsPayload = diagnosticsValues
-        .filter((diagnostic: any) => diagnostic.diagnosticName && diagnostic.diagnosticId)
+        .filter((diagnostic: any) => diagnostic.diagnosticName)
         .map((diagnostic: any) => {
           // Obtener los valores del formulario para este diagnóstico
           const diagnosticName = diagnostic.diagnosticName;
@@ -268,10 +268,15 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
           // Si no hay valores en el formulario o son array vacío, usar los valores originales
           if (!formValues || (Array.isArray(formValues) && formValues.length === 0)) {
-            return {
-              diagnosticId: diagnostic.diagnosticId,
-              values: diagnostic.value || [],
-            };
+            return diagnostic.diagnosticId
+              ? {
+                  diagnosticId: diagnostic.diagnosticId,
+                  values: diagnostic.value || [],
+                }
+              : {
+                  diagnosticValueId: diagnostic.id,
+                  values: diagnostic.value || [],
+                };
           }
 
           // Si hay valores en el formulario, usarlos (fueron modificados)
@@ -286,17 +291,23 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
             cleaned: cleanValues,
           });
 
-          return {
-            diagnosticId: diagnostic.diagnosticId,
-            values: cleanValues,
-          };
+          // Decidir si usar diagnosticId o diagnosticValueId según si diagnosticId es null
+          return diagnostic.diagnosticId
+            ? {
+                diagnosticId: diagnostic.diagnosticId,
+                values: cleanValues,
+              }
+            : {
+                diagnosticValueId: diagnostic.id,
+                values: cleanValues,
+              };
         });
 
       // Debug para verificar el payload
       console.log(
         "Payload final de diagnósticos:",
-        diagnosticsPayload.map((d: { diagnosticId: string; values: string[] }) => ({
-          diagnosticId: d.diagnosticId,
+        diagnosticsPayload.map((d: any) => ({
+          ...(d.diagnosticId ? { diagnosticId: d.diagnosticId } : { diagnosticValueId: d.diagnosticValueId }),
           valueCount: d.values.length,
           values: d.values,
         }))

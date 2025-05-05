@@ -2,13 +2,11 @@
 
 import { http } from "@/lib/http/serverFetch";
 import {
-  BulkDiagnosticsRequest,
   CreateDiagnostic,
   MedicalRecordFileInfo,
   MedicalRecordResponse,
   MedicalRecordsFilter,
   MedicalRecordUpdate,
-  UpdateCustomSections,
   UpdateMedicalRecordDetails,
 } from "../_types/medical-record.types";
 
@@ -281,38 +279,6 @@ export async function updateMedicalRecordDetails(
 }
 
 /**
- * Actualiza las secciones personalizadas de un registro médico
- */
-export async function updateCustomSections(
-  id: string,
-  customSections: UpdateCustomSections
-): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
-  try {
-    console.log(`🔄 Actualizando secciones personalizadas para el registro médico con ID: ${id}`);
-    console.log(`📊 Datos enviados:`, JSON.stringify(customSections).substring(0, 500) + "...");
-
-    const [data, err] = await http.patch<MedicalRecordResponse>(
-      `${API_ENDPOINT}/${id}/custom-sections`,
-      customSections
-    );
-
-    if (err !== null) {
-      console.error(`❌ Error al actualizar secciones personalizadas:`, err);
-      return { success: false, data: null, error: err.message || "Error al actualizar secciones personalizadas" };
-    }
-
-    console.log(
-      `✅ Secciones personalizadas actualizadas correctamente:`,
-      JSON.stringify(data).substring(0, 200) + "..."
-    );
-    return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al actualizar secciones personalizadas", error);
-    return { success: false, data: null, error: "Error al actualizar secciones personalizadas" };
-  }
-}
-
-/**
  * Actualiza un registro médico
  */
 export async function updateMedicalRecord(
@@ -499,7 +465,13 @@ export async function addMultipleDiagnostics(
     // Realizar una copia profunda y asegurar la estructura correcta
     const normalizedDiagnostics = diagnostics.map((diagnostic, index) => {
       console.log(`🔍 Verificando estructura de diagnóstico #${index + 1}:`);
-      console.log(`   - Tipo de diagnosticId:`, typeof diagnostic.diagnosticId);
+
+      // Determinar si estamos usando diagnosticId o diagnosticValueId
+      const useDiagnosticId = !!diagnostic.diagnosticId;
+      const useDiagnosticValueId = !!diagnostic.diagnosticValueId;
+
+      console.log(`   - Usando diagnosticId: ${useDiagnosticId}`);
+      console.log(`   - Usando diagnosticValueId: ${useDiagnosticValueId}`);
       console.log(`   - Tipo de values:`, typeof diagnostic.values);
       console.log(`   - ¿Values es array?:`, Array.isArray(diagnostic.values));
 
@@ -516,33 +488,36 @@ export async function addMultipleDiagnostics(
         }
       }
 
-      // Normalizar la estructura
-      return {
-        diagnosticId: diagnostic.diagnosticId,
-        // Asegurar que values sea un array de strings
-        values: Array.isArray(diagnostic.values)
-          ? diagnostic.values.map((v) => String(v))
-          : [String(diagnostic.values || "")],
-        isReportIncluded: diagnostic.isReportIncluded !== undefined ? diagnostic.isReportIncluded : true,
-      };
+      // Asegurar que values sea un array de strings
+      const normalizedValues = Array.isArray(diagnostic.values)
+        ? diagnostic.values.map((v) => String(v))
+        : [String(diagnostic.values || "")];
+
+      // Normalizar la estructura según si usamos diagnosticId o diagnosticValueId
+      if (useDiagnosticId) {
+        return {
+          diagnosticId: diagnostic.diagnosticId,
+          values: normalizedValues,
+          isReportIncluded: diagnostic.isReportIncluded !== undefined ? diagnostic.isReportIncluded : true,
+        };
+      } else if (useDiagnosticValueId) {
+        return {
+          diagnosticValueId: diagnostic.diagnosticValueId,
+          values: normalizedValues,
+        };
+      } else {
+        console.error(`❌ Diagnóstico #${index + 1} no tiene ni diagnosticId ni diagnosticValueId`);
+        // Devolver un objeto mínimo para evitar errores, aunque este será filtrado después
+        return { values: [] };
+      }
     });
 
+    // Filtrar diagnósticos inválidos (sin ID)
+    const validDiagnostics = normalizedDiagnostics.filter((d) => d.diagnosticId || d.diagnosticValueId);
+
     // Format payload according to the CreateMultipleDiagnosticsDto
-    const payload: BulkDiagnosticsRequest = { diagnostics: normalizedDiagnostics };
+    const payload: any = { diagnostics: validDiagnostics };
     console.log(`📤 Payload exacto a enviar (después de normalizar):`, JSON.stringify(payload));
-
-    // Verificar contra el ejemplo de la API
-    const ejemploAPI = {
-      diagnostics: [
-        {
-          diagnosticId: "550e8400-e29b-41d4-a716-446655440000",
-          values: ["Valor 1", "Valor 2", "Observación adicional"],
-          isReportIncluded: false,
-        },
-      ],
-    };
-
-    console.log(`📝 Ejemplo API esperado:`, JSON.stringify(ejemploAPI));
 
     // Realizar la llamada a la API con manejo de errores mejorado
     console.log(`📡 Enviando petición POST a: ${endpoint}`);

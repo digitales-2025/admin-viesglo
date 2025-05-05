@@ -536,11 +536,12 @@ export function useAddMultipleDiagnostics() {
 
       // Verificar estructura de diagnósticos antes de enviar
       diagnostics.forEach((diagnostic, index) => {
-        if (!diagnostic.diagnosticId) {
-          console.error(`❌ (Hook) Error: Diagnóstico #${index + 1} sin diagnosticId`);
+        if (!diagnostic.diagnosticId && !diagnostic.diagnosticValueId) {
+          console.error(`❌ (Hook) Error: Diagnóstico #${index + 1} sin diagnosticId ni diagnosticValueId`);
         }
         if (!diagnostic.values) {
-          console.warn(`⚠️ (Hook) Advertencia: Diagnóstico #${index + 1} (${diagnostic.diagnosticId}) sin valores`);
+          const idUsado = diagnostic.diagnosticId || diagnostic.diagnosticValueId;
+          console.warn(`⚠️ (Hook) Advertencia: Diagnóstico #${index + 1} (${idUsado}) sin valores`);
         }
       });
 
