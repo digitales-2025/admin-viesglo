@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Pencil, Save } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 
 import {
+  MEDICAL_RECORDS_KEYS,
+  useAddDiagnosticValue,
   useAddMultipleDiagnostics,
   useMedicalRecord,
   useUpdateMedicalRecord,
@@ -25,10 +28,17 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
-import { MedicalRecordUpdate } from "../../_types/medical-record.types";
 import { AptitudSection } from "./sections/aptitud-section";
 import { DatosFiliacionSection } from "./sections/datos-filiacion-section";
 import { DiagnosticosSection } from "./sections/diagnosticos-section";
+
+interface DiagnosticValue {
+  diagnosticId: string | null;
+  diagnosticName: string;
+  id: string;
+  medicalRecordId: string;
+  value: string[];
+}
 
 // Schema para la validación del formulario
 const formSchema = z.object({
@@ -62,6 +72,8 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
   const { data, isLoading } = useMedicalRecord(recordId);
   const updateMedicalRecord = useUpdateMedicalRecord();
   const addMultipleDiagnostics = useAddMultipleDiagnostics();
+  const addDiagnosticValue = useAddDiagnosticValue();
+  const queryClient = useQueryClient();
 
   const [activeTab, setActiveTab] = useState("datos-filiacion");
   const [showUnsavedChangesDialog, setShowUnsavedChangesDialog] = useState(false);
@@ -104,7 +116,34 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
     reset,
     handleSubmit,
     formState: { isDirty, isSubmitting },
+    setValue,
+    getValues,
   } = methods;
+
+  // Función para actualizar dinámicamente los valores de diagnósticos en el formulario
+  const updateDiagnosticsInForm = (diagnostics: DiagnosticValue[]) => {
+    console.log("🔄 Actualizando diagnósticos en el formulario");
+
+    // Obtener valores actuales
+    const currentValues = getValues()?.diagnosticos || {};
+
+    // Inicializar con valores existentes
+    const initialValues = diagnostics.reduce(
+      (acc, diag) => {
+        if (diag.diagnosticName) {
+          // Asegurarse de que value es siempre un array y contiene valores válidos
+          acc[diag.diagnosticName] = Array.isArray(diag.value)
+            ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+            : [];
+        }
+        return acc;
+      },
+      { ...currentValues } as Record<string, string[]>
+    );
+
+    // Actualizar formulario con valores combinados
+    setValue("diagnosticos", initialValues, { shouldDirty: false });
+  };
 
   // Effect para detectar cambios y emitir eventos
   useEffect(() => {
@@ -121,6 +160,13 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       window.dispatchEvent(new CustomEvent("unsavedChanges", { detail: { hasUnsavedChanges: false } }));
     };
   }, [isDirty, isEditing]);
+
+  // Effect para actualizar diagnósticos cuando cambian
+  useEffect(() => {
+    if (diagnosticsValues && diagnosticsValues.length > 0) {
+      updateDiagnosticsInForm(diagnosticsValues);
+    }
+  }, [diagnosticsValues]);
 
   // Inicializar datos del formulario cuando se cargan los datos de la API
   useEffect(() => {
@@ -213,12 +259,10 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
   // Función para guardar los cambios
   const onSubmit = async (values: FormValues) => {
-    if (!isEditing) return;
+    setIsSaving(true);
 
     try {
-      setIsSaving(true);
-
-      // Mapear los valores de género a los valores aceptados por la API
+      // Determinar el valor de género a partir del estado del formulario
       let genderValue: "MALE" | "FEMALE" | "OTHER" | undefined;
 
       if (values.datosFiliacion.genero) {
@@ -231,8 +275,8 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         }
       }
 
-      // 1. Guardar información básica de identificación y aptitud
-      const basicInfo: MedicalRecordUpdate = {
+      // 1. Actualizar información básica del registro médico
+      const basicInfo = {
         dni: values.datosFiliacion.dni,
         firstName: values.datosFiliacion.nombres,
         secondName: values.datosFiliacion.segundoNombre || "",
@@ -259,7 +303,23 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       // 2. Preparar y enviar diagnósticos
       console.log("Valores del formulario:", values.diagnosticos);
 
-      const diagnosticsPayload = diagnosticsValues
+      // Obtener nombres de diagnósticos existentes para identificar los nuevos
+      const existingDiagnosticNames = diagnosticsValues.map((diag: DiagnosticValue) => diag.diagnosticName);
+
+      // Separar diagnósticos nuevos (personalizados) de los existentes
+      const newDiagnostics: string[] = [];
+      const diagnosticFormValues = values.diagnosticos || {};
+
+      Object.keys(diagnosticFormValues).forEach((diagName) => {
+        if (!existingDiagnosticNames.includes(diagName)) {
+          newDiagnostics.push(diagName);
+        }
+      });
+
+      console.log("Diagnósticos personalizados nuevos:", newDiagnostics);
+
+      // Preparar payload para diagnósticos existentes
+      const existingDiagnosticsPayload = diagnosticsValues
         .filter((diagnostic: any) => diagnostic.diagnosticName)
         .map((diagnostic: any) => {
           // Obtener los valores del formulario para este diagnóstico
@@ -305,25 +365,47 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
       // Debug para verificar el payload
       console.log(
-        "Payload final de diagnósticos:",
-        diagnosticsPayload.map((d: any) => ({
+        "Payload final de diagnósticos existentes:",
+        existingDiagnosticsPayload.map((d: any) => ({
           ...(d.diagnosticId ? { diagnosticId: d.diagnosticId } : { diagnosticValueId: d.diagnosticValueId }),
           valueCount: d.values.length,
           values: d.values,
         }))
       );
 
-      // Enviar diagnósticos si hay alguno
-      if (diagnosticsPayload.length > 0) {
+      // Enviar diagnósticos existentes si hay alguno
+      if (existingDiagnosticsPayload.length > 0) {
         try {
           await addMultipleDiagnostics.mutateAsync({
             id: recordId,
-            diagnostics: diagnosticsPayload,
+            diagnostics: existingDiagnosticsPayload,
           });
-          console.log("Diagnósticos actualizados con éxito");
+          console.log("Diagnósticos existentes actualizados con éxito");
         } catch (error) {
-          console.error("Error al actualizar diagnósticos:", error);
+          console.error("Error al actualizar diagnósticos existentes:", error);
           throw error;
+        }
+      }
+
+      // Crear diagnósticos personalizados nuevos
+      for (const diagName of newDiagnostics) {
+        const diagValues = diagnosticFormValues[diagName] || [];
+
+        // Solo enviar si hay valores
+        if (Array.isArray(diagValues) && diagValues.length > 0) {
+          try {
+            // Usar el hook para crear diagnóstico personalizado
+            await addDiagnosticValue.mutateAsync({
+              id: recordId,
+              name: diagName,
+              values: diagValues,
+            });
+
+            console.log(`Diagnóstico personalizado "${diagName}" creado con éxito`);
+          } catch (error) {
+            console.error(`Error al crear diagnóstico personalizado "${diagName}":`, error);
+            throw error;
+          }
         }
       }
 
@@ -333,7 +415,16 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       setTimeout(() => {
         window.location.href = `/medical-records/${recordId}/details`;
       }, 1000);
+
+      // Recargar los datos del registro médico
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(recordId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(recordId)],
+      });
     } catch (_error) {
+      console.error("Error completo:", _error);
       toast.error("Error al guardar los cambios. Intente nuevamente.");
     } finally {
       setIsSaving(false);
@@ -377,7 +468,25 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           </TabsContent>
 
           <TabsContent value="diagnosticos" className="mt-4 md:mt-6">
-            <DiagnosticosSection isEditing={isEditing} diagnosticsValues={diagnosticsValues} />
+            <DiagnosticosSection
+              isEditing={isEditing}
+              diagnosticsValues={diagnosticsValues}
+              recordId={recordId}
+              onDiagnosticsChange={() => {
+                console.log("📢 DiagnosticosSection notificó cambio en diagnósticos");
+
+                // Recargar los datos del registro médico
+                queryClient.invalidateQueries({
+                  queryKey: [...MEDICAL_RECORDS_KEYS.detail(recordId)],
+                });
+                queryClient.invalidateQueries({
+                  queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(recordId)],
+                });
+
+                // Cambiar a la pestaña de diagnósticos para mejor UX
+                setActiveTab("diagnosticos");
+              }}
+            />
           </TabsContent>
         </Tabs>
 
@@ -404,7 +513,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
         {!isEditing && (
           <div className="mt-6 flex justify-end">
-            <Button onClick={() => router.push(`/medical-records/${recordId}/edit`)}>
+            <Button onClick={() => (window.location.href = `/medical-records/${recordId}/edit`)}>
               <Pencil className="mr-2 h-4 w-4" /> Editar
             </Button>
           </div>

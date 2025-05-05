@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   addDiagnostic,
+  addDiagnosticValue,
   addMultipleDiagnostics,
   createMedicalRecord,
   deleteDiagnostic,
@@ -18,6 +19,7 @@ import {
   getMedicalRecord,
   getMedicalRecords,
   getMedicalReportInfo,
+  updateDiagnosticValueName,
   updateMedicalRecord,
   uploadAptitudeCertificate,
   uploadMedicalReport,
@@ -583,6 +585,65 @@ export function useAddMultipleDiagnostics() {
     onError: (error: Error) => {
       console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al agregar diagnósticos");
+    },
+  });
+}
+
+/**
+ * Hook para agregar un valor de diagnóstico personalizado a un registro médico
+ */
+export function useAddDiagnosticValue() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, name, values }: { id: string; name: string; values: string[] }) => {
+      const response = await addDiagnosticValue(id, name, values);
+      if (!response.success) {
+        throw new Error(response.error || "Error al agregar diagnóstico personalizado");
+      }
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidar consultas para forzar recargar los datos
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.id)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
+      });
+    },
+  });
+}
+
+/**
+ * Hook para actualizar el nombre de un valor de diagnóstico personalizado
+ */
+export function useUpdateDiagnosticValueName() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      diagnosticValueId,
+      name,
+    }: {
+      diagnosticValueId: string;
+      name: string;
+      medicalRecordId: string;
+    }) => {
+      const response = await updateDiagnosticValueName(diagnosticValueId, name);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar el nombre del diagnóstico personalizado");
+      }
+      return response.data;
+    },
+    onSuccess: (_, variables) => {
+      // Invalidar consultas para forzar recargar los datos
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.medicalRecordId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.medicalRecordId)],
+      });
     },
   });
 }

@@ -13,9 +13,10 @@ interface DynamicListFormProps {
   name: string;
   control: Control<any>;
   isEditing: boolean;
+  hideLabel?: boolean;
 }
 
-export function DynamicListForm({ label, name, control, isEditing }: DynamicListFormProps) {
+export function DynamicListForm({ label, name, control, isEditing, hideLabel = false }: DynamicListFormProps) {
   const [newItem, setNewItem] = useState("");
 
   // Use react-hook-form's controller to handle the field value
@@ -59,7 +60,7 @@ export function DynamicListForm({ label, name, control, isEditing }: DynamicList
 
   return (
     <div className="space-y-3">
-      <Label>{label}</Label>
+      {!hideLabel && <Label>{label}</Label>}
       <div className="space-y-2">
         {items.map((item, index) => (
           <div key={`${name}-${index}`} className="flex items-center gap-2">

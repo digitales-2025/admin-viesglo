@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -60,6 +61,14 @@ const APTITUDE_TYPES: { id: AptitudeType; label: string }[] = [
   { id: "NOT_APT", label: "No apto" },
 ];
 
+// Define gender types
+type GenderType = "MALE" | "FEMALE" | "OTHER";
+const GENDER_TYPES: { id: GenderType; label: string }[] = [
+  { id: "MALE", label: "Masculino" },
+  { id: "FEMALE", label: "Femenino" },
+  { id: "OTHER", label: "Otro" },
+];
+
 // Constante para el tamaño máximo de archivo (5MB en bytes)
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -92,6 +101,13 @@ const formSchema = z.object({
   secondName: z.string().optional(),
   firstLastName: z.string().min(1, "El apellido paterno es requerido"),
   secondLastName: z.string().optional(),
+  birthDate: z.date().optional(),
+  entryDate: z.date({
+    required_error: "La fecha de ingreso es requerida",
+  }),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"], {
+    required_error: "El género es requerido",
+  }),
   examType: z.enum(["PRE_OCCUPATIONAL", "PERIODIC", "RETIREMENT", "OTHER"], {
     required_error: "El tipo de examen es requerido",
   }),
@@ -180,6 +196,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       secondName: "",
       firstLastName: "",
       secondLastName: "",
+      birthDate: undefined,
+      entryDate: new Date(),
+      gender: "MALE",
       examType: "PRE_OCCUPATIONAL",
       aptitude: "APT",
       restrictions: "",
@@ -196,6 +215,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         ruc: data.ruc,
         firstName: data.firstName,
         firstLastName: data.firstLastName,
+        gender: data.gender as any,
+        entryDate: data.entryDate.toISOString(),
         examType: data.examType,
         aptitude: data.aptitude,
       };
@@ -204,6 +225,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       if (data.dni) updateData.dni = data.dni;
       if (data.secondName) updateData.secondName = data.secondName;
       if (data.secondLastName) updateData.secondLastName = data.secondLastName;
+      if (data.birthDate) updateData.birthDate = data.birthDate.toISOString();
       if (data.restrictions) updateData.restrictions = data.restrictions;
 
       updateMedicalRecord(
@@ -228,6 +250,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       formData.append("ruc", data.ruc);
       formData.append("firstName", data.firstName);
       formData.append("firstLastName", data.firstLastName);
+      formData.append("gender", data.gender);
+      formData.append("entryDate", data.entryDate.toISOString());
       formData.append("examType", data.examType);
       formData.append("aptitude", data.aptitude);
 
@@ -240,6 +264,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       }
       if (data.secondLastName) {
         formData.append("secondLastName", data.secondLastName);
+      }
+      if (data.birthDate) {
+        formData.append("birthDate", data.birthDate.toISOString());
       }
       if (data.restrictions) {
         formData.append("restrictions", data.restrictions);
@@ -270,19 +297,25 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       // Extraer los datos del registro actual para llenar el formulario
-      const { ruc, dni, firstName, secondName, firstLastName, secondLastName, examType, aptitude, restrictions } =
-        currentRow as unknown as FormValues;
+      const medicalRecord = currentRow as unknown as FormValues;
+
+      // Para fechas que vienen como string desde la API
+      const birthDate = medicalRecord.birthDate ? new Date(medicalRecord.birthDate) : undefined;
+      const entryDate = medicalRecord.entryDate ? new Date(medicalRecord.entryDate) : new Date();
 
       form.reset({
-        ruc: ruc || "",
-        dni: dni || "",
-        firstName: firstName || "",
-        secondName: secondName || "",
-        firstLastName: firstLastName || "",
-        secondLastName: secondLastName || "",
-        examType: examType || "PRE_OCCUPATIONAL",
-        aptitude: aptitude || "APT",
-        restrictions: restrictions || "",
+        ruc: medicalRecord.ruc || "",
+        dni: medicalRecord.dni || "",
+        firstName: medicalRecord.firstName || "",
+        secondName: medicalRecord.secondName || "",
+        firstLastName: medicalRecord.firstLastName || "",
+        secondLastName: medicalRecord.secondLastName || "",
+        birthDate,
+        entryDate,
+        gender: medicalRecord.gender || "MALE",
+        examType: medicalRecord.examType || "PRE_OCCUPATIONAL",
+        aptitude: medicalRecord.aptitude || "APT",
+        restrictions: medicalRecord.restrictions || "",
       });
     } else {
       form.reset({
@@ -292,6 +325,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         secondName: "",
         firstLastName: "",
         secondLastName: "",
+        birthDate: undefined,
+        entryDate: new Date(),
+        gender: "MALE",
         examType: "PRE_OCCUPATIONAL",
         aptitude: "APT",
         restrictions: "",
@@ -309,6 +345,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         secondName: "",
         firstLastName: "",
         secondLastName: "",
+        birthDate: undefined,
+        entryDate: new Date(),
+        gender: "MALE",
         examType: "PRE_OCCUPATIONAL",
         aptitude: "APT",
         restrictions: "",
@@ -465,6 +504,67 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                       <FormControl>
                         <Input placeholder="Introduce el DNI del paciente" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Género</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecciona el género" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {GENDER_TYPES.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Fecha de nacimiento</FormLabel>
+                      <DatePicker
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={isPending}
+                        placeholder="Seleccionar fecha"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="entryDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Fecha de ingreso</FormLabel>
+                      <DatePicker
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={isPending}
+                        placeholder="Seleccionar fecha"
+                      />
                       <FormMessage />
                     </FormItem>
                   )}

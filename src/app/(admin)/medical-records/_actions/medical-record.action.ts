@@ -548,3 +548,95 @@ export async function addMultipleDiagnostics(
     };
   }
 }
+
+/**
+ * Agrega un valor de diagnóstico personalizado a un registro médico
+ */
+export async function addDiagnosticValue(
+  id: string,
+  name: string,
+  values: string[]
+): Promise<{ data: any; success: boolean; error?: string }> {
+  try {
+    console.log(`➕ Agregando diagnóstico personalizado "${name}" al registro médico con ID: ${id}`);
+
+    // Endpoint para añadir valor de diagnóstico personalizado
+    const endpoint = `/diagnostics/medical-records/${id}/diagnostic-value`;
+    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const payload = {
+      name,
+      value: values,
+    };
+
+    console.log(`📊 Datos enviados:`, JSON.stringify(payload));
+
+    const [data, err] = await http.post<any>(endpoint, payload);
+
+    if (err !== null) {
+      console.error(`❌ Error al agregar diagnóstico personalizado:`, err);
+      return {
+        success: false,
+        data: null,
+        error: err.message || "Error al agregar diagnóstico personalizado",
+      };
+    }
+
+    console.log(`✅ Diagnóstico personalizado agregado correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al agregar diagnóstico personalizado", error);
+    return {
+      success: false,
+      data: null,
+      error: "Error al agregar diagnóstico personalizado",
+    };
+  }
+}
+
+/**
+ * Actualiza el nombre de un valor de diagnóstico personalizado
+ */
+export async function updateDiagnosticValueName(
+  diagnosticValueId: string,
+  name: string
+): Promise<{ data: any; success: boolean; error?: string }> {
+  try {
+    console.log(`✏️ Actualizando nombre de diagnóstico personalizado con ID: ${diagnosticValueId}`);
+    console.log(`📝 Nuevo nombre: "${name}"`);
+
+    // Endpoint para actualizar nombre de diagnóstico personalizado
+    const endpoint = `/diagnostics/diagnostic-values/${diagnosticValueId}/name`;
+    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
+
+    const payload = {
+      name,
+    };
+
+    console.log(`📊 Datos enviados:`, JSON.stringify(payload));
+
+    const [data, err] = await http.patch<any>(endpoint, payload);
+
+    if (err !== null) {
+      console.error(`❌ Error al actualizar nombre del diagnóstico personalizado:`, err);
+      return {
+        success: false,
+        data: null,
+        error: err.message || "Error al actualizar nombre del diagnóstico personalizado",
+      };
+    }
+
+    console.log(
+      `✅ Nombre del diagnóstico personalizado actualizado correctamente:`,
+      JSON.stringify(data).substring(0, 200) + "..."
+    );
+    return { success: true, data };
+  } catch (error) {
+    console.error("❌ Error al actualizar nombre del diagnóstico personalizado", error);
+    return {
+      success: false,
+      data: null,
+      error: "Error al actualizar nombre del diagnóstico personalizado",
+    };
+  }
+}
