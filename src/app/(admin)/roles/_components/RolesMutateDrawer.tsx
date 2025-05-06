@@ -294,7 +294,7 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                   <div
                                     className={cn(
                                       "flex items-center justify-between p-4 cursor-pointer hover:bg-muted/30 transition-colors",
-                                      isReadChecked && "bg-emerald-50 hover:bg-emerald-100"
+                                      isReadChecked && "bg-emerald-500/10 hover:bg-emerald-500/20"
                                     )}
                                   >
                                     <div className="flex items-center gap-3">
@@ -373,8 +373,13 @@ export function RolesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                                   </div>
                                 </CollapsibleTrigger>
                                 <CollapsibleContent>
-                                  <Separator className={cn(isReadChecked && "bg-emerald-200")} />
-                                  <div className={cn("p-4 space-y-3", isReadChecked && "bg-emerald-50/50")}>
+                                  <Separator className={cn(isReadChecked && "bg-emerald-200 dark:bg-emerald-800")} />
+                                  <div
+                                    className={cn(
+                                      "p-4 space-y-3",
+                                      isReadChecked && "bg-emerald-50/50 dark:bg-emerald-900/10"
+                                    )}
+                                  >
                                     {group.actions
                                       .filter((permission) => permission.id !== readPermissionId)
                                       .map((permission) => (

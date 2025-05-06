@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, CheckCircle2, Mail, XCircle } from "lucide-react";
+import { Banknote, Calendar, CheckCircle2, Mail, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Switch } from "@/shared/components/ui/switch";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { QuotationResponse } from "../_types/quotation.types";
+import { LabelTypePayment, QuotationResponse, TypePayment } from "../_types/quotation.types";
 import QuotationTableActions from "./QuotationTableActions";
 
 // Nuevo componente para la celda de isConcrete
@@ -41,10 +42,24 @@ function ConcreteCell({ quotation }: { quotation: QuotationResponse }) {
 
 export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
   {
-    id: "code",
+    id: "código",
     accessorKey: "code",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Código" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("code")}</div>,
+    cell: ({ row }) => (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger>
+            <div className="font-semibold capitalize min-w-[150px] text-sky-700">{row.getValue("código")}</div>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">
+              Grupo de cotización:{" "}
+              <span className="font-semibold text-sky-600">{row.original.quotationGroup.name}</span>
+            </p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    ),
   },
   {
     id: "ruc",
@@ -53,26 +68,30 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
     cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("ruc")}</div>,
   },
   {
-    id: "businessName",
+    id: "razón social",
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
     cell: ({ row }) => (
       <div
-        className="font-semibold truncate capitalize min-w-[200px] max-w-[250px]"
-        title={row.getValue("businessName")}
+        className="font-semibold truncate capitalize min-w-[200px] max-w-[250px] "
+        title={row.getValue("razón social")}
       >
-        {row.getValue("businessName")}
+        {row.getValue("razón social")}
       </div>
     ),
   },
   {
-    id: "service",
+    id: "servicio",
     accessorKey: "service",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Servicio" />,
-    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("service")}</div>,
+    cell: ({ row }) => (
+      <div className="capitalize min-w-[150px] max-w-[250px] truncate" title={row.getValue("servicio")}>
+        {row.getValue("servicio")}
+      </div>
+    ),
   },
   {
-    id: "amount",
+    id: "monto",
     accessorKey: "amount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
     cell: ({ row }) => (
@@ -82,36 +101,93 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("amount"))}
+          }).format(row.getValue("monto"))}
         </Badge>
       </div>
     ),
   },
   {
-    id: "mainContact",
+    id: "tipo de pago",
+    accessorKey: "typePayment",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    cell: ({ row }) => (
+      <Badge
+        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        className="capitalize min-w-[150px]"
+      >
+        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de inicio",
+    accessorKey: "dateStart",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Inicio" />,
+    cell: ({ row }) => (
+      <Badge variant="outline" className="capitalize min-w-[150px]">
+        <Calendar className="size-3 text-muted-foreground" />
+        {row.getValue("fecha de inicio") ? (
+          <span>
+            {typeof row.original.dateStart === "string"
+              ? row.original.dateStart.substring(0, 10).split("-").reverse().join("/")
+              : "Fecha inválida"}
+          </span>
+        ) : (
+          <span className="text-muted-foreground text-xs">No iniciada</span>
+        )}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de fin",
+    accessorKey: "dateEnd",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Concluida" />,
+    cell: ({ row }) => (
+      <Badge variant="outline" className="capitalize min-w-[150px]">
+        <Calendar className="size-3 text-muted-foreground" />
+        {row.getValue("fecha de fin") ? (
+          <span>
+            {typeof row.original.dateEnd === "string"
+              ? row.original.dateEnd.substring(0, 10).split("-").reverse().join("/")
+              : "Fecha inválida"}
+          </span>
+        ) : (
+          <span className="text-muted-foreground text-xs">No concluida</span>
+        )}
+      </Badge>
+    ),
+  },
+  {
+    id: "contacto principal",
     accessorKey: "mainContact",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Contacto Principal" />,
-    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("mainContact")}</div>,
+    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("contacto principal")}</div>,
   },
   {
-    id: "position",
+    id: "cargo",
     accessorKey: "position",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
-    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("position")}</div>,
+    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("cargo")}</div>,
   },
   {
-    id: "email",
+    id: "correo electrónico",
     accessorKey: "email",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Correo Electrónico" />,
     cell: ({ row }) => (
       <div className="min-w-[150px]">
-        <Link href={`mailto:${row.getValue("email")}`} className="flex items-center gap-2">
+        <Link href={`mailto:${row.getValue("correo electrónico")}`} className="flex items-center gap-2">
           <Badge variant="outline" className="flex items-center gap-2">
-            <Mail className="size-3" /> {row.getValue("email")}
+            <Mail className="size-3" /> {row.getValue("correo electrónico")}
           </Badge>
         </Link>
       </div>
     ),
+  },
+  {
+    id: "departamento",
+    accessorKey: "department",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Departamento" />,
+    cell: ({ row }) => <div className="capitalize min-w-[150px]">{row.getValue("departamento")}</div>,
   },
   {
     id: "isConcrete",

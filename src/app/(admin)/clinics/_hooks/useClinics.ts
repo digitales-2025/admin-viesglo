@@ -34,7 +34,6 @@ export function useClinics() {
  */
 export function useClinic(id: string | undefined) {
   // Debugging
-  console.log("useClinic hook called with id:", id);
 
   return useQuery({
     queryKey: CLINICS_KEYS.detail(id || "unknown"),
@@ -46,7 +45,6 @@ export function useClinic(id: string | undefined) {
       }
 
       const response = await getClinic(id);
-      console.log("Clinic response:", response);
 
       if (!response.success) {
         throw new Error(response.error || "Error al obtener clínica");
