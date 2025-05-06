@@ -201,10 +201,7 @@ export class ApiAuthRepository implements AuthRepository {
     return !!user;
   }
 
-  async hasPermission(permission: string): Promise<boolean> {
-    // Para implementar permisos, necesitaríamos consultar a la API
-    console.log("🚀 ~ ApiAuthRepository ~ hasPermission ~ permission:", permission);
-    // o tener un mecanismo para verificar permisos basado en los roles del usuario
+  async hasPermission(): Promise<boolean> {
     // Esta es una implementación simple basada en roles
     const user = await this.getCurrentUser();
     if (!user) {
