@@ -14,9 +14,11 @@ import { cn } from "@/shared/lib/utils";
 interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   onChange?: (date: DateRange | undefined) => void;
   onConfirm?: (date: DateRange | undefined) => void;
+  onClear?: (date: DateRange | undefined) => void;
   initialValue?: DateRange;
   placeholder?: string;
   confirmText?: string;
+  clearText?: string;
   cancelText?: string;
   size?: "default" | "sm" | "lg" | "icon";
 }
@@ -25,10 +27,12 @@ export function DatePickerWithRange({
   className,
   onChange,
   onConfirm,
+  onClear,
   initialValue,
   placeholder = "Seleccionar fechas",
   confirmText = "Aceptar",
   cancelText = "Cancelar",
+  clearText = "Limpiar",
   size = "default",
   ...props
 }: DatePickerWithRangeProps) {
@@ -71,6 +75,15 @@ export function DatePickerWithRange({
     // Notificar confirmación si existe la función
     onConfirm?.(tempDate);
     // Cerrar el popover
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    // Restaurar la fecha temporal a la fecha confirmada previamente
+    setDate(undefined);
+    setTempDate(undefined);
+    // Notificar confirmación si existe la función
+    onClear?.(undefined);
     setOpen(false);
   };
 
@@ -120,6 +133,11 @@ export function DatePickerWithRange({
               <Button variant="outline" size="sm" onClick={handleCancel}>
                 {cancelText}
               </Button>
+              {date && (
+                <Button size="sm" variant="outline" onClick={handleClear}>
+                  {clearText}
+                </Button>
+              )}
               <Button size="sm" onClick={handleConfirm}>
                 {confirmText}
               </Button>

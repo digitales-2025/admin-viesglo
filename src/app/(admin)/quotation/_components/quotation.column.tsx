@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Banknote, Calendar, CheckCircle2, Mail, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -128,7 +127,11 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
       <Badge variant="outline" className="capitalize min-w-[150px]">
         <Calendar className="size-3 text-muted-foreground" />
         {row.getValue("fecha de inicio") ? (
-          format(row.getValue("fecha de inicio"), "dd/MM/yyyy")
+          <span>
+            {typeof row.original.dateStart === "string"
+              ? row.original.dateStart.substring(0, 10).split("-").reverse().join("/")
+              : "Fecha inválida"}
+          </span>
         ) : (
           <span className="text-muted-foreground text-xs">No iniciada</span>
         )}
@@ -143,7 +146,11 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
       <Badge variant="outline" className="capitalize min-w-[150px]">
         <Calendar className="size-3 text-muted-foreground" />
         {row.getValue("fecha de fin") ? (
-          format(row.getValue("fecha de fin"), "dd/MM/yyyy")
+          <span>
+            {typeof row.original.dateEnd === "string"
+              ? row.original.dateEnd.substring(0, 10).split("-").reverse().join("/")
+              : "Fecha inválida"}
+          </span>
         ) : (
           <span className="text-muted-foreground text-xs">No concluida</span>
         )}

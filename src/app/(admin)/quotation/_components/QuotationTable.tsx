@@ -178,11 +178,19 @@ export default function QuotationTable() {
         </Button>
         <DatePickerWithRange
           size="sm"
-          initialValue={{ from: new Date("2023-01-01"), to: new Date("2023-12-31") }}
-          onChange={(value) => {
+          initialValue={{ from: undefined, to: undefined }}
+          onConfirm={(value) => {
             setFilters((prev) => ({
               ...prev,
-              dateRange: value ? { from: value.from, to: value.to || value.from } : undefined,
+              from: value?.from,
+              to: value?.to,
+            }));
+          }}
+          onClear={() => {
+            setFilters((prev) => ({
+              ...prev,
+              from: undefined,
+              to: undefined,
             }));
           }}
         />
