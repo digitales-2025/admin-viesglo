@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import { TZDate } from "@date-fns/tz";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
@@ -152,8 +151,22 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         email: currentRow.email,
         quotationGroup: currentRow.quotationGroup?.id,
         typePayment: currentRow.typePayment as TypePayment,
-        dateStart: currentRow.dateStart ? new TZDate(currentRow.dateStart) : undefined,
-        dateEnd: currentRow.dateEnd ? new TZDate(currentRow.dateEnd) : undefined,
+        dateStart: currentRow.dateStart
+          ? (() => {
+              // Extraer directamente año, mes y día de la cadena ISO
+              const [year, month, day] = currentRow.dateStart.split("T")[0].split("-").map(Number);
+              // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
+              return new Date(year, month - 1, day, 12, 0, 0);
+            })()
+          : undefined,
+        dateEnd: currentRow.dateEnd
+          ? (() => {
+              // Extraer directamente año, mes y día de la cadena ISO
+              const [year, month, day] = currentRow.dateEnd.split("T")[0].split("-").map(Number);
+              // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
+              return new Date(year, month - 1, day, 12, 0, 0);
+            })()
+          : undefined,
       });
     } else {
       form.reset({
