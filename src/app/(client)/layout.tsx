@@ -1,9 +1,18 @@
 "use client";
 
-import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
-import { LoadingTransition } from "@/shared/components/ui/loading-transition";
+import Cookies from "js-cookie";
 
-export default function ClientDashboardLayout({ children }: { children: React.ReactNode }) {
+import { useUserTypeGuard } from "@/auth/presentation/hooks/useUserTypeGuard";
+import ClientSidebar from "@/shared/components/layout/ClientSidebar";
+import SkipToMain from "@/shared/components/layout/SkipToMain";
+import { LoadingTransition } from "@/shared/components/ui/loading-transition";
+import { SidebarProvider } from "@/shared/components/ui/sidebar";
+import { SearchProvider } from "@/shared/context/search-context";
+import { ThemeProvider } from "@/shared/context/theme-provider";
+import { cn } from "@/shared/lib/utils";
+
+export default function ClinicDashboardLayout({ children }: { children: React.ReactNode }) {
+  const defaultOpen = Cookies.get("sidebar:state") !== "false";
   const { user, isLoading, isAuthorized } = useUserTypeGuard(["client"]);
 
   if (isLoading || !user || isAuthorized === null) {
@@ -15,11 +24,27 @@ export default function ClientDashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <header className="bg-indigo-600 text-white p-4">
-        <h1 className="text-xl font-bold">Panel de Cliente</h1>
-      </header>
-      <main className="flex-grow p-4">{children}</main>
-    </div>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <SearchProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <SkipToMain />
+          <ClientSidebar />
+          <div
+            id="content"
+            className={cn(
+              "ml-auto w-full max-w-full",
+              "peer-data-[state=collapsed]:w-[calc(100%-var(--sidebar-width-icon)-1rem)]",
+              "peer-data-[state=expanded]:w-[calc(100%-var(--sidebar-width))]",
+              "transition-[width] duration-200 ease-linear",
+              "flex h-svh flex-col",
+              "group-data-[scroll-locked=1]/body:h-full",
+              "group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh"
+            )}
+          >
+            {children}
+          </div>
+        </SidebarProvider>
+      </SearchProvider>
+    </ThemeProvider>
   );
 }
