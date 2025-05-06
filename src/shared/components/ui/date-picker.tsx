@@ -49,7 +49,15 @@ export function DatePicker({
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
-        <Calendar mode="single" selected={selected} onSelect={handleSelect} initialFocus locale={es} />
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={handleSelect}
+          initialFocus
+          locale={es}
+          defaultMonth={selected}
+          fromMonth={selected}
+        />
         {clearable && (
           <Button
             variant="ghost"

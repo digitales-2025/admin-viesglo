@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TZDate } from "@date-fns/tz";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, Check, CheckCircle2, XCircle } from "lucide-react";
+import { Banknote, Check, CheckCircle2, Loader2, Save, XCircle } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -179,83 +182,15 @@ function ActionsCell({ payment }: { payment: PaymentResponse }) {
   );
 }
 
-interface DatePickerCellProps {
-  initialDate: Date | undefined;
-  paymentId: string;
-  disabled: boolean;
-}
-
-interface BillingCodeInputCellProps {
-  initialCode: string;
-  paymentId: string;
-  disabled: boolean;
-}
-
-function DatePickerCell({ initialDate, paymentId, disabled }: DatePickerCellProps): React.ReactElement {
-  const [date, setDate] = useState<Date | undefined>(initialDate);
-
-  // Asegurarse de que el estado siempre refleje el valor inicial
-  useEffect(() => {
-    setDate(initialDate);
-  }, [initialDate]);
-
-  useEffect(() => {
-    if (date !== undefined) {
-      const state = paymentStates.get(paymentId) || { code: "" };
-      paymentStates.set(paymentId, { ...state, date });
-    }
-  }, [date, paymentId]);
-
-  return (
-    <div className="min-w-[150px]">
-      <DatePicker
-        selected={date}
-        onSelect={setDate}
-        placeholder="Seleccionar fecha"
-        className="w-full"
-        disabled={disabled}
-      />
-    </div>
-  );
-}
-
-function BillingCodeInputCell({ initialCode, paymentId, disabled }: BillingCodeInputCellProps): React.ReactElement {
-  const [code, setCode] = useState(initialCode);
-
-  // Asegurarse de que el estado siempre refleje el valor inicial
-  useEffect(() => {
-    setCode(initialCode);
-  }, [initialCode]);
-
-  useEffect(() => {
-    if (code) {
-      const state = paymentStates.get(paymentId) || { date: undefined };
-      paymentStates.set(paymentId, { ...state, code });
-    }
-  }, [code, paymentId]);
-
-  return (
-    <div className="min-w-[150px]">
-      <Input
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="Ingrese el código"
-        className="w-full"
-        disabled={disabled}
-      />
-    </div>
-  );
-}
-
 // Exportamos el hook para que pueda ser usado en el componente de tabla
 export { usePaymentsWithCleanup };
 
 export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
   {
-    id: "code",
+    id: "codigo",
     accessorKey: "code",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Código" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("code")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Código de Cotización" />,
+    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("codigo")}</div>,
   },
   {
     id: "ruc",
@@ -264,30 +199,30 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("ruc")}</div>,
   },
   {
-    id: "businessName",
+    id: "razon social",
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
     cell: ({ row }) => (
       <div
         className="font-semibold capitalize min-w-[200px] max-w-[200px] truncate"
-        title={row.getValue("businessName")}
+        title={row.getValue("razon social")}
       >
-        {row.getValue("businessName")}
+        {row.getValue("razon social")}
       </div>
     ),
   },
   {
-    id: "service",
+    id: "servicio",
     accessorKey: "service",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Servicio" />,
     cell: ({ row }) => (
-      <div className="capitalize min-w-[150px] max-w-[250px] truncate" title={row.getValue("service")}>
-        {row.getValue("service")}
+      <div className="capitalize min-w-[150px] max-w-[250px] truncate" title={row.getValue("servicio")}>
+        {row.getValue("servicio")}
       </div>
     ),
   },
   {
-    id: "amount",
+    id: "monto",
     accessorKey: "amount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
     cell: ({ row }) => (
@@ -297,43 +232,179 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("amount"))}
+          }).format(row.getValue("monto"))}
         </Badge>
       </div>
     ),
   },
   {
-    id: "paymentDate",
+    id: "fecha de pago",
     accessorKey: "paymentDate",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Pago" />,
-    cell: ({ row }) => {
-      const payment = row.original;
-      const isPaid = payment.isPaid;
-      const initialDate = payment.paymentDate ? new Date(payment.paymentDate) : undefined;
+    cell: function Cell({ row }) {
+      const paymentDate = row.original.paymentDate;
+      const paymentDateFormatted = paymentDate ? new TZDate(paymentDate as string) : undefined;
 
-      return <DatePickerCell initialDate={initialDate} paymentId={payment.id} disabled={isPaid} />;
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const handleChange = (date: Date | undefined) => {
+        updatePayment({
+          id: row.original.id,
+          data: {
+            paymentDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return (
+        <div className="relative">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <DatePicker selected={paymentDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
+        </div>
+      );
     },
   },
   {
-    id: "billingCode",
+    id: "codigo de facturacion",
     accessorKey: "billingCode",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Código de Facturación" />,
-    cell: ({ row }) => {
+    cell: function Cell({ row }) {
       const payment = row.original;
-      const isPaid = payment.isPaid;
       const initialCode = payment.billingCode || "";
+      const isPaid = payment.isPaid;
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
 
-      return <BillingCodeInputCell initialCode={initialCode} paymentId={payment.id} disabled={isPaid} />;
+      const [code, setCode] = useState(initialCode);
+
+      const handleSave = () => {
+        updatePayment(
+          {
+            id: row.original.id,
+            data: { billingCode: code },
+          },
+          {
+            onError: (_) => {
+              setCode(initialCode);
+            },
+          }
+        );
+      };
+
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCode(e.target.value);
+      };
+
+      return (
+        <div className="relative inline-flex gap-1">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <Input
+            value={code}
+            onChange={handleChange}
+            disabled={isPaid}
+            className="min-w-[200px] max-w-[200px] truncate"
+            placeholder="Ingrese el código de facturación"
+          />
+          {code !== initialCode && (
+            <Button type="button" variant="outline" size="icon" onClick={handleSave} className="">
+              <Save className="size-4" />
+            </Button>
+          )}
+        </div>
+      );
     },
   },
   {
-    id: "isPaid",
+    id: "fecha de facturacion",
+    accessorKey: "billingDate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Facturación" />,
+    cell: function Cell({ row }) {
+      const billingDate = row.original.billingDate;
+      const billingDateFormatted = billingDate ? new TZDate(billingDate as string) : undefined;
+
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const handleChange = (date: Date | undefined) => {
+        updatePayment({
+          id: row.original.id,
+          data: {
+            billingDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return (
+        <div className="relative">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <DatePicker selected={billingDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
+        </div>
+      );
+    },
+  },
+  {
+    id: "email destinatario",
+    accessorKey: "emailBilling",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Email Destinatario" />,
+    cell: function Cell({ row }) {
+      const initialEmail = row.original.emailBilling || "";
+
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const [email, setEmail] = useState(initialEmail);
+
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+      };
+
+      const handleSave = () => {
+        if (!z.string().email().safeParse(email).success && email !== "") {
+          toast.error("El email no es válido");
+          return;
+        }
+
+        updatePayment(
+          {
+            id: row.original.id,
+            data: { emailBilling: email },
+          },
+          {
+            onError: (_) => {
+              setEmail(initialEmail);
+            },
+          }
+        );
+      };
+
+      return (
+        <div className="relative inline-flex gap-1">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+          <Input
+            value={email || ""}
+            onChange={handleChange}
+            disabled={row.original.isPaid}
+            placeholder="Ingrese el email del destinatario"
+            className="min-w-[200px] max-w-[200px] truncate"
+          />
+          {email !== initialEmail && (
+            <Button type="button" variant="outline" size="icon" onClick={handleSave} className="">
+              <Save className="size-4" />
+            </Button>
+          )}
+        </div>
+      );
+    },
+  },
+  {
+    id: "realizo pago",
     accessorKey: "isPaid",
     header: ({ column }) => <DataTableColumnHeader column={column} title="¿Realizó Pago?" />,
     cell: ({ row }) => <PaidCell payment={row.original} />,
   },
   {
-    id: "actions",
+    id: "acciones",
     header: ({ column }) => (
       <div className="text-center">
         <DataTableColumnHeader column={column} title="Actualizar" />

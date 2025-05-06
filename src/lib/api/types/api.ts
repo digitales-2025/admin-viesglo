@@ -3723,73 +3723,95 @@ export interface components {
     };
     PaymentResponseDto: {
       /**
-       * @description Payment ID
+       * @description ID del pago
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       id: string;
       /**
-       * @description Payment code
-       * @example PAY-COT-202401-001
+       * @description Codigo de la cotizacion
+       * @example COT-202401-001
        */
       code: string;
       /**
-       * @description Client RUC
+       * @description RUC del cliente
        * @example 20123456789
        */
       ruc: string;
       /**
-       * @description Client business name
+       * @description Razon social del cliente
        * @example Empresa SAC
        */
       businessName: string;
       /**
-       * @description Service name
+       * @description Nombre del servicio
        * @example Consultoría médica
        */
       service: string;
       /**
-       * @description Payment amount
+       * @description Monto del pago
        * @example 1500
        */
       amount: number;
       /**
-       * @description Client email
+       * @description Correo del cliente
        * @example juan.perez@empresa.com
        */
       email: string;
       /**
        * Format: date-time
-       * @description Payment date
+       * @description Fecha de pago
        * @example 2024-01-15T10:00:00Z
        */
       paymentDate: string | null;
       /**
-       * @description Billing code
+       * @description Codigo de facturacion
        * @example F001-000001
        */
       billingCode: string | null;
       /**
-       * @description Payment status
+       * @description Estado del pago
        * @example false
        */
       isPaid: boolean;
       /**
-       * @description Associated quotation ID
+       * @description ID de la cotizacion asociada
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       quotationId: string;
+      /**
+       * Format: date-time
+       * @description Fecha de facturacion
+       * @example 2024-01-15T10:00:00Z
+       */
+      billingDate: string | null;
+      /**
+       * @description Correo de destinatario
+       * @example juan.perez@empresa.com
+       */
+      emailBilling: string | null;
     };
     UpdatePaymentStatusDto: {
       /**
        * @description Payment date
        * @example 2024-01-15T10:00:00Z
        */
-      paymentDate: string;
+      paymentDate?: string;
       /**
        * @description Billing code
        * @example F001-000001
        */
-      billingCode: string;
+      billingCode?: string;
+      /**
+       * @description Billing date
+       * @example 2024-01-15T10:00:00Z
+       */
+      billingDate?: string;
+      /**
+       * Format: email
+       * @description Email billing
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
     };
     MarkPaymentStatusDto: {
       /**
@@ -3807,6 +3829,17 @@ export interface components {
        * @example F001-000001
        */
       billingCode: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2024-01-15T10:00:00Z
+       */
+      billingDate: string;
+      /**
+       * Format: email
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling: string;
     };
     CreateQuotationGroupDto: {
       /**
@@ -5973,6 +6006,10 @@ export interface operations {
         isConcrete?: string;
         /** @description Filtrar por búsqueda general */
         search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
         /** @description Número de página */
         page?: number;
         /** @description Cantidad de elementos por página */
