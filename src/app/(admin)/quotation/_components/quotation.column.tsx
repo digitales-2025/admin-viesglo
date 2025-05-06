@@ -4,12 +4,14 @@ import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
 import { Banknote, Calendar, CheckCircle2, Mail, XCircle } from "lucide-react";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Switch } from "@/shared/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { LabelTypePayment, QuotationResponse, TypePayment } from "../_types/quotation.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import QuotationTableActions from "./QuotationTableActions";
 
 // Nuevo componente para la celda de isConcrete
@@ -25,7 +27,9 @@ function ConcreteCell({ quotation }: { quotation: QuotationResponse }) {
 
   return (
     <div className="flex items-center gap-2">
-      <Switch checked={quotation.isConcrete} onCheckedChange={handleConcreteChange} />
+      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.quotations, action: EnumAction.update }]}>
+        <Switch checked={quotation.isConcrete} onCheckedChange={handleConcreteChange} className="cursor-pointer" />
+      </ProtectedComponent>
       <span className="text-sm text-muted-foreground">
         {quotation.isConcrete ? (
           <span className="flex items-center gap-1">

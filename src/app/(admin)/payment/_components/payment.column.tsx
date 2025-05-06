@@ -113,7 +113,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
         }
       >
         <div className="flex items-center gap-2">
-          <Switch checked={false} onCheckedChange={handlePaidChange} disabled={isPending} />
+          <Switch checked={false} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
           <span className="text-sm text-muted-foreground">
             <XCircle className="size-4 text-gray-500" />
           </span>
@@ -132,7 +132,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
       }
     >
       <div className="flex items-center gap-2">
-        <Switch checked={isPaid} onCheckedChange={handlePaidChange} disabled={isPending} />
+        <Switch checked={isPaid} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
         <span className="text-sm text-muted-foreground">
           {isPaid ? (
             <span className="flex items-center gap-1">
