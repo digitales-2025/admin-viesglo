@@ -1210,8 +1210,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get all payments */
+    /** Todos los pagos de cotizaciones */
     get: operations["PaymentController_findAll_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar pagos con paginación */
+    get: operations["PaymentController_findAllPaginated_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3753,6 +3770,12 @@ export interface components {
        */
       amount: number;
       /**
+       * @description Tipo de pago
+       * @example PUNCTUAL
+       * @enum {string}
+       */
+      typePayment: "MONTHLY" | "PUNCTUAL";
+      /**
        * @description Correo del cliente
        * @example juan.perez@empresa.com
        */
@@ -3789,6 +3812,33 @@ export interface components {
        * @example juan.perez@empresa.com
        */
       emailBilling: string | null;
+    };
+    PaginatedPaymentResponseDto: {
+      /** @description Lista de pagos paginados */
+      data: components["schemas"]["PaymentResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     UpdatePaymentStatusDto: {
       /**
@@ -6850,13 +6900,56 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Payments found */
+      /** @description Pagos encontrados */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["PaymentResponseDto"][];
+        };
+      };
+    };
+  };
+  PaymentController_findAllPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo cotizaciones concretadas */
+        isConcrete?: string;
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Pagos encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedPaymentResponseDto"];
         };
       };
     };
