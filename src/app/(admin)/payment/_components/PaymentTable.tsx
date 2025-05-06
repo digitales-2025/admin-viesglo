@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Circle, DownloadCloud } from "lucide-react";
+import { Banknote, Check, Circle, CreditCard, DownloadCloud } from "lucide-react";
 
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
@@ -12,6 +12,7 @@ import { cn, debounce } from "@/shared/lib/utils";
 import { usePayments } from "../_hooks/usePayments";
 import { PaymentFilters } from "../_types/payment.types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
+import { TypePayment } from "../../quotation/_types/quotation.types";
 import { columnsPayment } from "./payment.column";
 
 export default function PaymentTable() {
@@ -30,6 +31,15 @@ export default function PaymentTable() {
         options: [
           { label: "Pagado", value: "true", icon: Check },
           { label: "No pagado", value: "false", icon: Circle },
+        ],
+      },
+      {
+        label: "Tipo de pago",
+        value: "typePayment",
+        multiSelect: false,
+        options: [
+          { label: "Mensual", value: TypePayment.MONTHLY, icon: Banknote },
+          { label: "Puntual", value: TypePayment.PUNCTUAL, icon: CreditCard },
         ],
       },
     ],

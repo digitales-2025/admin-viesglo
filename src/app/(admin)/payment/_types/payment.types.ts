@@ -1,4 +1,5 @@
 import { components } from "@/lib/api/types/api";
+import { TypePayment } from "../../quotation/_types/quotation.types";
 
 export type PaymentResponse = components["schemas"]["PaymentResponseDto"];
 
@@ -22,7 +23,8 @@ export type PaymentFilters = {
   businessName?: string;
   service?: string | string[];
   department?: string | string[];
-  isConcrete?: boolean;
+  isPaid?: boolean;
+  paymentType?: TypePayment;
   search?: string;
   page?: number;
   limit?: number;
