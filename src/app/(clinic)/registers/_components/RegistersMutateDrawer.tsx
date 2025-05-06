@@ -154,7 +154,7 @@ const FileUpload = ({ onChange, accept, className }: FileUploadProps) => {
       >
         <Upload className="h-4 w-4 text-muted-foreground" />
         <label className="flex-1 cursor-pointer">
-          <span className="text-sm text-muted-foreground">{fileName || "Seleccionar archivo"}</span>
+          <span className="text-sm text-muted-foreground truncate">{fileName || "Seleccionar archivo"}</span>
           <input type="file" className="hidden" onChange={handleFileChange} accept={accept} />
         </label>
       </div>
@@ -366,8 +366,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       if (currentRow.ruc) {
         setSelectedClient({
           id: "", // No tenemos un ID de cliente, es solo para el autocomplete
-          name: currentRow.ruc,
-          ruc: currentRow.ruc,
+          name: currentRow.client?.name || "",
+          ruc: currentRow.client?.ruc || "",
         });
       }
     }
@@ -393,8 +393,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         ruc: client.ruc,
         email: client.email,
       }));
-    } catch (error) {
-      console.error("Error al buscar clientes:", error);
+    } catch (_error) {
       return [];
     }
   }, []);
@@ -764,7 +763,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                       {/* File upload/download section for existing records */}
                       <div className="space-y-2">
                         <FormLabel>Certificado de Aptitud</FormLabel>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 min-h-[60px]">
                           {hasCertificate ? (
                             <div className="flex items-center p-2 border rounded-md bg-accent/30">
                               <div className="flex-1 min-w-0 overflow-hidden">
@@ -814,7 +813,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
 
                       <div className="space-y-2">
                         <FormLabel>Informe Médico</FormLabel>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 min-h-[60px]">
                           {hasReport ? (
                             <div className="flex items-center p-2 border rounded-md bg-accent/30">
                               <div className="flex-1 min-w-0 overflow-hidden">
@@ -836,7 +835,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                               </Button>
                             </div>
                           ) : (
-                            <p className="text-sm text-muted-foreground">No hay informe cargado</p>
+                            <p className="text-sm text-muted-foreground min-h-[50px]">No hay informe cargado</p>
                           )}
 
                           <FormItem>

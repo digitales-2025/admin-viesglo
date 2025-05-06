@@ -122,8 +122,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
   // Función para actualizar dinámicamente los valores de diagnósticos en el formulario
   const updateDiagnosticsInForm = (diagnostics: DiagnosticValue[]) => {
-    console.log("🔄 Actualizando diagnósticos en el formulario");
-
     // Obtener valores actuales
     const currentValues = getValues()?.diagnosticos || {};
 
@@ -301,22 +299,19 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       });
 
       // 2. Preparar y enviar diagnósticos
-      console.log("Valores del formulario:", values.diagnosticos);
+      const diagnosticFormValues = values.diagnosticos || {};
 
       // Obtener nombres de diagnósticos existentes para identificar los nuevos
       const existingDiagnosticNames = diagnosticsValues.map((diag: DiagnosticValue) => diag.diagnosticName);
 
       // Separar diagnósticos nuevos (personalizados) de los existentes
       const newDiagnostics: string[] = [];
-      const diagnosticFormValues = values.diagnosticos || {};
 
       Object.keys(diagnosticFormValues).forEach((diagName) => {
         if (!existingDiagnosticNames.includes(diagName)) {
           newDiagnostics.push(diagName);
         }
       });
-
-      console.log("Diagnósticos personalizados nuevos:", newDiagnostics);
 
       // Preparar payload para diagnósticos existentes
       const existingDiagnosticsPayload = diagnosticsValues
@@ -346,11 +341,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
               ? [formValues].filter(Boolean)
               : [];
 
-          console.log(`Diagnóstico ${diagnosticName}:`, {
-            original: formValues,
-            cleaned: cleanValues,
-          });
-
           // Decidir si usar diagnosticId o diagnosticValueId según si diagnosticId es null
           return diagnostic.diagnosticId
             ? {
@@ -363,16 +353,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
               };
         });
 
-      // Debug para verificar el payload
-      console.log(
-        "Payload final de diagnósticos existentes:",
-        existingDiagnosticsPayload.map((d: any) => ({
-          ...(d.diagnosticId ? { diagnosticId: d.diagnosticId } : { diagnosticValueId: d.diagnosticValueId }),
-          valueCount: d.values.length,
-          values: d.values,
-        }))
-      );
-
       // Enviar diagnósticos existentes si hay alguno
       if (existingDiagnosticsPayload.length > 0) {
         try {
@@ -380,9 +360,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
             id: recordId,
             diagnostics: existingDiagnosticsPayload,
           });
-          console.log("Diagnósticos existentes actualizados con éxito");
         } catch (error) {
-          console.error("Error al actualizar diagnósticos existentes:", error);
           throw error;
         }
       }
@@ -400,10 +378,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
               name: diagName,
               values: diagValues,
             });
-
-            console.log(`Diagnóstico personalizado "${diagName}" creado con éxito`);
           } catch (error) {
-            console.error(`Error al crear diagnóstico personalizado "${diagName}":`, error);
             throw error;
           }
         }
@@ -424,7 +399,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(recordId)],
       });
     } catch (_error) {
-      console.error("Error completo:", _error);
       toast.error("Error al guardar los cambios. Intente nuevamente.");
     } finally {
       setIsSaving(false);
@@ -473,8 +447,6 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
               diagnosticsValues={diagnosticsValues}
               recordId={recordId}
               onDiagnosticsChange={() => {
-                console.log("📢 DiagnosticosSection notificó cambio en diagnósticos");
-
                 // Recargar los datos del registro médico
                 queryClient.invalidateQueries({
                   queryKey: [...MEDICAL_RECORDS_KEYS.detail(recordId)],
@@ -493,7 +465,10 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         {isEditing && (
           <div className="mt-6 flex items-center justify-end">
             <Button
-              type="submit"
+              type="button"
+              onClick={() => {
+                onSubmit(getValues());
+              }}
               disabled={isSaving || isSubmitting || updateMedicalRecord.isPending || addMultipleDiagnostics.isPending}
             >
               {isSaving || isSubmitting ? (
