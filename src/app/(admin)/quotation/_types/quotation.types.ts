@@ -36,6 +36,7 @@ export type QuotationFilters = {
   search?: string;
   page?: number;
   limit?: number;
+  dateRange?: { from: Date | undefined; to: Date | undefined };
 };
 
 export enum TypePayment {

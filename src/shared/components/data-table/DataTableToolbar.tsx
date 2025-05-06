@@ -80,7 +80,7 @@ export function DataTableToolbar<TData>({
   const showClearButton = isFiltered || (Boolean(useServerFilters) && serverSearchValue !== "");
 
   return (
-    <div className="flex lg:items-center lg:justify-between lg:flex-row flex-col">
+    <div className="flex lg:items-center flex-wrap lg:justify-between lg:flex-row flex-col gap-y-2">
       <div className="flex flex-1 flex-col items-start gap-y-2 lg:flex-row lg:items-center lg:space-x-2">
         {/* Búsqueda: muestra el input de búsqueda del servidor o de la tabla según corresponda */}
         {useServerFilters ? (
@@ -149,9 +149,11 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <div className="flex gap-x-2">
-        {actions && actions}
-        {viewOptions && <DataTableViewOptions table={table} />}
+      <div className="flex gap-x-2  w-fit flex-1 justify-end items-center">
+        <div className="flex gap-x-2">
+          {actions && actions}
+          {viewOptions && <DataTableViewOptions table={table} />}
+        </div>
       </div>
     </div>
   );
