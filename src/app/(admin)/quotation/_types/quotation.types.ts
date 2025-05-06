@@ -36,4 +36,16 @@ export type QuotationFilters = {
   search?: string;
   page?: number;
   limit?: number;
+  from?: Date;
+  to?: Date;
+};
+
+export enum TypePayment {
+  MONTHLY = "MONTHLY",
+  PUNCTUAL = "PUNCTUAL",
+}
+
+export const LabelTypePayment = {
+  [TypePayment.MONTHLY]: "Mensual",
+  [TypePayment.PUNCTUAL]: "Puntual",
 };

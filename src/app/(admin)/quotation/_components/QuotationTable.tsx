@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
+import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
 import { useQuotations } from "../_hooks/useQuotations";
@@ -171,9 +172,29 @@ export default function QuotationTable() {
   // Memoizamos componentes y objetos para evitar renderizados innecesarios
   const actions = useMemo(
     () => (
-      <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-        <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
-      </Button>
+      <>
+        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
+          <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
+        </Button>
+        <DatePickerWithRange
+          size="sm"
+          initialValue={{ from: undefined, to: undefined }}
+          onConfirm={(value) => {
+            setFilters((prev) => ({
+              ...prev,
+              from: value?.from,
+              to: value?.to,
+            }));
+          }}
+          onClear={() => {
+            setFilters((prev) => ({
+              ...prev,
+              from: undefined,
+              to: undefined,
+            }));
+          }}
+        />
+      </>
     ),
     []
   );

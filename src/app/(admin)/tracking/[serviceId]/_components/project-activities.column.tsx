@@ -184,12 +184,6 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
             <div
               className="flex items-center gap-2 cursor-pointer group/evidence"
               onClick={() => {
-                console.log("Abriendo diálogo de vista previa para:", {
-                  row: row.original,
-                  id: row.original.id,
-                  objectiveId: objectiveId,
-                });
-
                 const activityWithObjectiveId = {
                   ...row.original,
                   objectiveId: objectiveId,
