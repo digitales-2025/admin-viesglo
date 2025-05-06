@@ -167,9 +167,15 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     id: "select",
     size: 40,
     cell: ({ row }) => {
+      console.log("🚀 ~ row.getCanExpand():", row.getCanExpand());
       return row.getCanExpand() ? (
-        <Button variant="ghost" {...{ onClick: row.getToggleExpandedHandler() }}>
-          {row.getIsExpanded() ? <ChevronRight /> : <ChevronDown />}
+        <Button
+          variant="ghost"
+          {...{
+            onClick: row.getToggleExpandedHandler(),
+          }}
+        >
+          {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
         </Button>
       ) : null;
     },

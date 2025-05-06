@@ -14,6 +14,7 @@ import { PaymentFilters } from "../_types/payment.types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 import { TypePayment } from "../../quotation/_types/quotation.types";
 import { columnsPayment } from "./payment.column";
+import PaymentMonthlyTable from "./PaymentMonthlyTable";
 
 export default function PaymentTable() {
   //const { data: payments, isLoading, error } = usePaymentsWithCleanup();
@@ -238,6 +239,8 @@ export default function PaymentTable() {
     <DataTable
       columns={columns}
       data={payments || []}
+      getRowCanExpand={(row) => row.original.typePayment === TypePayment.MONTHLY}
+      renderExpandedRow={(row) => <PaymentMonthlyTable payment={row} />}
       isLoading={isLoading}
       actions={actions}
       mode="server"
