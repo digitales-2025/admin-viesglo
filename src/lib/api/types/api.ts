@@ -3807,7 +3807,6 @@ export interface components {
        */
       billingDate?: string;
       /**
-       * Format: email
        * @description Email billing
        * @example juan.perez@empresa.com
        */
@@ -3829,17 +3828,6 @@ export interface components {
        * @example F001-000001
        */
       billingCode: string;
-      /**
-       * @description Fecha de facturación
-       * @example 2024-01-15T10:00:00Z
-       */
-      billingDate: string;
-      /**
-       * Format: email
-       * @description Email de facturación
-       * @example juan.perez@empresa.com
-       */
-      emailBilling: string;
     };
     CreateQuotationGroupDto: {
       /**
