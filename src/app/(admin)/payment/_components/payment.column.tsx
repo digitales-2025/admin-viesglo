@@ -28,6 +28,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useMarkPaymentStatus, usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
 import { PaymentResponse } from "../_types/payment.types";
+import { LabelTypePayment, TypePayment } from "../../quotation/_types/quotation.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 // Almacenamiento global para los estados
@@ -223,6 +224,19 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
           }).format(row.getValue("monto"))}
         </Badge>
       </div>
+    ),
+  },
+  {
+    id: "tipo de pago",
+    accessorKey: "typePayment",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    cell: ({ row }) => (
+      <Badge
+        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        className="capitalize min-w-[150px]"
+      >
+        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+      </Badge>
     ),
   },
   {
