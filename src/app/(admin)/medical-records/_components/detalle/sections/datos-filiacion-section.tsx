@@ -40,8 +40,23 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
     name: "datosFiliacion.fechaNacimiento",
   });
 
+  // Watch género para controlar su valor independientemente
+  const genero = useWatch({
+    control,
+    name: "datosFiliacion.genero",
+  });
+
   // Estado local para almacenar la edad calculada
   const [edadCalculada, setEdadCalculada] = useState<string>("Calculando...");
+  // Estado local para preservar el valor del género
+  const [localGender, setLocalGender] = useState<string | undefined>(undefined);
+
+  // Actualizar el estado local del género cuando cambie en el formulario
+  useEffect(() => {
+    if (genero && genero !== localGender) {
+      setLocalGender(genero);
+    }
+  }, [genero, localGender]);
 
   // Calcular la edad tanto cuando cambia fechaNacimiento como cuando cambia el modo
   useEffect(() => {
@@ -65,6 +80,11 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
 
     setEdadCalculada(`${age} años`);
   }, [fechaNacimiento, isEditing, getValues]);
+
+  // Manejador para el cambio de género
+  const handleGenderChange = (value: string) => {
+    setLocalGender(value);
+  };
 
   // Extraer y tipificar los errores específicos
   const dniError = errors.datosFiliacion?.dni;
@@ -194,9 +214,11 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
                 control={control}
                 render={({ field }) => (
                   <Select
-                    onValueChange={field.onChange}
-                    value={field.value || undefined}
-                    defaultValue={field.value || undefined}
+                    onValueChange={(value) => {
+                      handleGenderChange(value);
+                      field.onChange(value);
+                    }}
+                    value={localGender || field.value || undefined}
                   >
                     <SelectTrigger id="genero">
                       <SelectValue placeholder="Seleccionar género" />

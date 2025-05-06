@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -121,27 +121,30 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
   } = methods;
 
   // Función para actualizar dinámicamente los valores de diagnósticos en el formulario
-  const updateDiagnosticsInForm = (diagnostics: DiagnosticValue[]) => {
-    // Obtener valores actuales
-    const currentValues = getValues()?.diagnosticos || {};
+  const updateDiagnosticsInForm = useCallback(
+    (diagnostics: DiagnosticValue[]) => {
+      // Obtener valores actuales
+      const currentValues = getValues()?.diagnosticos || {};
 
-    // Inicializar con valores existentes
-    const initialValues = diagnostics.reduce(
-      (acc, diag) => {
-        if (diag.diagnosticName) {
-          // Asegurarse de que value es siempre un array y contiene valores válidos
-          acc[diag.diagnosticName] = Array.isArray(diag.value)
-            ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
-            : [];
-        }
-        return acc;
-      },
-      { ...currentValues } as Record<string, string[]>
-    );
+      // Inicializar con valores existentes
+      const initialValues = diagnostics.reduce(
+        (acc, diag) => {
+          if (diag.diagnosticName) {
+            // Asegurarse de que value es siempre un array y contiene valores válidos
+            acc[diag.diagnosticName] = Array.isArray(diag.value)
+              ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+              : [];
+          }
+          return acc;
+        },
+        { ...currentValues } as Record<string, string[]>
+      );
 
-    // Actualizar formulario con valores combinados
-    setValue("diagnosticos", initialValues, { shouldDirty: false });
-  };
+      // Actualizar formulario con valores combinados
+      setValue("diagnosticos", initialValues, { shouldDirty: false });
+    },
+    [getValues, setValue]
+  );
 
   // Effect para detectar cambios y emitir eventos
   useEffect(() => {
@@ -164,7 +167,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
     if (diagnosticsValues && diagnosticsValues.length > 0) {
       updateDiagnosticsInForm(diagnosticsValues);
     }
-  }, [diagnosticsValues]);
+  }, [diagnosticsValues, updateDiagnosticsInForm]);
 
   // Inicializar datos del formulario cuando se cargan los datos de la API
   useEffect(() => {
