@@ -4,7 +4,17 @@ import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, Calendar, CheckCircle2, Info, Loader2, Save, XCircle } from "lucide-react";
+import {
+  Banknote,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Info,
+  Loader2,
+  Save,
+  XCircle,
+} from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -152,6 +162,18 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
 export { usePaymentsWithCleanup };
 
 export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
+  {
+    id: "select",
+    size: 40,
+    cell: ({ row }) => {
+      return row.getCanExpand() ? (
+        <Button variant="ghost" {...{ onClick: row.getToggleExpandedHandler() }}>
+          {row.getIsExpanded() ? <ChevronRight /> : <ChevronDown />}
+        </Button>
+      ) : null;
+    },
+    enableSorting: false,
+  },
   {
     id: "codigo",
     accessorKey: "code",
