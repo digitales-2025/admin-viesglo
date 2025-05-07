@@ -53,7 +53,7 @@ export const columnsMedicalRecord = ({
       if (hasAptitudeCertificate(record.files)) {
         await downloadCertificate(record.id);
       } else {
-        toast.info(`El certificado de aptitud no está disponible para el registro: ${record.id}`);
+        toast.info(`El certificado de aptitud no está disponible`);
       }
     } catch (_error) {}
   };
@@ -64,7 +64,7 @@ export const columnsMedicalRecord = ({
       if (hasMedicalReport(record.files)) {
         await downloadReport(record.id);
       } else {
-        toast.info(`El informe médico no está disponible para el registro: ${record.id}`);
+        toast.info(`El informe médico no está disponible`);
       }
     } catch (_error) {}
   };
