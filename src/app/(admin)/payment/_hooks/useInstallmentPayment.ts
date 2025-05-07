@@ -11,6 +11,7 @@ import {
   updateInstallmentPayment,
 } from "../_actions/installment-payment.action";
 import { InstallmentPaymentCreate, InstallmentPaymentUpdate } from "../_types/installment-payment.types";
+import { PAYMENTS_KEYS } from "./usePayments";
 
 export const INSTALLMENT_PAYMENT_KEYS = {
   all: ["installment-payments"] as const,
@@ -50,6 +51,7 @@ export function useCreateInstallmentPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.stats() });
       toast.success("Pago de cuota creado correctamente");
     },
     onError: (error) => {
@@ -73,6 +75,7 @@ export function useUpdateInstallmentPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.stats() });
       toast.success("Pago de cuota actualizado correctamente");
     },
     onError: (error) => {
@@ -96,6 +99,7 @@ export function useDeleteInstallmentPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.stats() });
       toast.success("Pago de cuota eliminado correctamente");
     },
     onError: (error) => {
@@ -119,6 +123,7 @@ export function useToggleInstallmentPayment() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.stats() });
       toast.success("Pago de cuota reactivado o desactivado correctamente");
     },
     onError: (error) => {

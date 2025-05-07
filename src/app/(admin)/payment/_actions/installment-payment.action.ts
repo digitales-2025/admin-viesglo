@@ -22,7 +22,6 @@ export async function getInstallmentPayments(paymentId: string): Promise<{
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener pagos de cuotas" };
     }
-    console.log("🚀 ~ getInstallmentPayments ~ data:", data);
     return { success: true, data: data as InstallmentPaymentResponse[] };
   } catch (error) {
     console.error("Error al obtener pagos de cuotas", error);

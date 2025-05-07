@@ -11,7 +11,7 @@ import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
 import { useQuotations } from "../_hooks/useQuotations";
-import { QuotationFilters } from "../_types/quotation.types";
+import { useQuotationsStore } from "../_hooks/useQuotationsStore";
 import { CustomFilterGroup, CustomFilterOption } from "../../../../shared/components/data-table/custom-types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 import { columnsQuotation } from "./quotation.column";
@@ -19,6 +19,24 @@ import { columnsQuotation } from "./quotation.column";
 export default function QuotationTable() {
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
+
+  // Obtenemos los filtros del store
+  const { filters: storeFilters, setFilters, updateFilter } = useQuotationsStore();
+
+  // Mantenemos los filtros de paginación localmente
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+  });
+
+  // Combinamos los filtros del store con la paginación local
+  const filters = useMemo(
+    () => ({
+      ...storeFilters,
+      ...pagination,
+    }),
+    [storeFilters, pagination]
+  );
 
   // Estado inicial para el filtro de 'Estado' que siempre estará disponible
   const baseFilterOptions = useMemo(
@@ -85,16 +103,14 @@ export default function QuotationTable() {
     return options;
   }, [baseFilterOptions, quotationGroups, departmentOptions]);
 
-  const [filters, setFilters] = useState<QuotationFilters>({
-    page: 1,
-    limit: 10,
-  });
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
-      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm }));
+      // Al cambiar la búsqueda, guardamos en el store y reseteamos a página 1
+      updateFilter("search", searchTerm);
+      setPagination((prev) => ({ ...prev, page: 1 }));
     }, 400);
-  }, []);
+  }, [updateFilter]);
 
   // Limpiar el debounce al desmontar el componente
   useEffect(() => {
@@ -103,20 +119,22 @@ export default function QuotationTable() {
     };
   }, [debouncedSearch]);
 
+  // Obtenemos los datos de la API usando los filtros
   const { data, isLoading, error } = useQuotations(filters);
+
   const quotations = data?.data || [];
   const meta = data?.meta;
 
   const columns = useMemo(() => columnsQuotation(), []);
 
-  // Manejador para cambios en la página (memoizado para evitar recrear la función)
+  // Manejador para cambios en la página
   const handlePageChange = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   }, []);
 
-  // Manejador para cambios en el tamaño de página (memoizado)
+  // Manejador para cambios en el tamaño de página
   const handlePageSizeChange = useCallback((limit: number) => {
-    setFilters((prev) => ({ ...prev, page: 1, limit }));
+    setPagination({ page: 1, limit });
   }, []);
 
   // Manejador para cambios en la búsqueda con debounce
@@ -127,14 +145,20 @@ export default function QuotationTable() {
     [debouncedSearch]
   );
 
-  // Manejador para cambios en los filtros (memoizado)
-  const handleFilterChange = useCallback((columnId: string, value: any) => {
-    setFilters((prev) => {
+  // Manejador para cambios en los filtros
+  const handleFilterChange = useCallback(
+    (columnId: string, value: any) => {
       // Si el valor es null o un array vacío, eliminamos el filtro
       if (value === null || (Array.isArray(value) && value.length === 0)) {
-        const newFilters = { ...prev };
-        delete newFilters[columnId as keyof QuotationFilters];
-        return { ...newFilters, page: 1 };
+        // Creamos una copia de los filtros actuales
+        const newFilters = { ...storeFilters };
+        // Eliminamos la propiedad correspondiente
+        delete newFilters[columnId as keyof typeof newFilters];
+        // Actualizamos el store con los nuevos filtros
+        setFilters(newFilters);
+        // Reseteamos a página 1
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para isConcrete (boolean), necesitamos convertir correctamente el string a booleano
@@ -143,31 +167,25 @@ export default function QuotationTable() {
         const stringValue = Array.isArray(value) ? value[0] : value;
         // Convertir explícitamente el string "true"/"false" a booleano
         const boolValue = stringValue === "true";
-        return {
-          ...prev,
-          [columnId]: boolValue,
-          page: 1,
-        };
+        updateFilter(columnId, boolValue);
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para service y department, permitimos múltiples valores (array)
       if (columnId === "code" || columnId === "department") {
-        return {
-          ...prev,
-          [columnId]: Array.isArray(value) ? value : [value],
-          page: 1,
-        };
+        updateFilter(columnId, Array.isArray(value) ? value : [value]);
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para otros filtros, usamos el primer valor si es un array
       const filterValue = Array.isArray(value) ? value[0] : value;
-      return {
-        ...prev,
-        [columnId]: filterValue,
-        page: 1,
-      };
-    });
-  }, []);
+      updateFilter(columnId, filterValue);
+      setPagination((prev) => ({ ...prev, page: 1 }));
+    },
+    [storeFilters, setFilters, updateFilter]
+  );
 
   // Memoizamos componentes y objetos para evitar renderizados innecesarios
   const actions = useMemo(
@@ -178,25 +196,32 @@ export default function QuotationTable() {
         </Button>
         <DatePickerWithRange
           size="sm"
-          initialValue={{ from: undefined, to: undefined }}
+          initialValue={{
+            from: storeFilters.from ? new Date(storeFilters.from) : undefined,
+            to: storeFilters.to ? new Date(storeFilters.to) : undefined,
+          }}
           onConfirm={(value) => {
-            setFilters((prev) => ({
-              ...prev,
-              from: value?.from,
-              to: value?.to,
-            }));
+            if (value?.from) updateFilter("from", value.from);
+            if (value?.to) updateFilter("to", value.to);
+            if (!value?.from && !value?.to) {
+              const newFilters = { ...storeFilters };
+              delete newFilters.from;
+              delete newFilters.to;
+              setFilters(newFilters);
+            }
+            setPagination((prev) => ({ ...prev, page: 1 }));
           }}
           onClear={() => {
-            setFilters((prev) => ({
-              ...prev,
-              from: undefined,
-              to: undefined,
-            }));
+            const newFilters = { ...storeFilters };
+            delete newFilters.from;
+            delete newFilters.to;
+            setFilters(newFilters);
+            setPagination((prev) => ({ ...prev, page: 1 }));
           }}
         />
       </>
     ),
-    []
+    [storeFilters, updateFilter, setFilters]
   );
 
   const serverPagination = useMemo(

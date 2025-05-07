@@ -3,7 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { getPayment, getPayments, markPaymentStatus, updatePaymentStatus } from "../_actions/payment.action";
+import {
+  findPaymentsForStats,
+  getPayment,
+  getPayments,
+  markPaymentStatus,
+  updatePaymentStatus,
+} from "../_actions/payment.action";
 import { MarkPaymentStatus, PaymentFilters, UpdatePaymentStatus } from "../_types/payment.types";
 
 export const PAYMENTS_KEYS = {
@@ -11,6 +17,7 @@ export const PAYMENTS_KEYS = {
   lists: () => [...PAYMENTS_KEYS.all, "list"] as const,
   list: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...PAYMENTS_KEYS.all, id] as const,
+  stats: () => [...PAYMENTS_KEYS.all, "stats"] as const,
 };
 
 /**
@@ -90,6 +97,22 @@ export function useMarkPaymentStatus() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al marcar estado del pago");
+    },
+  });
+}
+
+/**
+ * Hook para obtener los pagos para las estadísticas
+ */
+export function usePaymentsForStats(filters?: PaymentFilters) {
+  return useQuery({
+    queryKey: PAYMENTS_KEYS.stats(),
+    queryFn: async () => {
+      const response = await findPaymentsForStats(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener pagos para estadísticas");
+      }
+      return response.data;
     },
   });
 }
