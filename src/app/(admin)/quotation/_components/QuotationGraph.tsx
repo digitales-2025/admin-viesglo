@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
+  BarChart2,
   BarChart3,
   Calendar,
   CheckCircle2,
@@ -209,22 +210,19 @@ export default function QuotationGraph() {
     return result;
   };
 
-  // Procesar datos para el gráfico de distribución por servicios
-  const getServiceData = () => {
-    const serviceCount: { [key: string]: number } = {};
+  const getQuotationGroupData = () => {
+    const groupCount: { [key: string]: number } = {};
 
     quotations.forEach((quotation: any) => {
-      const service = quotation.service || "Sin especificar";
-      if (!serviceCount[service]) {
-        serviceCount[service] = 0;
+      const groupName = quotation.quotationGroup?.name || "Sin grupo";
+
+      if (!groupCount[groupName]) {
+        groupCount[groupName] = 0;
       }
-      serviceCount[service] += 1;
+      groupCount[groupName] += 1;
     });
 
-    return Object.entries(serviceCount)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 6); // Limitar a los 6 servicios más comunes
+    return Object.entries(groupCount).map(([name, value]) => ({ name, cantidad: value }));
   };
 
   // Procesar datos para el gráfico de distribución por departamento
@@ -295,11 +293,10 @@ export default function QuotationGraph() {
   };
 
   const timeData = getTimeData();
-  const serviceData = getServiceData();
   const departmentData = getDepartmentData();
   const paymentTypeData = getPaymentTypeData();
   const paymentStatusData = getPaymentStatusData();
-
+  const quotationGroupData = getQuotationGroupData();
   // Calculamos el período que estamos visualizando
   const getPeriodLabel = () => {
     if (filters.from && filters.to) {
@@ -496,7 +493,6 @@ export default function QuotationGraph() {
             <div className="flex flex-col justify-center items-center">
               <div className="text-4xl font-bold">{paymentCompletionRate.toFixed(1)}%</div>
               <div className="text-sm text-muted-foreground">Tasa de conversión</div>
-
               <div className="mt-6 space-y-2">
                 <div className="flex items-center gap-2 text-sm">
                   <div className="h-3 w-3 rounded-full bg-chart-1"></div>
@@ -605,7 +601,7 @@ export default function QuotationGraph() {
                     nameKey="name"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
-                    {paymentTypeData.map((entry, index) => (
+                    {paymentTypeData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
                   </Pie>
@@ -623,30 +619,39 @@ export default function QuotationGraph() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <PieChart className="h-5 w-5 text-primary" />
-              Distribución por servicio
+              <BarChart2 className="h-5 w-5 text-primary" />
+              Distribución por grupo de cotizaciones
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-72 w-full">
               <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-                <ReChartPie>
-                  <Pie
-                    data={serviceData}
-                    labelLine={false}
-                    outerRadius={80}
-                    fill="var(--chart-3)"
-                    dataKey="value"
-                    nameKey="name"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {serviceData.map((_, index) => (
+                <BarChart
+                  accessibilityLayer
+                  data={quotationGroupData}
+                  margin={{
+                    top: 20,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value}
+                  />
+                  <Bar dataKey="cantidad" radius={8}>
+                    <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} />
+                    {quotationGroupData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
-                  </Pie>
-                  <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                </ReChartPie>
+                  </Bar>
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="line" defaultValue="cantidad" />}
+                  />
+                </BarChart>
               </ChartContainer>
             </div>
           </CardContent>
@@ -688,7 +693,7 @@ export default function QuotationGraph() {
                     {departmentData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                     ))}
-                    <LabelList dataKey="cantidad" position="right" fill="var(--chart-4)" />
+                    <LabelList dataKey="cantidad" position="right" />
                   </Bar>
                 </BarChart>
               </ChartContainer>
