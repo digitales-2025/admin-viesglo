@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Info,
   Loader2,
+  Minus,
   Save,
   XCircle,
 } from "lucide-react";
@@ -99,14 +100,24 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
 
   const handlePaidChange = () => {
     if (!isPaid) {
-      open(MODULE, "update", payment);
+      if (payment.typePayment !== TypePayment.MONTHLY) {
+        open(MODULE, "update", payment);
+      } else {
+        open(MODULE, "update", {
+          ...payment,
+          isPaid: true,
+          paymentDate: payment.paymentDate || new Date().toISOString(),
+          billingCode: payment.billingCode || "Pago mensual completado",
+        });
+      }
     } else {
       markPaymentStatus({
         id: payment.id,
         data: {
           isPaid: false,
           paymentDate: payment.paymentDate || "",
-          billingCode: payment.billingCode || "",
+          billingCode:
+            payment.typePayment === TypePayment.MONTHLY ? "Pago mensual incompleto" : payment.billingCode || "",
         },
       });
     }
@@ -144,11 +155,11 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
     >
       <div className="flex items-center gap-2">
         <Switch checked={isPaid} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted-foreground w-36">
           {isPaid ? (
-            <span className="flex items-center gap-1">
-              <CheckCircle2 className="size-4 text-emerald-500" />
-              Pagado
+            <span className="flex items-center gap-1 text-wrap">
+              <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+              {payment.typePayment === TypePayment.MONTHLY ? "Pago completo con todas las cuotas" : "Pagado"}
             </span>
           ) : (
             <XCircle className="size-4 text-gray-500" />
@@ -265,7 +276,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         });
       };
 
-      return (
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
         <ProtectedComponent
           requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
           fallback={
@@ -321,7 +334,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         setCode(e.target.value);
       };
 
-      return (
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
         <ProtectedComponent
           requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
           fallback={<Input value={code} readOnly />}
@@ -366,7 +381,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         });
       };
 
-      return (
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
         <ProtectedComponent
           requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
           fallback={
@@ -426,7 +443,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         );
       };
 
-      return (
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
         <div className="relative inline-flex gap-1">
           {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
 
@@ -455,6 +474,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     id: "realizo pago",
     accessorKey: "isPaid",
     header: ({ column }) => <DataTableColumnHeader column={column} title="¿Realizó Pago?" />,
-    cell: ({ row }) => <PaidCell payment={row.original} />,
+    cell: function Cell({ row }) {
+      const payment = row.original;
+      return <PaidCell payment={payment} />;
+    },
   },
 ];

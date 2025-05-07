@@ -302,11 +302,11 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
 
   return (
     <div className="p-4 bg-muted/30 rounded-md">
-      <div className="flex gap-4 items-center mb-4">
+      <div className="flex gap-4 items-center mb-4 justify-center">
         <h3 className="text-lg font-semibold">Detalles de Pago Mensual</h3>
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-emerald-700/30">
-            <DollarSign className="h-4 w-4 mr-1 text-primary" />
+          <Badge variant="outline" className="dark:bg-emerald-700/30 bg-emerald-100 font-semibold border-none text-lg">
+            <DollarSign className="h-4 w-4 mr-1 text-primary shrink-0" />
             Monto Total:{" "}
             {new Intl.NumberFormat("es-PE", {
               style: "currency",
@@ -474,7 +474,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleEditPayment(item.id)}
-                                disabled={isUpdating}
+                                disabled={isUpdating || payment.isPaid}
                                 title="Editar pago"
                               >
                                 <Pencil className="h-4 w-4 text-sky-600" />
@@ -488,7 +488,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleDeleteClick(item.id)}
-                                  disabled={isDeleting || !item.isActive}
+                                  disabled={isDeleting || !item.isActive || payment.isPaid}
                                   title="Eliminar pago"
                                 >
                                   <Trash2 className="h-4 w-4 text-destructive" />
@@ -502,7 +502,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                   variant="ghost"
                                   size="icon"
                                   onClick={() => handleTogglePayment(item.id)}
-                                  disabled={isToggling}
+                                  disabled={isToggling || payment.isPaid}
                                   title="Reactivar pago"
                                 >
                                   <Redo2 className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
@@ -535,6 +535,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
                     placeholder="Ingrese el monto a pagar"
                     className="h-8 w-56"
+                    disabled={payment.isPaid}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -543,6 +544,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     onSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
                     placeholder="Seleccionar fecha"
                     className="h-8 w-56"
+                    disabled={payment.isPaid}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -551,6 +553,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     onChange={(e) => setNewPayment({ ...newPayment, billingCode: e.target.value })}
                     placeholder="Ingrese el código de factura"
                     className="h-8 w-56"
+                    disabled={payment.isPaid}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -559,6 +562,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     onSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
                     placeholder="Seleccionar fecha"
                     className="h-8 w-56"
+                    disabled={payment.isPaid}
                   />
                 </TableCell>
                 <TableCell className="p-2">
@@ -568,6 +572,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
                     placeholder="Ingrese el email destinatario"
                     className="h-8 w-56"
+                    disabled={payment.isPaid}
                   />
                 </TableCell>
                 <TableCell className="p-2 text-center" colSpan={2}>
@@ -575,7 +580,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     variant="outline"
                     size="sm"
                     onClick={handleAddPayment}
-                    disabled={disabledAddPayment || isCreating}
+                    disabled={disabledAddPayment || isCreating || payment.isPaid}
                     className="ml-2 border-emerald-500 text-emerald-500"
                   >
                     <Check className="h-4 w-4 mr-1" />
