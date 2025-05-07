@@ -4,27 +4,30 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { getPayment, getPayments, markPaymentStatus, updatePaymentStatus } from "../_actions/payment.action";
-import { MarkPaymentStatus, UpdatePaymentStatus } from "../_types/payment.types";
+import { MarkPaymentStatus, PaymentFilters, UpdatePaymentStatus } from "../_types/payment.types";
 
 export const PAYMENTS_KEYS = {
   all: ["payments"] as const,
   lists: () => [...PAYMENTS_KEYS.all, "list"] as const,
-  list: (filters: string) => [...PAYMENTS_KEYS.lists(), { filters }] as const,
+  list: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...PAYMENTS_KEYS.all, id] as const,
 };
 
 /**
  * Hook para obtener todos los pagos
  */
-export function usePayments() {
+export function usePayments(filters?: PaymentFilters) {
   return useQuery({
-    queryKey: PAYMENTS_KEYS.lists(),
+    queryKey: PAYMENTS_KEYS.list(filters),
     queryFn: async () => {
-      const response = await getPayments();
+      const response = await getPayments(filters);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener pagos");
       }
-      return response.data;
+      return {
+        data: response.data,
+        meta: response.meta,
+      };
     },
   });
 }
