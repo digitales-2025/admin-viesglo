@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -8,6 +8,8 @@ import { Check, DollarSign, Pencil, Redo2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
+import { useAuthPermissions } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { cn } from "@/lib/utils";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Loading } from "@/shared/components/loading";
@@ -44,6 +46,7 @@ import {
 } from "../_hooks/useInstallmentPayment";
 import { InstallmentPaymentCreate } from "../_types/installment-payment.types";
 import { PaymentResponse } from "../_types/payment.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface PaymentItem {
   id: string;
@@ -64,6 +67,13 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   const { mutate: updateInstallmentPayment, isPending: isUpdating } = useUpdateInstallmentPayment();
   const { mutate: deleteInstallmentPayment, isPending: isDeleting } = useDeleteInstallmentPayment();
   const { mutate: toggleInstallmentPayment, isPending: isToggling } = useToggleInstallmentPayment();
+
+  // Verificar permisos
+  const { data: permissions } = useAuthPermissions();
+  const canCreatePayment = useMemo(() => {
+    if (!permissions) return false;
+    return permissions.some((p) => p.resource === EnumResource.payments && p.action === EnumAction.create);
+  }, [permissions]);
 
   // Estado para controlar el diálogo de confirmación de eliminación
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -427,62 +437,81 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                       )}
                     </TableCell>
                     <TableCell className="p-2 text-center">
-                      {editingId === item.id ? (
-                        <div className="flex justify-center gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleSaveEdit(item.id)}
-                            disabled={isUpdating}
-                            className="border-emerald-500 text-emerald-500"
-                          >
-                            <Check className="h-4 w-4 mr-1" />
-                            Guardar
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleCancelEdit}
-                            className="border-destructive text-destructive"
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Cancelar
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex justify-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleEditPayment(item.id)}
-                            disabled={isUpdating}
-                            title="Editar pago"
-                          >
-                            <Pencil className="h-4 w-4 text-sky-600" />
-                          </Button>
-                          {item.isActive ? (
+                      <ProtectedComponent
+                        requiredPermissions={[
+                          { resource: EnumResource.payments, action: EnumAction.update },
+                          { resource: EnumResource.payments, action: EnumAction.delete },
+                        ]}
+                      >
+                        {editingId === item.id ? (
+                          <div className="flex justify-center gap-2">
                             <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDeleteClick(item.id)}
-                              disabled={isDeleting || !item.isActive}
-                              title="Eliminar pago"
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSaveEdit(item.id)}
+                              disabled={isUpdating}
+                              className="border-emerald-500 text-emerald-500"
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Check className="h-4 w-4 mr-1" />
+                              Guardar
                             </Button>
-                          ) : (
                             <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleTogglePayment(item.id)}
-                              disabled={isToggling}
-                              title="Reactivar pago"
+                              variant="outline"
+                              size="sm"
+                              onClick={handleCancelEdit}
+                              className="border-destructive text-destructive"
                             >
-                              <Redo2 className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
+                              <X className="h-4 w-4 mr-1" />
+                              Cancelar
                             </Button>
-                          )}
-                        </div>
-                      )}
+                          </div>
+                        ) : (
+                          <div className="flex justify-center gap-2">
+                            <ProtectedComponent
+                              requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+                            >
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditPayment(item.id)}
+                                disabled={isUpdating}
+                                title="Editar pago"
+                              >
+                                <Pencil className="h-4 w-4 text-sky-600" />
+                              </Button>
+                            </ProtectedComponent>
+                            {item.isActive ? (
+                              <ProtectedComponent
+                                requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.delete }]}
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleDeleteClick(item.id)}
+                                  disabled={isDeleting || !item.isActive}
+                                  title="Eliminar pago"
+                                >
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </ProtectedComponent>
+                            ) : (
+                              <ProtectedComponent
+                                requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.delete }]}
+                              >
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleTogglePayment(item.id)}
+                                  disabled={isToggling}
+                                  title="Reactivar pago"
+                                >
+                                  <Redo2 className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
+                                </Button>
+                              </ProtectedComponent>
+                            )}
+                          </div>
+                        )}
+                      </ProtectedComponent>
                     </TableCell>
                   </TableRow>
                 );
@@ -494,66 +523,73 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                 </TableCell>
               </TableRow>
             )}
-            {/* Fila para agregar nuevo pago */}
-            <TableRow className="border-t bg-muted/30">
-              <TableCell className="p-2">
-                <Input
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={newPayment.amount || ""}
-                  onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
-                  placeholder="Ingrese el monto a pagar"
-                  className="h-8 w-56"
-                />
-              </TableCell>
-              <TableCell className="p-2">
-                <DatePicker
-                  selected={newPayment.paymentDate}
-                  onSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
-                  placeholder="Seleccionar fecha"
-                  className="h-8 w-56"
-                />
-              </TableCell>
-              <TableCell className="p-2">
-                <Input
-                  value={newPayment.billingCode || ""}
-                  onChange={(e) => setNewPayment({ ...newPayment, billingCode: e.target.value })}
-                  placeholder="Ingrese el código de factura"
-                  className="h-8 w-56"
-                />
-              </TableCell>
-              <TableCell className="p-2">
-                <DatePicker
-                  selected={newPayment.billingDate}
-                  onSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
-                  placeholder="Seleccionar fecha"
-                  className="h-8 w-56"
-                />
-              </TableCell>
-              <TableCell className="p-2">
-                <Input
-                  type="email"
-                  value={newPayment.email || ""}
-                  onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
-                  placeholder="Ingrese el email destinatario"
-                  className="h-8 w-56"
-                />
-              </TableCell>
-
-              <TableCell className="p-2 text-center" colSpan={2}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleAddPayment}
-                  disabled={disabledAddPayment || isCreating}
-                  className="ml-2 border-emerald-500 text-emerald-500"
-                >
-                  <Check className="h-4 w-4 mr-1" />
-                  Realizar el pago
-                </Button>
-              </TableCell>
-            </TableRow>
+            {/* Fila para agregar nuevo pago - renderizada condicionalmente */}
+            {canCreatePayment ? (
+              <TableRow className="border-t bg-muted/30">
+                <TableCell className="p-2">
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={newPayment.amount || ""}
+                    onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
+                    placeholder="Ingrese el monto a pagar"
+                    className="h-8 w-56"
+                  />
+                </TableCell>
+                <TableCell className="p-2">
+                  <DatePicker
+                    selected={newPayment.paymentDate}
+                    onSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
+                    placeholder="Seleccionar fecha"
+                    className="h-8 w-56"
+                  />
+                </TableCell>
+                <TableCell className="p-2">
+                  <Input
+                    value={newPayment.billingCode || ""}
+                    onChange={(e) => setNewPayment({ ...newPayment, billingCode: e.target.value })}
+                    placeholder="Ingrese el código de factura"
+                    className="h-8 w-56"
+                  />
+                </TableCell>
+                <TableCell className="p-2">
+                  <DatePicker
+                    selected={newPayment.billingDate}
+                    onSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
+                    placeholder="Seleccionar fecha"
+                    className="h-8 w-56"
+                  />
+                </TableCell>
+                <TableCell className="p-2">
+                  <Input
+                    type="email"
+                    value={newPayment.email || ""}
+                    onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
+                    placeholder="Ingrese el email destinatario"
+                    className="h-8 w-56"
+                  />
+                </TableCell>
+                <TableCell className="p-2 text-center" colSpan={2}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAddPayment}
+                    disabled={disabledAddPayment || isCreating}
+                    className="ml-2 border-emerald-500 text-emerald-500"
+                  >
+                    <Check className="h-4 w-4 mr-1" />
+                    Realizar el pago
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableRow className="border-t bg-muted/30">
+                <TableCell className="p-2" colSpan={7}>
+                  No tienes permisos para agregar pagos
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
           <TableFooter className="bg-muted/50">
             <tr>
