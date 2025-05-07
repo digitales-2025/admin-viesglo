@@ -3,7 +3,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { getPayment, getPayments, markPaymentStatus, updatePaymentStatus } from "../_actions/payment.action";
+import {
+  getPayment,
+  getPayments,
+  getPaymentsForStats,
+  markPaymentStatus,
+  updatePaymentStatus,
+} from "../_actions/payment.action";
 import { MarkPaymentStatus, PaymentFilters, UpdatePaymentStatus } from "../_types/payment.types";
 
 export const PAYMENTS_KEYS = {
@@ -90,6 +96,22 @@ export function useMarkPaymentStatus() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al marcar estado del pago");
+    },
+  });
+}
+
+/**
+ * Hook para obtener los pagos para las estadísticas
+ */
+export function usePaymentsForStats(filters?: PaymentFilters) {
+  return useQuery({
+    queryKey: PAYMENTS_KEYS.list(filters),
+    queryFn: async () => {
+      const response = await getPaymentsForStats(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener pagos para estadísticas");
+      }
+      return response.data;
     },
   });
 }
