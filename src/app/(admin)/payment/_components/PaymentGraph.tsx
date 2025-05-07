@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  BarChart2,
   BarChart3,
   Calendar,
   CheckCircle2,
@@ -17,12 +16,9 @@ import {
 import {
   Area,
   AreaChart,
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
   Label,
-  LabelList,
   Pie,
   PieChart as ReChartPie,
   ResponsiveContainer,
@@ -156,11 +152,12 @@ export default function PaymentGraph() {
     }
 
     // Agrupar por fecha
-    const groupedByDate: { [key: string]: { count: number; amount: number } } = {};
+    const groupedByDate: { [key: string]: { total: number; paid: number; unpaid: number; amount: number } } = {};
 
     payments.forEach((payment: any) => {
-      // Asumimos que hay una propiedad de fecha de creación o similar
-      const date = new Date(payment.dateStart || new Date());
+      // Usar la fecha de pago para el análisis
+      const date = payment.paymentDate ? new Date(payment.paymentDate) : new Date();
+
       if (date >= startDate) {
         // Formatear la fecha según el rango seleccionado
         let dateKey: string;
@@ -173,9 +170,18 @@ export default function PaymentGraph() {
         }
 
         if (!groupedByDate[dateKey]) {
-          groupedByDate[dateKey] = { count: 0, amount: 0 };
+          groupedByDate[dateKey] = { total: 0, paid: 0, unpaid: 0, amount: 0 };
         }
-        groupedByDate[dateKey].count += 1;
+
+        groupedByDate[dateKey].total += 1;
+
+        // Contabilizar pagados y no pagados
+        if (payment.isPaid) {
+          groupedByDate[dateKey].paid += 1;
+        } else {
+          groupedByDate[dateKey].unpaid += 1;
+        }
+
         groupedByDate[dateKey].amount += payment.amount;
       }
     });
@@ -183,7 +189,9 @@ export default function PaymentGraph() {
     // Convertir a array para el gráfico
     const result = Object.entries(groupedByDate).map(([date, data]) => ({
       date,
-      cantidad: data.count,
+      total: data.total,
+      pagados: data.paid,
+      pendientes: data.unpaid,
       monto: data.amount,
     }));
 
@@ -207,38 +215,6 @@ export default function PaymentGraph() {
     }
 
     return result;
-  };
-
-  const getPaymentGroupData = () => {
-    const groupCount: { [key: string]: number } = {};
-
-    payments.forEach((payment: any) => {
-      const groupName = payment.quotationGroup?.name || "Sin grupo";
-
-      if (!groupCount[groupName]) {
-        groupCount[groupName] = 0;
-      }
-      groupCount[groupName] += 1;
-    });
-
-    return Object.entries(groupCount).map(([name, value]) => ({ name, cantidad: value }));
-  };
-
-  // Procesar datos para el gráfico de distribución por departamento
-  const getDepartmentData = () => {
-    const departmentCount: { [key: string]: number } = {};
-
-    payments.forEach((payment: any) => {
-      const department = payment.department || "Sin especificar";
-      if (!departmentCount[department]) {
-        departmentCount[department] = 0;
-      }
-      departmentCount[department] += 1;
-    });
-
-    return Object.entries(departmentCount)
-      .map(([name, value]) => ({ name, cantidad: value }))
-      .sort((a, b) => b.cantidad - a.cantidad);
   };
 
   // Procesar datos para el gráfico de tipo de pago
@@ -292,10 +268,8 @@ export default function PaymentGraph() {
   };
 
   const timeData = getTimeData();
-  const departmentData = getDepartmentData();
   const paymentTypeData = getPaymentTypeData();
   const paymentStatusData = getPaymentStatusData();
-  const paymentGroupData = getPaymentGroupData();
   // Calculamos el período que estamos visualizando
   const getPeriodLabel = () => {
     if (filters.from && filters.to) {
@@ -430,21 +404,16 @@ export default function PaymentGraph() {
               >
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} />
-                <YAxis
-                  dataKey="cantidad"
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 10 }}
-                  tickMargin={5}
-                  width={25}
-                />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} width={25} />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
                       return (
                         <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
                           <p className="font-medium mb-1">{`Fecha: ${payload[0].payload.date}`}</p>
-                          <p className="text-chart-1">{`Cantidad: ${payload[0].payload.cantidad}`}</p>
+                          <p className="text-chart-1">{`Pagados: ${payload[0].payload.pagados}`}</p>
+                          <p className="text-chart-4">{`Pendientes: ${payload[0].payload.pendientes}`}</p>
+                          <p className="text-chart-1">{`Total: ${payload[0].payload.total}`}</p>
                           <p className="text-chart-2">{`Monto: S/ ${payload[0].payload.monto.toLocaleString("es-PE")}`}</p>
                         </div>
                       );
@@ -453,27 +422,47 @@ export default function PaymentGraph() {
                   }}
                 />
                 <defs>
-                  <linearGradient id="fillCantidad" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="fillPagados" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
                     <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
                   </linearGradient>
+                  <linearGradient id="fillPendientes" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--chart-4)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--chart-4)" stopOpacity={0.1} />
+                  </linearGradient>
                 </defs>
                 <Area
-                  dataKey="cantidad"
+                  dataKey="pagados"
                   type="monotone"
-                  fill="url(#fillCantidad)"
+                  fill="url(#fillPagados)"
                   fillOpacity={0.4}
                   stroke="var(--chart-1)"
                   strokeWidth={2}
+                  stackId="1"
+                />
+                <Area
+                  dataKey="pendientes"
+                  type="monotone"
+                  fill="url(#fillPendientes)"
+                  fillOpacity={0.4}
+                  stroke="var(--chart-4)"
+                  strokeWidth={2}
+                  stackId="1"
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </CardContent>
         <CardFooter className="pt-0 pb-2 px-4">
-          <div className="flex justify-end items-center text-xs text-muted-foreground w-full">
-            <TrendingUp className="h-3 w-3 mr-1 text-chart-1" />
-            <span>Cantidad de pagos</span>
+          <div className="flex justify-end items-center gap-4 text-xs text-muted-foreground w-full">
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-chart-1"></div>
+              <span>Pagados</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-chart-4"></div>
+              <span>Pendientes</span>
+            </div>
           </div>
         </CardFooter>
       </Card>
@@ -639,164 +628,6 @@ export default function PaymentGraph() {
                   <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                   <ChartLegend content={({ payload }) => <ChartLegendContent payload={payload} nameKey="name" />} />
                 </ReChartPie>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Gráficos de distribución */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart2 className="h-5 w-5 text-primary" />
-              Distribución por grupo de pagos
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col justify-center">
-              {/* Leyenda personalizada */}
-              <div className="text-2xl font-bold">{paymentGroupData.length}</div>
-              <div className="text-sm text-muted-foreground">Grupos con pagos</div>
-
-              <div className="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2">
-                {paymentGroupData.slice(0, 5).map((group, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
-                    ></div>
-                    <div className="flex justify-between w-full">
-                      <span className="truncate max-w-24">{group.name}</span>
-                      <span className="font-medium">{group.cantidad}</span>
-                    </div>
-                  </div>
-                ))}
-                {paymentGroupData.length > 5 && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Y {paymentGroupData.length - 5} grupos más...
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="md:col-span-2 h-64">
-              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-                <BarChart
-                  accessibilityLayer
-                  data={paymentGroupData}
-                  margin={{
-                    top: 20,
-                  }}
-                >
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value}
-                  />
-                  <Bar dataKey="cantidad" radius={8}>
-                    <LabelList position="top" offset={12} className="fill-foreground" fontSize={12} />
-                    {paymentGroupData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                    ))}
-                  </Bar>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="line" defaultValue="cantidad" />}
-                  />
-                </BarChart>
-              </ChartContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              Distribución por departamento
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col justify-center">
-              {/* Leyenda personalizada */}
-              <div className="text-2xl font-bold">{departmentData.length}</div>
-              <div className="text-sm text-muted-foreground">Departamentos</div>
-
-              <div className="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2">
-                {departmentData.slice(0, 5).map((dept, index) => (
-                  <div key={index} className="flex items-center gap-2 text-sm">
-                    <div
-                      className="h-3 w-3 rounded-full"
-                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
-                    ></div>
-                    <div className="flex justify-between w-full">
-                      <span className="truncate max-w-24">{dept.name}</span>
-                      <span className="font-medium">{dept.cantidad}</span>
-                    </div>
-                  </div>
-                ))}
-                {departmentData.length > 5 && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Y {departmentData.length - 5} departamentos más...
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="md:col-span-2 h-64">
-              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-                <BarChart
-                  accessibilityLayer
-                  data={departmentData}
-                  layout="vertical"
-                  margin={{
-                    left: 100,
-                    right: 20,
-                    top: 10,
-                    bottom: 10,
-                  }}
-                >
-                  <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tick={{ fontSize: 11 }}
-                    width={90}
-                    tickFormatter={(value) => {
-                      const name = departmentData.find((d) => d.name === value)?.name || "";
-                      return name.length > 15 ? `${name.substring(0, 12)}...` : name;
-                    }}
-                  />
-                  <XAxis dataKey="cantidad" type="number" hide />
-                  <ChartTooltip
-                    cursor={false}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                            <p className="font-medium mb-1">{payload[0].payload.name}</p>
-                            <p className="text-chart-2">{`Pagos: ${payload[0].value}`}</p>
-                          </div>
-                        );
-                      }
-                      return null;
-                    }}
-                  />
-                  <Bar dataKey="cantidad" layout="vertical" radius={5} fill="var(--chart-4)">
-                    {departmentData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                    ))}
-                    <LabelList dataKey="cantidad" position="right" />
-                  </Bar>
-                </BarChart>
               </ChartContainer>
             </div>
           </CardContent>
