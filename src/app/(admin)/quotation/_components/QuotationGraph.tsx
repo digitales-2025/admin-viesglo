@@ -28,6 +28,7 @@ import {
 } from "@/shared/components/ui/chart";
 import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
+import { useQuotationsForStats } from "../_hooks/useQuotations";
 import { useQuotationsStore } from "../_hooks/useQuotationsStore";
 import { LabelTypePayment, TypePayment } from "../_types/quotation.types";
 
@@ -37,8 +38,14 @@ const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var
 export default function QuotationGraph() {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
 
-  // Obtenemos los datos de cotizaciones del store
-  const { quotations, isLoading, error } = useQuotationsStore();
+  // Obtenemos los filtros del store
+  const { filters } = useQuotationsStore();
+
+  // Obtenemos los datos directamente de la API usando los filtros del store y
+  const { data, isLoading, error } = useQuotationsForStats({ ...filters });
+
+  // Extraemos los datos de cotizaciones
+  const quotations = data || [];
 
   if (isLoading) {
     return (
@@ -65,7 +72,9 @@ export default function QuotationGraph() {
         </CardHeader>
         <CardContent>
           <div className="h-96 w-full flex items-center justify-center">
-            <p className="text-destructive">{error || "No hay datos de cotizaciones disponibles para mostrar."}</p>
+            <p className="text-destructive">
+              {error instanceof Error ? error.message : "No hay datos de cotizaciones disponibles para mostrar."}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -74,9 +83,9 @@ export default function QuotationGraph() {
 
   // Calcular KPIs principales
   const totalQuotations = quotations.length;
-  const totalAmount = quotations.reduce((sum, q) => sum + q.amount, 0);
+  const totalAmount = quotations.reduce((sum: number, q: any) => sum + q.amount, 0);
   const averageAmount = totalAmount / (totalQuotations || 1);
-  const concreteQuotations = quotations.filter((q) => q.isConcrete).length;
+  const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
   const conversionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
 
   // Procesar datos para el gráfico de tendencia temporal
@@ -99,7 +108,7 @@ export default function QuotationGraph() {
     // Agrupar por fecha
     const groupedByDate: { [key: string]: { count: number; amount: number } } = {};
 
-    quotations.forEach((quotation) => {
+    quotations.forEach((quotation: any) => {
       // Asumimos que hay una propiedad de fecha de creación o similar
       const date = new Date(quotation.dateStart || new Date());
       if (date >= startDate) {
@@ -154,7 +163,7 @@ export default function QuotationGraph() {
   const getServiceData = () => {
     const serviceCount: { [key: string]: number } = {};
 
-    quotations.forEach((quotation) => {
+    quotations.forEach((quotation: any) => {
       const service = quotation.service || "Sin especificar";
       if (!serviceCount[service]) {
         serviceCount[service] = 0;
@@ -172,7 +181,7 @@ export default function QuotationGraph() {
   const getDepartmentData = () => {
     const departmentCount: { [key: string]: number } = {};
 
-    quotations.forEach((quotation) => {
+    quotations.forEach((quotation: any) => {
       const department = quotation.department || "Sin especificar";
       if (!departmentCount[department]) {
         departmentCount[department] = 0;
@@ -192,7 +201,7 @@ export default function QuotationGraph() {
       [TypePayment.PUNCTUAL]: 0,
     };
 
-    quotations.forEach((quotation) => {
+    quotations.forEach((quotation: any) => {
       const paymentType = quotation.typePayment || TypePayment.PUNCTUAL;
       paymentTypeCount[paymentType] += 1;
     });
@@ -241,8 +250,14 @@ export default function QuotationGraph() {
   const departmentData = getDepartmentData();
   const paymentTypeData = getPaymentTypeData();
 
+  // Si hay filtros activos, mostramos un mensaje indicando el número de resultados filtrados
+  const filterMessage = Object.keys(filters).length > 0 ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
+
   return (
     <div className="space-y-4">
+      {/* Mensaje de filtros aplicados */}
+      {filterMessage && <div className="text-sm text-muted-foreground mb-2">{filterMessage}</div>}
+
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>

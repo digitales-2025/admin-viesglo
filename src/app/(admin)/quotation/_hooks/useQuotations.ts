@@ -9,6 +9,7 @@ import {
   deleteQuotation,
   getQuotation,
   getQuotations,
+  getQuotationsForStats,
   updateQuotation,
 } from "../_actions/quotation.action";
 import {
@@ -26,6 +27,7 @@ export const QUOTATIONS_KEYS = {
   lists: () => [...QUOTATIONS_KEYS.all, "list"] as const,
   list: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...QUOTATIONS_KEYS.all, id] as const,
+  stats: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.all, "stats", { filters }] as const,
 };
 
 /**
@@ -155,6 +157,22 @@ export function useConcreteQuotation() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al concretar cotización");
+    },
+  });
+}
+
+/**
+ * Hook para obtener todas las cook para obtener oasdestadísticasas las cotizaciones para las estadísticas
+ */
+export function useQuotationsForStats(filters?: QuotationFilters) {
+  return useQuery({
+    queryKey: QUOTATIONS_KEYS.stats(filters),
+    queryFn: async () => {
+      const response = await getQuotationsForStats(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener cotizaciones para las estadísticas");
+      }
+      return response.data;
     },
   });
 }

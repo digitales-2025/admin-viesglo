@@ -1,34 +1,39 @@
 import { create } from "zustand";
 
-import { PaginatedQuotationResponse, QuotationResponse } from "../_types/quotation.types";
+import { QuotationFilters } from "../_types/quotation.types";
+
+// Definimos un tipo personalizado para almacenar solo los filtros sin paginación
+type QuotationFilterData = Omit<QuotationFilters, "page" | "limit">;
 
 interface QuotationsState {
-  // Datos de cotizaciones
-  quotations: QuotationResponse[];
-  meta?: PaginatedQuotationResponse["meta"];
-  isLoading: boolean;
-  error?: string;
+  // Solo filtros de búsqueda, sin paginación
+  filters: QuotationFilterData;
 
-  // Método para actualizar los datos
-  setQuotationsData: (data: {
-    quotations: QuotationResponse[];
-    meta?: PaginatedQuotationResponse["meta"];
-    isLoading?: boolean;
-    error?: string;
-  }) => void;
+  // Métodos para actualizar filtros
+  setFilters: (filters: QuotationFilterData) => void;
+  updateFilter: (key: string, value: any) => void;
+  resetFilters: () => void;
 }
 
-export const useQuotationsStore = create<QuotationsState>()((set) => ({
-  // Estado inicial de datos
-  quotations: [],
-  isLoading: false,
+// Valores por defecto para los filtros (vacíos)
+const DEFAULT_FILTERS: QuotationFilterData = {};
 
-  // Acción para actualizar datos
-  setQuotationsData: (data) =>
+export const useQuotationsStore = create<QuotationsState>()((set) => ({
+  // Estado inicial de filtros (vacío)
+  filters: DEFAULT_FILTERS,
+
+  // Métodos para gestionar filtros
+  setFilters: (filters) => set({ filters }),
+
+  // Actualizar un filtro específico
+  updateFilter: (key, value) =>
     set((state) => ({
-      quotations: data.quotations,
-      meta: data.meta,
-      isLoading: data.isLoading !== undefined ? data.isLoading : state.isLoading,
-      error: data.error,
+      filters: {
+        ...state.filters,
+        [key]: value,
+      },
     })),
+
+  // Resetear todos los filtros
+  resetFilters: () => set({ filters: DEFAULT_FILTERS }),
 }));
