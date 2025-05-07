@@ -25,10 +25,12 @@ import {
   Pie,
   PieChart as ReChartPie,
   ResponsiveContainer,
+  Sector,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -531,6 +533,11 @@ export default function QuotationGraph() {
                     outerRadius={80}
                     paddingAngle={5}
                     dataKey="value"
+                    strokeWidth={5}
+                    activeIndex={0}
+                    activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
+                      <Sector {...props} outerRadius={outerRadius + 10} />
+                    )}
                   >
                     {paymentStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
