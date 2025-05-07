@@ -11,6 +11,7 @@ import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
 import { useQuotations } from "../_hooks/useQuotations";
+import { useQuotationsStore } from "../_hooks/useQuotationsStore";
 import { QuotationFilters } from "../_types/quotation.types";
 import { CustomFilterGroup, CustomFilterOption } from "../../../../shared/components/data-table/custom-types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
@@ -19,6 +20,15 @@ import { columnsQuotation } from "./quotation.column";
 export default function QuotationTable() {
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
+
+  // Usamos el store solo para actualizar los datos filtrados
+  const { setQuotationsData } = useQuotationsStore();
+
+  // Mantenemos los filtros como estado local de este componente
+  const [filters, setFilters] = useState<QuotationFilters>({
+    page: 1,
+    limit: 10,
+  });
 
   // Estado inicial para el filtro de 'Estado' que siempre estará disponible
   const baseFilterOptions = useMemo(
@@ -85,10 +95,6 @@ export default function QuotationTable() {
     return options;
   }, [baseFilterOptions, quotationGroups, departmentOptions]);
 
-  const [filters, setFilters] = useState<QuotationFilters>({
-    page: 1,
-    limit: 10,
-  });
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
@@ -103,18 +109,32 @@ export default function QuotationTable() {
     };
   }, [debouncedSearch]);
 
+  // Obtenemos los datos de la API usando los filtros
   const { data, isLoading, error } = useQuotations(filters);
+
+  // Actualizamos el store cuando cambian los datos de la API
+  useEffect(() => {
+    if (data) {
+      setQuotationsData({
+        quotations: data.data || [],
+        meta: data.meta,
+        isLoading,
+        error: error?.message,
+      });
+    }
+  }, [data, isLoading, error, setQuotationsData]);
+
   const quotations = data?.data || [];
   const meta = data?.meta;
 
   const columns = useMemo(() => columnsQuotation(), []);
 
-  // Manejador para cambios en la página (memoizado para evitar recrear la función)
+  // Manejador para cambios en la página
   const handlePageChange = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }));
   }, []);
 
-  // Manejador para cambios en el tamaño de página (memoizado)
+  // Manejador para cambios en el tamaño de página
   const handlePageSizeChange = useCallback((limit: number) => {
     setFilters((prev) => ({ ...prev, page: 1, limit }));
   }, []);
@@ -127,7 +147,7 @@ export default function QuotationTable() {
     [debouncedSearch]
   );
 
-  // Manejador para cambios en los filtros (memoizado)
+  // Manejador para cambios en los filtros
   const handleFilterChange = useCallback((columnId: string, value: any) => {
     setFilters((prev) => {
       // Si el valor es null o un array vacío, eliminamos el filtro
