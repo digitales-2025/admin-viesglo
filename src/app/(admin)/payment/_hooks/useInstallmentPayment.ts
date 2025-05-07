@@ -63,7 +63,7 @@ export function useCreateInstallmentPayment() {
 export function useUpdateInstallmentPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<InstallmentPaymentUpdate> }) => {
+    mutationFn: async ({ id, data }: { id: string; data: InstallmentPaymentUpdate }) => {
       const response = await updateInstallmentPayment(id, data);
       if (!response.success) {
         throw new Error(response.error || "Error al actualizar pago de cuota");
