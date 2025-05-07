@@ -11,6 +11,16 @@ import { z } from "zod";
 import { cn } from "@/lib/utils";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Loading } from "@/shared/components/loading";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
@@ -54,6 +64,10 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   const { mutate: updateInstallmentPayment, isPending: isUpdating } = useUpdateInstallmentPayment();
   const { mutate: deleteInstallmentPayment, isPending: isDeleting } = useDeleteInstallmentPayment();
   const { mutate: toggleInstallmentPayment, isPending: isToggling } = useToggleInstallmentPayment();
+
+  // Estado para controlar el diálogo de confirmación de eliminación
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
 
   const [newPayment, setNewPayment] = useState<Partial<PaymentItem>>({
     amount: 0,
@@ -244,8 +258,32 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
 
   const disabledAddPayment = !newPayment.amount || !newPayment.paymentDate || !newPayment.billingCode;
 
-  const handleRemovePayment = (id: string) => {
-    deleteInstallmentPayment(id);
+  // Funciones para eliminar un pago
+  const handleConfirmDelete = () => {
+    if (paymentToDelete) {
+      deleteInstallmentPayment(paymentToDelete, {
+        onSuccess: () => {
+          toast.success("Pago eliminado correctamente");
+          setPaymentToDelete(null);
+          setIsDeleteDialogOpen(false);
+        },
+        onError: () => {
+          toast.error("Error al eliminar el pago");
+          setPaymentToDelete(null);
+          setIsDeleteDialogOpen(false);
+        },
+      });
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setPaymentToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCancelDelete = () => {
+    setPaymentToDelete(null);
+    setIsDeleteDialogOpen(false);
   };
 
   const handleTogglePayment = (id: string) => {
@@ -426,7 +464,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={() => handleRemovePayment(item.id)}
+                              onClick={() => handleDeleteClick(item.id)}
                               disabled={isDeleting || !item.isActive}
                               title="Eliminar pago"
                             >
@@ -537,6 +575,30 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
           </TableFooter>
         </Table>
       </div>
+
+      {/* Diálogo de confirmación para eliminar pagos */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción eliminará permanentemente el pago seleccionado y no se puede deshacer.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCancelDelete} disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Eliminando..." : "Eliminar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
