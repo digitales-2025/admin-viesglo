@@ -1,11 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { FileDown } from "lucide-react";
 
+import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Button } from "@/shared/components/ui/button";
+import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
+import { Input } from "@/shared/components/ui/input";
+import { debounce } from "@/shared/lib/utils";
 import {
+  useAvailableDiagnostics,
   useDownloadAptitudeCertificate,
   useDownloadMedicalReport,
   useMedicalRecords,
@@ -15,14 +20,78 @@ import { useClinics } from "../../clinics/_hooks/useClinics";
 import { columnsMedicalRecord } from "./medical-record.column";
 
 export default function MedicalRecordTable() {
-  // Estado para almacenar los filtros seleccionados
-  const [filters] = useState<MedicalRecordsFilter>({});
-  const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords(filters);
-  const { data: clinics, error: clinicsError } = useClinics();
+  const [filters, setFilters] = useState<MedicalRecordsFilter>({
+    page: 1,
+    limit: 10,
+  });
 
-  // Hooks de descarga
+  const {
+    data: medicalRecordsData,
+    paginationMeta,
+    isLoading: isLoadingRecords,
+    error: recordsError,
+  } = useMedicalRecords(filters);
+
+  const medicalRecords = medicalRecordsData || [];
+
+  const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
+
+  const { data: availableDiagnostics, isLoading: isLoadingDiagnostics } = useAvailableDiagnostics();
+
   const { mutateAsync: downloadCertificate, isPending: isDownloadingCertificate } = useDownloadAptitudeCertificate();
   const { mutateAsync: downloadReport, isPending: isDownloadingReport } = useDownloadMedicalReport();
+
+  const [freeTextDiagnosticName, setFreeTextDiagnosticName] = useState<string>("");
+
+  const debouncedDiagnosticNameSearch = useMemo(() => {
+    return debounce((searchTerm: string) => {
+      setFilters((prev) => ({
+        ...prev,
+        page: 1,
+        diagnosticName: searchTerm.trim() ? [searchTerm.trim()] : undefined,
+      }));
+    }, 450);
+  }, []);
+
+  const handleFreeTextDiagnosticChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const searchTerm = event.target.value;
+      setFreeTextDiagnosticName(searchTerm);
+      debouncedDiagnosticNameSearch(searchTerm);
+    },
+    [debouncedDiagnosticNameSearch]
+  );
+
+  const medicalRecordFilterOptions: CustomFilterGroup[] = useMemo(() => {
+    const options: CustomFilterGroup[] = [];
+    if (clinics && clinics.length > 0) {
+      options.push({
+        label: "Clínica",
+        value: "clinicId",
+        multiSelect: false,
+        options: clinics.map(
+          (clinic): CustomFilterOption => ({
+            label: clinic.name,
+            value: String(clinic.id),
+          })
+        ),
+      });
+    }
+    if (availableDiagnostics && availableDiagnostics.length > 0) {
+      options.push({
+        label: "Diagnóstico",
+        value: "diagnosticName",
+        multiSelect: true,
+        options: availableDiagnostics.map(
+          (diag): CustomFilterOption => ({
+            label: diag.name,
+            value: diag.name,
+          })
+        ),
+      });
+    }
+    return options;
+  }, [clinics, availableDiagnostics]);
 
   const columns = useMemo(
     () =>
@@ -36,28 +105,145 @@ export default function MedicalRecordTable() {
     [clinics, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
   );
 
-  // Verificar solo si hay error en los registros médicos
+  const debouncedSearch = useMemo(() => {
+    return debounce((searchTerm: string) => {
+      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm || undefined }));
+    }, 400);
+  }, []);
+
+  const handlePageChange = useCallback((page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  }, []);
+
+  const handlePageSizeChange = useCallback((limit: number) => {
+    setFilters((prev) => ({ ...prev, page: 1, limit }));
+  }, []);
+
+  const handleSearchChange = useCallback(
+    (search: string) => {
+      debouncedSearch(search);
+    },
+    [debouncedSearch]
+  );
+
+  const handleFilterChange = useCallback((columnId: string, value: string | string[] | null) => {
+    setFilters((prev) => {
+      const newFilters: MedicalRecordsFilter = { ...prev };
+      const key = columnId as keyof MedicalRecordsFilter;
+
+      if (value === null || (Array.isArray(value) && value.length === 0)) {
+        delete newFilters[key];
+        if (key === "diagnosticName") {
+          setFreeTextDiagnosticName("");
+        }
+      } else {
+        if (key === "diagnosticName") {
+          if (Array.isArray(value)) {
+            newFilters.diagnosticName = value;
+            setFreeTextDiagnosticName("");
+          } else {
+            newFilters.diagnosticName = [value];
+          }
+        } else if (key === "clinicId") {
+          newFilters.clinicId = Array.isArray(value) ? value[0] : value;
+        } else if (key === "clientId" || key === "search") {
+          console.warn(
+            `Filtro de columna '${key}' recibido en handleFilterChange pero no procesado explícitamente para evitar errores de tipo.`
+          );
+        } else {
+          if (typeof value === "string") {
+            console.warn(
+              `Filtro de columna genérico '${key}' con valor string '${value}' no asignado para evitar error de tipo.`
+            );
+          } else if (Array.isArray(value) && typeof value[0] === "string") {
+            console.warn(`Filtro de columna genérico '${key}' con valor array '${value[0]}' no asignado.`);
+          }
+        }
+      }
+      return { ...newFilters, page: 1 };
+    });
+  }, []);
+
+  const serverPagination = useMemo(
+    () =>
+      paginationMeta
+        ? {
+            currentPage: paginationMeta.currentPage,
+            totalPages: paginationMeta.totalPages,
+            pageSize: paginationMeta.itemsPerPage,
+            totalItems: paginationMeta.totalItems,
+            onPageChange: handlePageChange,
+            onPageSizeChange: handlePageSizeChange,
+          }
+        : undefined,
+    [paginationMeta, handlePageChange, handlePageSizeChange]
+  );
+
+  const serverFilters = useMemo(
+    () => ({
+      filters,
+      onSearchChange: handleSearchChange,
+      onFilterChange: handleFilterChange,
+    }),
+    [filters, handleSearchChange, handleFilterChange]
+  );
+
+  const tableActions = useMemo(
+    () => (
+      <div className="flex items-center gap-x-2 flex-wrap">
+        <DatePickerWithRange
+          size="sm"
+          onConfirm={(value) => {
+            setFilters((prev) => ({
+              ...prev,
+              page: 1,
+              from: value?.from,
+              to: value?.to,
+            }));
+          }}
+          onClear={() => {
+            setFilters((prev) => ({
+              ...prev,
+              page: 1,
+              from: undefined,
+              to: undefined,
+            }));
+          }}
+        />
+        <Input
+          placeholder="Buscar por nombre de diagnóstico..."
+          value={freeTextDiagnosticName}
+          onChange={handleFreeTextDiagnosticChange}
+          className="h-8 w-[150px] lg:w-[240px]"
+        />
+        <Button variant="outline" size="sm" className="h-8 lg:flex">
+          <FileDown className="mr-2 h-4 w-4" /> Descargar
+        </Button>
+      </div>
+    ),
+    [freeTextDiagnosticName, handleFreeTextDiagnosticChange]
+  );
+
   if (recordsError) {
     console.error("Error al cargar registros médicos:", recordsError);
     return <div className="text-center py-4">Error al cargar registros médicos</div>;
   }
 
   if (clinicsError) {
-    console.warn("Error al cargar clínicas:", clinicsError);
+    console.warn("Error al cargar clínicas (no bloqueante):", clinicsError);
   }
 
   return (
     <DataTable
       columns={columns}
-      data={medicalRecords || []}
+      data={medicalRecords}
       isLoading={isLoadingRecords}
-      actions={
-        <div className="flex items-center gap-x-2">
-          <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-            <FileDown className="mr-2 h-4 w-4" /> Descargar
-          </Button>
-        </div>
-      }
+      actions={tableActions}
+      mode="server"
+      serverPagination={serverPagination}
+      serverFilters={serverFilters}
+      serverFilterOptions={medicalRecordFilterOptions as any}
+      serverFilterLoading={isLoadingClinics || isLoadingDiagnostics}
     />
   );
 }

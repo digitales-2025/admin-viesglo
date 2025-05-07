@@ -104,10 +104,17 @@ export const columnsMedicalRecord = ({
     },
     {
       id: "fecha de registro",
-      accessorKey: "createdAt",
+      accessorKey: "entryDate",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Registro" />,
       cell: ({ row }) => {
-        const date = new Date(row.getValue("fecha de registro"));
+        const entryDateValue = row.getValue("fecha de registro") as string | Date | null | undefined;
+        if (!entryDateValue) {
+          return <div className="min-w-[150px]">--</div>;
+        }
+        const date = new Date(entryDateValue);
+        if (isNaN(date.getTime())) {
+          return <div className="min-w-[150px]">Fecha inválida</div>;
+        }
         return <div className="min-w-[150px]">{format(date, "PPP", { locale: es })}</div>;
       },
     },

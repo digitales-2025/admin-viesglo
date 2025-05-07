@@ -1017,7 +1017,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Obtener registros médicos con filtros opcionales */
+    /** Obtener registros médicos con filtros opcionales y paginación */
     get: operations["MedicalRecordsController_getMedicalRecords_v1"];
     put?: never;
     /** Crear un registro médico */
@@ -3777,6 +3777,34 @@ export interface components {
        *     }
        */
       details?: Record<string, never>;
+    };
+    PaginationMetaDto: {
+      /**
+       * @description Página actual
+       * @example 1
+       */
+      currentPage: number;
+      /**
+       * @description Número de elementos por página
+       * @example 10
+       */
+      itemsPerPage: number;
+      /**
+       * @description Total de elementos
+       * @example 100
+       */
+      totalItems: number;
+      /**
+       * @description Total de páginas
+       * @example 10
+       */
+      totalPages: number;
+    };
+    PaginatedMedicalRecordsResponseDto: {
+      /** @description Lista de registros médicos */
+      data: components["schemas"]["MedicalRecordResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetaDto"];
     };
     CustomSectionFieldDto: {
       /** @example resultado */
@@ -6578,6 +6606,20 @@ export interface operations {
       query?: {
         /** @description ID del cliente (Opcional) */
         clientId?: string;
+        /** @description ID de la clínica (Opcional) */
+        clinicId?: string;
+        /** @description Búsqueda por nombre o documento del paciente */
+        search?: string;
+        /** @description Filtrar por diagnóstico */
+        diagnosticName?: string;
+        /** @description Fecha desde (YYYY-MM-DD) */
+        from?: string;
+        /** @description Fecha hasta (YYYY-MM-DD) */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Elementos por página */
+        limit?: number;
       };
       header?: never;
       path?: never;
@@ -6585,13 +6627,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Lista de registros médicos */
+      /** @description Lista paginada de registros médicos */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
+          "application/json": components["schemas"]["PaginatedMedicalRecordsResponseDto"];
         };
       };
     };

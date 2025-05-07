@@ -1,6 +1,4 @@
-"use client";
-
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -14,6 +12,7 @@ import {
   deleteMedicalRecord,
   downloadAptitudeCertificate,
   downloadMedicalReport,
+  getAllAvailableDiagnostics,
   getAptitudeCertificateInfo,
   getDiagnostics,
   getMedicalRecord,
@@ -24,7 +23,12 @@ import {
   uploadAptitudeCertificate,
   uploadMedicalReport,
 } from "../_actions/medical-record.action";
-import { CreateDiagnostic, MedicalRecordsFilter, MedicalRecordUpdate } from "../_types/medical-record.types";
+import {
+  CreateDiagnostic,
+  MedicalRecordsFilter,
+  MedicalRecordUpdate,
+  PaginationMeta,
+} from "../_types/medical-record.types";
 
 export const MEDICAL_RECORDS_KEYS = {
   all: ["medical-records"] as const,
@@ -32,44 +36,33 @@ export const MEDICAL_RECORDS_KEYS = {
   list: (filters: MedicalRecordsFilter) => [...MEDICAL_RECORDS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...MEDICAL_RECORDS_KEYS.all, id] as const,
   diagnostics: (id: string) => [...MEDICAL_RECORDS_KEYS.detail(id), "diagnostics"] as const,
+  availableDiagnostics: () => [...MEDICAL_RECORDS_KEYS.all, "available-diagnostics"] as const,
 };
 
 /**
  * Hook para obtener todos los registros médicos
  */
 export function useMedicalRecords(filters?: MedicalRecordsFilter) {
-  // Obtener el ID del usuario actual para incluirlo en la clave de consulta
   const { data: currentUser } = useCurrentUser();
   const _userId = currentUser?.id;
 
-  // Mantenemos una referencia actualizada a los filtros
-  const filtersRef = useRef(filters);
+  const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
 
-  // Actualizamos la referencia cuando cambian los filtros
-  useEffect(() => {
-    filtersRef.current = filters;
-
-    if (filters && filters.clientId) {
-      console.log(`🔄 Hook useMedicalRecords - filtros activos:`, JSON.stringify(filters, null, 2));
-    }
-  }, [filters]);
-
-  return useQuery({
-    // Incluimos los filtros en la query key para que React Query detecte cambios
-    queryKey: [...MEDICAL_RECORDS_KEYS.list(filters || {})],
+  const queryResult = useQuery({
+    queryKey: [...MEDICAL_RECORDS_KEYS.list(filters || { page: 1, limit: 10 })],
     queryFn: async () => {
       try {
-        // Usamos la referencia actual de los filtros para asegurarnos de usar los más recientes
-        const currentFilters = filtersRef.current;
-        console.log(
-          `🔍 Ejecutando consulta de registros médicos con filtros:`,
-          JSON.stringify(currentFilters, null, 2)
-        );
-        const response = await getMedicalRecords(currentFilters);
+        console.log(`🔍 Ejecutando consulta de registros médicos con filtros:`, JSON.stringify(filters, null, 2));
+        const response = await getMedicalRecords(filters);
         if (!response.success) {
           console.error(`❌ Error en consulta de registros médicos:`, response.error);
           throw new Error(response.error || "Error al obtener registros médicos");
         }
+
+        if (response.meta) {
+          setPaginationMeta(response.meta as PaginationMeta);
+        }
+
         console.log(`✅ Consulta exitosa - Registros obtenidos: ${response.data.length}`);
         return response.data;
       } catch (error) {
@@ -77,17 +70,16 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
         throw error;
       }
     },
-
-    // Asegurarnos de que se actualice cuando cambie el ID de usuario
     enabled: !!_userId,
-
-    // Agregar reintentos para manejar problemas temporales de red
     retry: 2,
-
-    // Mostrar datos obsoletos mientras se recarga
-    staleTime: 5 * 60 * 1000, // 5 minutos
-    placeholderData: (oldData) => oldData, // Usar datos previos como placeholder mientras se carga
+    staleTime: 5 * 60 * 1000,
+    placeholderData: (oldData) => oldData,
   });
+
+  return {
+    ...queryResult,
+    paginationMeta,
+  };
 }
 
 /**
@@ -645,5 +637,25 @@ export function useUpdateDiagnosticValueName() {
         queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.medicalRecordId)],
       });
     },
+  });
+}
+
+/**
+ * Hook para obtener todos los diagnósticos disponibles para los filtros
+ */
+export function useAvailableDiagnostics() {
+  return useQuery({
+    queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+    queryFn: async () => {
+      console.log("🔍 Hook useAvailableDiagnostics: Obteniendo diagnósticos disponibles...");
+      const response = await getAllAvailableDiagnostics();
+      if (!response.success) {
+        console.error("❌ Error en hook useAvailableDiagnostics:", response.error);
+        throw new Error(response.error || "Error al obtener diagnósticos disponibles");
+      }
+      console.log(`✅ Hook useAvailableDiagnostics: ${response.data.length} diagnósticos obtenidos.`);
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cachear por 5 minutos
   });
 }

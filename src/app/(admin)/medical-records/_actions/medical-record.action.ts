@@ -3,6 +3,7 @@
 import { http } from "@/lib/http/serverFetch";
 import {
   CreateDiagnostic,
+  DiagnosticEntity,
   MedicalRecordFileInfo,
   MedicalRecordResponse,
   MedicalRecordsFilter,
@@ -11,19 +12,38 @@ import {
 } from "../_types/medical-record.types";
 
 const API_ENDPOINT = "/medical-records";
+const DIAGNOSTICS_API_ENDPOINT = "/diagnostics";
 
 /**
  * Obtiene todos los registros médicos
  */
 export async function getMedicalRecords(
   filters?: MedicalRecordsFilter
-): Promise<{ data: MedicalRecordResponse[]; success: boolean; error?: string }> {
+): Promise<{ data: MedicalRecordResponse[]; meta?: any; success: boolean; error?: string }> {
   try {
     // Construir query params basados en los filtros proporcionados
     const queryParams = new URLSearchParams();
 
-    if (filters?.clientId) {
-      queryParams.append("clientId", filters.clientId);
+    if (filters) {
+      // Procesar cada filtro disponible
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Manejar fechas - convertir a ISO string
+          if (value instanceof Date) {
+            queryParams.append(key, value.toISOString().split("T")[0]); // Enviar solo YYYY-MM-DD
+          } else {
+            queryParams.append(key, String(value));
+          }
+        }
+      });
+    }
+
+    // Asegurar valores predeterminados para paginación si no están en los filtros
+    if (!queryParams.has("page")) {
+      queryParams.append("page", "1");
+    }
+    if (!queryParams.has("limit")) {
+      queryParams.append("limit", "10");
     }
 
     const queryString = queryParams.toString();
@@ -32,15 +52,30 @@ export async function getMedicalRecords(
     console.log(`🔍 Obteniendo registros médicos con filtros:`, JSON.stringify(filters, null, 2));
     console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
 
-    const [data, err] = await http.get<MedicalRecordResponse[]>(endpoint);
+    const [response, err] = await http.get<any>(endpoint);
     if (err !== null) {
       console.error(`❌ Error al obtener registros médicos:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener registros médicos" };
     }
 
-    console.log(`✅ Registros médicos obtenidos. Cantidad: ${data.length}`);
+    // Manejar tanto respuestas paginadas como no paginadas
+    // Si la respuesta tiene formato { data, meta }, es una respuesta paginada
+    if (response.data && response.meta) {
+      console.log(
+        `✅ Registros médicos obtenidos. Cantidad: ${response.data.length}. Página ${response.meta.currentPage} de ${response.meta.totalPages}`
+      );
+      return {
+        success: true,
+        data: response.data,
+        meta: response.meta,
+      };
+    }
 
-    return { success: true, data };
+    // Si no, debe ser un array simple (formato antiguo)
+    console.log(
+      `✅ Registros médicos obtenidos (formato no paginado). Cantidad: ${Array.isArray(response) ? response.length : 0}`
+    );
+    return { success: true, data: Array.isArray(response) ? response : [] }; // Asegurarse que data sea siempre un array
   } catch (error) {
     console.error("❌ Error al obtener registros médicos", error);
     return { success: false, data: [], error: "Error al obtener registros médicos" };
@@ -638,5 +673,37 @@ export async function updateDiagnosticValueName(
       data: null,
       error: "Error al actualizar nombre del diagnóstico personalizado",
     };
+  }
+}
+
+/**
+ * Obtiene todos los diagnósticos disponibles en el sistema
+ */
+export async function getAllAvailableDiagnostics(): Promise<{
+  data: DiagnosticEntity[];
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    console.log(`🔍 Obteniendo todos los diagnósticos disponibles`);
+    const endpoint = `${DIAGNOSTICS_API_ENDPOINT}`;
+    console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
+
+    // Asumimos que el endpoint GET /diagnostics devuelve un objeto { diagnostics: DiagnosticEntity[] }
+    const [response, err] = await http.get<{ diagnostics: DiagnosticEntity[] }>(endpoint);
+
+    if (err !== null) {
+      console.error(`❌ Error al obtener diagnósticos disponibles:`, err);
+      return { success: false, data: [], error: err.message || "Error al obtener diagnósticos disponibles" };
+    }
+
+    // Extraer el array de diagnósticos de la respuesta
+    const diagnostics = response.diagnostics || [];
+    console.log(`✅ Diagnósticos disponibles obtenidos. Cantidad: ${diagnostics.length}`);
+
+    return { success: true, data: diagnostics };
+  } catch (error) {
+    console.error("❌ Error crítico al obtener diagnósticos disponibles", error);
+    return { success: false, data: [], error: "Error crítico al obtener diagnósticos disponibles" };
   }
 }
