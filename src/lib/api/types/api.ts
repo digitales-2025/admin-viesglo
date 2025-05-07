@@ -1342,6 +1342,42 @@ export interface paths {
     patch: operations["QuotationGroupsController_togleActive_v1"];
     trace?: never;
   };
+  "/api/v1/installment-payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un pago por cuota de cotización */
+    get: operations["InstallmentPaymentController_findByPaymentId_v1"];
+    put?: never;
+    /** Crear un pago por cuota de cotización */
+    post: operations["InstallmentPaymentController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/installment-payments/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un pago por cuota de cotización */
+    put: operations["InstallmentPaymentController_update_v1"];
+    post?: never;
+    /** Eliminar un pago por cuota de cotización */
+    delete: operations["InstallmentPaymentController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -3912,6 +3948,126 @@ export interface components {
        * @example Grupo de cotizaciones para la empresa 1
        */
       description?: string;
+    };
+    CreateInstallmentPaymentDto: {
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid: boolean;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+    };
+    InstallmentPaymentResponseDto: {
+      /**
+       * @description ID de la cuota de pago
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Número de la cuota
+       * @example 1
+       */
+      installmentNumber: number;
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate?: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate?: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid: boolean;
+      /**
+       * @description Estado de la cuota
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateInstallmentPaymentDto: {
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount?: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate?: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid?: boolean;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode?: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate?: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+    };
+    InstallmentPayment: {
+      id: string;
+      installmentNumber: number;
+      amount: number;
+      /** Format: date-time */
+      paymentDate?: string;
+      isPaid: boolean;
+      billingCode?: string;
+      /** Format: date-time */
+      billingDate?: string;
+      emailBilling?: string;
+      isActive: boolean;
+      paymentId: string;
     };
   };
   responses: never;
@@ -6924,8 +7080,10 @@ export interface operations {
         service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
-        /** @description Filtrar solo cotizaciones concretadas */
-        isConcrete?: string;
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        typePayment?: "MONTHLY" | "PUNCTUAL";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -7189,6 +7347,130 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  InstallmentPaymentController_findByPaymentId_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_create_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateInstallmentPaymentDto"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateInstallmentPaymentDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPayment"];
+        };
       };
     };
   };
