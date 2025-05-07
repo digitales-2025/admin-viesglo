@@ -68,7 +68,11 @@ export async function updateInstallmentPayment(
     return { success: true, data: data as InstallmentPaymentResponse };
   } catch (error) {
     console.error("Error al actualizar pago de cuota", error);
-    return { success: false, data: null, error: "Error al actualizar pago de cuota" };
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : "Error al actualizar pago de cuota",
+    };
   }
 }
 
@@ -84,6 +88,25 @@ export async function deleteInstallmentPayment(id: string): Promise<{ success: b
     return { success: true };
   } catch (error) {
     console.error("Error al eliminar pago de cuota", error);
-    return { success: false, error: "Error al eliminar pago de cuota" };
+    return { success: false, error: error instanceof Error ? error.message : "Error al eliminar pago de cuota" };
+  }
+}
+
+/**
+ * Reactivar o desactivar una cuota pago
+ */
+export async function toggleInstallmentPayment(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al reactivar o desactivar pago de cuota" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al reactivar o desactivar pago de cuota", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Error al reactivar o desactivar pago de cuota",
+    };
   }
 }

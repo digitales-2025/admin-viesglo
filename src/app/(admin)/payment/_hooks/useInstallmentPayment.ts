@@ -7,6 +7,7 @@ import {
   createInstallmentPayment,
   deleteInstallmentPayment,
   getInstallmentPayments,
+  toggleInstallmentPayment,
   updateInstallmentPayment,
 } from "../_actions/installment-payment.action";
 import { InstallmentPaymentCreate, InstallmentPaymentUpdate } from "../_types/installment-payment.types";
@@ -74,8 +75,8 @@ export function useUpdateInstallmentPayment() {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
       toast.success("Pago de cuota actualizado correctamente");
     },
-    onError: () => {
-      toast.error("Error al actualizar pago de cuota");
+    onError: (error) => {
+      toast.error(error.message || "Error al actualizar pago de cuota");
     },
   });
 }
@@ -97,8 +98,31 @@ export function useDeleteInstallmentPayment() {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
       toast.success("Pago de cuota eliminado correctamente");
     },
-    onError: () => {
-      toast.error("Error al eliminar pago de cuota");
+    onError: (error) => {
+      toast.error(error.message || "Error al eliminar pago de cuota");
+    },
+  });
+}
+
+/**
+ * Hook para reactivar o desactivar un pago de cuota
+ */
+export function useToggleInstallmentPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleInstallmentPayment(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al reactivar o desactivar pago de cuota");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      toast.success("Pago de cuota reactivado o desactivado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al reactivar o desactivar pago de cuota");
     },
   });
 }

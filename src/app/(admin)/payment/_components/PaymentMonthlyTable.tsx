@@ -4,7 +4,7 @@ import { useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Check, DollarSign, Pencil, Trash2, X } from "lucide-react";
+import { Check, DollarSign, Pencil, Redo2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -29,6 +29,7 @@ import {
   useCreateInstallmentPayment,
   useDeleteInstallmentPayment,
   useInstallmentPayments,
+  useToggleInstallmentPayment,
   useUpdateInstallmentPayment,
 } from "../_hooks/useInstallmentPayment";
 import { InstallmentPaymentCreate } from "../_types/installment-payment.types";
@@ -52,6 +53,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   const { mutate: createInstallmentPayment, isPending: isCreating } = useCreateInstallmentPayment();
   const { mutate: updateInstallmentPayment, isPending: isUpdating } = useUpdateInstallmentPayment();
   const { mutate: deleteInstallmentPayment, isPending: isDeleting } = useDeleteInstallmentPayment();
+  const { mutate: toggleInstallmentPayment, isPending: isToggling } = useToggleInstallmentPayment();
 
   const [newPayment, setNewPayment] = useState<Partial<PaymentItem>>({
     amount: 0,
@@ -246,6 +248,10 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
     deleteInstallmentPayment(id);
   };
 
+  const handleTogglePayment = (id: string) => {
+    toggleInstallmentPayment(id);
+  };
+
   return (
     <div className="p-4 bg-muted/30 rounded-md">
       <div className="flex gap-4 items-center mb-4">
@@ -412,17 +418,31 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                             size="icon"
                             onClick={() => handleEditPayment(item.id)}
                             disabled={isUpdating}
+                            title="Editar pago"
                           >
                             <Pencil className="h-4 w-4 text-sky-600" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleRemovePayment(item.id)}
-                            disabled={isDeleting || !item.isActive}
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          {item.isActive ? (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleRemovePayment(item.id)}
+                              disabled={isDeleting || !item.isActive}
+                              title="Eliminar pago"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => handleTogglePayment(item.id)}
+                              disabled={isToggling}
+                              title="Reactivar pago"
+                            >
+                              <Redo2 className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
+                            </Button>
+                          )}
                         </div>
                       )}
                     </TableCell>
