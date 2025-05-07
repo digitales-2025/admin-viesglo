@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BarChart3, Calendar, ChevronRight, DollarSign, PieChart, TrendingUp, Users, Wallet } from "lucide-react";
+import {
+  BarChart3,
+  Calendar,
+  CheckCircle2,
+  ChevronRight,
+  DollarSign,
+  PieChart,
+  TrendingUp,
+  Users,
+  Wallet,
+  XCircle,
+} from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -9,6 +20,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Label,
   LabelList,
   Pie,
   PieChart as ReChartPie,
@@ -110,6 +122,19 @@ export default function QuotationGraph() {
   const averageAmount = totalAmount / (totalQuotations || 1);
   const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
   const conversionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
+
+  // Calcular cotizaciones pagadas y no pagadas
+  const paidQuotations = quotations.filter((q: any) => q.isConcrete).length;
+  const unpaidQuotations = totalQuotations - paidQuotations;
+  const paymentCompletionRate = (paidQuotations / (totalQuotations || 1)) * 100;
+
+  // Procesar datos para el gráfico de pagos
+  const getPaymentStatusData = () => {
+    return [
+      { name: "Concretadas", value: paidQuotations, color: "var(--chart-1)" },
+      { name: "No concretadas", value: unpaidQuotations, color: "var(--chart-4)" },
+    ];
+  };
 
   // Procesar datos para el gráfico de tendencia temporal
   const getTimeData = () => {
@@ -268,10 +293,10 @@ export default function QuotationGraph() {
   };
 
   const timeData = getTimeData();
-
   const serviceData = getServiceData();
   const departmentData = getDepartmentData();
   const paymentTypeData = getPaymentTypeData();
+  const paymentStatusData = getPaymentStatusData();
 
   // Calculamos el período que estamos visualizando
   const getPeriodLabel = () => {
@@ -455,6 +480,137 @@ export default function QuotationGraph() {
         </CardFooter>
       </Card>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Estado de Pagos (Donut Chart) */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              Estado de cotizaciones
+            </CardTitle>
+            <CardDescription>Cotizaciones concretadas vs. no concretadas</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col justify-center items-center">
+              <div className="text-4xl font-bold">{paymentCompletionRate.toFixed(1)}%</div>
+              <div className="text-sm text-muted-foreground">Tasa de conversión</div>
+
+              <div className="mt-6 space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="h-3 w-3 rounded-full bg-chart-1"></div>
+                  <div className="flex justify-between w-full">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                      Concretadas
+                    </span>
+                    <span className="font-medium">{paidQuotations}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm">
+                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
+                  <div className="flex justify-between w-full">
+                    <span className="flex items-center gap-1">
+                      <XCircle className="h-4 w-4 text-gray-500" />
+                      No concretadas
+                    </span>
+                    <span className="font-medium">{unpaidQuotations}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <ReChartPie>
+                  <Pie
+                    data={paymentStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {paymentStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                    <Label
+                      content={({ viewBox }) => {
+                        if (viewBox && "cx" in viewBox && "cy" in viewBox) {
+                          return (
+                            <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
+                              <tspan x={viewBox.cx} y={viewBox.cy} className="fill-foreground text-3xl font-bold">
+                                {totalQuotations}
+                              </tspan>
+                              <tspan
+                                x={viewBox.cx}
+                                y={(viewBox.cy || 0) + 24}
+                                className="fill-muted-foreground text-xs"
+                              >
+                                Cotizaciones
+                              </tspan>
+                            </text>
+                          );
+                        }
+                      }}
+                    />
+                  </Pie>
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const value = Number(payload[0].value) || 0;
+                        const percentage = totalQuotations ? ((value / totalQuotations) * 100).toFixed(1) : "0.0";
+                        return (
+                          <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
+                            <p className="font-medium mb-1">{`${payload[0].name}: ${value}`}</p>
+                            <p className="text-muted-foreground">{`${percentage}%`}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                </ReChartPie>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+        {/* Gráfico de tipo de pago */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="h-5 w-5 text-primary" />
+              Distribución por tipo de pago
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full">
+              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
+                <ReChartPie>
+                  <Pie
+                    data={paymentTypeData}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={80}
+                    fill="var(--chart-5)"
+                    dataKey="value"
+                    nameKey="name"
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  >
+                    {paymentTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                  <ChartLegend content={({ payload }) => <ChartLegendContent payload={payload} nameKey="name" />} />
+                </ReChartPie>
+              </ChartContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Gráficos de distribución */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
@@ -533,40 +689,6 @@ export default function QuotationGraph() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Gráfico de tipo de pago */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <PieChart className="h-5 w-5 text-primary" />
-            Distribución por tipo de pago
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-64 w-full">
-            <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-              <ReChartPie>
-                <Pie
-                  data={paymentTypeData}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="var(--chart-5)"
-                  dataKey="value"
-                  nameKey="name"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {paymentTypeData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                  ))}
-                </Pie>
-                <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                <ChartLegend content={({ payload }) => <ChartLegendContent payload={payload} nameKey="name" />} />
-              </ReChartPie>
-            </ChartContainer>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
