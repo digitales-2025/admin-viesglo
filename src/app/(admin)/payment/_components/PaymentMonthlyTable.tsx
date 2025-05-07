@@ -62,8 +62,8 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   const [editingPayment, setEditingPayment] = useState<Partial<PaymentItem>>({});
 
   // Calcular el total de los pagos
-  const totalAmount = paymentItems?.reduce((sum, item) => sum + item.amount, 0) || 0;
-  const percentagePaid = payment.amount > 0 ? (totalAmount / payment.amount) * 100 : 0;
+  const totalAmountPaid = paymentItems?.reduce((sum, item) => sum + (item.isActive ? item.amount : 0), 0) || 0;
+  const percentagePaid = payment.amount > 0 ? (totalAmountPaid / payment.amount) * 100 : 0;
 
   // Función para formatear fechas preservando el día exacto sin ajustes de zona horaria
   const formatDatePreserveDay = (dateString: string | undefined) => {
@@ -288,6 +288,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
               <TableHead className="p-2 text-left w-56">Código Factura</TableHead>
               <TableHead className="p-2 text-left w-56">Fecha Factura</TableHead>
               <TableHead className="p-2 text-left w-56">Email destinatario</TableHead>
+              <TableHead className="p-2 text-left w-56">Estado</TableHead>
               <TableHead className="p-2 text-center w-56">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -313,10 +314,12 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        new Intl.NumberFormat("es-PE", {
-                          style: "currency",
-                          currency: "PEN",
-                        }).format(item.amount)
+                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                          {new Intl.NumberFormat("es-PE", {
+                            style: "currency",
+                            currency: "PEN",
+                          }).format(item.amount)}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="p-2">
@@ -327,7 +330,9 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        formatDatePreserveDay(item.paymentDate as string)
+                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                          {formatDatePreserveDay(item.paymentDate as string)}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="p-2">
@@ -338,7 +343,9 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        item.billingCode || "-"
+                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                          {item.billingCode || "-"}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="p-2">
@@ -349,7 +356,9 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        formatDatePreserveDay(item.billingDate as string)
+                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                          {formatDatePreserveDay(item.billingDate as string)}
+                        </span>
                       )}
                     </TableCell>
                     <TableCell className="p-2">
@@ -361,7 +370,16 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        item.emailBilling || "-"
+                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                          {item.emailBilling || "-"}
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="p-2 text-center">
+                      {item.isActive ? (
+                        <Badge variant="success">Activo</Badge>
+                      ) : (
+                        <Badge variant="error">Inactivo</Badge>
                       )}
                     </TableCell>
                     <TableCell className="p-2 text-center">
@@ -401,7 +419,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                             variant="ghost"
                             size="icon"
                             onClick={() => handleRemovePayment(item.id)}
-                            disabled={isDeleting}
+                            disabled={isDeleting || !item.isActive}
                           >
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -464,7 +482,8 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   className="h-8 w-56"
                 />
               </TableCell>
-              <TableCell className="p-2 text-center">
+
+              <TableCell className="p-2 text-center" colSpan={2}>
                 <Button
                   variant="outline"
                   size="sm"
@@ -484,9 +503,9 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                 {new Intl.NumberFormat("es-PE", {
                   style: "currency",
                   currency: "PEN",
-                }).format(totalAmount)}
+                }).format(totalAmountPaid)}
               </td>
-              <td colSpan={5} className="p-2 text-right">
+              <td colSpan={6} className="p-2 text-right">
                 <div className="flex items-center justify-end gap-2">
                   <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
                     <Progress value={Math.min(percentagePaid, 100)} />
