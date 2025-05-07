@@ -2,8 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { FileDown } from "lucide-react";
+import { Calendar, FileDown } from "lucide-react";
 import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -116,11 +115,14 @@ export const columnsMedicalRecord = ({
         if (!entryDateValue) {
           return <div className="min-w-[150px]">--</div>;
         }
-        const date = new Date(entryDateValue);
-        if (isNaN(date.getTime())) {
-          return <div className="min-w-[150px]">Fecha inválida</div>;
-        }
-        return <div className="min-w-[150px]">{format(date, "PPP", { locale: es })}</div>;
+        return (
+          <Badge variant="outline" className="capitalize min-w-[150px]">
+            <Calendar className="size-3 text-muted-foreground" />
+            {typeof entryDateValue === "string"
+              ? entryDateValue.substring(0, 10).split("-").reverse().join("/")
+              : format(new Date(entryDateValue), "dd/MM/yyyy")}
+          </Badge>
+        );
       },
     },
     {

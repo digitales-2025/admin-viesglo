@@ -6611,7 +6611,7 @@ export interface operations {
         /** @description Búsqueda por nombre o documento del paciente */
         search?: string;
         /** @description Filtrar por diagnóstico */
-        diagnosticName?: string;
+        diagnosticName?: string[];
         /** @description Fecha desde (YYYY-MM-DD) */
         from?: string;
         /** @description Fecha hasta (YYYY-MM-DD) */

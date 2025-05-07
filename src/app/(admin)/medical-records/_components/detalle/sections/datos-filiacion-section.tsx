@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { DatePickerWithYearMonth } from "@/shared/components/ui/date-picker-with-year-month";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
@@ -23,6 +26,7 @@ type FormValues = {
     genero?: string;
     fechaNacimiento?: Date;
     emodate?: Date;
+    entryDate?: Date;
   };
 };
 
@@ -249,7 +253,7 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
                 name="datosFiliacion.fechaNacimiento"
                 control={control}
                 render={({ field }) => (
-                  <DatePicker
+                  <DatePickerWithYearMonth
                     selected={field.value}
                     onSelect={field.onChange}
                     placeholder="Seleccionar fecha"
@@ -263,7 +267,7 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
                 control={control}
                 render={({ field }) => (
                   <div className="py-2 px-3 border rounded-md bg-muted/20">
-                    {field.value ? new Date(field.value).toLocaleDateString() : "No registrado"}
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
                   </div>
                 )}
               />
@@ -276,7 +280,7 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="emodate">Fecha Emodate</Label>
+            <Label htmlFor="emodate">Fecha ultimo emo ejecutado</Label>
             {isEditing ? (
               <Controller
                 name="datosFiliacion.emodate"
@@ -296,7 +300,35 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
                 control={control}
                 render={({ field }) => (
                   <div className="py-2 px-3 border rounded-md bg-muted/20">
-                    {field.value ? new Date(field.value).toLocaleDateString() : "No registrado"}
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
+                  </div>
+                )}
+              />
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="entryDate">Fecha de registro</Label>
+            {isEditing ? (
+              <Controller
+                name="datosFiliacion.entryDate"
+                control={control}
+                render={({ field }) => (
+                  <DatePickerWithYearMonth
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    placeholder="Seleccionar fecha"
+                    clearable
+                  />
+                )}
+              />
+            ) : (
+              <Controller
+                name="datosFiliacion.entryDate"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
                   </div>
                 )}
               />

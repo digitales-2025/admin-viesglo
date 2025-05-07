@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -51,6 +51,7 @@ const formSchema = z.object({
     genero: z.string().optional(),
     fechaNacimiento: z.date().optional(),
     emodate: z.date().optional(),
+    entryDate: z.date().optional(),
   }),
   aptitud: z.object({
     aptitud: z.string().min(1, "Aptitud es requerida"),
@@ -82,11 +83,15 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
   const isEditing = mode === "edit";
 
   // Procesamiento simplificado de diagnósticos
-  const diagnosticsValues = (data?.diagnosticValues?.map((value) => ({
-    ...value,
-    diagnosticName: value.diagnosticName || "",
-    value: Array.isArray(value.value) ? value.value : value.value ? [value.value] : [],
-  })) || []) as any;
+  const diagnosticsValues = useMemo(
+    () =>
+      (data?.diagnosticValues?.map((value) => ({
+        ...value,
+        diagnosticName: value.diagnosticName || "",
+        value: Array.isArray(value.value) ? value.value : value.value ? [value.value] : [],
+      })) || []) as any,
+    [data?.diagnosticValues]
+  );
 
   // Inicializar react-hook-form
   const methods = useForm<FormValues>({
@@ -101,6 +106,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         genero: "",
         fechaNacimiento: new Date(),
         emodate: new Date(),
+        entryDate: new Date(),
       },
       aptitud: {
         aptitud: "",
@@ -193,6 +199,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           genero: generoValue,
           fechaNacimiento: data.birthDate ? new Date(data.birthDate) : undefined,
           emodate: data.lastEmoDate ? new Date(data.lastEmoDate) : undefined,
+          entryDate: data.entryDate ? new Date(data.entryDate) : undefined,
         },
         aptitud: {
           aptitud: data.aptitude || "",
@@ -287,12 +294,9 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         aptitude: values.aptitud.aptitud as any,
         restrictions: values.aptitud.restricciones || "",
         personalHistory: values.aptitud.personalHistory || "",
-        birthDate: values.datosFiliacion.fechaNacimiento
-          ? values.datosFiliacion.fechaNacimiento.toISOString().split("T")[0]
-          : undefined,
-        lastEmoDate: values.datosFiliacion.emodate
-          ? values.datosFiliacion.emodate.toISOString().split("T")[0]
-          : undefined,
+        birthDate: values.datosFiliacion.fechaNacimiento?.toISOString(),
+        lastEmoDate: values.datosFiliacion.emodate?.toISOString(),
+        entryDate: values.datosFiliacion.entryDate?.toISOString(),
       };
 
       // Actualizar información básica
