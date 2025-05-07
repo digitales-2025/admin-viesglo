@@ -17,6 +17,7 @@ export const PAYMENTS_KEYS = {
   lists: () => [...PAYMENTS_KEYS.all, "list"] as const,
   list: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...PAYMENTS_KEYS.all, id] as const,
+  stats: () => [...PAYMENTS_KEYS.all, "stats"] as const,
 };
 
 /**
@@ -105,7 +106,7 @@ export function useMarkPaymentStatus() {
  */
 export function usePaymentsForStats(filters?: PaymentFilters) {
   return useQuery({
-    queryKey: PAYMENTS_KEYS.list(filters),
+    queryKey: PAYMENTS_KEYS.stats(),
     queryFn: async () => {
       const response = await getPaymentsForStats(filters);
       if (!response.success) {
