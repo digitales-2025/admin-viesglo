@@ -3974,7 +3974,7 @@ export interface components {
        * @description Fecha de facturación
        * @example 2021-01-01
        */
-      billingDate: string;
+      billingDate?: string;
       /**
        * @description Email de facturación
        * @example juan.perez@empresa.com
@@ -4002,6 +4002,11 @@ export interface components {
        * @example 2021-01-01
        */
       paymentDate?: string;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode?: string;
       /**
        * @description Fecha de facturación
        * @example 2021-01-01

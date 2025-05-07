@@ -34,17 +34,22 @@ export async function getInstallmentPayments(paymentId: string): Promise<{
  * Crear un pago de cuota
  */
 export async function createInstallmentPayment(
+  paymentId: string,
   installmentPayment: InstallmentPaymentCreate
 ): Promise<{ success: boolean; data: InstallmentPaymentResponse | null; error?: string }> {
   try {
-    const [data, err] = await http.post(API_ENDPOINT, installmentPayment);
+    const [data, err] = await http.post(`${API_ENDPOINT}?paymentId=${paymentId}`, installmentPayment);
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al crear pago de cuota" };
     }
     return { success: true, data: data as InstallmentPaymentResponse };
   } catch (error) {
     console.error("Error al crear pago de cuota", error);
-    return { success: false, data: null, error: "Error al crear pago de cuota" };
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : "Error al crear pago de cuota",
+    };
   }
 }
 

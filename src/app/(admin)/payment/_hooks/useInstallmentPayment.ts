@@ -40,8 +40,8 @@ export function useInstallmentPayments(paymentId: string) {
 export function useCreateInstallmentPayment() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data: InstallmentPaymentCreate) => {
-      const response = await createInstallmentPayment(data);
+    mutationFn: async ({ paymentId, data }: { paymentId: string; data: InstallmentPaymentCreate }) => {
+      const response = await createInstallmentPayment(paymentId, data);
       if (!response.success) {
         throw new Error(response.error || "Error al crear pago de cuota");
       }
@@ -51,8 +51,8 @@ export function useCreateInstallmentPayment() {
       queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
       toast.success("Pago de cuota creado correctamente");
     },
-    onError: () => {
-      toast.error("Error al crear pago de cuota");
+    onError: (error) => {
+      toast.error(error.message || "Error al crear pago de cuota");
     },
   });
 }

@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { DollarSign, Save, Trash2 } from "lucide-react";
+import { TZDate } from "@date-fns/tz";
+import { Check, DollarSign, Pencil, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Loading } from "@/shared/components/loading";
@@ -9,6 +12,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Input } from "@/shared/components/ui/input";
+import { Progress } from "@/shared/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -18,7 +22,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
-import { useInstallmentPayments } from "../_hooks/useInstallmentPayment";
+import {
+  useCreateInstallmentPayment,
+  useDeleteInstallmentPayment,
+  useInstallmentPayments,
+  useUpdateInstallmentPayment,
+} from "../_hooks/useInstallmentPayment";
 import { InstallmentPaymentCreate } from "../_types/installment-payment.types";
 import { PaymentResponse } from "../_types/payment.types";
 
@@ -37,6 +46,11 @@ interface PaymentMonthlyTableProps {
 
 export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProps) {
   const { data: paymentItems, isLoading, error } = useInstallmentPayments(payment.id);
+  console.log("🚀 ~ PaymentMonthlyTable ~ paymentItems:", paymentItems);
+  const { mutate: createInstallmentPayment, isPending: isCreating } = useCreateInstallmentPayment();
+  const { mutate: updateInstallmentPayment, isPending: isUpdating } = useUpdateInstallmentPayment();
+  const { mutate: deleteInstallmentPayment, isPending: isDeleting } = useDeleteInstallmentPayment();
+
   // Estado para los pagos mensuales asociados a esta cotización
   const [newPayment, setNewPayment] = useState<Partial<PaymentItem>>({
     amount: 0,
@@ -49,23 +63,110 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   const percentagePaid = payment.amount > 0 ? (totalAmount / payment.amount) * 100 : 0;
 
   const handleAddPayment = () => {
-    if (!newPayment.amount) return;
+    if (!newPayment.amount) {
+      toast.error("Ingrese un monto de pago.");
+      return;
+    }
+
+    if (newPayment.amount <= 0 || newPayment.amount > payment.amount) {
+      toast.error("El monto de pago debe ser mayor que 0 y menor que el monto de la cotización.");
+      return;
+    }
+
+    if (!newPayment.paymentDate) {
+      toast.error("Ingrese una fecha de pago");
+      return;
+    }
+
+    if (!newPayment.billingCode || newPayment.billingCode.trim() === "") {
+      toast.error("Ingrese un código de factura");
+      return;
+    }
+
+    if (!z.string().email().safeParse(newPayment.email).success && newPayment.email) {
+      toast.error("Ingrese un email válido");
+      return;
+    }
 
     const paymentItem: InstallmentPaymentCreate = {
       amount: Number(newPayment.amount),
-      paymentDate: newPayment.paymentDate?.toISOString() || "",
+      paymentDate: newPayment.paymentDate
+        ? new TZDate(
+            newPayment.paymentDate.getFullYear(),
+            newPayment.paymentDate.getMonth(),
+            newPayment.paymentDate.getDate(),
+            "America/Lima"
+          ).toISOString()
+        : new TZDate(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate(),
+            "America/Lima"
+          ).toISOString(),
       billingCode: newPayment.billingCode || "",
-      billingDate: newPayment.billingDate?.toISOString() || "",
+      billingDate: newPayment.billingDate
+        ? new TZDate(
+            newPayment.billingDate.getFullYear(),
+            newPayment.billingDate.getMonth(),
+            newPayment.billingDate.getDate(),
+            "America/Lima"
+          ).toISOString()
+        : undefined,
       emailBilling: newPayment.email || "",
       isPaid: true,
     };
-    console.log("🚀 ~ handleAddPayment ~ paymentItem:", paymentItem);
-
-    setNewPayment({ amount: 0 });
+    createInstallmentPayment(
+      {
+        paymentId: payment.id,
+        data: paymentItem,
+      },
+      {
+        onSuccess: () => {
+          setNewPayment({ amount: 0 });
+          toast.success("Pago mensual creado correctamente");
+        },
+      }
+    );
   };
 
+  const disabledAddPayment = !newPayment.amount || !newPayment.paymentDate || !newPayment.billingCode;
+
   const handleRemovePayment = (id: string) => {
-    console.log("🚀 ~ handleRemovePayment ~ id:", id);
+    deleteInstallmentPayment(id);
+  };
+
+  const handleEditPayment = (id: string) => {
+    updateInstallmentPayment(
+      {
+        id,
+        data: {
+          amount: newPayment.amount,
+          paymentDate: newPayment.paymentDate
+            ? new TZDate(
+                newPayment.paymentDate.getFullYear(),
+                newPayment.paymentDate.getMonth(),
+                newPayment.paymentDate.getDate(),
+                "America/Lima"
+              ).toISOString()
+            : undefined,
+          billingCode: newPayment.billingCode,
+          billingDate: newPayment.billingDate
+            ? new TZDate(
+                newPayment.billingDate.getFullYear(),
+                newPayment.billingDate.getMonth(),
+                newPayment.billingDate.getDate(),
+                "America/Lima"
+              ).toISOString()
+            : undefined,
+          emailBilling: newPayment.email || "",
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Pago mensual actualizado correctamente");
+        },
+      }
+    );
   };
 
   return (
@@ -100,7 +201,6 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
       </div>
 
       {/* Tabla de pagos */}
-      {isLoading && <Loading text="Cargando pagos mensuales..." />}
       {error && <AlertMessage variant="destructive" title="Error" description="Error al obtener los pagos mensuales" />}
       <div className="border rounded-md mb-4">
         <Table className="w-full text-sm">
@@ -110,12 +210,18 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
               <TableHead className="p-2 text-left w-56">Fecha de Pago</TableHead>
               <TableHead className="p-2 text-left w-56">Código Factura</TableHead>
               <TableHead className="p-2 text-left w-56">Fecha Factura</TableHead>
-              <TableHead className="p-2 text-left w-56">Email</TableHead>
+              <TableHead className="p-2 text-left w-56">Email destinatario</TableHead>
               <TableHead className="p-2 text-center w-56">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paymentItems && paymentItems.length > 0 ? (
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="p-4 text-center text-muted-foreground">
+                  <Loading text="Cargando pagos mensuales..." />
+                </TableCell>
+              </TableRow>
+            ) : paymentItems && paymentItems.length > 0 ? (
               paymentItems.map((item) => (
                 <TableRow key={item.id} className="border-t">
                   <TableCell className="p-2">
@@ -133,7 +239,20 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   </TableCell>
                   <TableCell className="p-2">{item.emailBilling || "-"}</TableCell>
                   <TableCell className="p-2 text-center">
-                    <Button variant="ghost" size="icon" onClick={() => handleRemovePayment(item.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditPayment(item.id)}
+                      disabled={isUpdating}
+                    >
+                      <Pencil className="h-4 w-4 text-sky-600" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemovePayment(item.id)}
+                      disabled={isDeleting}
+                    >
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -155,7 +274,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   step="0.01"
                   value={newPayment.amount || ""}
                   onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
-                  placeholder="Monto"
+                  placeholder="Ingrese el monto a pagar"
                   className="h-8 w-56"
                 />
               </TableCell>
@@ -163,7 +282,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                 <DatePicker
                   selected={newPayment.paymentDate}
                   onSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
-                  placeholder="Fecha pago"
+                  placeholder="Seleccionar fecha"
                   className="h-8 w-56"
                 />
               </TableCell>
@@ -171,7 +290,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                 <Input
                   value={newPayment.billingCode || ""}
                   onChange={(e) => setNewPayment({ ...newPayment, billingCode: e.target.value })}
-                  placeholder="Código"
+                  placeholder="Ingrese el código de factura"
                   className="h-8 w-56"
                 />
               </TableCell>
@@ -179,7 +298,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                 <DatePicker
                   selected={newPayment.billingDate}
                   onSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
-                  placeholder="Fecha factura"
+                  placeholder="Seleccionar fecha"
                   className="h-8 w-56"
                 />
               </TableCell>
@@ -188,7 +307,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   type="email"
                   value={newPayment.email || ""}
                   onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
-                  placeholder="Email"
+                  placeholder="Ingrese el email destinatario"
                   className="h-8 w-56"
                 />
               </TableCell>
@@ -197,11 +316,11 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   variant="outline"
                   size="sm"
                   onClick={handleAddPayment}
-                  disabled={paymentItems?.length === 0}
+                  disabled={disabledAddPayment || isCreating}
                   className="ml-2 border-emerald-500 text-emerald-500"
                 >
-                  <Save className="h-4 w-4 mr-1" />
-                  Guardar Pago
+                  <Check className="h-4 w-4 mr-1" />
+                  Realizar el pago
                 </Button>
               </TableCell>
             </TableRow>
@@ -217,7 +336,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
               <td colSpan={5} className="p-2 text-right">
                 <div className="flex items-center justify-end gap-2">
                   <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: `${Math.min(percentagePaid, 100)}%` }}></div>
+                    <Progress value={Math.min(percentagePaid, 100)} />
                   </div>
                   <span className="text-xs text-muted-foreground">{percentagePaid.toFixed(0)}% del total</span>
                 </div>

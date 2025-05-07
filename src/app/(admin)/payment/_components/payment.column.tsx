@@ -167,7 +167,6 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     id: "select",
     size: 40,
     cell: ({ row }) => {
-      console.log("🚀 ~ row.getCanExpand():", row.getCanExpand());
       return row.getCanExpand() ? (
         <Button
           variant="ghost"
@@ -221,7 +220,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     accessorKey: "amount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
     cell: ({ row }) => (
-      <div className="min-w-[150px]">
+      <div className="w-24">
         <Badge variant="outline" className="flex items-center gap-2">
           <Banknote className="size-3" />
           {new Intl.NumberFormat("es-PE", {
@@ -239,7 +238,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     cell: ({ row }) => (
       <Badge
         variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
-        className="capitalize min-w-[150px]"
+        className="capitalize w-24 truncate"
       >
         {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
       </Badge>
