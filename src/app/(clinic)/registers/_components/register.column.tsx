@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { FileDown } from "lucide-react";
+import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -45,7 +46,11 @@ export const registersRecordColumns = ({
   // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
-      await downloadCertificate(record.id);
+      if (hasAptitudeCertificate(record.files)) {
+        await downloadCertificate(record.id);
+      } else {
+        toast.info(`El certificado de aptitud no está disponible para el registro: ${record.id}`);
+      }
     } catch (_error) {
       // Error silencioso
     }
@@ -54,7 +59,11 @@ export const registersRecordColumns = ({
   // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
-      await downloadReport(record.id);
+      if (hasMedicalReport(record.files)) {
+        await downloadReport(record.id);
+      } else {
+        toast.info(`El informe médico no está disponible para el registro: ${record.id}`);
+      }
     } catch (_error) {
       // Error silencioso
     }
