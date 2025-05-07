@@ -125,7 +125,7 @@ export async function markPaymentStatus(
 /**
  * Obtiene los pagos para las estadísticas
  */
-export async function getPaymentsForStats(
+export async function findPaymentsForStats(
   filters?: PaymentFilters
 ): Promise<{ data: PaymentResponse[]; success: boolean; error?: string }> {
   try {
@@ -153,7 +153,6 @@ export async function getPaymentsForStats(
 
     const queryString = queryParams.toString();
     const url = `${API_ENDPOINT}/${queryString ? `?${queryString}` : ""}`;
-
     const [data, err] = await http.get<PaymentResponse[]>(url);
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener pagos para estadísticas" };

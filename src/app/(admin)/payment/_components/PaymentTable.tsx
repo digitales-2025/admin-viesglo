@@ -10,7 +10,7 @@ import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { cn, debounce } from "@/shared/lib/utils";
 import { usePayments } from "../_hooks/usePayments";
-import { PaymentFilters } from "../_types/payment.types";
+import { usePaymentsStore } from "../_hooks/usePaymentStore";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 import { TypePayment } from "../../quotation/_types/quotation.types";
 import { columnsPayment } from "./payment.column";
@@ -21,6 +21,21 @@ export default function PaymentTable() {
 
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
+
+  const { filters: storeFilters, setFilters, updateFilter } = usePaymentsStore();
+
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+  });
+  // Combinamos los filtros del store con la paginación local
+  const filters = useMemo(
+    () => ({
+      ...storeFilters,
+      ...pagination,
+    }),
+    [storeFilters, pagination]
+  );
 
   // Estado inicial para el filtro de 'Estado' que siempre estará disponible
   const baseFilterOptions = useMemo(
@@ -95,16 +110,13 @@ export default function PaymentTable() {
     return options;
   }, [baseFilterOptions, quotationGroups, departmentOptions]);
 
-  const [filters, setFilters] = useState<PaymentFilters>({
-    page: 1,
-    limit: 10,
-  });
   // Creamos una función de debounce para la búsqueda
   const debouncedSearch = useMemo(() => {
     return debounce((searchTerm: string) => {
-      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm }));
+      updateFilter("search", searchTerm);
+      setPagination((prev) => ({ ...prev, page: 1 }));
     }, 400);
-  }, []);
+  }, [updateFilter]);
 
   // Limpiar el debounce al desmontar el componente
   useEffect(() => {
@@ -121,12 +133,12 @@ export default function PaymentTable() {
 
   // Manejador para cambios en la página (memoizado para evitar recrear la función)
   const handlePageChange = useCallback((page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   }, []);
 
   // Manejador para cambios en el tamaño de página (memoizado)
   const handlePageSizeChange = useCallback((limit: number) => {
-    setFilters((prev) => ({ ...prev, page: 1, limit }));
+    setPagination((prev) => ({ ...prev, limit }));
   }, []);
 
   // Manejador para cambios en la búsqueda con debounce
@@ -138,13 +150,15 @@ export default function PaymentTable() {
   );
 
   // Manejador para cambios en los filtros (memoizado)
-  const handleFilterChange = useCallback((columnId: string, value: any) => {
-    setFilters((prev) => {
+  const handleFilterChange = useCallback(
+    (columnId: string, value: any) => {
       // Si el valor es null o un array vacío, eliminamos el filtro
       if (value === null || (Array.isArray(value) && value.length === 0)) {
-        const newFilters = { ...prev };
-        delete newFilters[columnId as keyof PaymentFilters];
-        return { ...newFilters, page: 1 };
+        const newFilters = { ...storeFilters } as Record<string, any>;
+        delete newFilters[columnId];
+        setFilters(newFilters);
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para isConcrete (boolean), necesitamos convertir correctamente el string a booleano
@@ -153,31 +167,26 @@ export default function PaymentTable() {
         const stringValue = Array.isArray(value) ? value[0] : value;
         // Convertir explícitamente el string "true"/"false" a booleano
         const boolValue = stringValue === "true";
-        return {
-          ...prev,
-          [columnId]: boolValue,
-          page: 1,
-        };
+        updateFilter(columnId, boolValue);
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para service y department, permitimos múltiples valores (array)
       if (columnId === "code" || columnId === "department") {
-        return {
-          ...prev,
-          [columnId]: Array.isArray(value) ? value : [value],
-          page: 1,
-        };
+        updateFilter(columnId, Array.isArray(value) ? value : [value]);
+        setPagination((prev) => ({ ...prev, page: 1 }));
+        return;
       }
 
       // Para otros filtros, usamos el primer valor si es un array
       const filterValue = Array.isArray(value) ? value[0] : value;
-      return {
-        ...prev,
-        [columnId]: filterValue,
-        page: 1,
-      };
-    });
-  }, []);
+      updateFilter(columnId, filterValue);
+      setPagination((prev) => ({ ...prev, page: 1 }));
+      return;
+    },
+    [storeFilters, setFilters, updateFilter]
+  );
 
   // Memoizamos componentes y objetos para evitar renderizados innecesarios
   const actions = useMemo(
@@ -188,20 +197,27 @@ export default function PaymentTable() {
         </Button>
         <DatePickerWithRange
           size="sm"
-          initialValue={{ from: undefined, to: undefined }}
+          initialValue={{
+            from: storeFilters.from ? new Date(storeFilters.from) : undefined,
+            to: storeFilters.to ? new Date(storeFilters.to) : undefined,
+          }}
           onConfirm={(value) => {
-            setFilters((prev) => ({
-              ...prev,
-              from: value?.from,
-              to: value?.to,
-            }));
+            if (value?.from) updateFilter("from", value.from);
+            if (value?.to) updateFilter("to", value.to);
+            if (!value?.from && !value?.to) {
+              const newFilters = { ...storeFilters };
+              delete newFilters.from;
+              delete newFilters.to;
+              setFilters(newFilters);
+            }
+            setPagination((prev) => ({ ...prev, page: 1 }));
           }}
           onClear={() => {
-            setFilters((prev) => ({
-              ...prev,
-              from: undefined,
-              to: undefined,
-            }));
+            const newFilters = { ...storeFilters };
+            delete newFilters.from;
+            delete newFilters.to;
+            setFilters(newFilters);
+            setPagination((prev) => ({ ...prev, page: 1 }));
           }}
         />
       </>

@@ -4,9 +4,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  findPaymentsForStats,
   getPayment,
   getPayments,
-  getPaymentsForStats,
   markPaymentStatus,
   updatePaymentStatus,
 } from "../_actions/payment.action";
@@ -108,7 +108,7 @@ export function usePaymentsForStats(filters?: PaymentFilters) {
   return useQuery({
     queryKey: PAYMENTS_KEYS.stats(),
     queryFn: async () => {
-      const response = await getPaymentsForStats(filters);
+      const response = await findPaymentsForStats(filters);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener pagos para estadísticas");
       }

@@ -51,7 +51,6 @@ export default function PaymentGraph() {
 
   // Obtenemos los filtros del store
   const { filters, updateFilter } = usePaymentsStore();
-
   // Si no hay filtros de fecha, establecer el año actual
   useEffect(() => {
     // Solo aplicar filtro del año actual si no hay filtros de fecha explícitos
