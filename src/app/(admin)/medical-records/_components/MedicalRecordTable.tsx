@@ -146,18 +146,6 @@ export default function MedicalRecordTable() {
           }
         } else if (key === "clinicId") {
           newFilters.clinicId = Array.isArray(value) ? value[0] : value;
-        } else if (key === "clientId" || key === "search") {
-          console.warn(
-            `Filtro de columna '${key}' recibido en handleFilterChange pero no procesado explícitamente para evitar errores de tipo.`
-          );
-        } else {
-          if (typeof value === "string") {
-            console.warn(
-              `Filtro de columna genérico '${key}' con valor string '${value}' no asignado para evitar error de tipo.`
-            );
-          } else if (Array.isArray(value) && typeof value[0] === "string") {
-            console.warn(`Filtro de columna genérico '${key}' con valor array '${value[0]}' no asignado.`);
-          }
         }
       }
       return { ...newFilters, page: 1 };

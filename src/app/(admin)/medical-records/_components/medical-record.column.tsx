@@ -27,7 +27,6 @@ export const columnsMedicalRecord = ({
   isDownloadingCertificate,
   isDownloadingReport,
 }: ColumnsMedicalRecordProps): ColumnDef<MedicalRecordResponse>[] => {
-  // Función para verificar si existe un informe médico
   const hasMedicalReport = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
     return files.some(
@@ -36,7 +35,6 @@ export const columnsMedicalRecord = ({
     );
   };
 
-  // Función para verificar si existe un certificado de aptitud
   const hasAptitudeCertificate = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
     return files.some(
@@ -46,7 +44,6 @@ export const columnsMedicalRecord = ({
     );
   };
 
-  // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
       if (hasAptitudeCertificate(record.files)) {
@@ -57,7 +54,6 @@ export const columnsMedicalRecord = ({
     } catch (_error) {}
   };
 
-  // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
       if (hasMedicalReport(record.files)) {

@@ -21,16 +21,13 @@ export async function getMedicalRecords(
   filters?: MedicalRecordsFilter
 ): Promise<{ data: MedicalRecordResponse[]; meta?: any; success: boolean; error?: string }> {
   try {
-    // Construir query params basados en los filtros proporcionados
     const queryParams = new URLSearchParams();
 
     if (filters) {
-      // Procesar cada filtro disponible
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== "") {
-          // Manejar fechas - convertir a ISO string
           if (value instanceof Date) {
-            queryParams.append(key, value.toISOString().split("T")[0]); // Enviar solo YYYY-MM-DD
+            queryParams.append(key, value.toISOString().split("T")[0]);
           } else {
             queryParams.append(key, String(value));
           }
@@ -38,7 +35,6 @@ export async function getMedicalRecords(
       });
     }
 
-    // Asegurar valores predeterminados para paginación si no están en los filtros
     if (!queryParams.has("page")) {
       queryParams.append("page", "1");
     }
@@ -49,21 +45,12 @@ export async function getMedicalRecords(
     const queryString = queryParams.toString();
     const endpoint = `${API_ENDPOINT}${queryString ? `?${queryString}` : ""}`;
 
-    console.log(`🔍 Obteniendo registros médicos con filtros:`, JSON.stringify(filters, null, 2));
-    console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
-
     const [response, err] = await http.get<any>(endpoint);
     if (err !== null) {
-      console.error(`❌ Error al obtener registros médicos:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener registros médicos" };
     }
 
-    // Manejar tanto respuestas paginadas como no paginadas
-    // Si la respuesta tiene formato { data, meta }, es una respuesta paginada
     if (response.data && response.meta) {
-      console.log(
-        `✅ Registros médicos obtenidos. Cantidad: ${response.data.length}. Página ${response.meta.currentPage} de ${response.meta.totalPages}`
-      );
       return {
         success: true,
         data: response.data,
@@ -71,13 +58,9 @@ export async function getMedicalRecords(
       };
     }
 
-    // Si no, debe ser un array simple (formato antiguo)
-    console.log(
-      `✅ Registros médicos obtenidos (formato no paginado). Cantidad: ${Array.isArray(response) ? response.length : 0}`
-    );
-    return { success: true, data: Array.isArray(response) ? response : [] }; // Asegurarse que data sea siempre un array
+    return { success: true, data: Array.isArray(response) ? response : [] };
   } catch (error) {
-    console.error("❌ Error al obtener registros médicos", error);
+    console.error("Error al obtener registros médicos", error);
     return { success: false, data: [], error: "Error al obtener registros médicos" };
   }
 }
@@ -199,17 +182,13 @@ export async function uploadMedicalReport(id: string, file: File): Promise<{ suc
  * Descarga el certificado de aptitud médica
  */
 export async function downloadAptitudeCertificate(id: string) {
-  // Esta función usa las nuevas utilidades para obtener la respuesta completa de descarga
   try {
-    // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
     const [_, err, response] = await http.downloadFile(`${API_ENDPOINT}/${id}/aptitude-certificate`);
     if (err !== null) {
       throw new Error(err.message || "Error al descargar certificado");
     }
 
-    // Si tenemos una respuesta, extraemos la información necesaria para la descarga
     if (response) {
-      // Obtener el nombre del archivo del Content-Disposition
       const contentDisposition = response.headers.get("Content-Disposition");
       let filename = "evidence";
       if (contentDisposition) {
@@ -221,19 +200,14 @@ export async function downloadAptitudeCertificate(id: string) {
 
       const contentType = response.headers.get("Content-Type") || "application/octet-stream";
 
-      // En lugar de intentar procesar el blob aquí, devolvemos la información necesaria
-      // para que el cliente pueda hacer la solicitud correctamente
       return {
         success: true,
-        // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
-        // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
         downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT}/${id}/aptitude-certificate`,
         filename,
         contentType,
       };
     }
 
-    // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
     return { success: true };
   } catch (error) {
     console.error("Error al descargar certificado", error);
@@ -490,80 +464,16 @@ export async function addMultipleDiagnostics(
   diagnostics: CreateDiagnostic[]
 ): Promise<{ data: any; success: boolean; error?: string }> {
   try {
-    console.log(`➕ Agregando múltiples diagnósticos al registro médico con ID: ${id}`);
-    console.log(`📊 Cantidad de diagnósticos: ${diagnostics.length}`);
+    if (diagnostics.length === 0) {
+      return { success: true, data: [] };
+    }
 
-    // Log exact endpoint we're calling
-    const endpoint = `/diagnostics/medical-records/${id}/bulk-diagnostics`;
-    console.log(`🔍 Endpoint completo: ${process.env.BACKEND_URL}${endpoint}`);
-
-    // Realizar una copia profunda y asegurar la estructura correcta
-    const normalizedDiagnostics = diagnostics.map((diagnostic, index) => {
-      console.log(`🔍 Verificando estructura de diagnóstico #${index + 1}:`);
-
-      // Determinar si estamos usando diagnosticId o diagnosticValueId
-      const useDiagnosticId = !!diagnostic.diagnosticId;
-      const useDiagnosticValueId = !!diagnostic.diagnosticValueId;
-
-      console.log(`   - Usando diagnosticId: ${useDiagnosticId}`);
-      console.log(`   - Usando diagnosticValueId: ${useDiagnosticValueId}`);
-      console.log(`   - Tipo de values:`, typeof diagnostic.values);
-      console.log(`   - ¿Values es array?:`, Array.isArray(diagnostic.values));
-
-      if (Array.isArray(diagnostic.values)) {
-        // Verificar que todos los elementos sean strings
-        const allStrings = diagnostic.values.every((v) => typeof v === "string");
-        console.log(`   - ¿Todos los valores son strings?:`, allStrings);
-
-        if (!allStrings) {
-          console.log(
-            `   - Valores que no son strings:`,
-            diagnostic.values.filter((v) => typeof v !== "string")
-          );
-        }
-      }
-
-      // Asegurar que values sea un array de strings
-      const normalizedValues = Array.isArray(diagnostic.values)
-        ? diagnostic.values.map((v) => String(v))
-        : [String(diagnostic.values || "")];
-
-      // Normalizar la estructura según si usamos diagnosticId o diagnosticValueId
-      if (useDiagnosticId) {
-        return {
-          diagnosticId: diagnostic.diagnosticId,
-          values: normalizedValues,
-          isReportIncluded: diagnostic.isReportIncluded !== undefined ? diagnostic.isReportIncluded : true,
-        };
-      } else if (useDiagnosticValueId) {
-        return {
-          diagnosticValueId: diagnostic.diagnosticValueId,
-          values: normalizedValues,
-        };
-      } else {
-        console.error(`❌ Diagnóstico #${index + 1} no tiene ni diagnosticId ni diagnosticValueId`);
-        // Devolver un objeto mínimo para evitar errores, aunque este será filtrado después
-        return { values: [] };
-      }
-    });
-
-    // Filtrar diagnósticos inválidos (sin ID)
-    const validDiagnostics = normalizedDiagnostics.filter((d) => d.diagnosticId || d.diagnosticValueId);
-
-    // Format payload according to the CreateMultipleDiagnosticsDto
+    const validDiagnostics = diagnostics.filter((d) => d.diagnosticId || d.diagnosticValueId);
     const payload: any = { diagnostics: validDiagnostics };
-    console.log(`📤 Payload exacto a enviar (después de normalizar):`, JSON.stringify(payload));
 
-    // Realizar la llamada a la API con manejo de errores mejorado
-    console.log(`📡 Enviando petición POST a: ${endpoint}`);
-    const [data, err] = await http.post<any>(endpoint, payload);
+    const [data, err] = await http.post<any>(`/diagnostics/medical-records/${id}/bulk-diagnostics`, payload);
 
     if (err !== null) {
-      console.error(`❌ Error al agregar múltiples diagnósticos:`, err);
-      console.error(`❌ Código de error:`, err.statusCode);
-      console.error(`❌ Mensaje de error:`, err.message);
-      console.error(`❌ Detalles completos del error:`, JSON.stringify(err));
-
       return {
         success: false,
         data: null,
@@ -571,11 +481,9 @@ export async function addMultipleDiagnostics(
       };
     }
 
-    console.log(`✅ Diagnósticos agregados correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
   } catch (error) {
-    console.error("❌ Error al agregar múltiples diagnósticos", error);
-    console.error("❌ Stack trace:", error instanceof Error ? error.stack : "No stack trace disponible");
+    console.error("Error al agregar múltiples diagnósticos", error);
     return {
       success: false,
       data: null,

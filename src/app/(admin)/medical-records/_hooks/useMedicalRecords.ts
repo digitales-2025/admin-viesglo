@@ -52,10 +52,8 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
     queryKey: [...MEDICAL_RECORDS_KEYS.list(filters || { page: 1, limit: 10 })],
     queryFn: async () => {
       try {
-        console.log(`🔍 Ejecutando consulta de registros médicos con filtros:`, JSON.stringify(filters, null, 2));
         const response = await getMedicalRecords(filters);
         if (!response.success) {
-          console.error(`❌ Error en consulta de registros médicos:`, response.error);
           throw new Error(response.error || "Error al obtener registros médicos");
         }
 
@@ -63,7 +61,6 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
           setPaginationMeta(response.meta as PaginationMeta);
         }
 
-        console.log(`✅ Consulta exitosa - Registros obtenidos: ${response.data.length}`);
         return response.data;
       } catch (error) {
         console.error("Error en useMedicalRecords:", error);
@@ -521,53 +518,23 @@ export function useAddMultipleDiagnostics() {
 
   return useMutation({
     mutationFn: async ({ id, diagnostics }: { id: string; diagnostics: any[] }) => {
-      console.log(`➕ (Hook) Agregando múltiples diagnósticos (${diagnostics.length}) al registro médico ${id}`);
-
       if (diagnostics.length === 0) {
-        console.warn("⚠️ No hay diagnósticos para agregar");
         return [];
       }
 
-      // Verificar estructura de diagnósticos antes de enviar
-      diagnostics.forEach((diagnostic, index) => {
-        if (!diagnostic.diagnosticId && !diagnostic.diagnosticValueId) {
-          console.error(`❌ (Hook) Error: Diagnóstico #${index + 1} sin diagnosticId ni diagnosticValueId`);
-        }
-        if (!diagnostic.values) {
-          const idUsado = diagnostic.diagnosticId || diagnostic.diagnosticValueId;
-          console.warn(`⚠️ (Hook) Advertencia: Diagnóstico #${index + 1} (${idUsado}) sin valores`);
-        }
-      });
-
-      console.log(`📊 (Hook) Datos a enviar:`, JSON.stringify({ diagnostics }, null, 2));
-
       const response = await addMultipleDiagnostics(id, diagnostics);
       if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
         throw new Error(response.error || "Error al agregar diagnósticos");
       }
-      console.log(
-        `✅ Diagnósticos agregados con éxito. Respuesta:`,
-        JSON.stringify(response.data).substring(0, 200) + "..."
-      );
       return response.data;
     },
-    onSuccess: (data, variables) => {
-      console.log(`🔄 Invalidando consultas después de agregar diagnósticos al registro médico ${variables.id}`);
-
-      // Invalidar absolutamente todas las consultas relacionadas para forzar una recarga completa
-
-      // 1. Invalidar la consulta de diagnósticos específica
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.id)],
       });
-
-      // 2. Invalidar los detalles del registro médico
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
       });
-
-      // 3. Invalidar también la lista de registros por si acaso
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.lists()],
       });
@@ -575,7 +542,7 @@ export function useAddMultipleDiagnostics() {
       toast.success("Diagnósticos actualizados correctamente");
     },
     onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
+      console.error("Error al agregar diagnósticos:", error);
       toast.error(error.message || "Error al agregar diagnósticos");
     },
   });
