@@ -587,8 +587,40 @@ export default function QuotationGraph() {
               Distribución por tipo de pago
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64 w-full">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col justify-center">
+              {/* Leyenda personalizada */}
+              <div className="text-2xl font-bold">{totalQuotations}</div>
+              <div className="text-sm text-muted-foreground">Cotizaciones totales</div>
+
+              <div className="mt-6 space-y-2">
+                {paymentTypeData.map((payType, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    ></div>
+                    <div className="flex justify-between w-full">
+                      <span>{payType.name}</span>
+                      <span className="font-medium">{payType.value}</span>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex justify-between text-sm font-medium">
+                    <span>Proporción mensual/puntual:</span>
+                    <span>
+                      {paymentTypeData.length === 2
+                        ? `${((paymentTypeData[0].value / (paymentTypeData[0].value + paymentTypeData[1].value)) * 100).toFixed(1)}%`
+                        : "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 h-64">
               <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
                 <ReChartPie>
                   <Pie
@@ -623,8 +655,34 @@ export default function QuotationGraph() {
               Distribución por grupo de cotizaciones
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72 w-full">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col justify-center">
+              {/* Leyenda personalizada */}
+              <div className="text-2xl font-bold">{quotationGroupData.length}</div>
+              <div className="text-sm text-muted-foreground">Grupos con cotizaciones</div>
+
+              <div className="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2">
+                {quotationGroupData.slice(0, 5).map((group, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    ></div>
+                    <div className="flex justify-between w-full">
+                      <span className="truncate max-w-24">{group.name}</span>
+                      <span className="font-medium">{group.cantidad}</span>
+                    </div>
+                  </div>
+                ))}
+                {quotationGroupData.length > 5 && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Y {quotationGroupData.length - 5} grupos más...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="md:col-span-2 h-64">
               <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
                 <BarChart
                   accessibilityLayer
@@ -664,8 +722,34 @@ export default function QuotationGraph() {
               Distribución por departamento
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72 w-full">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex flex-col justify-center">
+              {/* Leyenda personalizada */}
+              <div className="text-2xl font-bold">{departmentData.length}</div>
+              <div className="text-sm text-muted-foreground">Departamentos</div>
+
+              <div className="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2">
+                {departmentData.slice(0, 5).map((dept, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="h-3 w-3 rounded-full"
+                      style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
+                    ></div>
+                    <div className="flex justify-between w-full">
+                      <span className="truncate max-w-24">{dept.name}</span>
+                      <span className="font-medium">{dept.cantidad}</span>
+                    </div>
+                  </div>
+                ))}
+                {departmentData.length > 5 && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Y {departmentData.length - 5} departamentos más...
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="md:col-span-2 h-64">
               <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
                 <BarChart
                   accessibilityLayer
