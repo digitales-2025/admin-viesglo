@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { BarChart3, Calendar, ChevronRight, DollarSign, PieChart, TrendingUp, Users, Wallet } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -11,7 +11,7 @@ import {
   Cell,
   LabelList,
   Pie,
-  PieChart,
+  PieChart as ReChartPie,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -39,9 +39,22 @@ export default function QuotationGraph() {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
 
   // Obtenemos los filtros del store
-  const { filters } = useQuotationsStore();
+  const { filters, updateFilter } = useQuotationsStore();
 
-  // Obtenemos los datos directamente de la API usando los filtros del store y
+  // Si no hay filtros de fecha, establecer el año actual
+  useEffect(() => {
+    // Solo aplicar filtro del año actual si no hay filtros de fecha explícitos
+    if (!filters.from && !filters.to) {
+      const currentYear = new Date().getFullYear();
+      const startOfYear = new Date(currentYear, 0, 1); // 1 de enero del año actual
+      const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59); // 31 de diciembre del año actual
+
+      updateFilter("from", startOfYear);
+      updateFilter("to", endOfYear);
+    }
+  }, [filters.from, filters.to, updateFilter]);
+
+  // Obtenemos los datos directamente de la API usando los filtros del store
   const { data, isLoading, error } = useQuotationsForStats({ ...filters });
 
   // Extraemos los datos de cotizaciones
@@ -51,7 +64,12 @@ export default function QuotationGraph() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Gráfico de cotizaciones</CardTitle>
+          <CardTitle>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <span>Gráfico de cotizaciones</span>
+            </div>
+          </CardTitle>
           <CardDescription>Cargando datos...</CardDescription>
         </CardHeader>
         <CardContent>
@@ -67,7 +85,12 @@ export default function QuotationGraph() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Gráfico de cotizaciones</CardTitle>
+          <CardTitle>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              <span>Gráfico de cotizaciones</span>
+            </div>
+          </CardTitle>
           <CardDescription>Error al cargar los datos</CardDescription>
         </CardHeader>
         <CardContent>
@@ -250,34 +273,80 @@ export default function QuotationGraph() {
   const departmentData = getDepartmentData();
   const paymentTypeData = getPaymentTypeData();
 
+  // Calculamos el período que estamos visualizando
+  const getPeriodLabel = () => {
+    if (filters.from && filters.to) {
+      const fromDate = new Date(filters.from);
+      const toDate = new Date(filters.to);
+
+      // Si es todo el año actual
+      const currentYear = new Date().getFullYear();
+      if (
+        fromDate.getFullYear() === currentYear &&
+        fromDate.getMonth() === 0 &&
+        fromDate.getDate() === 1 &&
+        toDate.getFullYear() === currentYear &&
+        toDate.getMonth() === 11 &&
+        toDate.getDate() === 31
+      ) {
+        return `Año ${currentYear}`;
+      }
+
+      // Formatear fechas
+      const from = fromDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+      return `${from} - ${to}`;
+    }
+    return "";
+  };
+
   // Si hay filtros activos, mostramos un mensaje indicando el número de resultados filtrados
-  const filterMessage = Object.keys(filters).length > 0 ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
+  const hasFiltros = Object.keys(filters).some(
+    (key) => key !== "from" && key !== "to" && filters[key as keyof typeof filters]
+  );
+  const filterMessage = hasFiltros ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
+  const periodLabel = getPeriodLabel();
 
   return (
     <div className="space-y-4">
-      {/* Mensaje de filtros aplicados */}
-      {filterMessage && <div className="text-sm text-muted-foreground mb-2">{filterMessage}</div>}
+      {/* Mensaje de filtros aplicados y período */}
+      <div className="flex flex-wrap gap-2 items-center justify-between">
+        {filterMessage && <div className="text-sm text-muted-foreground">{filterMessage}</div>}
+        {periodLabel && (
+          <div className="text-sm font-medium flex items-center gap-1.5">
+            <Calendar className="h-4 w-4 text-primary" />
+            <span>Período: {periodLabel}</span>
+          </div>
+        )}
+      </div>
 
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total de cotizaciones</CardDescription>
-            <CardTitle className="text-3xl">{totalQuotations}</CardTitle>
+            <CardTitle className="text-3xl flex items-center gap-2">
+              <Users className="h-5 w-5 text-primary" />
+              {totalQuotations}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Monto total</CardDescription>
-            <CardTitle className="text-3xl">S/ {totalAmount.toLocaleString("es-PE")}</CardTitle>
+            <CardTitle className="text-3xl flex items-center gap-2">
+              <DollarSign className="h-5 w-5 text-primary" />
+              S/ {totalAmount.toLocaleString("es-PE")}
+            </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Monto promedio</CardDescription>
-            <CardTitle className="text-3xl">
+            <CardTitle className="text-3xl flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-primary" />
               S/ {averageAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}
             </CardTitle>
           </CardHeader>
@@ -286,8 +355,14 @@ export default function QuotationGraph() {
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Tasa de conversión</CardDescription>
-            <CardTitle className="text-3xl">{conversionRate.toFixed(1)}%</CardTitle>
-            <CardDescription className="text-xs">{concreteQuotations} cotizaciones concretadas</CardDescription>
+            <CardTitle className="text-3xl flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              {conversionRate.toFixed(1)}%
+            </CardTitle>
+            <CardDescription className="text-xs flex items-center gap-1">
+              <ChevronRight className="h-3 w-3" />
+              {concreteQuotations} cotizaciones concretadas
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -297,7 +372,8 @@ export default function QuotationGraph() {
         <CardHeader className="pb-0">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
-              <CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
                 Cotizaciones por {timeRange === "week" ? "semana" : timeRange === "month" ? "mes" : "año"}
               </CardTitle>
               <CardDescription>Cantidad de cotizaciones por período</CardDescription>
@@ -383,12 +459,15 @@ export default function QuotationGraph() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle>Distribución por servicio</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <PieChart className="h-5 w-5 text-primary" />
+              Distribución por servicio
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-72 w-full">
               <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-                <PieChart>
+                <ReChartPie>
                   <Pie
                     data={serviceData}
                     labelLine={false}
@@ -404,7 +483,7 @@ export default function QuotationGraph() {
                   </Pie>
                   <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
                   <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                </PieChart>
+                </ReChartPie>
               </ChartContainer>
             </div>
           </CardContent>
@@ -412,7 +491,10 @@ export default function QuotationGraph() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Distribución por departamento</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              Distribución por departamento
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-72 w-full">
@@ -455,12 +537,15 @@ export default function QuotationGraph() {
       {/* Gráfico de tipo de pago */}
       <Card>
         <CardHeader>
-          <CardTitle>Distribución por tipo de pago</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <PieChart className="h-5 w-5 text-primary" />
+            Distribución por tipo de pago
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-64 w-full">
             <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
-              <PieChart>
+              <ReChartPie>
                 <Pie
                   data={paymentTypeData}
                   cx="50%"
@@ -477,7 +562,7 @@ export default function QuotationGraph() {
                 </Pie>
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                 <ChartLegend content={({ payload }) => <ChartLegendContent payload={payload} nameKey="name" />} />
-              </PieChart>
+              </ReChartPie>
             </ChartContainer>
           </div>
         </CardContent>

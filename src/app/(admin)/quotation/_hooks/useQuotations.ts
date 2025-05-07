@@ -27,7 +27,7 @@ export const QUOTATIONS_KEYS = {
   lists: () => [...QUOTATIONS_KEYS.all, "list"] as const,
   list: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...QUOTATIONS_KEYS.all, id] as const,
-  stats: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.all, "stats", { filters }] as const,
+  stats: (filters: QuotationFilters = {}) => [...QUOTATIONS_KEYS.list(), { filters }] as const,
 };
 
 /**
@@ -83,6 +83,7 @@ export function useCreateQuotation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.stats() });
       toast.success("Cotización creada exitosamente");
     },
     onError: (error: Error) => {
@@ -107,6 +108,7 @@ export function useUpdateQuotation() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.stats() });
       toast.success("Cotización actualizada exitosamente");
     },
     onError: (error: Error) => {
@@ -129,6 +131,7 @@ export function useDeleteQuotation() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: QUOTATIONS_KEYS.stats() });
       toast.success("Cotización eliminada exitosamente");
     },
     onError: (error: Error) => {
