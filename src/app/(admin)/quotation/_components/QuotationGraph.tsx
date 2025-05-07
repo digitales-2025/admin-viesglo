@@ -756,7 +756,10 @@ export default function QuotationGraph() {
                   data={departmentData}
                   layout="vertical"
                   margin={{
-                    left: 0,
+                    left: 100,
+                    right: 20,
+                    top: 10,
+                    bottom: 10,
                   }}
                 >
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -766,12 +769,27 @@ export default function QuotationGraph() {
                     tickLine={false}
                     tickMargin={10}
                     axisLine={false}
-                    tickFormatter={(value) => departmentData.find((d) => d.name === value)?.name || ""}
+                    tick={{ fontSize: 11 }}
+                    width={90}
+                    tickFormatter={(value) => {
+                      const name = departmentData.find((d) => d.name === value)?.name || "";
+                      return name.length > 15 ? `${name.substring(0, 12)}...` : name;
+                    }}
                   />
                   <XAxis dataKey="cantidad" type="number" hide />
                   <ChartTooltip
                     cursor={false}
-                    content={<ChartTooltipContent indicator="line" defaultValue="cantidad" />}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        return (
+                          <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
+                            <p className="font-medium mb-1">{payload[0].payload.name}</p>
+                            <p className="text-chart-2">{`Cotizaciones: ${payload[0].value}`}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
                   />
                   <Bar dataKey="cantidad" layout="vertical" radius={5} fill="var(--chart-4)">
                     {departmentData.map((_, index) => (
