@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import { createUser, deleteUser, getUser, getUserPermissions, getUsers, updateUser } from "../_actions/user.actions";
 import { UserCreate, UserUpdate } from "../_types/user.types";
+import { USERS_PROJECTS_KEYS } from "../../tracking/_hooks/useProjectTraking";
 
 export const USERS_KEYS = {
   all: ["User"] as const,
@@ -15,6 +16,7 @@ export const USERS_KEYS = {
   detail: (id: string) => [...USERS_KEYS.details(), id] as const,
   permissions: () => [...USERS_KEYS.all, "permissions"] as const,
   permissionsDetail: (id: string) => [...USERS_KEYS.permissions(), id] as const,
+  project: () => [...USERS_KEYS.all, "list"] as const,
   search: (filter: string) => [...USERS_KEYS.all, "search", filter] as const,
 };
 
@@ -68,6 +70,7 @@ export function useCreateUser() {
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: USERS_PROJECTS_KEYS.lists() });
       toast.success("Usuario creado exitosamente");
     },
     onError: (error: Error) => {
@@ -103,6 +106,7 @@ export function useUpdateUser() {
       // Invalida consultas para refrescar los datos
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: USERS_PROJECTS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Usuario actualizado exitosamente");
     },
@@ -129,6 +133,7 @@ export function useDeleteUser() {
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: USERS_PROJECTS_KEYS.lists() });
       toast.success("Usuario eliminado exitosamente");
     },
     onError: (error: Error) => {

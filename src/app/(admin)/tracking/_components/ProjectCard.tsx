@@ -147,8 +147,8 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
             variant="outline"
             className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
           >
-            <UserCog className="size-3 sm:size-4" />
-            <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.name}</strong>
+            <UserCog className="size-3 sm:size-4 shrink-0" />
+            <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.fullName}</strong>
           </Badge>
         )}
 
