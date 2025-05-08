@@ -2,19 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "date-fns";
-import { Check, Download, GraduationCap, Link, Loader2, Printer, Share2 } from "lucide-react";
+import { Check, Download, GraduationCap, Link, Loader2, Printer } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { downloadCertificate, generateShareUrl } from "../_actions/certificates.actions";
+import { downloadCertificate } from "../_actions/certificates.actions";
 import { CertificateResponse } from "../_types/certificates.types";
 
 interface CertificateDialogViewProps {
@@ -38,7 +32,6 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
   useEffect(() => {
     if (open && currentRow?.id) {
       loadEvidence(currentRow.id);
-      generateShareLink(currentRow.id);
     }
 
     // Limpiar recursos cuando el diálogo se cierra
@@ -95,37 +88,6 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
     }
   };
 
-  const generateShareLink = async (certificateId: string) => {
-    try {
-      // Llama al endpoint para regenerar la URL o obtener el certificado actual
-      const result = await generateShareUrl(certificateId);
-
-      if (result.success && result.data) {
-        // Si el certificado tiene un archivo con URL, usar esa URL para compartir
-        if (result.data.fileCertificate?.url) {
-          setShareUrl(result.data.fileCertificate.url);
-        } else if (result.data.urlCertificate) {
-          // Si hay una URL específica para el certificado, usarla
-          setShareUrl(result.data.urlCertificate);
-        } else {
-          // Si no hay URL específica, crear una URL local
-          fallbackToLocalUrl(certificateId);
-        }
-      } else {
-        fallbackToLocalUrl(certificateId);
-      }
-    } catch (error) {
-      console.error("Error al generar enlace compartible:", error);
-      fallbackToLocalUrl(certificateId);
-    }
-  };
-
-  // Función auxiliar para generar URL local como fallback
-  const fallbackToLocalUrl = (id: string) => {
-    const baseUrl = window.location.origin;
-    setShareUrl(`${baseUrl}/certificates/view/${id}`);
-  };
-
   const handleDownload = () => {
     if (previewUrl && fileInfo) {
       const a = document.createElement("a");
@@ -145,44 +107,6 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
           printWindow.print();
         };
       }
-    }
-  };
-
-  const handleShare = async () => {
-    if (previewUrl && fileInfo && typeof navigator.share === "function") {
-      console.log("🚀 ~ handleShare ~ previewUrl:", previewUrl);
-      try {
-        const response = await fetch(previewUrl);
-        const blob = await response.blob();
-        const file = new File([blob], fileInfo.filename, { type: fileInfo.contentType });
-
-        await navigator.share({
-          title: `Certificado - ${currentRow.nameUser} ${currentRow.lastNameUser}`,
-          text: `Certificado de ${currentRow.nameCapacitation}`,
-          files: [file],
-        });
-      } catch (error) {
-        console.error("Error al compartir:", error);
-        toast.error("No se pudo compartir el certificado");
-      }
-    } else if (shareUrl) {
-      // Si no se puede compartir el archivo, al menos compartir la URL
-      try {
-        if (typeof navigator.share === "function") {
-          await navigator.share({
-            title: `Certificado - ${currentRow.nameUser} ${currentRow.lastNameUser}`,
-            text: `Certificado de ${currentRow.nameCapacitation}`,
-            url: shareUrl,
-          });
-        } else {
-          copyToClipboard(shareUrl);
-        }
-      } catch (error) {
-        console.error("Error al compartir URL:", error);
-        copyToClipboard(shareUrl);
-      }
-    } else {
-      toast.error("No hay contenido disponible para compartir");
     }
   };
 
@@ -263,32 +187,12 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
                     Descargar
                   </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Compartir
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {typeof navigator.share === "function" && (
-                        <DropdownMenuItem onClick={handleShare}>
-                          <Share2 className="h-4 w-4 mr-2" />
-                          Compartir archivo
-                        </DropdownMenuItem>
-                      )}
-                      {shareUrl && (
-                        <DropdownMenuItem onClick={() => copyToClipboard(shareUrl)}>
-                          {isCopied ? (
-                            <Check className="h-4 w-4 mr-2 text-green-500" />
-                          ) : (
-                            <Link className="h-4 w-4 mr-2" />
-                          )}
-                          Copiar enlace
-                        </DropdownMenuItem>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {shareUrl && (
+                    <Button variant="outline" size="sm" onClick={() => copyToClipboard(shareUrl)}>
+                      {isCopied ? <Check className="h-4 w-4 mr-2 text-green-500" /> : <Link className="h-4 w-4 mr-2" />}
+                      Copiar enlace
+                    </Button>
+                  )}
                 </CardFooter>
               </>
             ) : (
