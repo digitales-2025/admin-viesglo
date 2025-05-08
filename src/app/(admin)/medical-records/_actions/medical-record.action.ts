@@ -8,6 +8,8 @@ import {
   MedicalRecordResponse,
   MedicalRecordsFilter,
   MedicalRecordUpdate,
+  SystemCreateDiagnosticRequest,
+  SystemUpdateDiagnosticRequest,
   UpdateMedicalRecordDetails,
 } from "../_types/medical-record.types";
 
@@ -527,5 +529,61 @@ export async function getAllAvailableDiagnostics(): Promise<{
     return { success: true, data: diagnostics };
   } catch (_error) {
     return { success: false, data: [], error: "Error crítico al obtener diagnósticos disponibles" };
+  }
+}
+
+/**
+ * Elimina un diagnóstico del sistema
+ */
+export async function deleteDiagnosticFromSystem(diagnosticId: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.delete(`${DIAGNOSTICS_API_ENDPOINT}/${diagnosticId}`);
+
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al eliminar diagnóstico" };
+    }
+
+    return { success: true };
+  } catch (_error) {
+    return { success: false, error: "Error al eliminar diagnóstico" };
+  }
+}
+
+/**
+ * Actualiza un diagnóstico en el sistema
+ */
+export async function updateDiagnosticInSystem(
+  diagnosticId: string,
+  data: SystemUpdateDiagnosticRequest
+): Promise<{ data: DiagnosticEntity | null; success: boolean; error?: string }> {
+  try {
+    const [response, err] = await http.patch<DiagnosticEntity>(`${DIAGNOSTICS_API_ENDPOINT}/${diagnosticId}`, data);
+
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al actualizar diagnóstico" };
+    }
+
+    return { success: true, data: response };
+  } catch (_error) {
+    return { success: false, data: null, error: "Error al actualizar diagnóstico" };
+  }
+}
+
+/**
+ * Crea un nuevo diagnóstico en el sistema
+ */
+export async function createDiagnosticInSystem(
+  data: SystemCreateDiagnosticRequest
+): Promise<{ data: DiagnosticEntity | null; success: boolean; error?: string }> {
+  try {
+    const [response, err] = await http.post<DiagnosticEntity>(`${DIAGNOSTICS_API_ENDPOINT}`, data);
+
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al crear diagnóstico" };
+    }
+
+    return { success: true, data: response };
+  } catch (_error) {
+    return { success: false, data: null, error: "Error al crear diagnóstico" };
   }
 }
