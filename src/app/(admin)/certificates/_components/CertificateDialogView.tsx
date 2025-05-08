@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { downloadCertificate } from "../_actions/certificates.actions";
+import { downloadCertificate, generateShareUrl } from "../_actions/certificates.actions";
 import { CertificateResponse } from "../_types/certificates.types";
 
 interface CertificateDialogViewProps {
@@ -32,6 +32,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
   useEffect(() => {
     if (open && currentRow?.id) {
       loadEvidence(currentRow.id);
+      generateShareLink(currentRow.id);
     }
 
     // Limpiar recursos cuando el diálogo se cierra
@@ -86,6 +87,37 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
     } finally {
       setLoading(false);
     }
+  };
+
+  const generateShareLink = async (certificateId: string) => {
+    try {
+      // Llama al endpoint para regenerar la URL o obtener el certificado actual
+      const result = await generateShareUrl(certificateId);
+
+      if (result.success && result.data) {
+        // Si el certificado tiene un archivo con URL, usar esa URL para compartir
+        if (result.data.fileCertificate?.url) {
+          setShareUrl(result.data.fileCertificate.url);
+        } else if (result.data.urlCertificate) {
+          // Si hay una URL específica para el certificado, usarla
+          setShareUrl(result.data.urlCertificate);
+        } else {
+          // Si no hay URL específica, crear una URL local
+          fallbackToLocalUrl(certificateId);
+        }
+      } else {
+        fallbackToLocalUrl(certificateId);
+      }
+    } catch (error) {
+      console.error("Error al generar enlace compartible:", error);
+      fallbackToLocalUrl(certificateId);
+    }
+  };
+
+  // Función auxiliar para generar URL local como fallback
+  const fallbackToLocalUrl = (id: string) => {
+    const baseUrl = window.location.origin;
+    setShareUrl(`${baseUrl}/certificates/view/${id}`);
   };
 
   const handleDownload = () => {
