@@ -107,3 +107,16 @@ export async function getUserPermissions(
     return { success: false, data: [], error: error.message || "Error al obtener permisos del usuario" };
   }
 }
+
+/** usuarios con acceso al proyecto */
+export async function getUsersProjects(): Promise<{ data: User[]; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.get<User[]>(`${API_ENDPOINT}/users-project`);
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener usuarios" };
+    }
+    return { success: true, data };
+  } catch (error: any) {
+    return { success: false, data: [], error: error.message || "Error al obtener usuarios" };
+  }
+}

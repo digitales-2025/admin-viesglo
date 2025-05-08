@@ -1393,6 +1393,7 @@ export interface components {
     };
     TokenVerificationResponse: Record<string, never>;
     RoleResponseDto: {
+      role: any;
       /**
        * @description ID único del rol
        * @example 5f9d5e7b8e7a6c1d4c8e7a6c
@@ -5973,6 +5974,10 @@ export interface operations {
         isConcrete?: string;
         /** @description Filtrar por búsqueda general */
         search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
         /** @description Número de página */
         page?: number;
         /** @description Cantidad de elementos por página */

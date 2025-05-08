@@ -3,7 +3,7 @@
 import { memo } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, MoreVertical, Trash, User } from "lucide-react";
+import { ClockArrowUp, Edit, MoreVertical, Trash, User, UserCog } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Badge } from "@/shared/components/ui/badge";
@@ -26,10 +26,15 @@ import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface ProjectCardProps {
   className?: string;
-  project: ProjectResponse;
+  project: ProjectResponse & {
+    responsibleUserId?: string;
+    responsibleUser?: {
+      id: string;
+      name: string;
+    } | null;
+  };
 }
 
-// Envolver en memo para prevenir re-renders innecesarios
 const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCardProps) {
   const { setSelectedProject, selectedProject } = useProjectStore();
   const { open } = useDialogStore();
@@ -136,6 +141,17 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <User className="size-3 sm:size-4" />
           <strong className="first-letter:uppercase line-clamp-1">{project.client.name}</strong>
         </Badge>
+
+        {project.responsibleUserId && (
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
+          >
+            <UserCog className="size-3 sm:size-4" />
+            <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.name}</strong>
+          </Badge>
+        )}
+
         {formattedDate && (
           <Badge
             variant="outline"
