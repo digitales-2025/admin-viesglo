@@ -1017,7 +1017,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Obtener registros médicos */
+    /** Obtener registros médicos con filtros opcionales y paginación */
     get: operations["MedicalRecordsController_getMedicalRecords_v1"];
     put?: never;
     /** Crear un registro médico */
@@ -1026,6 +1026,42 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/by-diagnostic": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar registros médicos por nombre de diagnóstico */
+    get: operations["MedicalRecordsController_getMedicalRecordsByDiagnostic_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener registro médico por ID */
+    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar registro médico */
+    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar registro médico */
+    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
     trace?: never;
   };
   "/api/v1/medical-records/{id}/aptitude-certificate": {
@@ -1098,25 +1134,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/medical-records/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener registro médico por ID */
-    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
-    put?: never;
-    post?: never;
-    /** Eliminar registro médico */
-    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
-    options?: never;
-    head?: never;
-    /** Actualizar registro médico */
-    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
-    trace?: never;
-  };
   "/api/v1/medical-records/{id}/details": {
     parameters: {
       query?: never;
@@ -1151,25 +1168,24 @@ export interface paths {
     patch: operations["MedicalRecordsController_updateCustomSections_v1"];
     trace?: never;
   };
-  "/api/v1/medical-records/{id}/diagnostics": {
+  "/api/v1/diagnostics": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener diagnósticos de un registro médico */
-    get: operations["MedicalRecordsController_getDiagnostics_v1"];
+    /** Obtener todos los diagnósticos disponibles en el sistema */
+    get: operations["DiagnosticsController_getAllDiagnostics_v1"];
     put?: never;
-    /** Añadir un diagnóstico a un registro médico */
-    post: operations["MedicalRecordsController_addDiagnostic_v1"];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/medical-records/{id}/diagnostics/{diagnosticId}": {
+  "/api/v1/diagnostics/{diagnosticId}/deactivate": {
     parameters: {
       query?: never;
       header?: never;
@@ -1179,28 +1195,97 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Eliminar un diagnóstico de un registro médico */
-    delete: operations["MedicalRecordsController_deleteDiagnostic_v1"];
+    delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /** Desactivar un diagnóstico (eliminación lógica) */
+    patch: operations["DiagnosticsController_deactivateDiagnostic_v1"];
     trace?: never;
   };
-  "/api/v1/medical-records/categories/all": {
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostics": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener todas las categorías médicas y sus condiciones */
-    get: operations["MedicalRecordsController_getAllMedicalCategories_v1"];
+    /** Obtener diagnósticos de un registro médico */
+    get: operations["DiagnosticsController_getDiagnosticsForMedicalRecord_v1"];
+    put?: never;
+    /** Añadir un diagnóstico a un registro médico */
+    post: operations["DiagnosticsController_addDiagnosticToMedicalRecord_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/bulk-diagnostics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Añadir múltiples diagnósticos a un registro médico */
+    post: operations["DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-value": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear un nuevo valor de diagnóstico para un registro médico */
+    post: operations["DiagnosticsController_addDiagnosticValue_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-values": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los valores de diagnóstico de un registro médico con la información del diagnóstico */
+    get: operations["DiagnosticsController_getDiagnosticValuesWithDetails_v1"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/diagnostic-values/{diagnosticValueId}/name": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el nombre de un valor de diagnóstico personalizado */
+    patch: operations["DiagnosticsController_updateDiagnosticValueName_v1"];
     trace?: never;
   };
   "/api/v1/payments": {
@@ -3392,7 +3477,7 @@ export interface components {
     };
     CreateMedicalRecordDto: {
       /**
-       * @description RUC del paciente
+       * @description RUC del cliente
        * @example 20603465157
        */
       ruc: string;
@@ -3422,6 +3507,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01T00:00:00Z
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01T00:00:00Z
+       */
+      entryDate: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01T00:00:00Z
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3448,6 +3554,135 @@ export interface components {
        * @description Informe médico (PDF, máximo 5MB)
        */
       medicalReport?: string;
+    };
+    ClientDetailsDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20603465157
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Empresa ABC S.A.C.
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 999888777
+       */
+      phone: string;
+      /**
+       * @description Email del cliente
+       * @example contacto@empresa.com
+       */
+      email: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example San Isidro
+       */
+      district?: string;
+    };
+    ClinicDetailsDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 20603465158
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica Médica XYZ
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Av. Central 456
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 999000111
+       */
+      phone: string;
+      /**
+       * @description Email de la clínica
+       * @example contacto@clinica.com
+       */
+      email: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Miraflores
+       */
+      district?: string;
+    };
+    DiagnosticValueResponseDto: {
+      /**
+       * @description ID del valor de diagnóstico
+       * @example 123e4567-e89b-12d3-a456-426614174003
+       */
+      id: string;
+      /**
+       * @description ID del registro médico asociado
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      medicalRecordId: string;
+      /**
+       * @description ID del diagnóstico asociado
+       * @example 123e4567-e89b-12d3-a456-426614174004
+       */
+      diagnosticId: string;
+      /**
+       * @description Valor del diagnóstico
+       * @example {
+       *       "values": [
+       *         "Valor 1",
+       *         "Valor 2",
+       *         "Observación adicional"
+       *       ]
+       *     }
+       */
+      value: Record<string, never>;
+      /**
+       * @description Nombre del diagnóstico asociado
+       * @example Diagnóstico Oftalmológico
+       */
+      diagnosticName?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2023-04-01T12:00:00Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2023-04-01T12:00:00Z
+       */
+      updatedAt: string;
     };
     MedicalRecordResponseDto: {
       /**
@@ -3486,6 +3721,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01
+       */
+      entryDate: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen médico
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3503,6 +3759,11 @@ export interface components {
        */
       restrictions?: string;
       /**
+       * @description Antecedentes personales del paciente
+       * @example Hipertensión controlada, diabetes tipo 2
+       */
+      personalHistory?: string;
+      /**
        * @description ID del cliente al que pertenece el registro
        * @example 123e4567-e89b-12d3-a456-426614174001
        */
@@ -3512,6 +3773,10 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174002
        */
       clinicId: string;
+      /** @description Detalles del cliente asociado */
+      client?: components["schemas"]["ClientDetailsDto"];
+      /** @description Detalles de la clínica asociada */
+      clinic?: components["schemas"]["ClinicDetailsDto"];
       /**
        * Format: date-time
        * @description Fecha de creación del registro
@@ -3526,21 +3791,8 @@ export interface components {
       updatedAt: string;
       /** @description Archivos asociados al registro médico */
       files?: components["schemas"]["FileMetadataResponseDto"][];
-      /**
-       * @description Diagnósticos médicos asociados al registro
-       * @example [
-       *       {
-       *         "id": "123e4567-e89b-12d3-a456-426614174003",
-       *         "categoryName": "Cardiología",
-       *         "conditionName": "Hipertensión arterial",
-       *         "isDefault": false,
-       *         "medicalRecordId": "123e4567-e89b-12d3-a456-426614174000",
-       *         "createdAt": "2023-04-01T12:00:00Z",
-       *         "updatedAt": "2023-04-01T12:00:00Z"
-       *       }
-       *     ]
-       */
-      diagnostics?: unknown[];
+      /** @description Valores de diagnósticos asociados al registro */
+      diagnosticValues?: components["schemas"]["DiagnosticValueResponseDto"][];
       /**
        * @description Detalles médicos del registro
        * @example {
@@ -3575,6 +3827,34 @@ export interface components {
        *     }
        */
       details?: Record<string, never>;
+    };
+    PaginationMetaDto: {
+      /**
+       * @description Página actual
+       * @example 1
+       */
+      currentPage: number;
+      /**
+       * @description Número de elementos por página
+       * @example 10
+       */
+      itemsPerPage: number;
+      /**
+       * @description Total de elementos
+       * @example 100
+       */
+      totalItems: number;
+      /**
+       * @description Total de páginas
+       * @example 10
+       */
+      totalPages: number;
+    };
+    PaginatedMedicalRecordsResponseDto: {
+      /** @description Lista de registros médicos */
+      data: components["schemas"]["MedicalRecordResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetaDto"];
     };
     CustomSectionFieldDto: {
       /** @example resultado */
@@ -3691,6 +3971,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender?: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01
+       */
+      entryDate?: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3707,72 +4008,80 @@ export interface components {
        * @example No levantar objetos pesados
        */
       restrictions?: string | null;
+      /**
+       * Format: uuid
+       * @description ID del cliente
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      clientId?: string;
+      /**
+       * Format: uuid
+       * @description ID de la clínica
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      clinicId?: string;
+      /**
+       * @description Antecedentes personales del paciente
+       * @example Hipertensión controlada, diabetes tipo 2
+       */
+      personalHistory?: string | null;
     };
     CreateDiagnosticDto: {
       /**
-       * @description Nombre de la categoría médica
-       * @example VISUAL
+       * Format: uuid
+       * @description ID del diagnóstico (requerido si no se proporciona diagnosticValueId)
+       * @example 550e8400-e29b-41d4-a716-446655440000
        */
-      categoryName: string;
+      diagnosticId?: string;
       /**
-       * @description Nombre de la condición médica
-       * @example MIOPIA
+       * Format: uuid
+       * @description ID del valor de diagnóstico (para actualizar valores sin diagnosticId)
+       * @example 550e8400-e29b-41d4-a716-446655440001
        */
-      conditionName: string;
+      diagnosticValueId?: string;
       /**
-       * @description Indica si es el diagnóstico por defecto
+       * @description Nombre personalizado para el diagnóstico (útil cuando no hay diagnosticId)
+       * @example Diagnóstico personalizado
+       */
+      name?: string;
+      values: string[][];
+      /**
+       * @description Indica si este diagnóstico debe incluirse en los reportes
        * @example false
        */
-      isDefault?: boolean;
+      isReportIncluded?: boolean;
     };
-    CategoryResponseDto: {
+    CreateMultipleDiagnosticsDto: {
+      /** @description Array de diagnósticos a crear o actualizar */
+      diagnostics: unknown[][];
+    };
+    AddDiagnosticValueDto: {
       /**
-       * @description ID de la categoría médica
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * @description ID del diagnóstico (opcional si se proporciona name)
+       * @example 550e8400-e29b-41d4-a716-446655440000
        */
-      id: string;
+      diagnosticId?: string;
       /**
-       * @description Nombre de la categoría médica
-       * @example VISUAL
+       * @description Nombre del valor de diagnóstico (requerido si no se proporciona diagnosticId)
+       * @example Diagnóstico personalizado
+       */
+      name?: string;
+      /**
+       * @description Valores del diagnóstico (array de strings)
+       * @example [
+       *       "Valor 1",
+       *       "Valor 2",
+       *       "Observación adicional"
+       *     ]
+       */
+      value: string[];
+    };
+    UpdateDiagnosticValueNameDto: {
+      /**
+       * @description Nuevo nombre para el valor de diagnóstico personalizado
+       * @example Diagnóstico personalizado actualizado
        */
       name: string;
-      /**
-       * @description Indica si la categoría está activa
-       * @example true
-       */
-      isActive: boolean;
-    };
-    ConditionResponseDto: {
-      /**
-       * @description ID de la condición médica
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre de la condición médica
-       * @example MIOPIA
-       */
-      name: string;
-      /**
-       * @description ID de la categoría a la que pertenece
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      categoryId: string;
-      /**
-       * @description Indica si la condición está activa
-       * @example true
-       */
-      isActive: boolean;
-    };
-    CategoryWithConditionsResponseDto: {
-      /** @description Datos de la categoría médica */
-      category: components["schemas"]["CategoryResponseDto"];
-      /** @description Lista de condiciones médicas asociadas a la categoría */
-      conditions: components["schemas"]["ConditionResponseDto"][];
-    };
-    CategoriesListResponseDto: {
-      /** @description Lista de categorías médicas con sus condiciones */
-      categories: components["schemas"]["CategoryWithConditionsResponseDto"][];
     };
     PaymentResponseDto: {
       /**
@@ -6526,10 +6835,22 @@ export interface operations {
       query?: {
         /** @description ID del cliente (Opcional) */
         clientId?: string;
-        /** @description ID de la categoría médica (Opcional) */
-        categoryId?: string;
-        /** @description ID de la condición médica (Opcional) */
-        conditionId?: string;
+        /** @description ID de la clínica (Opcional) */
+        clinicId?: string;
+        /** @description Búsqueda por nombre o documento del paciente */
+        search?: string;
+        /** @description Filtrar por diagnóstico */
+        diagnosticName?: string[];
+        /** @description Fecha desde (YYYY-MM-DD) */
+        from?: string;
+        /** @description Fecha hasta (YYYY-MM-DD) */
+        to?: string;
+        /** @description Filtrar por aptitud (APT, APT_WITH_RESTRICTIONS, NOT_APT) */
+        aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+        /** @description Número de página */
+        page?: number;
+        /** @description Elementos por página */
+        limit?: number;
       };
       header?: never;
       path?: never;
@@ -6537,13 +6858,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Lista de registros médicos obtenida exitosamente. */
+      /** @description Lista paginada de registros médicos */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
+          "application/json": components["schemas"]["PaginatedMedicalRecordsResponseDto"];
         };
       };
     };
@@ -6570,6 +6891,124 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["MedicalRecordResponseDto"];
         };
+      };
+    };
+  };
+  MedicalRecordsController_getMedicalRecordsByDiagnostic_v1: {
+    parameters: {
+      query: {
+        /** @description Nombre del diagnóstico a buscar */
+        diagnosticName: string;
+        /** @description ID del cliente (opcional) */
+        clientId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de registros médicos que coinciden con el diagnóstico */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
+        };
+      };
+    };
+  };
+  MedicalRecordsController_getMedicalRecordById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico obtenido exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_deleteMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos para actualizar el registro médico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
+      };
+    };
+    responses: {
+      /** @description Registro médico actualizado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6775,99 +7214,6 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getMedicalRecordById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico obtenido exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_deleteMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico eliminado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_updateMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos para actualizar el registro médico */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
-      };
-    };
-    responses: {
-      /** @description Registro médico actualizado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
   MedicalRecordsController_updateMedicalRecordDetails_v1: {
     parameters: {
       query?: never;
@@ -6962,13 +7308,54 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getDiagnostics_v1: {
+  DiagnosticsController_getAllDiagnostics_v1: {
+    parameters: {
+      query: {
+        includeInactive: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de diagnósticos disponibles */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_deactivateDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a desactivar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico desactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_getDiagnosticsForMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
+        medicalRecordId: string;
       };
       cookie?: never;
     };
@@ -6983,13 +7370,13 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_addDiagnostic_v1: {
+  DiagnosticsController_addDiagnosticToMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
+        medicalRecordId: string;
       };
       cookie?: never;
     };
@@ -7009,21 +7396,71 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_deleteDiagnostic_v1: {
+  DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
-        /** @description ID del diagnóstico a eliminar */
-        diagnosticId: string;
+        medicalRecordId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Lista de diagnósticos a crear o actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMultipleDiagnosticsDto"];
+      };
+    };
+    responses: {
+      /** @description Diagnósticos creados/actualizados exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_addDiagnosticValue_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        medicalRecordId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del valor de diagnóstico a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddDiagnosticValueDto"];
+      };
+    };
+    responses: {
+      /** @description Valor de diagnóstico creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_getDiagnosticValuesWithDetails_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        medicalRecordId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Diagnóstico eliminado exitosamente */
+      /** @description Valores de diagnóstico obtenidos exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
@@ -7032,23 +7469,29 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getAllMedicalCategories_v1: {
+  DiagnosticsController_updateDiagnosticValueName_v1: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        /** @description ID del valor de diagnóstico a actualizar */
+        diagnosticValueId: string;
+      };
       cookie?: never;
     };
-    requestBody?: never;
+    /** @description Datos para actualizar el nombre del diagnóstico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDiagnosticValueNameDto"];
+      };
+    };
     responses: {
-      /** @description Lista de categorías médicas con sus condiciones */
+      /** @description Nombre del diagnóstico actualizado exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["CategoriesListResponseDto"];
-        };
+        content?: never;
       };
     };
   };

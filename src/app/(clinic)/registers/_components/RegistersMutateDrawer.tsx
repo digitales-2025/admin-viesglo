@@ -7,6 +7,7 @@ import { z } from "zod";
 
 import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -60,6 +61,14 @@ const APTITUDE_TYPES: { id: AptitudeType; label: string }[] = [
   { id: "NOT_APT", label: "No apto" },
 ];
 
+// Define gender types
+type GenderType = "MALE" | "FEMALE" | "OTHER";
+const GENDER_TYPES: { id: GenderType; label: string }[] = [
+  { id: "MALE", label: "Masculino" },
+  { id: "FEMALE", label: "Femenino" },
+  { id: "OTHER", label: "Otro" },
+];
+
 // Constante para el tamaño máximo de archivo (5MB en bytes)
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -87,11 +96,21 @@ const truncateFilename = (filename: string, maxLength: number = 25) => {
 // Define the form schema based on the MedicalRecordCreate type
 const formSchema = z.object({
   ruc: z.string().min(1, "El RUC es requerido"),
-  dni: z.string().optional(),
+  dni: z
+    .string()
+    .regex(/^\d{8}$/, "El DNI debe tener exactamente 8 dígitos numéricos")
+    .optional(),
   firstName: z.string().min(1, "El primer nombre es requerido"),
   secondName: z.string().optional(),
   firstLastName: z.string().min(1, "El apellido paterno es requerido"),
   secondLastName: z.string().optional(),
+  birthDate: z.date().optional(),
+  entryDate: z.date({
+    required_error: "La fecha de ingreso es requerida",
+  }),
+  gender: z.enum(["MALE", "FEMALE", "OTHER"], {
+    required_error: "El género es requerido",
+  }),
   examType: z.enum(["PRE_OCCUPATIONAL", "PERIODIC", "RETIREMENT", "OTHER"], {
     required_error: "El tipo de examen es requerido",
   }),
@@ -138,7 +157,7 @@ const FileUpload = ({ onChange, accept, className }: FileUploadProps) => {
       >
         <Upload className="h-4 w-4 text-muted-foreground" />
         <label className="flex-1 cursor-pointer">
-          <span className="text-sm text-muted-foreground">{fileName || "Seleccionar archivo"}</span>
+          <span className="text-sm text-muted-foreground truncate">{fileName || "Seleccionar archivo"}</span>
           <input type="file" className="hidden" onChange={handleFileChange} accept={accept} />
         </label>
       </div>
@@ -180,6 +199,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       secondName: "",
       firstLastName: "",
       secondLastName: "",
+      birthDate: undefined,
+      entryDate: new Date(),
+      gender: "MALE",
       examType: "PRE_OCCUPATIONAL",
       aptitude: "APT",
       restrictions: "",
@@ -196,6 +218,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         ruc: data.ruc,
         firstName: data.firstName,
         firstLastName: data.firstLastName,
+        gender: data.gender as any,
+        entryDate: data.entryDate.toISOString(),
         examType: data.examType,
         aptitude: data.aptitude,
       };
@@ -204,6 +228,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       if (data.dni) updateData.dni = data.dni;
       if (data.secondName) updateData.secondName = data.secondName;
       if (data.secondLastName) updateData.secondLastName = data.secondLastName;
+      if (data.birthDate) updateData.birthDate = data.birthDate.toISOString();
       if (data.restrictions) updateData.restrictions = data.restrictions;
 
       updateMedicalRecord(
@@ -228,6 +253,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       formData.append("ruc", data.ruc);
       formData.append("firstName", data.firstName);
       formData.append("firstLastName", data.firstLastName);
+      formData.append("gender", data.gender);
+      formData.append("entryDate", data.entryDate.toISOString());
       formData.append("examType", data.examType);
       formData.append("aptitude", data.aptitude);
 
@@ -240,6 +267,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       }
       if (data.secondLastName) {
         formData.append("secondLastName", data.secondLastName);
+      }
+      if (data.birthDate) {
+        formData.append("birthDate", data.birthDate.toISOString());
       }
       if (data.restrictions) {
         formData.append("restrictions", data.restrictions);
@@ -270,19 +300,25 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       // Extraer los datos del registro actual para llenar el formulario
-      const { ruc, dni, firstName, secondName, firstLastName, secondLastName, examType, aptitude, restrictions } =
-        currentRow as unknown as FormValues;
+      const medicalRecord = currentRow as unknown as FormValues;
+
+      // Para fechas que vienen como string desde la API
+      const birthDate = medicalRecord.birthDate ? new Date(medicalRecord.birthDate) : undefined;
+      const entryDate = medicalRecord.entryDate ? new Date(medicalRecord.entryDate) : new Date();
 
       form.reset({
-        ruc: ruc || "",
-        dni: dni || "",
-        firstName: firstName || "",
-        secondName: secondName || "",
-        firstLastName: firstLastName || "",
-        secondLastName: secondLastName || "",
-        examType: examType || "PRE_OCCUPATIONAL",
-        aptitude: aptitude || "APT",
-        restrictions: restrictions || "",
+        ruc: medicalRecord.ruc || "",
+        dni: medicalRecord.dni || "",
+        firstName: medicalRecord.firstName || "",
+        secondName: medicalRecord.secondName || "",
+        firstLastName: medicalRecord.firstLastName || "",
+        secondLastName: medicalRecord.secondLastName || "",
+        birthDate,
+        entryDate,
+        gender: medicalRecord.gender || "MALE",
+        examType: medicalRecord.examType || "PRE_OCCUPATIONAL",
+        aptitude: medicalRecord.aptitude || "APT",
+        restrictions: medicalRecord.restrictions || "",
       });
     } else {
       form.reset({
@@ -292,6 +328,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         secondName: "",
         firstLastName: "",
         secondLastName: "",
+        birthDate: undefined,
+        entryDate: new Date(),
+        gender: "MALE",
         examType: "PRE_OCCUPATIONAL",
         aptitude: "APT",
         restrictions: "",
@@ -309,6 +348,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         secondName: "",
         firstLastName: "",
         secondLastName: "",
+        birthDate: undefined,
+        entryDate: new Date(),
+        gender: "MALE",
         examType: "PRE_OCCUPATIONAL",
         aptitude: "APT",
         restrictions: "",
@@ -327,8 +369,8 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
       if (currentRow.ruc) {
         setSelectedClient({
           id: "", // No tenemos un ID de cliente, es solo para el autocomplete
-          name: currentRow.ruc,
-          ruc: currentRow.ruc,
+          name: currentRow.client?.name || "",
+          ruc: currentRow.client?.ruc || "",
         });
       }
     }
@@ -354,8 +396,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
         ruc: client.ruc,
         email: client.email,
       }));
-    } catch (error) {
-      console.error("Error al buscar clientes:", error);
+    } catch (_error) {
       return [];
     }
   }, []);
@@ -463,8 +504,78 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                     <FormItem>
                       <FormLabel>DNI del paciente</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el DNI del paciente" {...field} />
+                        <Input
+                          placeholder="Introduce el DNI del paciente (8 dígitos)"
+                          maxLength={8}
+                          {...field}
+                          onChange={(e) => {
+                            // Solo permitir dígitos
+                            const value = e.target.value.replace(/\D/g, "");
+                            field.onChange(value);
+                          }}
+                        />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Género</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Selecciona el género" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {GENDER_TYPES.map((type) => (
+                            <SelectItem key={type.id} value={type.id}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Fecha de nacimiento</FormLabel>
+                      <DatePicker
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={isPending}
+                        placeholder="Seleccionar fecha"
+                      />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="entryDate"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Fecha de ingreso</FormLabel>
+                      <DatePicker
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={isPending}
+                        placeholder="Seleccionar fecha"
+                      />
                       <FormMessage />
                     </FormItem>
                   )}
@@ -664,7 +775,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                       {/* File upload/download section for existing records */}
                       <div className="space-y-2">
                         <FormLabel>Certificado de Aptitud</FormLabel>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 min-h-[60px]">
                           {hasCertificate ? (
                             <div className="flex items-center p-2 border rounded-md bg-accent/30">
                               <div className="flex-1 min-w-0 overflow-hidden">
@@ -714,7 +825,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
 
                       <div className="space-y-2">
                         <FormLabel>Informe Médico</FormLabel>
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 min-h-[60px]">
                           {hasReport ? (
                             <div className="flex items-center p-2 border rounded-md bg-accent/30">
                               <div className="flex-1 min-w-0 overflow-hidden">
@@ -736,7 +847,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                               </Button>
                             </div>
                           ) : (
-                            <p className="text-sm text-muted-foreground">No hay informe cargado</p>
+                            <p className="text-sm text-muted-foreground min-h-[50px]">No hay informe cargado</p>
                           )}
 
                           <FormItem>

@@ -1,129 +1,116 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, FileDown, PlusCircle, X } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { FileDown, ShieldAlert, ShieldBan, ShieldCheck } from "lucide-react";
 
+import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
+import { Input } from "@/shared/components/ui/input";
+import { debounce } from "@/shared/lib/utils";
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/shared/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
-import { Separator } from "@/shared/components/ui/separator";
-import { cn } from "@/shared/lib/utils";
-import {
+  useAvailableDiagnostics,
   useDownloadAptitudeCertificate,
   useDownloadMedicalReport,
-  useMedicalCategories,
   useMedicalRecords,
 } from "../_hooks/useMedicalRecords";
 import { MedicalRecordsFilter } from "../_types/medical-record.types";
 import { useClinics } from "../../clinics/_hooks/useClinics";
 import { columnsMedicalRecord } from "./medical-record.column";
 
-// Componente de filtro simple
-const SimpleFilterMenu = ({
-  title,
-  options,
-  selected,
-  onSelected,
-}: {
-  title: string;
-  options: { label: string; value: string }[];
-  selected: string | null;
-  onSelected: (value: string | null) => void;
-}) => {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 border-dashed">
-          <PlusCircle className="mr-2 h-4 w-4" />
-          {title}
-          {selected && (
-            <>
-              <Separator orientation="vertical" className="mx-2 h-4" />
-              <div className="hidden space-x-1 lg:flex">
-                {options.find((option) => option.value === selected) && (
-                  <Badge variant="secondary" className="rounded-sm px-1 font-normal">
-                    {options.find((option) => option.value === selected)?.label}
-                  </Badge>
-                )}
-              </div>
-            </>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
-        <Command>
-          <CommandInput placeholder={`Buscar ${title.toLowerCase()}...`} />
-          <CommandList>
-            <CommandEmpty>No se encontraron resultados.</CommandEmpty>
-            <CommandGroup>
-              {options.map((option) => {
-                const isSelected = selected === option.value;
-                return (
-                  <CommandItem
-                    key={option.value}
-                    onSelect={() => {
-                      const newValue = isSelected ? null : option.value;
-                      onSelected(newValue);
-                    }}
-                  >
-                    <div
-                      className={cn(
-                        "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary",
-                        isSelected ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"
-                      )}
-                    >
-                      <Check className={cn("h-4 w-4")} />
-                    </div>
-                    <span>{option.label}</span>
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-            {selected && (
-              <>
-                <CommandSeparator />
-                <CommandGroup>
-                  <CommandItem
-                    onSelect={() => {
-                      onSelected(null);
-                    }}
-                    className="justify-center text-center"
-                  >
-                    Limpiar filtro
-                  </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
-  );
-};
-
 export default function MedicalRecordTable() {
-  // Estado para almacenar los filtros seleccionados
-  const [filters, setFilters] = useState<MedicalRecordsFilter>({});
-  // Estado adicional para rastrear la categoría seleccionada (para filtrar condiciones)
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
-  const [selectedConditionId, setSelectedConditionId] = useState<string | null>(null);
-  const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords(filters);
-  const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
-  const { data: categories, isLoading: isLoadingCategories, error: categoriesError } = useMedicalCategories();
+  const [filters, setFilters] = useState<MedicalRecordsFilter>({
+    page: 1,
+    limit: 10,
+  });
 
-  // Mover los hooks de descarga al componente principal
+  const {
+    data: medicalRecordsData,
+    paginationMeta,
+    isLoading: isLoadingRecords,
+    error: recordsError,
+  } = useMedicalRecords(filters);
+
+  const medicalRecords = medicalRecordsData || [];
+
+  const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
+
+  const { data: availableDiagnostics, isLoading: isLoadingDiagnostics } = useAvailableDiagnostics();
+
   const { mutateAsync: downloadCertificate, isPending: isDownloadingCertificate } = useDownloadAptitudeCertificate();
   const { mutateAsync: downloadReport, isPending: isDownloadingReport } = useDownloadMedicalReport();
+
+  const [freeTextDiagnosticName, setFreeTextDiagnosticName] = useState<string>("");
+
+  const debouncedDiagnosticNameSearch = useMemo(() => {
+    return debounce((searchTerm: string) => {
+      setFilters((prev) => ({
+        ...prev,
+        page: 1,
+        diagnosticName: searchTerm.trim() ? [searchTerm.trim()] : undefined,
+      }));
+    }, 450);
+  }, []);
+
+  const handleFreeTextDiagnosticChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const searchTerm = event.target.value;
+      setFreeTextDiagnosticName(searchTerm);
+      debouncedDiagnosticNameSearch(searchTerm);
+    },
+    [debouncedDiagnosticNameSearch]
+  );
+
+  // Estado inicial para los filtros base que siempre estarán disponibles
+  const baseFilterOptions = useMemo(
+    () => [
+      {
+        label: "Aptitud",
+        value: "aptitude",
+        multiSelect: false,
+        options: [
+          { label: "Apto", value: "APT", icon: ShieldCheck },
+          { label: "Apto con restricciones", value: "APT_WITH_RESTRICTIONS", icon: ShieldAlert },
+          { label: "No apto", value: "NOT_APT", icon: ShieldBan },
+        ],
+      },
+    ],
+    []
+  );
+
+  const medicalRecordFilterOptions: CustomFilterGroup[] = useMemo(() => {
+    // Empezamos con las opciones base
+    const options: CustomFilterGroup[] = [...baseFilterOptions];
+
+    if (clinics && clinics.length > 0) {
+      options.push({
+        label: "Clínica",
+        value: "clinicId",
+        multiSelect: false,
+        options: clinics.map(
+          (clinic): CustomFilterOption => ({
+            label: clinic.name,
+            value: String(clinic.id),
+          })
+        ),
+      });
+    }
+    if (availableDiagnostics && availableDiagnostics.length > 0) {
+      options.push({
+        label: "Diagnóstico",
+        value: "diagnosticName",
+        multiSelect: true,
+        options: availableDiagnostics.map(
+          (diag): CustomFilterOption => ({
+            label: diag.name,
+            value: diag.name,
+          })
+        ),
+      });
+    }
+    return options;
+  }, [clinics, availableDiagnostics, baseFilterOptions]);
 
   const columns = useMemo(
     () =>
@@ -137,147 +124,136 @@ export default function MedicalRecordTable() {
     [clinics, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
   );
 
-  // Preparar opciones de filtro para categorías
-  const filterCategoryOptions = useMemo(() => {
-    if (!categories?.categories) return [];
-    const options = categories.categories.map((cat) => ({
-      label: cat.category.name,
-      value: cat.category.id,
-    }));
-    console.log(`📋 Opciones de categorías disponibles: ${options.length}`);
-    return options;
-  }, [categories]);
+  const debouncedSearch = useMemo(() => {
+    return debounce((searchTerm: string) => {
+      setFilters((prev) => ({ ...prev, page: 1, search: searchTerm || undefined }));
+    }, 400);
+  }, []);
 
-  // Preparar opciones de filtro para condiciones médicas, filtradas por la categoría seleccionada
-  const filterConditionOptions = useMemo(() => {
-    if (!categories?.categories) return [];
+  const handlePageChange = useCallback((page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  }, []);
 
-    // Si hay una categoría seleccionada, solo mostrar condiciones de esa categoría
-    if (selectedCategoryId) {
-      const selectedCategory = categories.categories.find((cat) => cat.category.id === selectedCategoryId);
+  const handlePageSizeChange = useCallback((limit: number) => {
+    setFilters((prev) => ({ ...prev, page: 1, limit }));
+  }, []);
 
-      if (selectedCategory) {
-        console.log(
-          `📋 Mostrando ${selectedCategory.conditions.length} condiciones para la categoría: ${selectedCategory.category.name}`
-        );
+  const handleSearchChange = useCallback(
+    (search: string) => {
+      debouncedSearch(search);
+    },
+    [debouncedSearch]
+  );
 
-        return selectedCategory.conditions.map((condition) => ({
-          label: condition.name,
-          value: condition.id,
-        }));
-      }
-    }
+  const handleFilterChange = useCallback((columnId: string, value: string | string[] | null) => {
+    setFilters((prev) => {
+      const newFilters: MedicalRecordsFilter = { ...prev };
+      const key = columnId as keyof MedicalRecordsFilter;
 
-    // Si no hay categoría seleccionada, mostrar todas las condiciones con su categoría
-    const allConditions = categories.categories.flatMap((cat) =>
-      cat.conditions.map((condition) => ({
-        label: `${condition.name} (${cat.category.name})`,
-        value: condition.id,
-      }))
-    );
-    console.log(`📋 Opciones de condiciones disponibles: ${allConditions.length}`);
-    return allConditions;
-  }, [categories, selectedCategoryId]);
-
-  // Manejar cambios en los filtros seleccionados
-  const handleFilterChange = (filterKey: string, value: string | null) => {
-    console.log(`🔄 Cambio de filtro simple: ${filterKey}`, value);
-
-    if (filterKey === "category") {
-      // Actualizar el estado de categoría seleccionada
-      setSelectedCategoryId(value);
-
-      // Si teníamos una condición seleccionada y cambiamos de categoría, limpiar la condición
-      if (filters.conditionId && value !== filters.categoryId) {
-        console.log(`🔄 Cambiando categoría, limpiando condición seleccionada: ${filters.conditionId}`);
-        setFilters((prev) => {
-          const newFilters = { ...prev };
-          delete newFilters.conditionId;
-
-          if (value) {
-            // Actualizar la categoría
-            console.log(`✅ Estableciendo filtro simple de categoría: ${value}`);
-            newFilters.categoryId = value;
-          } else {
-            // Limpiar la categoría
-            console.log(`❌ Eliminando filtro simple de categoría`);
-            delete newFilters.categoryId;
-          }
-
-          return newFilters;
-        });
+      if (value === null || (Array.isArray(value) && value.length === 0)) {
+        delete newFilters[key];
+        if (key === "diagnosticName") {
+          setFreeTextDiagnosticName("");
+        }
       } else {
-        // No teníamos condición, solo actualizar la categoría
-        if (value) {
-          console.log(`✅ Estableciendo filtro simple de categoría: ${value}`);
-          setFilters((prev) => ({ ...prev, categoryId: value }));
-        } else {
-          console.log(`❌ Eliminando filtro simple de categoría`);
-          setFilters((prev) => {
-            const newFilters = { ...prev };
-            delete newFilters.categoryId;
-            return newFilters;
-          });
+        if (key === "diagnosticName") {
+          if (Array.isArray(value)) {
+            newFilters.diagnosticName = value;
+            setFreeTextDiagnosticName("");
+          } else {
+            newFilters.diagnosticName = [value];
+          }
+        } else if (key === "clinicId") {
+          newFilters.clinicId = Array.isArray(value) ? value[0] : value;
+        } else if (key === "aptitude") {
+          // Manejar el filtro de aptitud
+          newFilters.aptitude = Array.isArray(value) ? value[0] : value;
         }
       }
-    } else if (filterKey === "condition") {
-      if (value) {
-        console.log(`✅ Estableciendo filtro simple de condición: ${value}`);
-        setSelectedConditionId(value);
-        setFilters((prev) => ({ ...prev, conditionId: value }));
-      } else {
-        console.log(`❌ Eliminando filtro simple de condición`);
-        setFilters((prev) => {
-          const newFilters = { ...prev };
-          delete newFilters.conditionId;
-          return newFilters;
-        });
-      }
-    }
-  };
+      return { ...newFilters, page: 1 };
+    });
+  }, []);
 
-  if (recordsError || clinicsError || categoriesError)
-    return <div className="text-center py-4">Error al cargar datos</div>;
+  const serverPagination = useMemo(
+    () =>
+      paginationMeta
+        ? {
+            currentPage: paginationMeta.currentPage,
+            totalPages: paginationMeta.totalPages,
+            pageSize: paginationMeta.itemsPerPage,
+            totalItems: paginationMeta.totalItems,
+            onPageChange: handlePageChange,
+            onPageSizeChange: handlePageSizeChange,
+          }
+        : undefined,
+    [paginationMeta, handlePageChange, handlePageSizeChange]
+  );
+
+  const serverFilters = useMemo(
+    () => ({
+      filters,
+      onSearchChange: handleSearchChange,
+      onFilterChange: handleFilterChange,
+    }),
+    [filters, handleSearchChange, handleFilterChange]
+  );
+
+  const tableActions = useMemo(
+    () => (
+      <div className="flex items-center gap-x-2 flex-wrap">
+        <DatePickerWithRange
+          size="sm"
+          onConfirm={(value) => {
+            setFilters((prev) => ({
+              ...prev,
+              page: 1,
+              from: value?.from,
+              to: value?.to,
+            }));
+          }}
+          onClear={() => {
+            setFilters((prev) => ({
+              ...prev,
+              page: 1,
+              from: undefined,
+              to: undefined,
+            }));
+          }}
+        />
+        <Input
+          placeholder="Buscar diagnóstico..."
+          value={freeTextDiagnosticName}
+          onChange={handleFreeTextDiagnosticChange}
+          className="h-8 w-[120px] lg:w-[180px]"
+        />
+        <Button variant="outline" size="sm" className="h-8 lg:flex">
+          <FileDown className="mr-2 h-4 w-4" /> Descargar
+        </Button>
+      </div>
+    ),
+    [freeTextDiagnosticName, handleFreeTextDiagnosticChange]
+  );
+
+  if (recordsError) {
+    console.error("Error al cargar registros médicos:", recordsError);
+    return <div className="text-center py-4">Error al cargar registros médicos</div>;
+  }
+
+  if (clinicsError) {
+    console.warn("Error al cargar clínicas (no bloqueante):", clinicsError);
+  }
 
   return (
     <DataTable
       columns={columns}
-      data={medicalRecords || []}
-      isLoading={isLoadingRecords || isLoadingClinics || isLoadingCategories}
-      actions={
-        <div className="flex items-center gap-x-2">
-          <SimpleFilterMenu
-            title="Categoría Médica"
-            options={filterCategoryOptions}
-            selected={selectedCategoryId}
-            onSelected={(value) => handleFilterChange("category", value)}
-          />
-          <SimpleFilterMenu
-            title="Condición Médica"
-            options={filterConditionOptions}
-            selected={selectedConditionId}
-            onSelected={(value) => handleFilterChange("condition", value)}
-          />
-          {filters.categoryId || filters.conditionId ? (
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs"
-              onClick={() => {
-                // Limpiar todos los filtros
-                setFilters({});
-                setSelectedCategoryId(null);
-                setSelectedConditionId(null);
-              }}
-            >
-              <X className="mr-2 h-4 w-4" /> Limpiar filtros
-            </Button>
-          ) : null}
-          <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-            <FileDown className="mr-2 h-4 w-4" /> Descargar
-          </Button>
-        </div>
-      }
+      data={medicalRecords}
+      isLoading={isLoadingRecords}
+      actions={tableActions}
+      mode="server"
+      serverPagination={serverPagination}
+      serverFilters={serverFilters}
+      serverFilterOptions={medicalRecordFilterOptions as any}
+      serverFilterLoading={isLoadingClinics || isLoadingDiagnostics}
     />
   );
 }
