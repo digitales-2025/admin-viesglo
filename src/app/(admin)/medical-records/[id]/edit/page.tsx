@@ -38,23 +38,14 @@ const examTypeLabels = {
 };
 
 export default function MedicalRecordEditPage() {
-  console.log("🚀 MedicalRecordEditPage - Inicio de la carga de la página");
-
   // Get ID from params
   const { id } = useParams();
-  console.log("🔑 ID del registro médico:", id);
 
   // Obtener datos para tener información previa
   const { data: record, isLoading } = useMedicalRecord(id as string);
-  console.log("📊 Estado isLoading:", isLoading);
-
-  if (record) {
-    console.log("📋 Record recibido:", record.id, `(APT: ${record.aptitude})`);
-  }
 
   // Display loading state when fetching record data
   if (isLoading) {
-    console.log("⏳ Mostrando estado de carga...");
     return (
       <div className="container py-6 pb-24">
         <div className="mb-6 flex items-center">
@@ -68,7 +59,6 @@ export default function MedicalRecordEditPage() {
 
   // Handle case when record doesn't exist
   if (!record) {
-    console.log("⚠️ Registro médico no encontrado");
     return (
       <div className="container py-6">
         <div className="mb-6 flex items-center">
@@ -93,9 +83,6 @@ export default function MedicalRecordEditPage() {
 
   // Obtener el cliente directamente del registro médico
   const client = record.client;
-  console.log("👤 Cliente obtenido:", client?.name || "No hay cliente");
-
-  console.log("🔄 Renderizando componente principal con record:", record.id);
 
   return (
     <div className="container py-6 pb-24">

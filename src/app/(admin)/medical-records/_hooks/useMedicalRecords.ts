@@ -63,7 +63,6 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
 
         return response.data;
       } catch (error) {
-        console.error("Error en useMedicalRecords:", error);
         throw error;
       }
     },
@@ -226,8 +225,6 @@ export function useDownloadAptitudeCertificate() {
         throw new Error(response.error || "Error al descargar evidencia");
       }
 
-      console.log(`📄 Respuesta del servidor:`, response.downloadUrl);
-
       // Si tenemos una URL de descarga, forzamos la descarga directa
       if (response.downloadUrl) {
         try {
@@ -267,7 +264,6 @@ export function useDownloadAptitudeCertificate() {
           // Mostrar mensaje de éxito
           toast.success("Certificado de aptitud médica descargado correctamente");
         } catch (error) {
-          console.error("Error al descargar archivo", error);
           toast.error("Error al descargar el archivo");
           throw error;
         }
@@ -293,8 +289,6 @@ export function useDownloadMedicalReport() {
         throw new Error(response.error || "Error al descargar evidencia");
       }
 
-      console.log(`📄 Respuesta del servidor:`, response.downloadUrl);
-
       // Si tenemos una URL de descarga, forzamos la descarga directa
       if (response.downloadUrl) {
         try {
@@ -334,7 +328,6 @@ export function useDownloadMedicalReport() {
           // Mostrar mensaje de éxito
           toast.success("Certificado de aptitud médica descargado correctamente");
         } catch (error) {
-          console.error("Error al descargar archivo", error);
           toast.error("Error al descargar el archivo");
           throw error;
         }
@@ -359,17 +352,13 @@ export function useUpdateMedicalRecord() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: MedicalRecordUpdate }) => {
-      console.log(`📤 Enviando actualización para registro médico ${id}`);
       const response = await updateMedicalRecord(id, data);
       if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
         throw new Error(response.error || "Error al actualizar registro médico");
       }
-      console.log(`📥 Respuesta exitosa del servidor:`, JSON.stringify(response.data).substring(0, 200) + "...");
       return response.data;
     },
     onSuccess: (_, variables) => {
-      console.log(`🔄 Invalidando consultas después de actualizar registro médico ${variables.id}`);
       // Invalidar la consulta del registro específico
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.detail(variables.id)],
@@ -380,7 +369,6 @@ export function useUpdateMedicalRecord() {
       });
     },
     onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al actualizar registro médico");
     },
   });
@@ -396,16 +384,13 @@ export function useDeleteMedicalRecord() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      console.log(`🗑️ Eliminando registro médico ${id}`);
       const response = await deleteMedicalRecord(id);
       if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
         throw new Error(response.error || "Error al eliminar registro médico");
       }
       return response;
     },
     onSuccess: (_, id) => {
-      console.log(`🔄 Invalidando consultas después de eliminar registro médico ${id}`);
       // Invalidar la consulta del registro específico
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.detail(id)],
@@ -416,7 +401,6 @@ export function useDeleteMedicalRecord() {
       });
     },
     onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al eliminar registro médico");
     },
   });
@@ -448,16 +432,13 @@ export function useAddDiagnostic() {
 
   return useMutation({
     mutationFn: async ({ id, diagnostic }: { id: string; diagnostic: CreateDiagnostic }) => {
-      console.log(`➕ Agregando diagnóstico al registro médico ${id}`);
       const response = await addDiagnostic(id, diagnostic);
       if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
         throw new Error(response.error || "Error al agregar diagnóstico");
       }
       return response.data;
     },
     onSuccess: (_, variables) => {
-      console.log(`🔄 Invalidando consultas después de agregar diagnóstico al registro médico ${variables.id}`);
       // Invalidar la consulta de diagnósticos del registro específico
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.id)],
@@ -469,7 +450,6 @@ export function useAddDiagnostic() {
       toast.success("Diagnóstico agregado correctamente");
     },
     onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al agregar diagnóstico");
     },
   });
@@ -483,16 +463,13 @@ export function useDeleteDiagnostic() {
 
   return useMutation({
     mutationFn: async ({ id, diagnosticId }: { id: string; diagnosticId: string }) => {
-      console.log(`🗑️ Eliminando diagnóstico ${diagnosticId} del registro médico ${id}`);
       const response = await deleteDiagnostic(id, diagnosticId);
       if (!response.success) {
-        console.error(`❌ Error en la respuesta del servidor:`, response.error);
         throw new Error(response.error || "Error al eliminar diagnóstico");
       }
       return response;
     },
     onSuccess: (_, variables) => {
-      console.log(`🔄 Invalidando consultas después de eliminar diagnóstico del registro médico ${variables.id}`);
       // Invalidar la consulta de diagnósticos del registro específico
       queryClient.invalidateQueries({
         queryKey: [...MEDICAL_RECORDS_KEYS.diagnostics(variables.id)],
@@ -504,7 +481,6 @@ export function useDeleteDiagnostic() {
       toast.success("Diagnóstico eliminado correctamente");
     },
     onError: (error: Error) => {
-      console.error(`❌ Error en la mutación:`, error);
       toast.error(error.message || "Error al eliminar diagnóstico");
     },
   });
@@ -542,7 +518,6 @@ export function useAddMultipleDiagnostics() {
       toast.success("Diagnósticos actualizados correctamente");
     },
     onError: (error: Error) => {
-      console.error("Error al agregar diagnósticos:", error);
       toast.error(error.message || "Error al agregar diagnósticos");
     },
   });
@@ -614,13 +589,10 @@ export function useAvailableDiagnostics() {
   return useQuery({
     queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
     queryFn: async () => {
-      console.log("🔍 Hook useAvailableDiagnostics: Obteniendo diagnósticos disponibles...");
       const response = await getAllAvailableDiagnostics();
       if (!response.success) {
-        console.error("❌ Error en hook useAvailableDiagnostics:", response.error);
         throw new Error(response.error || "Error al obtener diagnósticos disponibles");
       }
-      console.log(`✅ Hook useAvailableDiagnostics: ${response.data.length} diagnósticos obtenidos.`);
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // Cachear por 5 minutos

@@ -59,8 +59,7 @@ export async function getMedicalRecords(
     }
 
     return { success: true, data: Array.isArray(response) ? response : [] };
-  } catch (error) {
-    console.error("Error al obtener registros médicos", error);
+  } catch (_error) {
     return { success: false, data: [], error: "Error al obtener registros médicos" };
   }
 }
@@ -77,8 +76,7 @@ export async function getMedicalRecord(
       return { success: false, data: null, error: err.message || "Error al obtener registro médico" };
     }
     return { success: true, data };
-  } catch (error) {
-    console.error("Error al obtener registro médico", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al obtener registro médico" };
   }
 }
@@ -96,8 +94,7 @@ export async function createMedicalRecord(
       return { success: false, data: null, error: err.message || "Error al crear registro médico" };
     }
     return { success: true, data };
-  } catch (error) {
-    console.error("Error al crear registro médico:", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al crear registro médico" };
   }
 }
@@ -114,8 +111,7 @@ export async function getAptitudeCertificateInfo(
       return { success: false, data: null, error: err.message || "Error al obtener información del certificado" };
     }
     return { success: true, data };
-  } catch (error) {
-    console.error("Error al obtener información del certificado", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al obtener información del certificado" };
   }
 }
@@ -132,8 +128,7 @@ export async function getMedicalReportInfo(
       return { success: false, data: null, error: err.message || "Error al obtener información del informe médico" };
     }
     return { success: true, data };
-  } catch (error) {
-    console.error("Error al obtener información del informe médico", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al obtener información del informe médico" };
   }
 }
@@ -152,8 +147,7 @@ export async function uploadAptitudeCertificate(id: string, file: File): Promise
       return { success: false, error: err.message || "Error al subir el certificado de aptitud médica" };
     }
     return { success: true };
-  } catch (error) {
-    console.error("Error al subir el certificado de aptitud médica", error);
+  } catch (_error) {
     return { success: false, error: "Error al subir el certificado de aptitud médica" };
   }
 }
@@ -172,8 +166,7 @@ export async function uploadMedicalReport(id: string, file: File): Promise<{ suc
       return { success: false, error: err.message || "Error al subir el informe médico" };
     }
     return { success: true };
-  } catch (error) {
-    console.error("Error al subir el informe médico", error);
+  } catch (_error) {
     return { success: false, error: "Error al subir el informe médico" };
   }
 }
@@ -209,8 +202,7 @@ export async function downloadAptitudeCertificate(id: string) {
     }
 
     return { success: true };
-  } catch (error) {
-    console.error("Error al descargar certificado", error);
+  } catch (_error) {
     return { success: false, error: "Error al descargar certificado" };
   }
 }
@@ -255,8 +247,7 @@ export async function downloadMedicalReport(id: string) {
 
     // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
     return { success: true };
-  } catch (error) {
-    console.error("Error al descargar informe", error);
+  } catch (_error) {
     return { success: false, error: "Error al descargar informe" };
   }
 }
@@ -269,20 +260,14 @@ export async function updateMedicalRecordDetails(
   details: UpdateMedicalRecordDetails
 ): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
   try {
-    console.log(`📝 Actualizando detalles médicos para el registro con ID: ${id}`);
-    console.log(`📊 Datos enviados:`, JSON.stringify(details).substring(0, 500) + "...");
-
     const [data, err] = await http.patch<MedicalRecordResponse>(`${API_ENDPOINT}/${id}/details`, details);
 
     if (err !== null) {
-      console.error(`❌ Error al actualizar detalles médicos:`, err);
       return { success: false, data: null, error: err.message || "Error al actualizar detalles médicos" };
     }
 
-    console.log(`✅ Detalles médicos actualizados correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al actualizar detalles médicos", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al actualizar detalles médicos" };
   }
 }
@@ -295,20 +280,14 @@ export async function updateMedicalRecord(
   data: MedicalRecordUpdate
 ): Promise<{ data: MedicalRecordResponse | null; success: boolean; error?: string }> {
   try {
-    console.log(`📝 Actualizando registro médico con ID: ${id}`);
-    console.log(`📊 Datos enviados:`, JSON.stringify(data).substring(0, 500) + "...");
-
     const [response, err] = await http.patch<MedicalRecordResponse>(`${API_ENDPOINT}/${id}`, data);
 
     if (err !== null) {
-      console.error(`❌ Error al actualizar registro médico:`, err);
       return { success: false, data: null, error: err.message || "Error al actualizar registro médico" };
     }
 
-    console.log(`✅ Registro médico actualizado correctamente:`, JSON.stringify(response).substring(0, 200) + "...");
     return { success: true, data: response };
-  } catch (error) {
-    console.error("❌ Error al actualizar registro médico", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al actualizar registro médico" };
   }
 }
@@ -318,19 +297,14 @@ export async function updateMedicalRecord(
  */
 export async function deleteMedicalRecord(id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log(`🗑️ Eliminando registro médico con ID: ${id}`);
-
     const [_, err] = await http.delete(`${API_ENDPOINT}/${id}`);
 
     if (err !== null) {
-      console.error(`❌ Error al eliminar registro médico:`, err);
       return { success: false, error: err.message || "Error al eliminar registro médico" };
     }
 
-    console.log(`✅ Registro médico eliminado correctamente`);
     return { success: true };
-  } catch (error) {
-    console.error("❌ Error al eliminar registro médico", error);
+  } catch (_error) {
     return { success: false, error: "Error al eliminar registro médico" };
   }
 }
@@ -340,23 +314,16 @@ export async function deleteMedicalRecord(id: string): Promise<{ success: boolea
  */
 export async function getDiagnostics(id: string): Promise<{ data: any[]; success: boolean; error?: string }> {
   try {
-    console.log(`🔍 Obteniendo diagnósticos del registro médico con ID: ${id}`);
-
-    // Endpoint correcto según diagnostics.controller.ts
     const endpoint = `/diagnostics/medical-records/${id}/diagnostics`;
-    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
 
     const [data, err] = await http.get<any[]>(endpoint);
 
     if (err !== null) {
-      console.error(`❌ Error al obtener diagnósticos:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener diagnósticos" };
     }
 
-    console.log(`✅ Diagnósticos obtenidos correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al obtener diagnósticos", error);
+  } catch (_error) {
     return { success: false, data: [], error: "Error al obtener diagnósticos" };
   }
 }
@@ -369,24 +336,16 @@ export async function addDiagnostic(
   diagnostic: CreateDiagnostic
 ): Promise<{ data: any; success: boolean; error?: string }> {
   try {
-    console.log(`➕ Agregando diagnóstico al registro médico con ID: ${id}`);
-    console.log(`📊 Datos enviados:`, JSON.stringify(diagnostic));
-
-    // Endpoint correcto según diagnostics.controller.ts
     const endpoint = `/diagnostics/medical-records/${id}/diagnostics`;
-    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
 
     const [data, err] = await http.post<any>(endpoint, diagnostic);
 
     if (err !== null) {
-      console.error(`❌ Error al agregar diagnóstico:`, err);
       return { success: false, data: null, error: err.message || "Error al agregar diagnóstico" };
     }
 
-    console.log(`✅ Diagnóstico agregado correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al agregar diagnóstico", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al agregar diagnóstico" };
   }
 }
@@ -399,33 +358,23 @@ export async function deleteDiagnostic(
   diagnosticId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    console.log(`🗑️ Eliminando diagnóstico ${diagnosticId} del registro médico con ID: ${id}`);
-
-    // Endpoint correcto según diagnostics.controller.ts
     const endpoint = `/diagnostics/medical-records/${id}/diagnostics/${diagnosticId}`;
-    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
 
     const [_, err] = await http.delete(endpoint);
 
     if (err !== null) {
-      // Verificar si es un 404, lo que podría significar que no está implementado
       if (err.statusCode === 404) {
-        console.error(`❌ Error 404: El endpoint para eliminar diagnósticos no está implementado en el servidor.`);
-        console.error(`❌ IMPORTANTE: Debe implementar la ruta DELETE ${endpoint} en el servidor.`);
         return {
           success: false,
           error: `El endpoint para eliminar diagnósticos no está implementado (404). Contacte al administrador del sistema.`,
         };
       }
 
-      console.error(`❌ Error al eliminar diagnóstico:`, err);
       return { success: false, error: err.message || "Error al eliminar diagnóstico" };
     }
 
-    console.log(`✅ Diagnóstico eliminado correctamente`);
     return { success: true };
-  } catch (error) {
-    console.error("❌ Error al eliminar diagnóstico", error);
+  } catch (_error) {
     return { success: false, error: "Error al eliminar diagnóstico" };
   }
 }
@@ -439,19 +388,14 @@ export async function getAllMedicalCategories(): Promise<{
   error?: string;
 }> {
   try {
-    console.log(`🔍 Obteniendo todas las categorías médicas y sus condiciones`);
-
     const [data, err] = await http.get<any>(`${API_ENDPOINT}/categories/all`);
 
     if (err !== null) {
-      console.error(`❌ Error al obtener categorías médicas:`, err);
       return { success: false, data: null, error: err.message || "Error al obtener categorías médicas" };
     }
 
-    console.log(`✅ Categorías médicas obtenidas correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al obtener categorías médicas", error);
+  } catch (_error) {
     return { success: false, data: null, error: "Error al obtener categorías médicas" };
   }
 }
@@ -482,8 +426,7 @@ export async function addMultipleDiagnostics(
     }
 
     return { success: true, data };
-  } catch (error) {
-    console.error("Error al agregar múltiples diagnósticos", error);
+  } catch (_error) {
     return {
       success: false,
       data: null,
@@ -501,23 +444,16 @@ export async function addDiagnosticValue(
   values: string[]
 ): Promise<{ data: any; success: boolean; error?: string }> {
   try {
-    console.log(`➕ Agregando diagnóstico personalizado "${name}" al registro médico con ID: ${id}`);
-
-    // Endpoint para añadir valor de diagnóstico personalizado
     const endpoint = `/diagnostics/medical-records/${id}/diagnostic-value`;
-    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
 
     const payload = {
       name,
       value: values,
     };
 
-    console.log(`📊 Datos enviados:`, JSON.stringify(payload));
-
     const [data, err] = await http.post<any>(endpoint, payload);
 
     if (err !== null) {
-      console.error(`❌ Error al agregar diagnóstico personalizado:`, err);
       return {
         success: false,
         data: null,
@@ -525,10 +461,8 @@ export async function addDiagnosticValue(
       };
     }
 
-    console.log(`✅ Diagnóstico personalizado agregado correctamente:`, JSON.stringify(data).substring(0, 200) + "...");
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al agregar diagnóstico personalizado", error);
+  } catch (_error) {
     return {
       success: false,
       data: null,
@@ -545,23 +479,15 @@ export async function updateDiagnosticValueName(
   name: string
 ): Promise<{ data: any; success: boolean; error?: string }> {
   try {
-    console.log(`✏️ Actualizando nombre de diagnóstico personalizado con ID: ${diagnosticValueId}`);
-    console.log(`📝 Nuevo nombre: "${name}"`);
-
-    // Endpoint para actualizar nombre de diagnóstico personalizado
     const endpoint = `/diagnostics/diagnostic-values/${diagnosticValueId}/name`;
-    console.log(`🔍 Usando endpoint: ${process.env.BACKEND_URL}${endpoint}`);
 
     const payload = {
       name,
     };
 
-    console.log(`📊 Datos enviados:`, JSON.stringify(payload));
-
     const [data, err] = await http.patch<any>(endpoint, payload);
 
     if (err !== null) {
-      console.error(`❌ Error al actualizar nombre del diagnóstico personalizado:`, err);
       return {
         success: false,
         data: null,
@@ -569,13 +495,8 @@ export async function updateDiagnosticValueName(
       };
     }
 
-    console.log(
-      `✅ Nombre del diagnóstico personalizado actualizado correctamente:`,
-      JSON.stringify(data).substring(0, 200) + "..."
-    );
     return { success: true, data };
-  } catch (error) {
-    console.error("❌ Error al actualizar nombre del diagnóstico personalizado", error);
+  } catch (_error) {
     return {
       success: false,
       data: null,
@@ -593,25 +514,18 @@ export async function getAllAvailableDiagnostics(): Promise<{
   error?: string;
 }> {
   try {
-    console.log(`🔍 Obteniendo todos los diagnósticos disponibles`);
     const endpoint = `${DIAGNOSTICS_API_ENDPOINT}`;
-    console.log(`📡 URL de solicitud: ${process.env.BACKEND_URL}${endpoint}`);
 
-    // Asumimos que el endpoint GET /diagnostics devuelve un objeto { diagnostics: DiagnosticEntity[] }
     const [response, err] = await http.get<{ diagnostics: DiagnosticEntity[] }>(endpoint);
 
     if (err !== null) {
-      console.error(`❌ Error al obtener diagnósticos disponibles:`, err);
       return { success: false, data: [], error: err.message || "Error al obtener diagnósticos disponibles" };
     }
 
-    // Extraer el array de diagnósticos de la respuesta
     const diagnostics = response.diagnostics || [];
-    console.log(`✅ Diagnósticos disponibles obtenidos. Cantidad: ${diagnostics.length}`);
 
     return { success: true, data: diagnostics };
-  } catch (error) {
-    console.error("❌ Error crítico al obtener diagnósticos disponibles", error);
+  } catch (_error) {
     return { success: false, data: [], error: "Error crítico al obtener diagnósticos disponibles" };
   }
 }

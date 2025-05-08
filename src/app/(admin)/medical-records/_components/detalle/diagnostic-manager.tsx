@@ -85,7 +85,6 @@ export function DiagnosticManager({ recordId, diagnosticsValues, onDiagnosticAdd
 
       // Forzar la recarga de los datos para actualizar la interfaz inmediatamente
       // sin necesidad de guardar todo el formulario
-      console.log("🔄 Recargando datos después de agregar diagnóstico personalizado");
 
       // Invalidar la consulta de diagnósticos específica
       queryClient.invalidateQueries({
@@ -103,8 +102,7 @@ export function DiagnosticManager({ recordId, diagnosticsValues, onDiagnosticAdd
       }
 
       toast.success("Diagnóstico personalizado agregado correctamente");
-    } catch (error) {
-      console.error("Error al agregar diagnóstico personalizado:", error);
+    } catch (_error) {
       toast.error("Error al agregar diagnóstico personalizado");
     }
   };

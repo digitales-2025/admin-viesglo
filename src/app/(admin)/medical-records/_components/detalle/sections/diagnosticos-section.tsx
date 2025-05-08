@@ -56,10 +56,6 @@ export function DiagnosticosSection({
   // Solo se debe ejecutar cuando se monta el componente, no en cada rerenderizado
   useEffect(() => {
     if (diagnosticsValues && diagnosticsValues.length > 0) {
-      console.log(
-        `🔍 DiagnosticosSection detectó cambio en diagnosticsValues: ${diagnosticsValues.length} diagnósticos`
-      );
-
       // Verificar si diagnosticos ya tiene valores - no sobreescribir si ya están cargados
       const currentValues = getValues()?.diagnosticos || {};
       const hasExistingValues = Object.keys(currentValues).some(
@@ -93,7 +89,6 @@ export function DiagnosticosSection({
         .map((diag) => diag.diagnosticName);
 
       if (customDiags.length > 0) {
-        console.log(`📋 Diagnósticos personalizados encontrados: ${customDiags.join(", ")}`);
         setCustomDiagnostics(customDiags);
       }
     }
@@ -101,10 +96,6 @@ export function DiagnosticosSection({
 
   // Manejar cuando se agrega un nuevo diagnóstico desde DiagnosticManager
   const handleDiagnosticAdded = () => {
-    // Recargar los datos - esto es importante para actualizar la interfaz
-    // sin necesidad de guardar todo el formulario
-    console.log("🔄 Diagnóstico personalizado añadido - actualizando vista");
-
     // Notificar al componente padre que los diagnósticos han cambiado
     if (onDiagnosticsChange) {
       onDiagnosticsChange();
@@ -141,8 +132,7 @@ export function DiagnosticosSection({
       if (onDiagnosticsChange) {
         onDiagnosticsChange();
       }
-    } catch (error) {
-      console.error("Error al actualizar nombre:", error);
+    } catch (_error) {
       toast.error("Error al actualizar el nombre del diagnóstico");
     }
   };
