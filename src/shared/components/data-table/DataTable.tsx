@@ -15,6 +15,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   OnChangeFn,
+  Row,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -36,6 +37,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: boolean;
   className?: string;
   viewOptions?: boolean;
+  getRowCanExpand?: (row: Row<TData>) => boolean;
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
@@ -92,6 +94,7 @@ export function DataTable<TData, TValue>({
   className,
   viewOptions = true,
   getSubRows,
+  getRowCanExpand,
   renderExpandedRow,
   mode = "client",
   serverPagination,
@@ -146,6 +149,7 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getRowCanExpand,
     state: {
       sorting,
       columnVisibility,
