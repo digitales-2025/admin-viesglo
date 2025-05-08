@@ -170,8 +170,24 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         nameUser: currentRow.nameUser,
         lastNameUser: currentRow.lastNameUser,
         emailUser: currentRow.emailUser,
-        dateEmision: currentRow.dateEmision,
-        dateExpiration: currentRow.dateExpiration,
+        dateEmision: currentRow.dateEmision
+          ? (() => {
+              // Extraer directamente año, mes y día de la cadena ISO
+              const [year, month, day] = currentRow.dateEmision.split("T")[0].split("-").map(Number);
+              // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
+              const date = new Date(year, month - 1, day, 12, 0, 0);
+              return date.toISOString();
+            })()
+          : undefined,
+        dateExpiration: currentRow.dateExpiration
+          ? (() => {
+              // Extraer directamente año, mes y día de la cadena ISO
+              const [year, month, day] = currentRow.dateExpiration.split("T")[0].split("-").map(Number);
+              // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
+              const date = new Date(year, month - 1, day, 12, 0, 0);
+              return date.toISOString();
+            })()
+          : undefined,
       });
     } else {
       form.reset();

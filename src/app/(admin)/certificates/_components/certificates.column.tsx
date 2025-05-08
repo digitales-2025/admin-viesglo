@@ -1,8 +1,6 @@
 "use client";
 
-import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -75,7 +73,22 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     cell: ({ row }) => (
       <Badge variant="outline" className="text-slate-600">
         <Calendar className="w-4 h-4" />
-        {format(new TZDate(row.original.dateEmision ?? "", "America/Lima"), "dd-MM-yyyy")}
+        {typeof row.original.dateEmision === "string"
+          ? row.original.dateEmision.substring(0, 10).split("-").reverse().join("/")
+          : "Fecha inválida"}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de caducidad",
+    accessorKey: "dateExpiration",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de caducidad" />,
+    cell: ({ row }) => (
+      <Badge variant="outline" className="text-slate-600">
+        <Calendar className="w-4 h-4" />
+        {typeof row.original.dateExpiration === "string"
+          ? row.original.dateExpiration.substring(0, 10).split("-").reverse().join("/")
+          : "Fecha inválida"}
       </Badge>
     ),
   },

@@ -957,6 +957,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/certificate/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar certificados con paginación */
+    get: operations["CertificateController_findAllPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/certificate/{id}": {
     parameters: {
       query?: never;
@@ -985,23 +1002,6 @@ export interface paths {
     };
     /** Obtener un certificado por codigo */
     get: operations["CertificateController_findByCode_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/filter/date": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Filtrar certificados por rango de fechas */
-    get: operations["CertificateController_filterByDateRange_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1376,6 +1376,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/installment-payments/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado activo de un pago por cuota de cotización */
+    patch: operations["InstallmentPaymentController_toggleActive_v1"];
     trace?: never;
   };
 }
@@ -3258,7 +3275,7 @@ export interface components {
       emailUser?: string;
       /**
        * Format: binary
-       * @description Archivo del certificado
+       * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
     };
@@ -3313,11 +3330,8 @@ export interface components {
        * @example juan.perez@gmail.com
        */
       emailUser?: string;
-      /**
-       * @description Url del archivo del certificado
-       * @example https://www.google.com
-       */
-      fileCertificate?: string;
+      /** @description Archivo del certificado */
+      fileCertificate?: components["schemas"]["FileMetadataResponseDto"];
       /**
        * @description El estado del certificado
        * @example Activo
@@ -3340,6 +3354,33 @@ export interface components {
       urlCertificate?: string;
       /** @description El estado del certificado */
       isActive?: boolean;
+    };
+    PaginatedCertificateResponseDto: {
+      /** @description Lista de certificados */
+      data: components["schemas"]["CertificateResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     UpdateCertificateDto: {
       /**
@@ -3386,7 +3427,7 @@ export interface components {
       emailUser?: string;
       /**
        * Format: binary
-       * @description Archivo del certificado
+       * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
     };
@@ -6139,7 +6180,30 @@ export interface operations {
   };
   QuotationController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo cotizaciones concretadas */
+        isConcrete?: string;
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -6366,20 +6430,29 @@ export interface operations {
   };
   CertificateController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Fecha de inicio para filtrar certificados */
+        from?: string;
+        /** @description Fecha de fin para filtrar certificados */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Los certificados han sido recuperados exitosamente. */
+      /** @description Lista de certificados obtenida exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
+          "application/json": components["schemas"]["CertificateResponseDto"][];
         };
       };
     };
@@ -6404,6 +6477,35 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_findAllPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Fecha de inicio para filtrar certificados */
+        from?: string;
+        /** @description Fecha de fin para filtrar certificados */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Certificados encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedCertificateResponseDto"];
         };
       };
     };
@@ -6493,31 +6595,6 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
-      };
-    };
-  };
-  CertificateController_filterByDateRange_v1: {
-    parameters: {
-      query?: {
-        /** @description Fecha de inicio para filtrar por fecha de emisión */
-        startDate?: string;
-        /** @description Fecha de fin para filtrar por fecha de emisión */
-        endDate?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Los certificados han sido filtrados exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"][];
-        };
       };
     };
   };
@@ -7054,7 +7131,32 @@ export interface operations {
   };
   PaymentController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        typePayment?: "MONTHLY" | "PUNCTUAL";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -7475,6 +7577,36 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["InstallmentPayment"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
         };
       };
     };
