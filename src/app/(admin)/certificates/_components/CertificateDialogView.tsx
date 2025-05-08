@@ -2,13 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "date-fns";
-import { Download, GraduationCap, Loader2, Printer, Share2 } from "lucide-react";
+import { Check, Download, GraduationCap, Link, Loader2, Printer, Share2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
-import { downloadCertificate } from "../_actions/certificates.actions";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/ui/dropdown-menu";
+import { downloadCertificate, generateShareUrl } from "../_actions/certificates.actions";
 import { CertificateResponse } from "../_types/certificates.types";
 
 interface CertificateDialogViewProps {
@@ -21,6 +27,8 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
   const [fileInfo, setFileInfo] = useState<{
     contentType: string;
     filename: string;
@@ -30,6 +38,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
   useEffect(() => {
     if (open && currentRow?.id) {
       loadEvidence(currentRow.id);
+      generateShareLink(currentRow.id);
     }
 
     // Limpiar recursos cuando el diálogo se cierra
@@ -38,6 +47,8 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
         URL.revokeObjectURL(previewUrl);
         setPreviewUrl(null);
       }
+      setShareUrl(null);
+      setIsCopied(false);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, currentRow]);
@@ -84,6 +95,37 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
     }
   };
 
+  const generateShareLink = async (certificateId: string) => {
+    try {
+      // Llama al endpoint para regenerar la URL o obtener el certificado actual
+      const result = await generateShareUrl(certificateId);
+
+      if (result.success && result.data) {
+        // Si el certificado tiene un archivo con URL, usar esa URL para compartir
+        if (result.data.fileCertificate?.url) {
+          setShareUrl(result.data.fileCertificate.url);
+        } else if (result.data.urlCertificate) {
+          // Si hay una URL específica para el certificado, usarla
+          setShareUrl(result.data.urlCertificate);
+        } else {
+          // Si no hay URL específica, crear una URL local
+          fallbackToLocalUrl(certificateId);
+        }
+      } else {
+        fallbackToLocalUrl(certificateId);
+      }
+    } catch (error) {
+      console.error("Error al generar enlace compartible:", error);
+      fallbackToLocalUrl(certificateId);
+    }
+  };
+
+  // Función auxiliar para generar URL local como fallback
+  const fallbackToLocalUrl = (id: string) => {
+    const baseUrl = window.location.origin;
+    setShareUrl(`${baseUrl}/certificates/view/${id}`);
+  };
+
   const handleDownload = () => {
     if (previewUrl && fileInfo) {
       const a = document.createElement("a");
@@ -108,6 +150,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
 
   const handleShare = async () => {
     if (previewUrl && fileInfo && typeof navigator.share === "function") {
+      console.log("🚀 ~ handleShare ~ previewUrl:", previewUrl);
       try {
         const response = await fetch(previewUrl);
         const blob = await response.blob();
@@ -122,10 +165,38 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
         console.error("Error al compartir:", error);
         toast.error("No se pudo compartir el certificado");
       }
+    } else if (shareUrl) {
+      // Si no se puede compartir el archivo, al menos compartir la URL
+      try {
+        if (typeof navigator.share === "function") {
+          await navigator.share({
+            title: `Certificado - ${currentRow.nameUser} ${currentRow.lastNameUser}`,
+            text: `Certificado de ${currentRow.nameCapacitation}`,
+            url: shareUrl,
+          });
+        } else {
+          copyToClipboard(shareUrl);
+        }
+      } catch (error) {
+        console.error("Error al compartir URL:", error);
+        copyToClipboard(shareUrl);
+      }
     } else {
-      // Fallback para navegadores que no soportan Web Share API
-      toast.error("Tu navegador no soporta la función de compartir");
+      toast.error("No hay contenido disponible para compartir");
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setIsCopied(true);
+        toast.success("Enlace copiado al portapapeles");
+        setTimeout(() => setIsCopied(false), 2000);
+      })
+      .catch(() => {
+        toast.error("No se pudo copiar el enlace");
+      });
   };
 
   const isPDF = fileInfo?.contentType?.includes("pdf");
@@ -160,7 +231,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
               </div>
             ) : previewUrl ? (
               <>
-                <CardContent className="p-4  overflow-auto">
+                <CardContent className="p-4 overflow-auto">
                   {isPDF ? (
                     <iframe
                       src={previewUrl}
@@ -191,12 +262,33 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
                     <Download className="h-4 w-4 mr-2" />
                     Descargar
                   </Button>
-                  {typeof navigator.share === "function" && (
-                    <Button variant="outline" size="sm" onClick={handleShare}>
-                      <Share2 className="h-4 w-4 mr-2" />
-                      Compartir
-                    </Button>
-                  )}
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm">
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Compartir
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {typeof navigator.share === "function" && (
+                        <DropdownMenuItem onClick={handleShare}>
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Compartir archivo
+                        </DropdownMenuItem>
+                      )}
+                      {shareUrl && (
+                        <DropdownMenuItem onClick={() => copyToClipboard(shareUrl)}>
+                          {isCopied ? (
+                            <Check className="h-4 w-4 mr-2 text-green-500" />
+                          ) : (
+                            <Link className="h-4 w-4 mr-2" />
+                          )}
+                          Copiar enlace
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </CardFooter>
               </>
             ) : (

@@ -234,3 +234,21 @@ export async function downloadCertificate(certificateId: string) {
     return { success: false, error: "Error al descargar evidencia" };
   }
 }
+
+/**
+ * Genera una URL compartible para un certificado
+ */
+export async function generateShareUrl(
+  id: string
+): Promise<{ success: boolean; data?: CertificateResponse; error?: string }> {
+  try {
+    const [data, err] = await http.get<CertificateResponse>(`${API_ENDPOINT}/${id}/regenerate-url`);
+    if (err !== null) {
+      throw new Error(err.message || "Error al generar URL compartible");
+    }
+    return { success: true, data: data };
+  } catch (error) {
+    console.error("Error al generar URL compartible", error);
+    return { success: false, error: "Error al generar enlace compartible" };
+  }
+}
