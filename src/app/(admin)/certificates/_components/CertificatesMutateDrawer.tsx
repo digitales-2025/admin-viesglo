@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -81,6 +81,8 @@ type FormValues = z.infer<typeof schema> & {
 export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   const { mutate: createCertificate, isPending: isCreating } = useCreateCertificate();
   const { mutate: updateCertificate, isPending: isUpdating } = useUpdateCertificate();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
@@ -99,6 +101,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     },
     mode: "onChange",
   });
+
   useEffect(() => {
     if (!open) {
       form.reset({
@@ -111,6 +114,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         dateEmision: "",
         dateExpiration: "",
       });
+      setSelectedFile(null);
+      setFilePreview(null);
     } else if (!isUpdate) {
       const today = new Date().toISOString();
       form.reset({
@@ -130,6 +135,23 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, form.watch("dateEmision")]);
 
+  const handleFileChange = (files: FileList | null) => {
+    const file = files?.[0] || null;
+    setSelectedFile(file);
+    form.setValue("fileCertificate", file || undefined);
+
+    // Crear una vista previa del archivo si es una imagen
+    if (file && file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFilePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
+    }
+  };
+
   const onSubmit = (data: FormValues) => {
     const formData = new FormData();
     formData.append("ruc", data.ruc || "");
@@ -140,9 +162,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     formData.append("emailUser", data.emailUser || "");
     formData.append("dateEmision", data.dateEmision);
     formData.append("dateExpiration", data.dateExpiration);
-    if (data.fileCertificate) {
-      formData.append("fileCertificate", data.fileCertificate);
-    }
+    formData.append("fileCertificate", selectedFile || "");
 
     if (isUpdate) {
       updateCertificate(
@@ -151,12 +171,20 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
           data: formData,
         },
         {
-          onSuccess: () => onOpenChange(false),
+          onSuccess: () => {
+            onOpenChange(false);
+            setSelectedFile(null);
+            setFilePreview(null);
+          },
         }
       );
     } else {
       createCertificate(formData, {
-        onSuccess: () => onOpenChange(false),
+        onSuccess: () => {
+          onOpenChange(false);
+          setSelectedFile(null);
+          setFilePreview(null);
+        },
       });
     }
   };
@@ -189,6 +217,11 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
             })()
           : undefined,
       });
+
+      // Si hay un certificado existente con url, configurar vista previa
+      if (currentRow.fileCertificate?.url) {
+        setFilePreview(currentRow.fileCertificate.url);
+      }
     } else {
       form.reset();
     }
@@ -332,16 +365,46 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
               <FormField
                 control={form.control}
                 name="fileCertificate"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
                     <FormLabel>Certificado</FormLabel>
                     <FormControl>
                       <FileInput
                         id="file-certificate"
                         accept="application/pdf, image/png, image/jpeg, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        onChange={(files) => field.onChange(files?.[0])}
+                        onChange={handleFileChange}
                       />
                     </FormControl>
+                    {filePreview && filePreview.startsWith("data:image") && (
+                      <div className="mt-2">
+                        <p className="text-sm text-muted-foreground mb-1">Vista previa:</p>
+                        <img
+                          src={filePreview}
+                          alt="Vista previa del certificado"
+                          className="max-w-full h-auto max-h-48 rounded-md border border-muted"
+                        />
+                      </div>
+                    )}
+                    {filePreview && !filePreview.startsWith("data:image") && currentRow?.fileCertificate?.url && (
+                      <div className="mt-2">
+                        <p className="text-sm text-muted-foreground">
+                          {currentRow.fileCertificate.filename || "Archivo existente"}
+                          <a
+                            href={currentRow.fileCertificate.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="ml-2 text-primary underline"
+                          >
+                            Ver archivo
+                          </a>
+                        </p>
+                      </div>
+                    )}
+                    {selectedFile && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Archivo seleccionado: {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                      </p>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}
