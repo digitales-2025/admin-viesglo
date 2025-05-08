@@ -110,7 +110,20 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
               <Controller
                 name="datosFiliacion.dni"
                 control={control}
-                render={({ field }) => <Input id="dni" {...field} className={dniError ? "border-destructive" : ""} />}
+                render={({ field }) => (
+                  <Input
+                    id="dni"
+                    {...field}
+                    className={dniError ? "border-destructive" : ""}
+                    maxLength={8}
+                    onChange={(e) => {
+                      // Solo permitir dígitos
+                      const value = e.target.value.replace(/\D/g, "");
+                      field.onChange(value);
+                    }}
+                    placeholder="Ingrese 8 dígitos numéricos"
+                  />
+                )}
               />
             ) : (
               <Controller

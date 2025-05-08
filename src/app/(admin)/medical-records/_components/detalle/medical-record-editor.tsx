@@ -43,7 +43,7 @@ interface DiagnosticValue {
 // Schema para la validación del formulario
 const formSchema = z.object({
   datosFiliacion: z.object({
-    dni: z.string().min(1, "DNI es requerido"),
+    dni: z.string().regex(/^\d{8}$/, "DNI debe tener exactamente 8 dígitos numéricos"),
     nombres: z.string().min(1, "Nombres es requerido"),
     segundoNombre: z.string().optional(),
     apellidoPaterno: z.string().min(1, "Apellido paterno es requerido"),
@@ -115,7 +115,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       },
       diagnosticos: {},
     },
-    mode: "onSubmit",
+    mode: "onChange",
   });
 
   const {
@@ -270,6 +270,13 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
     setIsSaving(true);
 
     try {
+      // Validar que el DNI tenga exactamente 8 dígitos numéricos
+      if (!/^\d{8}$/.test(values.datosFiliacion.dni)) {
+        toast.error("El DNI debe tener exactamente 8 dígitos numéricos");
+        setIsSaving(false);
+        return;
+      }
+
       // Determinar el valor de género a partir del estado del formulario
       let genderValue: "MALE" | "FEMALE" | "OTHER" | undefined;
 

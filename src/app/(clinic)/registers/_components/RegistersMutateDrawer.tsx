@@ -96,7 +96,10 @@ const truncateFilename = (filename: string, maxLength: number = 25) => {
 // Define the form schema based on the MedicalRecordCreate type
 const formSchema = z.object({
   ruc: z.string().min(1, "El RUC es requerido"),
-  dni: z.string().optional(),
+  dni: z
+    .string()
+    .regex(/^\d{8}$/, "El DNI debe tener exactamente 8 dígitos numéricos")
+    .optional(),
   firstName: z.string().min(1, "El primer nombre es requerido"),
   secondName: z.string().optional(),
   firstLastName: z.string().min(1, "El apellido paterno es requerido"),
@@ -501,7 +504,16 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                     <FormItem>
                       <FormLabel>DNI del paciente</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el DNI del paciente" {...field} />
+                        <Input
+                          placeholder="Introduce el DNI del paciente (8 dígitos)"
+                          maxLength={8}
+                          {...field}
+                          onChange={(e) => {
+                            // Solo permitir dígitos
+                            const value = e.target.value.replace(/\D/g, "");
+                            field.onChange(value);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
