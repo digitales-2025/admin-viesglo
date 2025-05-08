@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Rutas públicas que no requieren autenticación
-const PUBLIC_ROUTES = ["/sign-in", "/forbidden"];
+const PUBLIC_ROUTES = ["/sign-in", "/forbidden", "/buscar-certificado"];
 
 // Rutas de API que no deberían pasar por el middleware de autenticación
 const API_ROUTES = ["/api/auth", "/api/v1/auth"];
@@ -41,6 +41,7 @@ function isStaticResource(pathname: string): boolean {
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".jpeg") ||
     pathname.endsWith(".css") ||
+    pathname.endsWith(".webp") ||
     pathname.endsWith(".js")
   );
 }

@@ -4,6 +4,7 @@ import { http } from "@/lib/http/serverFetch";
 import { CertificateResponse, CertificatesFilters, PaginatedCertificatesResponse } from "../_types/certificates.types";
 
 const API_ENDPOINT = "/certificate";
+const API_ENDPOINT_PUBLIC = "/certificates-public";
 
 /**
  * Obtiene todos los certificados
@@ -125,7 +126,7 @@ export async function getCertificateByCode(
   code: string
 ): Promise<{ data: CertificateResponse | null; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<CertificateResponse>(`${API_ENDPOINT}/code/${code}`);
+    const [data, err] = await http.get<CertificateResponse>(`${API_ENDPOINT_PUBLIC}/code/${code}`);
     if (err !== null) {
       return { success: false, data: null, error: err.message || "Error al obtener certificado por código" };
     }
@@ -221,7 +222,51 @@ export async function downloadCertificate(certificateId: string) {
         success: true,
         // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
         // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
-        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT}/${certificateId}/download-certificate`,
+        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT_PUBLIC}/${certificateId}/download-certificate`,
+        filename,
+        contentType,
+      };
+    }
+
+    // Si no hay respuesta pero tampoco error, informamos de éxito pero sin datos
+    return { success: true };
+  } catch (error) {
+    console.error("Error al descargar evidencia", error);
+    return { success: false, error: "Error al descargar evidencia" };
+  }
+}
+
+export async function downloadCertificatePublic(certificateId: string) {
+  try {
+    // Hacer la solicitud para verificar que el archivo existe y obtener metadatos
+    const [_, err, response] = await http.downloadFilePublic(
+      `${API_ENDPOINT_PUBLIC}/${certificateId}/download-certificate`
+    );
+    if (err !== null) {
+      throw new Error(err.message || "Error al descargar certificado");
+    }
+
+    // Si tenemos una respuesta, extraemos la información necesaria para la descarga
+    if (response) {
+      // Obtener el nombre del archivo del Content-Disposition
+      const contentDisposition = response.headers.get("Content-Disposition");
+      let filename = "certificado";
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+
+      // En lugar de intentar procesar el blob aquí, devolvemos la información necesaria
+      // para que el cliente pueda hacer la solicitud correctamente
+      return {
+        success: true,
+        // URL absoluta al backend para descarga directa (no la ruta relativa de la API)
+        // Esto es importante porque la URL relativa de la API puede estar redirigiendo a un HTML
+        downloadUrl: process.env.BACKEND_URL + `${API_ENDPOINT_PUBLIC}/${certificateId}/download-certificate`,
         filename,
         contentType,
       };
@@ -242,7 +287,7 @@ export async function generateShareUrl(
   id: string
 ): Promise<{ success: boolean; data?: CertificateResponse; error?: string }> {
   try {
-    const [data, err] = await http.get<CertificateResponse>(`${API_ENDPOINT}/${id}/regenerate-url`);
+    const [data, err] = await http.get<CertificateResponse>(`${API_ENDPOINT_PUBLIC}/${id}/regenerate-url`);
     if (err !== null) {
       throw new Error(err.message || "Error al generar URL compartible");
     }
