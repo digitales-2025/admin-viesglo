@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { FileDown } from "lucide-react";
+import { FileDown, ShieldAlert, ShieldBan, ShieldCheck } from "lucide-react";
 
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
@@ -62,8 +62,27 @@ export default function MedicalRecordTable() {
     [debouncedDiagnosticNameSearch]
   );
 
+  // Estado inicial para los filtros base que siempre estarán disponibles
+  const baseFilterOptions = useMemo(
+    () => [
+      {
+        label: "Aptitud",
+        value: "aptitude",
+        multiSelect: false,
+        options: [
+          { label: "Apto", value: "APT", icon: ShieldCheck },
+          { label: "Apto con restricciones", value: "APT_WITH_RESTRICTIONS", icon: ShieldAlert },
+          { label: "No apto", value: "NOT_APT", icon: ShieldBan },
+        ],
+      },
+    ],
+    []
+  );
+
   const medicalRecordFilterOptions: CustomFilterGroup[] = useMemo(() => {
-    const options: CustomFilterGroup[] = [];
+    // Empezamos con las opciones base
+    const options: CustomFilterGroup[] = [...baseFilterOptions];
+
     if (clinics && clinics.length > 0) {
       options.push({
         label: "Clínica",
@@ -91,7 +110,7 @@ export default function MedicalRecordTable() {
       });
     }
     return options;
-  }, [clinics, availableDiagnostics]);
+  }, [clinics, availableDiagnostics, baseFilterOptions]);
 
   const columns = useMemo(
     () =>
@@ -146,6 +165,9 @@ export default function MedicalRecordTable() {
           }
         } else if (key === "clinicId") {
           newFilters.clinicId = Array.isArray(value) ? value[0] : value;
+        } else if (key === "aptitude") {
+          // Manejar el filtro de aptitud
+          newFilters.aptitude = Array.isArray(value) ? value[0] : value;
         }
       }
       return { ...newFilters, page: 1 };
@@ -199,10 +221,10 @@ export default function MedicalRecordTable() {
           }}
         />
         <Input
-          placeholder="Buscar por nombre de diagnóstico..."
+          placeholder="Buscar diagnóstico..."
           value={freeTextDiagnosticName}
           onChange={handleFreeTextDiagnosticChange}
-          className="h-8 w-[150px] lg:w-[240px]"
+          className="h-8 w-[120px] lg:w-[180px]"
         />
         <Button variant="outline" size="sm" className="h-8 lg:flex">
           <FileDown className="mr-2 h-4 w-4" /> Descargar

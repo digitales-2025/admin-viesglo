@@ -3668,9 +3668,8 @@ export interface components {
        */
       secondLastName?: string;
       /**
-       * Format: date-time
        * @description Fecha de nacimiento
-       * @example 1990-01-01T00:00:00Z
+       * @example 1990-01-01
        */
       birthDate?: string;
       /**
@@ -3680,15 +3679,13 @@ export interface components {
        */
       gender: "MALE" | "FEMALE" | "OTHER";
       /**
-       * Format: date-time
        * @description Fecha de ingreso
-       * @example 2023-01-01T00:00:00Z
+       * @example 2023-01-01
        */
       entryDate: string;
       /**
-       * Format: date-time
        * @description Fecha del último examen médico ocupacional
-       * @example 2023-01-01T00:00:00Z
+       * @example 2023-01-01
        */
       lastEmoDate?: string;
       /**
@@ -6616,6 +6613,8 @@ export interface operations {
         from?: string;
         /** @description Fecha hasta (YYYY-MM-DD) */
         to?: string;
+        /** @description Filtrar por aptitud (APT, APT_WITH_RESTRICTIONS, NOT_APT) */
+        aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
         /** @description Número de página */
         page?: number;
         /** @description Elementos por página */

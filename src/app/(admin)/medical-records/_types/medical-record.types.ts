@@ -42,6 +42,7 @@ export interface MedicalRecordsFilter {
   to?: Date;
   page?: number;
   limit?: number;
+  aptitude?: string;
 }
 
 // Añadir tipo para metadatos de paginación
