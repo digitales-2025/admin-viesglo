@@ -1,9 +1,10 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Calendar } from "lucide-react";
+import { Calendar, File, Image as ImageIcon } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { Pdf } from "@/shared/components/icons/Files";
 import { Badge } from "@/shared/components/ui/badge";
 import CopyButton from "@/shared/components/ui/button-copy";
 import { CertificateResponse } from "../_types/certificates.types";
@@ -93,22 +94,21 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "url del certificado",
-    accessorKey: "urlCertificate",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="URL del certificado" />,
+    id: "certificado",
+    accessorKey: "fileCertificate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Certificado" />,
     cell: ({ row }) => (
       <div className="min-w-[150px] max-w-[150px]">
-        {row.original.urlCertificate ? (
-          <CopyButton
-            variant="outline"
-            size="sm"
-            className="max-w-[150px]"
-            content={row.original.urlCertificate}
-            label={row.original.urlCertificate}
-          />
+        {row.original.fileCertificate ? (
+          <Badge variant="outline" className="text-slate-600 font-normal capitalize">
+            {row.original.fileCertificate.fileType === "PDF" && <Pdf className="w-4 h-4 text-rose-400" />}
+            {row.original.fileCertificate.fileType === "IMAGE" && <ImageIcon className="w-4 h-4 text-emerald-400" />}
+            {row.original.fileCertificate.fileType === "DOCUMENT" && <File className="w-4 h-4 text-sky-400" />}
+            {row.original.fileCertificate.originalName}
+          </Badge>
         ) : (
           <Badge variant="outline" className="text-slate-600 font-normal capitalize">
-            No tiene URL
+            No tiene certificado
           </Badge>
         )}
       </div>
