@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import AlertMessage from "@/shared/components/alerts/Alert";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { FileInput } from "@/shared/components/ui/file-input";
@@ -162,7 +163,9 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     formData.append("emailUser", data.emailUser || "");
     formData.append("dateEmision", data.dateEmision);
     formData.append("dateExpiration", data.dateExpiration);
-    formData.append("fileCertificate", selectedFile || "");
+    if (selectedFile) {
+      formData.append("fileCertificate", selectedFile);
+    }
 
     if (isUpdate) {
       updateCertificate(
@@ -219,8 +222,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       });
 
       // Si hay un certificado existente con url, configurar vista previa
-      if (currentRow.fileCertificate?.url) {
-        setFilePreview(currentRow.fileCertificate.url);
+      if (currentRow.fileCertificate) {
+        setFilePreview(currentRow.fileCertificate.originalName);
       }
     } else {
       form.reset();
@@ -368,11 +371,24 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 render={() => (
                   <FormItem>
                     <FormLabel>Certificado</FormLabel>
+
+                    {filePreview &&
+                      !filePreview.startsWith("data:image") &&
+                      currentRow?.fileCertificate?.originalName && (
+                        <AlertMessage
+                          title="Certificado existente"
+                          description={currentRow.fileCertificate.originalName}
+                          variant="warning"
+                        />
+                      )}
                     <FormControl>
                       <FileInput
                         id="file-certificate"
                         accept="application/pdf, image/png, image/jpeg, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         onChange={handleFileChange}
+                        buttonText={
+                          currentRow?.fileCertificate?.originalName ? "Cambiar certificado" : "Seleccionar certificado"
+                        }
                       />
                     </FormControl>
                     {filePreview && filePreview.startsWith("data:image") && (
@@ -383,21 +399,6 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                           alt="Vista previa del certificado"
                           className="max-w-full h-auto max-h-48 rounded-md border border-muted"
                         />
-                      </div>
-                    )}
-                    {filePreview && !filePreview.startsWith("data:image") && currentRow?.fileCertificate?.url && (
-                      <div className="mt-2">
-                        <p className="text-sm text-muted-foreground">
-                          {currentRow.fileCertificate.filename || "Archivo existente"}
-                          <a
-                            href={currentRow.fileCertificate.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="ml-2 text-primary underline"
-                          >
-                            Ver archivo
-                          </a>
-                        </p>
                       </div>
                     )}
                     {selectedFile && (
