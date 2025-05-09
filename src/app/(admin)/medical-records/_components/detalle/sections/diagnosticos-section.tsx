@@ -56,7 +56,6 @@ export function DiagnosticosSection({
   // para la lógica de seteo, para evitar ejecuciones extra.
   useEffect(() => {
     if (diagnosticsValues) {
-      // console.log("DiagnosticosSection useEffect, received props:", JSON.parse(JSON.stringify(diagnosticsValues)));
       const formValuesToSet = diagnosticsValues.reduce(
         (acc, diag) => {
           if (diag.diagnosticName) {
@@ -69,7 +68,6 @@ export function DiagnosticosSection({
         },
         {} as Record<string, string[]>
       );
-      // console.log("DiagnosticosSection useEffect - Setting form diagnostics to:", JSON.parse(JSON.stringify(formValuesToSet)));
       setValue("diagnosticos", formValuesToSet, { shouldDirty: false, shouldValidate: false });
 
       // Identificar diagnósticos personalizados (sin diagnosticId)
