@@ -160,8 +160,8 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full md:max-w-7xl mx-auto h-auto max-h-[96vh] p-6">
-        <DialogHeader className="mb-4">
+      <DialogContent className="w-full md:max-w-7xl mx-auto h-[98vh] p-2">
+        <DialogHeader className="mb-2">
           <DialogTitle className="text-xl font-bold capitalize">
             Certificado: {currentRow?.nameCapacitation}
           </DialogTitle>
@@ -171,11 +171,8 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
           </DialogDescription>
         </DialogHeader>
 
-        <div className="h-full max-h-[80vh] overflow-hidden flex flex-col">
-          <Card className="border-2 border-primary/20 print:border-primary/10 relative overflow-hidden flex-1">
-            <div className="absolute top-0 right-0 w-40 h-40 -mt-8 -mr-8 bg-primary/5 rounded-full" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 -mb-8 -ml-8 bg-primary/5 rounded-full" />
-
+        <div className="h-[82vh] overflow-hidden flex flex-col">
+          <Card className="border-primary/20 print:border-primary/10 relative overflow-hidden flex-1 p-1">
             {loading ? (
               <div className="w-full h-64 flex items-center justify-center">
                 <Loader2 className="h-10 w-10 animate-spin text-primary" />
@@ -186,12 +183,12 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
                 <p>{error}</p>
               </div>
             ) : previewUrl ? (
-              <>
-                <CardContent className="p-4 overflow-auto">
+              <div className="flex flex-col h-full">
+                <CardContent className="p-0 overflow-hidden flex-1">
                   {isPDF ? (
                     <iframe
                       src={previewUrl}
-                      className="w-full h-full border-0"
+                      className="w-full h-full border-0 rounded-lg"
                       title={fileInfo?.filename || "Documento PDF"}
                     />
                   ) : isImage ? (
@@ -208,8 +205,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
                     </div>
                   )}
                 </CardContent>
-
-                <CardFooter className="flex flex-wrap sm:flex-row justify-end gap-3 border-t pt-4 pb-4">
+                <CardFooter className="flex flex-wrap sm:flex-row justify-end gap-3 border-t py-2">
                   <Button variant="outline" size="sm" onClick={handlePrint}>
                     <Printer className="h-4 w-4 mr-2" />
                     Imprimir
@@ -226,7 +222,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
                     </Button>
                   )}
                 </CardFooter>
-              </>
+              </div>
             ) : (
               <div className="w-full h-64 flex items-center justify-center flex-col gap-4 p-10">
                 <p>No hay certificado disponible o no se pudo cargar</p>
@@ -238,8 +234,7 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
               </div>
             )}
           </Card>
-
-          <div className="mt-4 text-center text-sm text-muted-foreground">
+          <div className="mt-1 text-center text-xs text-muted-foreground">
             {currentRow.dateEmision && (
               <p>Este certificado fue emitido el {formatDate(new Date(currentRow.dateEmision), "dd/MM/yyyy")}.</p>
             )}
