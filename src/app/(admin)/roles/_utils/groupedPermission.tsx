@@ -61,7 +61,7 @@ export enum EnumResource {
   diagnostic = "diagnostic",
   quotations = "quotations",
   payments = "payments",
-  trainings = "trainings",
+  certificate = "certificate",
 }
 
 export const labelResource = {
@@ -76,7 +76,7 @@ export const labelResource = {
   [EnumResource.quotationGroups]: "Grupos de cotizaciones",
   [EnumResource.quotations]: "Cotizaciones",
   [EnumResource.payments]: "Pagos",
-  [EnumResource.trainings]: "Certificaciones",
+  [EnumResource.certificate]: "Certificaciones",
 };
 
 export const iconResource = {
@@ -91,7 +91,7 @@ export const iconResource = {
   [EnumResource.quotationGroups]: Group,
   [EnumResource.quotations]: Files,
   [EnumResource.payments]: Banknote,
-  [EnumResource.trainings]: GraduationCap,
+  [EnumResource.certificate]: GraduationCap,
 };
 
 export function groupedPermission(permissions: Permission[]) {

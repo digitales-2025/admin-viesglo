@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Check, DollarSign, Pencil, Redo2, Trash2, X } from "lucide-react";
+import { Check, DollarSign, IterationCcw, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -505,7 +505,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                   disabled={isToggling || payment.isPaid}
                                   title="Reactivar pago"
                                 >
-                                  <Redo2 className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
+                                  <IterationCcw className="h-4 w-4 text-yellow-600 scale-x-[-1]" />
                                 </Button>
                               </ProtectedComponent>
                             )}

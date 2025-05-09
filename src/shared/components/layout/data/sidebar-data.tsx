@@ -108,7 +108,7 @@ export const sidebarData: SidebarData = {
           title: "Certificados",
           icon: GraduationCap,
           url: "/certificates",
-          permissions: [{ resource: EnumResource.trainings, action: EnumAction.read }],
+          permissions: [{ resource: EnumResource.certificate, action: EnumAction.read }],
         },
       ],
     },

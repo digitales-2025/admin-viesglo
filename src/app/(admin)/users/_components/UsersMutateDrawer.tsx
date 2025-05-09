@@ -24,6 +24,7 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { cn } from "@/shared/lib/utils";
 import { useCreateUser, useUpdateUser } from "../_hooks/useUsers";
 import { User, UserCreate } from "../_types/user.types";
 import { generateRandomPass } from "../_utils/generateRandomPass";
@@ -281,7 +282,11 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                           </SelectTrigger>
                           <SelectContent className="w-full">
                             {data?.map((role) => (
-                              <SelectItem key={role.id} value={role.id}>
+                              <SelectItem
+                                key={role.id}
+                                value={role.id}
+                                className={cn(role.isActive ? "" : "text-rose-600 line-through")}
+                              >
                                 {role.name}
                               </SelectItem>
                             ))}

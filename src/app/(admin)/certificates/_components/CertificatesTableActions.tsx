@@ -1,4 +1,4 @@
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, IterationCcw, MoreHorizontal, Trash } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useReactivateCertificate } from "../_hooks/useCertificates";
 import { CertificateResponse } from "../_types/certificates.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
@@ -33,11 +34,18 @@ export default function CertificatesTableActions({ certificate }: CertificatesTa
     open(MODULE, "delete", certificate);
   };
 
+  const { mutate: reactivateCertificate, isPending: isReactivating } = useReactivateCertificate();
+
+  const handleReactivate = (e: any) => {
+    e.stopPropagation();
+    reactivateCertificate(certificate.id);
+  };
+
   return (
     <ProtectedComponent
       requiredPermissions={[
-        { resource: EnumResource.trainings, action: EnumAction.update },
-        { resource: EnumResource.trainings, action: EnumAction.delete },
+        { resource: EnumResource.certificate, action: EnumAction.update },
+        { resource: EnumResource.certificate, action: EnumAction.delete },
       ]}
     >
       <DropdownMenu>
@@ -47,7 +55,7 @@ export default function CertificatesTableActions({ certificate }: CertificatesTa
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.trainings, action: EnumAction.update }]}>
+          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.certificate, action: EnumAction.update }]}>
             <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
               Editar
               <DropdownMenuShortcut>
@@ -55,14 +63,33 @@ export default function CertificatesTableActions({ certificate }: CertificatesTa
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           </ProtectedComponent>
-          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.trainings, action: EnumAction.delete }]}>
-            <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={!certificate.isActive}>
-              Eliminar
-              <DropdownMenuShortcut>
-                <Trash className="size-4 mr-2" />
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </ProtectedComponent>
+          {certificate.isActive ? (
+            <ProtectedComponent
+              requiredPermissions={[{ resource: EnumResource.certificate, action: EnumAction.delete }]}
+            >
+              <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={!certificate.isActive}>
+                Eliminar
+                <DropdownMenuShortcut>
+                  <Trash className="size-4 mr-2" />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </ProtectedComponent>
+          ) : (
+            <ProtectedComponent
+              requiredPermissions={[{ resource: EnumResource.certificate, action: EnumAction.delete }]}
+            >
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handleReactivate}
+                disabled={certificate.isActive || isReactivating}
+              >
+                Reactivar
+                <DropdownMenuShortcut>
+                  <IterationCcw className="size-4 mr-2 text-yellow-600" />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            </ProtectedComponent>
+          )}
         </DropdownMenuContent>
       </DropdownMenu>
     </ProtectedComponent>
