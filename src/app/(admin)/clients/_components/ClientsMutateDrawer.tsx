@@ -239,8 +239,12 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     >
       <SheetContent className="flex flex-col">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} Cliente</SheetTitle>
-          <SheetDescription>{isUpdate ? "Actualiza los datos del cliente" : "Crea un nuevo cliente"}</SheetDescription>
+          <SheetTitle className="text-2xl font-bold capitalize">
+            {isUpdate ? "Actualizar" : "Crear"} usuario tipo cliente
+          </SheetTitle>
+          <SheetDescription>
+            {isUpdate ? "Actualiza los datos del usuario tipo cliente" : "Crea un nuevo usuario tipo cliente"}
+          </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
@@ -252,7 +256,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>RUC</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el RUC del cliente" {...field} />
+                      <Input placeholder="Introduce el RUC de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -265,7 +269,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Razón Social</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la razón social del cliente" {...field} />
+                      <Input placeholder="Introduce la razón social de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -278,7 +282,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Dirección</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la dirección del cliente" {...field} />
+                      <Input placeholder="Introduce la dirección de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,7 +295,11 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Teléfono</FormLabel>
                     <FormControl>
-                      <PhoneInput defaultCountry="PE" placeholder="Introduce el teléfono del cliente" {...field} />
+                      <PhoneInput
+                        defaultCountry="PE"
+                        placeholder="Introduce el teléfono de la empresa cliente"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,7 +327,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     name="clinicIds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Clínicas</FormLabel>
+                        <FormLabel>Clínicas asociadas a la empresa cliente</FormLabel>
                         <FormControl>
                           <MultiSelectAutocomplete
                             options={
@@ -332,7 +340,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                             onChange={field.onChange}
                             id="client-clinics-select"
                             searchPlaceholder="Buscar por nombre de clínica..."
-                            placeholder="Seleccionar clínicas..."
+                            placeholder="Seleccionar clínicas asociadas a la empresa cliente..."
                             emptyMessage="No se encontraron clínicas con ese nombre."
                           />
                         </FormControl>
@@ -351,7 +359,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem>
                       <FormLabel>Usuario (Correo electrónico)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el email del cliente" {...field} />
+                        <Input placeholder="Introduce el email del usuario tipo cliente" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +377,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                             placeholder={
                               isUpdate
                                 ? "Dejar en blanco para mantener la contraseña actual"
-                                : "Introduce la contraseña del cliente"
+                                : "Introduce la contraseña del usuario tipo cliente"
                             }
                             {...field}
                           />
@@ -395,8 +403,8 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormMessage />
                       {isUpdate && (
                         <AlertMessage
-                          title="Cambiar la contraseña del cliente."
-                          description="Si desea cambiar la contraseña del cliente, genere una nueva contraseña y se enviará al correo electrónico del cliente."
+                          title="Cambiar la contraseña del usuario tipo cliente."
+                          description="Si desea cambiar la contraseña del usuario tipo cliente, genere una nueva contraseña y se enviará al correo electrónico del usuario tipo cliente."
                           variant="info"
                         />
                       )}
