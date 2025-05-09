@@ -203,3 +203,48 @@ export async function concreteQuotation(
     return { success: false, data: null, error: "Error al concretar cotización" };
   }
 }
+
+/**
+ * Descarga cotizaciones en formato XLS
+ */
+export async function downloadQuotationsXls(filters?: QuotationFilters): Promise<Blob | null> {
+  try {
+    // Construir los parámetros de consulta a partir de los filtros
+    const queryParams = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== "") {
+          // Manejar arrays - agregar múltiples parámetros con el mismo nombre
+          if (Array.isArray(value)) {
+            // Si es un array vacío, no agregar el parámetro
+            if (value.length > 0) {
+              value.forEach((item) => {
+                queryParams.append(key, String(item));
+              });
+            }
+          } else {
+            // Para booleanos, asegurarse de que se convierten correctamente a string
+            const paramValue = typeof value === "boolean" ? String(value) : String(value);
+            queryParams.append(key, paramValue);
+          }
+        }
+      });
+    }
+
+    const queryString = queryParams.toString();
+    const url = `${API_ENDPOINT}/generate-excel${queryString ? `?${queryString}` : ""}`;
+    const [_, err, response] = await http.downloadFile(url);
+
+    if (err !== null || !response) {
+      console.error("Error al descargar cotizaciones", err);
+      return null;
+    }
+
+    // Convertir el Response a Blob
+    const blob = await response.blob();
+    return blob;
+  } catch (error) {
+    console.error("Error al descargar cotizaciones", error);
+    return null;
+  }
+}
