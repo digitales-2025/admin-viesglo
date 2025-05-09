@@ -533,6 +533,31 @@ export async function getAllAvailableDiagnostics(): Promise<{
 }
 
 /**
+ * Obtiene todos los diagnósticos disponibles en el sistema
+ */
+export async function getAllDiagnosticsForTable(): Promise<{
+  data: DiagnosticEntity[];
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const endpoint = `${DIAGNOSTICS_API_ENDPOINT}?includeInactive=true`;
+
+    const [response, err] = await http.get<{ diagnostics: DiagnosticEntity[] }>(endpoint);
+
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener diagnósticos disponibles" };
+    }
+
+    const diagnostics = response.diagnostics || [];
+
+    return { success: true, data: diagnostics };
+  } catch (_error) {
+    return { success: false, data: [], error: "Error crítico al obtener diagnósticos disponibles" };
+  }
+}
+
+/**
  * Elimina un diagnóstico del sistema
  */
 export async function deleteDiagnosticFromSystem(diagnosticId: string): Promise<{ success: boolean; error?: string }> {
@@ -585,5 +610,69 @@ export async function createDiagnosticInSystem(
     return { success: true, data: response };
   } catch (_error) {
     return { success: false, data: null, error: "Error al crear diagnóstico" };
+  }
+}
+
+/**
+ * Activa un diagnóstico en el sistema
+ */
+export async function activateDiagnosticInSystem(
+  diagnosticId: string
+): Promise<{ data: DiagnosticEntity | null; success: boolean; error?: string }> {
+  try {
+    const [response, err] = await http.patch<DiagnosticEntity>(
+      `${DIAGNOSTICS_API_ENDPOINT}/${diagnosticId}/activate`,
+      {}
+    );
+
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al activar diagnóstico" };
+    }
+
+    // El backend devuelve { message: string, diagnostic: DiagnosticEntity }
+    // Aquí asumimos que el objeto `diagnostic` está en la respuesta, si no, hay que ajustar.
+    // Si la respuesta es solo un mensaje de éxito y el diagnóstico actualizado no viene en el cuerpo,
+    // se podría necesitar hacer un GET después o simplemente devolver success: true.
+    // Basado en el controller, sí devuelve el diagnóstico.
+    // @ts-expect-error backend devuelve un objeto { message, diagnostic }
+    if (response && response.diagnostic) {
+      // @ts-expect-error response.diagnostic es el tipo correcto aquí
+      return { success: true, data: response.diagnostic };
+    }
+
+    return { success: true, data: response }; // Asumiendo que la respuesta directa es DiagnosticEntity
+  } catch (_error) {
+    return { success: false, data: null, error: "Error al activar diagnóstico" };
+  }
+}
+
+/**
+ * Desactiva un diagnóstico en el sistema
+ */
+export async function deactivateDiagnosticInSystem(
+  diagnosticId: string
+): Promise<{ data: DiagnosticEntity | null; success: boolean; error?: string }> {
+  try {
+    // Asumiendo que el endpoint es PATCH y no necesita un body, o un body vacío.
+    // Si necesita un body específico para desactivar, hay que añadirlo.
+    const [response, err] = await http.patch<DiagnosticEntity>(
+      `${DIAGNOSTICS_API_ENDPOINT}/${diagnosticId}/deactivate`,
+      {}
+    );
+
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al desactivar diagnóstico" };
+    }
+
+    // Similar a activar, el backend devuelve { message: string, diagnostic: DiagnosticEntity }
+    // @ts-expect-error backend devuelve un objeto { message, diagnostic }
+    if (response && response.diagnostic) {
+      // @ts-expect-error response.diagnostic es el tipo correcto aquí
+      return { success: true, data: response.diagnostic };
+    }
+    // Si la respuesta es solo un mensaje de éxito y el diagnóstico actualizado no viene en el cuerpo
+    return { success: true, data: response }; // Asumiendo que la respuesta directa es DiagnosticEntity
+  } catch (_error) {
+    return { success: false, data: null, error: "Error al desactivar diagnóstico" };
   }
 }
