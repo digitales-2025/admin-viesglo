@@ -4,7 +4,6 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useUsers } from "@/app/(admin)/users/_hooks/useUsers";
 import Autocomplete from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
@@ -32,6 +31,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { cn } from "@/shared/lib/utils";
 import { useCreateActivityProject, useUpdateActivityProject } from "../../_hooks/useActivitiesProject";
+import { useUsersProject } from "../../_hooks/useProjectTraking";
 import { ProjectActivityResponse } from "../../_types/tracking.types";
 
 interface ProjectActivityMutateDrawerProps {
@@ -57,7 +57,7 @@ export default function ProjectActivityMutateDrawer({
   currentRow,
   objectiveId,
 }: ProjectActivityMutateDrawerProps) {
-  const { data: users, isPending: isLoadingUsers } = useUsers();
+  const { data: users, isPending: isLoadingUsers } = useUsersProject();
   const { mutate: createActivity, isPending: isCreating } = useCreateActivityProject();
   const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivityProject();
   const isUpdate = !!currentRow?.id;

@@ -141,6 +141,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/users/users-project": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["UsersController_getProjectTrackers_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users/{id}": {
     parameters: {
       query?: never;
@@ -178,6 +194,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/users/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar un usuario */
+    patch: operations["UsersController_reactivate_v1"];
     trace?: never;
   };
   "/api/v1/roles": {
@@ -249,6 +282,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/roles/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar un rol */
+    patch: operations["RolesController_reactivate_v1"];
     trace?: never;
   };
   "/api/v1/permissions": {
@@ -430,6 +480,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clinics/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado de una clínica */
+    patch: operations["ClinicsController_toggleActive_v1"];
+    trace?: never;
+  };
   "/api/v1/clients": {
     parameters: {
       query?: never;
@@ -518,6 +585,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/clients/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado de un cliente */
+    patch: operations["ClientsController_toggleActive_v1"];
     trace?: never;
   };
   "/api/v1/clients/by-clinic/{clinicId}": {
@@ -974,6 +1058,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/certificate/{id}/download-certificate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Descargar certificado por id */
+    get: operations["CertificateController_downloadCertificate_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/certificate/{id}": {
     parameters: {
       query?: never;
@@ -993,6 +1094,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/certificate/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado de un certificado por id */
+    patch: operations["CertificateController_toggleActive_v1"];
+    trace?: never;
+  };
   "/api/v1/certificate/code/{code}": {
     parameters: {
       query?: never;
@@ -1002,6 +1120,74 @@ export interface paths {
     };
     /** Obtener un certificado por codigo */
     get: operations["CertificateController_findByCode_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificate/{id}/regenerate-url": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Regenerar la URL de acceso al certificado */
+    get: operations["CertificateController_regenerateFileUrl_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificates-public/code/{code}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un certificado por codigo */
+    get: operations["CertificatesPublicController_findByCode_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificates-public/{id}/regenerate-url": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Regenerar la URL de acceso al certificado */
+    get: operations["CertificatesPublicController_regenerateFileUrl_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/certificates-public/{id}/download-certificate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Descargar certificado por id */
+    get: operations["CertificatesPublicController_downloadCertificate_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2447,6 +2633,11 @@ export interface components {
        */
       endDate?: string;
       /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
        * @description Estado del proyecto
        * @example En progreso
        */
@@ -2710,6 +2901,38 @@ export interface components {
        */
       completedActivities?: number;
     };
+    ResponsibleUserDto: {
+      /**
+       * @description ID del usuario responsable
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id?: string;
+      /**
+       * @description Nombre del usuario responsable
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Email del usuario responsable
+       * @example abc@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Teléfono del usuario responsable
+       * @example 123456789
+       */
+      phone?: string | null;
+      /**
+       * @description Puesto del usuario responsable
+       * @example Gerente de Proyecto
+       */
+      post?: string | null;
+      /**
+       * @description Indica si el usuario responsable está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
     ProjectResponseDto: {
       /**
        * @description ID único del proyecto
@@ -2726,6 +2949,11 @@ export interface components {
        * @example Implementación
        */
       typeProject?: string;
+      /**
+       * @description ID del usuario responsable del proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      responsibleUserId?: string;
       /**
        * Format: date-time
        * @description Fecha de inicio del proyecto
@@ -2762,6 +2990,8 @@ export interface components {
        * @example 50
        */
       progress?: number;
+      /** @description Usuario responsable del proyecto */
+      responsibleUser?: components["schemas"]["ResponsibleUserDto"];
     };
     PaginatedProjectResponseDto: {
       /** @description Lista de proyectos paginados */
@@ -2852,6 +3082,11 @@ export interface components {
        * @example Implementación
        */
       typeProject?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
       /**
        * @description Fecha de inicio del proyecto
        * @example 2023-01-01T00:00:00.000Z
@@ -4634,6 +4869,25 @@ export interface operations {
       };
     };
   };
+  UsersController_getProjectTrackers_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"][];
+        };
+      };
+    };
+  };
   UsersController_findById_v1: {
     parameters: {
       query?: never;
@@ -4745,6 +4999,26 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Usuario reactivado con éxito */
+      200: {
         headers: {
           [name: string]: unknown;
         };
@@ -4919,6 +5193,26 @@ export interface operations {
       };
       /** @description Rol no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  RolesController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Rol reactivado con éxito */
+      200: {
         headers: {
           [name: string]: unknown;
         };
@@ -5353,6 +5647,26 @@ export interface operations {
       };
     };
   };
+  ClinicsController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado de la clínica actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ClientsController_getClients_v1: {
     parameters: {
       query?: never;
@@ -5608,6 +5922,26 @@ export interface operations {
       };
     };
   };
+  ClientsController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado cambiado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ClientsController_getClientsByClinic_v1: {
     parameters: {
       query?: never;
@@ -5691,6 +6025,8 @@ export interface operations {
         endDateTo?: string;
         /** @description Filtrar por estado del proyecto */
         status?: string;
+        /** @description Filtrar por usuario responsable */
+        responsibleUserId?: string;
         /** @description Filtrar por búsqueda en nombre o descripción */
         search?: string;
         /** @description Filtrar por ID de cliente */
@@ -6740,6 +7076,8 @@ export interface operations {
   CertificateController_findAll_v1: {
     parameters: {
       query?: {
+        /** @description Buscar certificados */
+        search?: string;
         /** @description Fecha de inicio para filtrar certificados */
         from?: string;
         /** @description Fecha de fin para filtrar certificados */
@@ -6793,6 +7131,8 @@ export interface operations {
   CertificateController_findAllPaginated_v1: {
     parameters: {
       query?: {
+        /** @description Buscar certificados */
+        search?: string;
         /** @description Fecha de inicio para filtrar certificados */
         from?: string;
         /** @description Fecha de fin para filtrar certificados */
@@ -6816,6 +7156,26 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["PaginatedCertificateResponseDto"];
         };
+      };
+    };
+  };
+  CertificateController_downloadCertificate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Certificado descargado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6887,6 +7247,26 @@ export interface operations {
       };
     };
   };
+  CertificateController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El estado del certificado ha sido cambiado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   CertificateController_findByCode_v1: {
     parameters: {
       query?: never;
@@ -6899,6 +7279,90 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificateController_regenerateFileUrl_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description URL regenerada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificatesPublicController_findByCode_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        code: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description El certificado ha sido recuperado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  CertificatesPublicController_regenerateFileUrl_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description URL regenerada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificatesPublicController_downloadCertificate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Certificado descargado exitosamente. */
       200: {
         headers: {
           [name: string]: unknown;

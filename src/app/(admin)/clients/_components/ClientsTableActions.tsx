@@ -1,4 +1,4 @@
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, RotateCcw, Trash } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useToggleActiveClients } from "../_hooks/useClients";
 import { ClientWithClinicResponse } from "../_types/clients.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
@@ -20,6 +21,8 @@ interface ClientsTableActionsProps {
 export default function ClientsTableActions({ client }: ClientsTableActionsProps) {
   const { open } = useDialogStore();
 
+  const { mutate: toggleActive, isPending: isToggling } = useToggleActiveClients();
+
   // Constante para módulo
   const MODULE = "clients";
 
@@ -29,6 +32,10 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
 
   const handleDelete = () => {
     open(MODULE, "delete", client);
+  };
+
+  const handleToggleActive = () => {
+    toggleActive(client.id);
   };
 
   return (
@@ -54,12 +61,25 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
             </DropdownMenuItem>
           </ProtectedComponent>
           <ProtectedComponent requiredPermissions={[{ resource: EnumResource.clients, action: EnumAction.delete }]}>
-            <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
-              Eliminar
-              <DropdownMenuShortcut>
-                <Trash className="size-4 mr-2" />
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
+            {client.isActive ? (
+              <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={!client.isActive}>
+                Eliminar
+                <DropdownMenuShortcut>
+                  <Trash className="size-4 mr-2" />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={handleToggleActive}
+                disabled={client.isActive || isToggling}
+              >
+                Reactivar
+                <DropdownMenuShortcut>
+                  <RotateCcw className="size-4 mr-2 text-yellow-500" />
+                </DropdownMenuShortcut>
+              </DropdownMenuItem>
+            )}
           </ProtectedComponent>
         </DropdownMenuContent>
       </DropdownMenu>
