@@ -8,6 +8,7 @@ import { z } from "zod";
 import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { DatePickerWithYearMonth } from "@/shared/components/ui/date-picker-with-year-month";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -96,10 +97,7 @@ const truncateFilename = (filename: string, maxLength: number = 25) => {
 // Define the form schema based on the MedicalRecordCreate type
 const formSchema = z.object({
   ruc: z.string().min(1, "El RUC es requerido"),
-  dni: z
-    .string()
-    .regex(/^\d{8}$/, "El DNI debe tener exactamente 8 dígitos numéricos")
-    .optional(),
+  dni: z.string().regex(/^\d{8}$/, "El DNI debe tener exactamente 8 dígitos numéricos"),
   firstName: z.string().min(1, "El primer nombre es requerido"),
   secondName: z.string().optional(),
   firstLastName: z.string().min(1, "El apellido paterno es requerido"),
@@ -553,7 +551,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
                       <FormLabel>Fecha de nacimiento</FormLabel>
-                      <DatePicker
+                      <DatePickerWithYearMonth
                         selected={field.value}
                         onSelect={field.onChange}
                         disabled={isPending}

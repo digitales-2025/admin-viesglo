@@ -39,7 +39,7 @@ export function DiagnosticosSection({
   onDiagnosticsChange,
 }: DiagnosticosSectionProps) {
   // Usar react-hook-form context
-  const { control, setValue, getValues } = useFormContext<FormValues>();
+  const { control, setValue } = useFormContext<FormValues>();
 
   // Estado para diagnósticos personalizados
   const [_customDiagnostics, setCustomDiagnostics] = useState<string[]>([]);
@@ -53,46 +53,41 @@ export function DiagnosticosSection({
   const updateDiagnosticName = useUpdateDiagnosticValueName();
 
   // Inicializar los valores de diagnóstico de forma dinámica desde los valores recibidos
-  // Solo se debe ejecutar cuando se monta el componente, no en cada rerenderizado
+  // para la lógica de seteo, para evitar ejecuciones extra.
   useEffect(() => {
-    if (diagnosticsValues && diagnosticsValues.length > 0) {
-      // Verificar si diagnosticos ya tiene valores - no sobreescribir si ya están cargados
-      const currentValues = getValues()?.diagnosticos || {};
-      const hasExistingValues = Object.keys(currentValues).some(
-        (key) => Array.isArray(currentValues[key]) && currentValues[key].length > 0
+    if (diagnosticsValues) {
+      const formValuesToSet = diagnosticsValues.reduce(
+        (acc, diag) => {
+          if (diag.diagnosticName) {
+            acc[diag.diagnosticName] = Array.isArray(diag.value)
+              ? // Se mantiene el filtro original por ahora, se puede ajustar si es necesario
+                diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+              : [];
+          }
+          return acc;
+        },
+        {} as Record<string, string[]>
       );
-
-      if (!hasExistingValues) {
-        // Inicializar dinámicamente desde los valores recibidos
-        const initialValues = diagnosticsValues.reduce(
-          (acc, diag) => {
-            if (diag.diagnosticName) {
-              // Asegurarse de que value es siempre un array y contiene valores válidos
-              acc[diag.diagnosticName] = Array.isArray(diag.value)
-                ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
-                : [];
-            }
-            return acc;
-          },
-          {} as Record<string, string[]>
-        );
-
-        // Solo establecer si hay valores para inicializar
-        if (Object.keys(initialValues).length > 0) {
-          setValue("diagnosticos", initialValues, { shouldDirty: false });
-        }
-      }
+      setValue("diagnosticos", formValuesToSet, { shouldDirty: false, shouldValidate: false });
 
       // Identificar diagnósticos personalizados (sin diagnosticId)
       const customDiags = diagnosticsValues
         .filter((diag) => diag.diagnosticId === null)
         .map((diag) => diag.diagnosticName);
 
-      if (customDiags.length > 0) {
-        setCustomDiagnostics(customDiags);
-      }
+      // Actualizar el estado de customDiagnostics solo si ha cambiado para evitar re-renders innecesarios.
+      // Es importante ordenar para una comparación consistente si el orden de customDiags puede variar.
+      setCustomDiagnostics((prevCustomDiags) => {
+        const sortedNewCustomDiags = [...customDiags].sort();
+        const sortedPrevCustomDiags = [...prevCustomDiags].sort();
+        if (JSON.stringify(sortedPrevCustomDiags) !== JSON.stringify(sortedNewCustomDiags)) {
+          return customDiags; // Devolver el array original sin ordenar si se va a actualizar
+        }
+        return prevCustomDiags;
+      });
     }
-  }, [diagnosticsValues, setValue, getValues]);
+  }, [diagnosticsValues, setValue]); // Eliminamos getValues de las dependencias si no es estrictamente necesario
+  // para la lógica de seteo, para evitar ejecuciones extra.
 
   // Manejar cuando se agrega un nuevo diagnóstico desde DiagnosticManager
   const handleDiagnosticAdded = () => {

@@ -4,20 +4,28 @@ import { toast } from "sonner";
 
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
+  activateDiagnosticInSystem,
   addDiagnostic,
   addDiagnosticValue,
   addMultipleDiagnostics,
+  createDiagnosticInSystem,
   createMedicalRecord,
+  deactivateDiagnosticInSystem,
   deleteDiagnostic,
+  deleteDiagnosticFromSystem,
   deleteMedicalRecord,
   downloadAptitudeCertificate,
   downloadMedicalReport,
+  getActiveDiagnostics,
   getAllAvailableDiagnostics,
+  getAllDiagnosticsForTable,
   getAptitudeCertificateInfo,
   getDiagnostics,
   getMedicalRecord,
   getMedicalRecords,
   getMedicalReportInfo,
+  toggleIncludeReportsDiagnostic,
+  updateDiagnosticInSystem,
   updateDiagnosticValueName,
   updateMedicalRecord,
   uploadAptitudeCertificate,
@@ -28,6 +36,8 @@ import {
   MedicalRecordsFilter,
   MedicalRecordUpdate,
   PaginationMeta,
+  SystemCreateDiagnosticRequest,
+  SystemUpdateDiagnosticRequest,
 } from "../_types/medical-record.types";
 
 export const MEDICAL_RECORDS_KEYS = {
@@ -37,6 +47,8 @@ export const MEDICAL_RECORDS_KEYS = {
   detail: (id: string) => [...MEDICAL_RECORDS_KEYS.all, id] as const,
   diagnostics: (id: string) => [...MEDICAL_RECORDS_KEYS.detail(id), "diagnostics"] as const,
   availableDiagnostics: () => [...MEDICAL_RECORDS_KEYS.all, "available-diagnostics"] as const,
+  allDiagnostics: () => [...MEDICAL_RECORDS_KEYS.all, "all-diagnostics"] as const,
+  activeDiagnostics: () => [...MEDICAL_RECORDS_KEYS.all, "active-diagnostics"] as const,
 };
 
 /**
@@ -596,5 +608,212 @@ export function useAvailableDiagnostics() {
       return response.data;
     },
     staleTime: 5 * 60 * 1000, // Cachear por 5 minutos
+  });
+}
+
+/**
+ * Hook para obtener todos los diagnósticos activos
+ */
+export function useActiveDiagnostics() {
+  return useQuery({
+    queryKey: MEDICAL_RECORDS_KEYS.activeDiagnostics(),
+    queryFn: async () => {
+      const response = await getActiveDiagnostics();
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener diagnósticos activos");
+      }
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cachear por 5 minutos
+  });
+}
+
+/**
+ * Hook para obtener todos los diagnósticos disponibles para los filtros
+ */
+export function useAllDiagnostics() {
+  return useQuery({
+    queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+    queryFn: async () => {
+      const response = await getAllDiagnosticsForTable();
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener diagnósticos disponibles");
+      }
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Cachear por 5 minutos
+  });
+}
+
+/**
+ * Hook para eliminar un diagnóstico del sistema
+ */
+export function useDeleteDiagnosticFromSystem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (diagnosticId: string) => {
+      const response = await deleteDiagnosticFromSystem(diagnosticId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al eliminar diagnóstico");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      // Invalidar la lista de diagnósticos disponibles
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+      });
+      toast.success("Diagnóstico eliminado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al eliminar diagnóstico");
+    },
+  });
+}
+
+/**
+ * Hook para actualizar un diagnóstico en el sistema
+ */
+export function useUpdateDiagnosticInSystem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ diagnosticId, data }: { diagnosticId: string; data: SystemUpdateDiagnosticRequest }) => {
+      const response = await updateDiagnosticInSystem(diagnosticId, data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar diagnóstico");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidar la lista de diagnósticos disponibles para que se refresque
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+      });
+      toast.success("Diagnóstico actualizado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al actualizar diagnóstico");
+    },
+  });
+}
+
+/**
+ * Hook para crear un nuevo diagnóstico en el sistema
+ */
+export function useCreateDiagnosticInSystem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (data: SystemCreateDiagnosticRequest) => {
+      const response = await createDiagnosticInSystem(data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al crear diagnóstico");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      // Invalidar la lista de diagnósticos disponibles
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+      });
+      toast.success("Diagnóstico creado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al crear diagnóstico");
+    },
+  });
+}
+
+/**
+ * Hook para activar un diagnóstico en el sistema
+ */
+export function useActivateDiagnosticInSystem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (diagnosticId: string) => {
+      const response = await activateDiagnosticInSystem(diagnosticId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al activar diagnóstico");
+      }
+      return response.data; // Devuelve el diagnóstico activado
+    },
+    onSuccess: (_data) => {
+      // Invalidar la lista de diagnósticos disponibles para que se refresque
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.activeDiagnostics(),
+      });
+
+      toast.success("Diagnóstico activado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al activar diagnóstico");
+    },
+  });
+}
+
+/**
+ * Hook para desactivar un diagnóstico en el sistema
+ */
+export function useDeactivateDiagnosticInSystem() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (diagnosticId: string) => {
+      const response = await deactivateDiagnosticInSystem(diagnosticId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al desactivar diagnóstico");
+      }
+      return response.data; // Devuelve el diagnóstico desactivado
+    },
+    onSuccess: () => {
+      // Invalidar la lista de diagnósticos disponibles para que se refresque
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+      });
+      toast.success("Diagnóstico desactivado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al desactivar diagnóstico");
+    },
+  });
+}
+
+export function useToggleIncludeReportsDiagnostic() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (diagnosticId: string) => {
+      const response = await toggleIncludeReportsDiagnostic(diagnosticId);
+      if (!response.success) {
+        throw new Error(response.error || "Error al cambiar el estado de inclusión en informes");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+      });
+      toast.success("Diagnóstico actualizado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al cambiar el estado de inclusión en informes");
+    },
   });
 }
