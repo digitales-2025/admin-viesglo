@@ -533,6 +533,31 @@ export async function getAllAvailableDiagnostics(): Promise<{
 }
 
 /**
+ * Obtiene todos los diagnósticos activos en el sistema
+ */
+export async function getActiveDiagnostics(): Promise<{
+  data: DiagnosticEntity[];
+  success: boolean;
+  error?: string;
+}> {
+  try {
+    const endpoint = `${DIAGNOSTICS_API_ENDPOINT}/active`;
+
+    const [response, err] = await http.get<{ diagnostics: DiagnosticEntity[] }>(endpoint);
+
+    if (err !== null) {
+      return { success: false, data: [], error: err.message || "Error al obtener diagnósticos activos" };
+    }
+
+    const diagnostics = response.diagnostics || [];
+
+    return { success: true, data: diagnostics };
+  } catch (_error) {
+    return { success: false, data: [], error: "Error crítico al obtener diagnósticos activos" };
+  }
+}
+
+/**
  * Obtiene todos los diagnósticos disponibles en el sistema
  */
 export async function getAllDiagnosticsForTable(): Promise<{
@@ -674,5 +699,23 @@ export async function deactivateDiagnosticInSystem(
     return { success: true, data: response }; // Asumiendo que la respuesta directa es DiagnosticEntity
   } catch (_error) {
     return { success: false, data: null, error: "Error al desactivar diagnóstico" };
+  }
+}
+
+export async function toggleIncludeReportsDiagnostic(
+  diagnosticId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch<DiagnosticEntity>(
+      `${DIAGNOSTICS_API_ENDPOINT}/${diagnosticId}/toggle-include-reports`
+    );
+
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al cambiar el estado de inclusión en informes" };
+    }
+
+    return { success: true };
+  } catch (_error) {
+    return { success: false, error: "Error al cambiar el estado de inclusión en informes" };
   }
 }
