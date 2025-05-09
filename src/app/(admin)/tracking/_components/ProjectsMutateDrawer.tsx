@@ -27,8 +27,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
+import { useUsersProject } from "../_hooks/useProjectTraking";
 import { CreateProject, ProjectResponse, UpdateProjectWithoutServices } from "../_types/tracking.types";
 import { searchClients } from "../../clients/_actions/clients.actions";
 import { useServices } from "../../services/_hooks/useServices";
@@ -62,6 +62,7 @@ const formSchema = z.object({
       })
     )
     .optional(),
+  responsibleUserId: z.string().optional(),
 });
 
 type ProjectsForm = z.infer<typeof formSchema>;
@@ -70,8 +71,8 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { data: services, isLoading, error } = useServices();
+  const { data: users, isPending: isLoadingUsers } = useUsersProject();
   const [selectedClient, setSelectedClient] = useState<AutocompleteItem | null>(null);
-
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
@@ -86,6 +87,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       startDate: "",
       clientId: "",
       services: [],
+      responsibleUserId: "",
     },
   });
   // Función para buscar clientes optimizada con debounce incorporado en el Autocomplete
@@ -160,6 +162,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         startDate: extendedCurrentRow.startDate || "",
         clientId: extendedCurrentRow.client?.id || "",
         services: [],
+        responsibleUserId: "",
       });
     } else {
       form.reset({
@@ -168,6 +171,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         startDate: "",
         clientId: "",
         services: [],
+        responsibleUserId: "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -181,6 +185,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         startDate: "",
         clientId: "",
         services: [],
+        responsibleUserId: "",
       });
     }
   }, [open, form]);
@@ -210,127 +215,163 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
-          <Form {...form}>
-            <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
-              <FormField
-                control={form.control}
-                name="clientId"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Buscar cliente</FormLabel>
-                    <FormControl>
-                      <Autocomplete
-                        value={selectedClient}
-                        onChange={(client) => {
-                          setSelectedClient(client);
-                          field.onChange(client ? client.id : "");
-                        }}
-                        onSearch={fetchClients}
-                        placeholder="Buscar cliente por nombre, RUC o email"
-                        minChars={2}
-                        debounceTime={300}
-                        noResultsText="No se encontraron clientes"
-                        loadingText="Buscando clientes..."
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="typeContract"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Tipo de contrato</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
-                    </FormControl>
-                    <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem className="space-y-1">
-                    <FormLabel>Descripción</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} placeholder="Ingrese una descripción" disabled={isPending} />
-                    </FormControl>
-                    <FormDescription>Una descripción breve del proyecto.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="space-y-1 flex-1">
-                    <FormLabel>Fecha de inicio</FormLabel>
-                    <FormControl>
-                      <DatePicker
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          const dateString = date ? date.toISOString() : "";
-                          field.onChange(dateString);
-                        }}
-                        disabled={isPending}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {!isUpdate ? (
-                <>
-                  {isLoading && (
+        {isLoadingUsers ? (
+          <div className="flex justify-center items-center h-full">
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </div>
+        ) : (
+          <>
+            <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
+              <Form {...form}>
+                <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
+                  <FormField
+                    control={form.control}
+                    name="clientId"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormLabel>Buscar cliente</FormLabel>
+                        <FormControl>
+                          <Autocomplete
+                            value={selectedClient}
+                            onChange={(client) => {
+                              setSelectedClient(client);
+                              field.onChange(client ? client.id : "");
+                            }}
+                            onSearch={fetchClients}
+                            placeholder="Buscar cliente por nombre, RUC o email"
+                            minChars={2}
+                            debounceTime={300}
+                            noResultsText="No se encontraron clientes"
+                            loadingText="Buscando clientes..."
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="typeContract"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1">
+                        <FormLabel>Tipo de contrato</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
+                        </FormControl>
+                        <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="responsibleUserId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Responsable</FormLabel>
+                        <FormControl>
+                          <Autocomplete
+                            value={
+                              field.value
+                                ? {
+                                    id: field.value,
+                                    label: users?.find((user) => user.id === field.value)?.fullName || "",
+                                    value: field.value,
+                                    name: users?.find((user) => user.id === field.value)?.fullName || "",
+                                  }
+                                : null
+                            }
+                            onChange={(value) => field.onChange(value?.id)}
+                            placeholder="Buscar responsable por nombre, email o teléfono"
+                            minChars={2}
+                            onSearch={(query) => {
+                              return Promise.resolve(
+                                users
+                                  ?.filter((user) => user.fullName.toLowerCase().includes(query.toLowerCase()))
+                                  .map((user) => ({
+                                    id: user.id,
+                                    label: user.fullName,
+                                    value: user.id,
+                                    name: user.fullName,
+                                  })) || []
+                              );
+                            }}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1 flex-1">
+                        <FormLabel>Fecha de inicio</FormLabel>
+                        <FormControl>
+                          <DatePicker
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              const dateString = date ? date.toISOString() : "";
+                              field.onChange(dateString);
+                            }}
+                            disabled={isPending}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {!isUpdate ? (
+                    <>
+                      {isLoading && (
+                        <div className="flex items-center justify-center">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        </div>
+                      )}
+                      {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
+                      {services && (
+                        <FormField
+                          control={form.control}
+                          name="services"
+                          render={({ field }) => (
+                            <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
+                              <FormLabel>Servicios del proyecto</FormLabel>
+                              <FormControl>
+                                <TreeServices services={services} value={field.value} onChange={field.onChange} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </>
+                  ) : (
                     <div className="flex items-center justify-center">
-                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <p className="text-sm text-muted-foreground">
+                        Los servicios de un proyecto los puedes ver al seleccionar el proyecto.
+                      </p>
                     </div>
                   )}
-                  {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
-                  {services && (
-                    <FormField
-                      control={form.control}
-                      name="services"
-                      render={({ field }) => (
-                        <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
-                          <FormLabel>Servicios del proyecto</FormLabel>
-                          <FormControl>
-                            <TreeServices services={services} value={field.value} onChange={field.onChange} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
-                </>
-              ) : (
-                <div className="flex items-center justify-center">
-                  <p className="text-sm text-muted-foreground">
-                    Los servicios de un proyecto los puedes al seleccionar el proyecto.
-                  </p>
-                </div>
-              )}
-            </form>
-          </Form>
-        </ScrollArea>
-        <SheetFooter className="gap-2">
-          <Button form="projects-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
-          </Button>
-          <SheetClose asChild>
-            <Button variant="outline" disabled={isPending}>
-              Cancelar
-            </Button>
-          </SheetClose>
-        </SheetFooter>
+                </form>
+              </Form>
+            </ScrollArea>
+            <SheetFooter className="gap-2">
+              <Button form="projects-form" type="submit" disabled={isPending}>
+                {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+              </Button>
+              <SheetClose asChild>
+                <Button variant="outline" disabled={isPending}>
+                  Cancelar
+                </Button>
+              </SheetClose>
+            </SheetFooter>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

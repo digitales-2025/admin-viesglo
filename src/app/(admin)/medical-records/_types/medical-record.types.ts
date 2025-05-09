@@ -32,6 +32,26 @@ export type BulkDiagnosticsRequest = {
   diagnostics: CreateDiagnostic[];
 };
 
+// Tipo para el request de eliminar diagnóstico
+export type DeleteDiagnosticRequest = {
+  diagnosticId: string;
+};
+
+// Tipo para la creación de un diagnóstico a nivel de sistema
+export type SystemCreateDiagnosticRequest = {
+  name: string; // Nombre del diagnóstico
+  description?: string; // Descripción opcional
+  dataType: string; // Tipo de dato (ej. JSON, TEXT) -> Siempre JSON desde el front en creación
+  isDefaultIncluded?: boolean; // Si se incluye por defecto en la creación de medical record
+};
+
+// Tipo para la actualización de un diagnóstico a nivel de sistema
+export type SystemUpdateDiagnosticRequest = {
+  name?: string; // Solo nombre actualizable
+  description?: string; // Solo descripción actualizable
+  isDefaultIncluded?: boolean; // Para permitir actualizar si se incluye por defecto
+};
+
 // Tipo para filtrar registros médicos
 export interface MedicalRecordsFilter {
   clientId?: string;
@@ -61,6 +81,6 @@ export interface DiagnosticEntity {
   description?: string;
   dataType?: string; // Podría ser relevante para cómo se muestran los valores
   isActive?: boolean;
-  isReportIncluded?: boolean;
+  isDefaultIncluded?: boolean;
   // Añade aquí otros campos que tu endpoint GET /diagnostics devuelva y necesites
 }
