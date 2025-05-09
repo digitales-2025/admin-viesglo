@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = ["/sign-in", "/forbidden"];
 
+const PUBLIC_ROUTES_WITHOUT_AUTH = ["/buscar-certificado"];
+
 // Rutas de API que no deberían pasar por el middleware de autenticación
 const API_ROUTES = ["/api/auth", "/api/v1/auth"];
 
@@ -41,6 +43,7 @@ function isStaticResource(pathname: string): boolean {
     pathname.endsWith(".jpg") ||
     pathname.endsWith(".jpeg") ||
     pathname.endsWith(".css") ||
+    pathname.endsWith(".webp") ||
     pathname.endsWith(".js")
   );
 }
@@ -53,6 +56,12 @@ export async function middleware(request: NextRequest) {
 
   // Permitir recursos estáticos sin verificación
   if (isStaticResource(pathname)) {
+    return NextResponse.next();
+  }
+
+  // Si es una ruta pública sin autenticación, permitir acceso
+  if (PUBLIC_ROUTES_WITHOUT_AUTH.includes(pathname)) {
+    devlog("Ruta pública sin autenticación, permitiendo acceso");
     return NextResponse.next();
   }
 

@@ -15,7 +15,7 @@ export default function CertificatesPrimaryButtons() {
 
   return (
     <div className="flex gap-2">
-      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.trainings, action: EnumAction.create }]}>
+      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.certificate, action: EnumAction.create }]}>
         <Button className="space-x-1" onClick={() => open(MODULE, "create")}>
           <span>Agregar Certificado</span> <Plus size={18} />
         </Button>

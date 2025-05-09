@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { format } from "date-fns";
 import { toast } from "sonner";
 
 import {
@@ -10,29 +9,54 @@ import {
   getCertificate,
   getCertificateByCode,
   getCertificates,
-  getCertificatesByDateRange,
+  getCertificatesPaginated,
+  reactivateCertificate,
   updateCertificate,
 } from "../_actions/certificates.actions";
+import { CertificateResponse, CertificatesFilters, PaginatedCertificatesResponse } from "../_types/certificates.types";
 
 export const CERTIFICATES_KEYS = {
   all: ["certificates"] as const,
   lists: () => [...CERTIFICATES_KEYS.all, "list"] as const,
-  list: (filters: string) => [...CERTIFICATES_KEYS.lists(), { filters }] as const,
+  list: (filters: CertificatesFilters = {}) => [...CERTIFICATES_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...CERTIFICATES_KEYS.all, id] as const,
 };
 
 /**
  * Hook para obtener todos los certificados
  */
-export function useCertificates() {
+export function useCertificates(filters?: CertificatesFilters) {
   return useQuery({
-    queryKey: CERTIFICATES_KEYS.lists(),
+    queryKey: CERTIFICATES_KEYS.list(filters),
     queryFn: async () => {
-      const response = await getCertificates();
+      const response = await getCertificates(filters);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener certificados");
       }
       return response.data;
+    },
+  });
+}
+
+/**
+ * Hook para obtener todos los certificados pero con paginacion
+ */
+export function useCertificatesPaginated(filters?: CertificatesFilters) {
+  return useQuery({
+    queryKey: CERTIFICATES_KEYS.list(filters),
+    queryFn: async () => {
+      const response = await getCertificatesPaginated(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener las certificaciones");
+      }
+
+      return {
+        data: response.data,
+        meta: response.meta,
+      } as {
+        data: CertificateResponse[];
+        meta: PaginatedCertificatesResponse["meta"];
+      };
     },
   });
 }
@@ -106,6 +130,28 @@ export function useDeleteCertificate() {
 }
 
 /**
+ * Hook para reactivar un certificado
+ */
+export function useReactivateCertificate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await reactivateCertificate(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al reactivar certificado");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CERTIFICATES_KEYS.lists() });
+      toast.success("Certificado reactivado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al reactivar certificado");
+    },
+  });
+}
+
+/**
  * Hook para obtener un certificado por su código
  */
 export function useGetCertificateByCode(code: string) {
@@ -134,31 +180,5 @@ export function useGetCertificateById(id: string) {
       }
       return response.data;
     },
-  });
-}
-
-/**
- * Hook para obtener certificados por rango de fechas
- */
-export function useGetCertificatesByDateRange(startDate?: Date, endDate?: Date) {
-  return useQuery({
-    queryKey: CERTIFICATES_KEYS.list(`date=${startDate?.toISOString() || ""}&endDate=${endDate?.toISOString() || ""}`),
-    queryFn: async () => {
-      // Si alguna fecha no está definida, devolvemos un error
-      if (!startDate || !endDate) {
-        throw new Error("Debe seleccionar ambas fechas");
-      }
-
-      // Convertir las fechas a formato YYYY-MM-DD
-      const formattedStartDate = format(startDate, "yyyy-MM-dd");
-      const formattedEndDate = format(endDate, "yyyy-MM-dd");
-
-      const response = await getCertificatesByDateRange(formattedStartDate, formattedEndDate);
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener certificados por rango de fechas");
-      }
-      return response.data;
-    },
-    enabled: !!startDate && !!endDate, // Solo ejecutar si ambas fechas están definidas
   });
 }

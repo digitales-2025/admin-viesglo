@@ -79,11 +79,30 @@ export async function updateRole(
  */
 export async function deleteRole(id: string): Promise<{ success: boolean; error?: string }> {
   try {
-    await http.delete(`${API_ENDPOINT}/${id}`);
+    const [_, err] = await http.delete(`${API_ENDPOINT}/${id}`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al eliminar rol" };
+    }
     return { success: true };
   } catch (error: any) {
     console.error(`Error al eliminar rol ${id}:`, error);
     return { success: false, error: error.message || "Error al eliminar rol" };
+  }
+}
+
+/**
+ * Toggle el rol de un usuario
+ */
+export async function toggleActiveRole(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al toggle el rol de un usuario" };
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error al toggle el rol de un usuario`, error);
+    return { success: false, error: error.message || "Error al toggle el rol de un usuario" };
   }
 }
 

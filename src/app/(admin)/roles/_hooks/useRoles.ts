@@ -3,7 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createRole, deleteRole, getRole, getRolePermissions, getRoles, updateRole } from "../_actions/roles.actions";
+import {
+  createRole,
+  deleteRole,
+  getRole,
+  getRolePermissions,
+  getRoles,
+  toggleActiveRole,
+  updateRole,
+} from "../_actions/roles.actions";
 import { RoleCreate, RoleUpdate } from "../_types/roles";
 
 // Claves de consulta para roles
@@ -96,7 +104,13 @@ export function useDeleteRole() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteRole(id),
+    mutationFn: async (id: string) => {
+      const response = await deleteRole(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al eliminar rol");
+      }
+      return response;
+    },
     onSuccess: () => {
       // Invalida consultas para refrescar la lista
       queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
@@ -104,6 +118,30 @@ export function useDeleteRole() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar rol");
+    },
+  });
+}
+
+/**
+ * Hook para toggle el rol de un usuario
+ */
+export function useToggleActiveRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleActiveRole(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al toggle el rol de un usuario");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
+      toast.success("Rol activado exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al toggle el rol de un usuario");
     },
   });
 }

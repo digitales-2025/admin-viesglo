@@ -317,6 +317,37 @@ export async function serverFetchWithResponse<T>(
   }
 }
 
+// Funcion para realizar peticiones y obtener tambien la respuesta publica
+export async function serverFetchWithResponsePublic<T>(
+  url: string,
+  options?: RequestInit
+): Promise<[T | null, ServerFetchError | null, Response | null]> {
+  try {
+    // Configuramos los cookies para la solicitud
+
+    const response = await fetch(`${process.env.BACKEND_URL}${url}`, {
+      ...options,
+      headers: {
+        ...options?.headers,
+      },
+      credentials: "include", // Importante para que el navegador incluya las cookies en la solicitud
+    });
+
+    return processResponse<T>(response);
+  } catch (error) {
+    console.error(error);
+    return [
+      null,
+      {
+        statusCode: 503,
+        message: "Error interno",
+        error: "Error interno",
+      },
+      null,
+    ];
+  }
+}
+
 /**
  * Objeto que proporciona métodos para realizar peticiones HTTP
  */
@@ -631,6 +662,19 @@ export const http = {
    */
   downloadFile<T>(url: string, config?: RequestInit) {
     return serverFetchWithResponse<T>(url, {
+      ...config,
+      headers: {
+        ...config?.headers,
+        Accept: "application/octet-stream",
+      },
+    });
+  },
+
+  /**
+   *
+   */
+  downloadFilePublic<T>(url: string, config?: RequestInit) {
+    return serverFetchWithResponsePublic<T>(url, {
       ...config,
       headers: {
         ...config?.headers,

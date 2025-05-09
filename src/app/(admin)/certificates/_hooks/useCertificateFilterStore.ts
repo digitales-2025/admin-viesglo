@@ -1,22 +1,35 @@
-import { DateRange } from "react-day-picker";
 import { create } from "zustand";
 
-interface CertificateFilterState {
-  // Estado
-  dateRange: DateRange | undefined;
+import { CertificatesFilters } from "../_types/certificates.types";
 
-  // Acciones
-  setDateRange: (dateRange: DateRange | undefined) => void;
-  clearDateRange: () => void;
-  clearAll: () => void;
+type CertificatesFilterData = Omit<CertificatesFilters, "page" | "limit">;
+
+interface CertificatesState {
+  filters: CertificatesFilterData;
+
+  setFilters: (filtes: CertificatesFilterData) => void;
+  updateFilter: (key: string, value: any) => void;
+  resetFilters: () => void;
 }
 
-export const useCertificateFilterStore = create<CertificateFilterState>((set) => ({
-  // Estado inicial
-  dateRange: undefined,
+const DEFAULT_FILTERS: CertificatesFilterData = {};
 
-  // Acciones
-  setDateRange: (dateRange) => set({ dateRange }),
-  clearDateRange: () => set({ dateRange: undefined }),
-  clearAll: () => set({ dateRange: undefined }),
+export const useCertificatesStore = create<CertificatesState>()((set) => ({
+  // Estado inicial de filtros (vacío)
+  filters: DEFAULT_FILTERS,
+
+  // Métodos para gestionar filtros
+  setFilters: (filters) => set({ filters }),
+
+  // Actualizar un filtro específico
+  updateFilter: (key, value) =>
+    set((state) => ({
+      filters: {
+        ...state.filters,
+        [key]: value,
+      },
+    })),
+
+  // Resetear todos los filtros
+  resetFilters: () => set({ filters: DEFAULT_FILTERS }),
 }));
