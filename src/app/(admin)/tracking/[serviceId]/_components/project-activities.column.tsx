@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, CircleFadingArrowUp, Clock, Download, Image, Loader2, Trash, X } from "lucide-react";
+import { Check, CircleFadingArrowUp, Clock, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
@@ -13,6 +13,7 @@ import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import {
@@ -59,7 +60,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
       };
 
       return (
-        <div className="flex items-center w-[220px]" title={responsibleUser?.fullName}>
+        <div className="flex items-center w-[220px] gap-2" title={responsibleUser?.fullName}>
           <AutocompleteSelect
             label="Responsable"
             options={users.map((user) => ({ value: user.id, label: user.fullName }))}
@@ -68,6 +69,22 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
             isLoading={isPending}
             className="border-none"
           />
+
+          {!row.original.responsibleUser.id
+            ? null
+            : !responsibleUser && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-4 text-rose-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      El usuario {row.original.responsibleUser.fullName} ha sido eliminado. Seleccione otro usuario
+                      responsable
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
         </div>
       );
     },
