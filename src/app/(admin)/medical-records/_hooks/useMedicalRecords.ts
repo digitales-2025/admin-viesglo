@@ -699,7 +699,7 @@ export function useCreateDiagnosticInSystem() {
     onSuccess: () => {
       // Invalidar la lista de diagnósticos disponibles
       queryClient.invalidateQueries({
-        queryKey: MEDICAL_RECORDS_KEYS.availableDiagnostics(),
+        queryKey: MEDICAL_RECORDS_KEYS.allDiagnostics(),
       });
       toast.success("Diagnóstico creado correctamente");
     },

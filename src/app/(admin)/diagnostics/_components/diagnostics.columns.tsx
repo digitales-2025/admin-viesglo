@@ -28,9 +28,13 @@ export const columnsDiagnostics = (): ColumnDef<DiagnosticEntity>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        <Badge variant="outline">
-          <Info className="size-4" /> {row.getValue("description")}
-        </Badge>
+        {row.getValue("description") ? (
+          <Badge variant="outline">
+            <Info className="size-4" /> {row.getValue("description")}
+          </Badge>
+        ) : (
+          <span className="text-xs italic text-accent-foreground">Sin descripción</span>
+        )}
       </div>
     ),
   },
@@ -40,22 +44,14 @@ export const columnsDiagnostics = (): ColumnDef<DiagnosticEntity>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
-        {row.getValue("isActive") ? (
-          <Badge variant="success">
-            <ToggleLeft className="size-4" /> Activo
-          </Badge>
-        ) : (
-          <Badge variant="error">
-            <ToggleLeft className="size-4" /> Inactivo
-          </Badge>
-        )}
+        {row.getValue("isActive") ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
       </div>
     ),
   },
   {
     id: "isDefaultIncluded",
     accessorKey: "isDefaultIncluded",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Por Defecto en HC" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Incluido en reportes" />,
     cell: ({ row }) => (
       <div className="truncate max-w-[300px]">
         {row.getValue("isDefaultIncluded") ? (
