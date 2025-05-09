@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { toggleActiveClients } from "../_hooks/useClients";
+import { useToggleActiveClients } from "../_hooks/useClients";
 import { ClientWithClinicResponse } from "../_types/clients.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
@@ -21,7 +21,7 @@ interface ClientsTableActionsProps {
 export default function ClientsTableActions({ client }: ClientsTableActionsProps) {
   const { open } = useDialogStore();
 
-  const { mutate: toggleActive, isPending: isToggling } = toggleActiveClients();
+  const { mutate: toggleActive, isPending: isToggling } = useToggleActiveClients();
 
   // Constante para módulo
   const MODULE = "clients";
