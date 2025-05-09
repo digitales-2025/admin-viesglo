@@ -11,7 +11,7 @@ import CertificatesPrimaryButtons from "./_components/CertificatesPrimaryButtons
 export default function CertificatesPage() {
   return (
     <ProtectedComponent
-      requiredPermissions={[{ resource: EnumResource.trainings, action: EnumAction.read }]}
+      requiredPermissions={[{ resource: EnumResource.certificate, action: EnumAction.read }]}
       fallback={
         <AlertMessage
           variant="destructive"
