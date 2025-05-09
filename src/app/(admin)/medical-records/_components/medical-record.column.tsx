@@ -2,8 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { FileDown } from "lucide-react";
+import { Calendar, FileDown } from "lucide-react";
+import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
@@ -27,7 +27,6 @@ export const columnsMedicalRecord = ({
   isDownloadingCertificate,
   isDownloadingReport,
 }: ColumnsMedicalRecordProps): ColumnDef<MedicalRecordResponse>[] => {
-  // Función para verificar si existe un informe médico
   const hasMedicalReport = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
     return files.some(
@@ -36,7 +35,6 @@ export const columnsMedicalRecord = ({
     );
   };
 
-  // Función para verificar si existe un certificado de aptitud
   const hasAptitudeCertificate = (files: any[] | undefined) => {
     if (!files || files.length === 0) return false;
     return files.some(
@@ -46,30 +44,24 @@ export const columnsMedicalRecord = ({
     );
   };
 
-  // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
-      // const hasCertificate = hasAptitudeCertificate(record.files);
-      // // if (!hasCertificate) {
-      // //   toast.error("No hay documento disponible");
-      // //   return;
-      // // }
-
-      // La función de descarga ahora maneja internamente los toasts y la descarga
-      await downloadCertificate(record.id);
-    } catch (error) {
-      console.warn("Error inesperado al descargar certificado", error);
-    }
+      if (hasAptitudeCertificate(record.files)) {
+        await downloadCertificate(record.id);
+      } else {
+        toast.info(`El certificado de aptitud no está disponible`);
+      }
+    } catch (_error) {}
   };
 
-  // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
-      // La función de descarga ahora maneja internamente los toasts y la descarga
-      await downloadReport(record.id);
-    } catch (error) {
-      console.warn("Error inesperado al descargar informe", error);
-    }
+      if (hasMedicalReport(record.files)) {
+        await downloadReport(record.id);
+      } else {
+        toast.info(`El informe médico no está disponible`);
+      }
+    } catch (_error) {}
   };
 
   return [
@@ -112,11 +104,21 @@ export const columnsMedicalRecord = ({
     },
     {
       id: "fecha de registro",
-      accessorKey: "createdAt",
+      accessorKey: "entryDate",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Registro" />,
       cell: ({ row }) => {
-        const date = new Date(row.getValue("fecha de registro"));
-        return <div className="min-w-[150px]">{format(date, "PPP", { locale: es })}</div>;
+        const entryDateValue = row.getValue("fecha de registro") as string | Date | null | undefined;
+        if (!entryDateValue) {
+          return <div className="min-w-[150px]">--</div>;
+        }
+        return (
+          <Badge variant="outline" className="capitalize min-w-[150px]">
+            <Calendar className="size-3 text-muted-foreground" />
+            {typeof entryDateValue === "string"
+              ? entryDateValue.substring(0, 10).split("-").reverse().join("/")
+              : format(new Date(entryDateValue), "dd/MM/yyyy")}
+          </Badge>
+        );
       },
     },
     {

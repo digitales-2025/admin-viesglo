@@ -1,73 +1,99 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon, Check, Edit, Plus, Trash } from "lucide-react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 
-import { cn } from "@/lib/utils";
-import { Button } from "@/shared/components/ui/button";
-import { Calendar } from "@/shared/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { DatePicker } from "@/shared/components/ui/date-picker";
+import { DatePickerWithYearMonth } from "@/shared/components/ui/date-picker-with-year-month";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { NewFieldDialog } from "../new-field-dialog";
 
 interface DatosFiliacionSectionProps {
-  data: any;
   isEditing: boolean;
-  onUpdateField: (field: string, value: any) => void;
-  onAddCustomField: (name: string) => void;
-  onUpdateCustomField: (index: number, field: string, value: string) => void;
-  onRemoveCustomField: (index: number) => void;
-  onEditCustomField: (index: number, newName: string) => void;
 }
 
-export function DatosFiliacionSection({
-  data,
-  isEditing,
-  onUpdateField,
-  onAddCustomField,
-  onUpdateCustomField,
-  onRemoveCustomField,
-  onEditCustomField,
-}: DatosFiliacionSectionProps) {
-  const [isAddFieldDialogOpen, setIsAddFieldDialogOpen] = useState(false);
-  const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(null);
-  const [tempFieldName, setTempFieldName] = useState("");
+type FormValues = {
+  datosFiliacion: {
+    dni: string;
+    nombres: string;
+    segundoNombre?: string;
+    apellidoPaterno: string;
+    apellidoMaterno?: string;
+    genero?: string;
+    fechaNacimiento?: Date;
+    emodate?: Date;
+    entryDate?: Date;
+  };
+};
 
-  if (!data) return null;
+export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps) {
+  // Usar react-hook-form context
+  const {
+    control,
+    formState: { errors },
+    getValues,
+  } = useFormContext<FormValues>();
 
-  const existingFields = [
-    "dni",
-    "nombres",
-    "apellidoPaterno",
-    "apellidoMaterno",
-    "fechaIngreso",
-    "edad",
-    "genero",
-    "fechaUltimoEmo",
-  ].concat((data.customFields || []).map((field: any) => field.name));
+  // Watch the fecha nacimiento para calcular la edad
+  const fechaNacimiento = useWatch({
+    control,
+    name: "datosFiliacion.fechaNacimiento",
+  });
 
-  const handleEditFieldName = (index: number) => {
-    if (tempFieldName.trim() !== "") {
-      onEditCustomField(index, tempFieldName);
-      setEditingFieldIndex(null);
+  // Watch género para controlar su valor independientemente
+  const genero = useWatch({
+    control,
+    name: "datosFiliacion.genero",
+  });
+
+  // Estado local para almacenar la edad calculada
+  const [edadCalculada, setEdadCalculada] = useState<string>("Calculando...");
+  // Estado local para preservar el valor del género
+  const [localGender, setLocalGender] = useState<string | undefined>(undefined);
+
+  // Actualizar el estado local del género cuando cambie en el formulario
+  useEffect(() => {
+    if (genero && genero !== localGender) {
+      setLocalGender(genero);
     }
+  }, [genero, localGender]);
+
+  // Calcular la edad tanto cuando cambia fechaNacimiento como cuando cambia el modo
+  useEffect(() => {
+    // Intentar obtener el valor de fecha de nacimiento de diferentes fuentes
+    const fechaValue = fechaNacimiento || getValues("datosFiliacion.fechaNacimiento");
+
+    if (!fechaValue) {
+      setEdadCalculada("No disponible");
+      return;
+    }
+
+    const birthDate = new Date(fechaValue);
+    const today = new Date();
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+
+    // Ajustar la edad si el cumpleaños aún no ha ocurrido este año
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    setEdadCalculada(`${age} años`);
+  }, [fechaNacimiento, isEditing, getValues]);
+
+  // Manejador para el cambio de género
+  const handleGenderChange = (value: string) => {
+    setLocalGender(value);
   };
 
-  const startEditingField = (index: number, currentName: string) => {
-    setEditingFieldIndex(index);
-    setTempFieldName(currentName);
-  };
-
-  // Capitalizar solo la primera letra
-  const capitalizeFirstLetter = (text: string) => {
-    if (!text) return "";
-    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-  };
+  // Extraer y tipificar los errores específicos
+  const dniError = errors.datosFiliacion?.dni;
+  const nombresError = errors.datosFiliacion?.nombres;
+  const apellidoPaternoError = errors.datosFiliacion?.apellidoPaterno;
 
   return (
     <Card>
@@ -77,238 +103,251 @@ export function DatosFiliacionSection({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-3">
-            <Label htmlFor="dni">DNI</Label>
+            <Label htmlFor="dni" className={dniError ? "text-destructive" : ""}>
+              DNI <span className="text-destructive">*</span>
+            </Label>
             {isEditing ? (
-              <Input id="dni" value={data.dni || ""} onChange={(e) => onUpdateField("dni", e.target.value)} />
+              <Controller
+                name="datosFiliacion.dni"
+                control={control}
+                render={({ field }) => (
+                  <Input
+                    id="dni"
+                    {...field}
+                    className={dniError ? "border-destructive" : ""}
+                    maxLength={8}
+                    onChange={(e) => {
+                      // Solo permitir dígitos
+                      const value = e.target.value.replace(/\D/g, "");
+                      field.onChange(value);
+                    }}
+                    placeholder="Ingrese 8 dígitos numéricos"
+                  />
+                )}
+              />
             ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.dni || "No registrado"}</div>
+              <Controller
+                name="datosFiliacion.dni"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
+              />
+            )}
+            {dniError && <p className="text-sm text-destructive">{String(dniError.message)}</p>}
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="nombres" className={nombresError ? "text-destructive" : ""}>
+              Nombres <span className="text-destructive">*</span>
+            </Label>
+            {isEditing ? (
+              <Controller
+                name="datosFiliacion.nombres"
+                control={control}
+                render={({ field }) => (
+                  <Input id="nombres" {...field} className={nombresError ? "border-destructive" : ""} />
+                )}
+              />
+            ) : (
+              <Controller
+                name="datosFiliacion.nombres"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
+              />
+            )}
+            {nombresError && <p className="text-sm text-destructive">{String(nombresError.message)}</p>}
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="segundoNombre">Segundo nombre</Label>
+            {isEditing ? (
+              <Controller
+                name="datosFiliacion.segundoNombre"
+                control={control}
+                render={({ field }) => <Input id="segundoNombre" {...field} />}
+              />
+            ) : (
+              <Controller
+                name="datosFiliacion.segundoNombre"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
+              />
             )}
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="nombres">Nombres</Label>
+            <Label htmlFor="apellidoPaterno" className={apellidoPaternoError ? "text-destructive" : ""}>
+              Apellido paterno <span className="text-destructive">*</span>
+            </Label>
             {isEditing ? (
-              <Input
-                id="nombres"
-                value={data.nombres || ""}
-                onChange={(e) => onUpdateField("nombres", e.target.value)}
+              <Controller
+                name="datosFiliacion.apellidoPaterno"
+                control={control}
+                render={({ field }) => (
+                  <Input id="apellidoPaterno" {...field} className={apellidoPaternoError ? "border-destructive" : ""} />
+                )}
               />
             ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.nombres || "No registrado"}</div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="apellidoPaterno">Apellido paterno</Label>
-            {isEditing ? (
-              <Input
-                id="apellidoPaterno"
-                value={data.apellidoPaterno || ""}
-                onChange={(e) => onUpdateField("apellidoPaterno", e.target.value)}
+              <Controller
+                name="datosFiliacion.apellidoPaterno"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
               />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.apellidoPaterno || "No registrado"}</div>
             )}
+            {apellidoPaternoError && <p className="text-sm text-destructive">{String(apellidoPaternoError.message)}</p>}
           </div>
 
           <div className="space-y-3">
             <Label htmlFor="apellidoMaterno">Apellido materno</Label>
             {isEditing ? (
-              <Input
-                id="apellidoMaterno"
-                value={data.apellidoMaterno || ""}
-                onChange={(e) => onUpdateField("apellidoMaterno", e.target.value)}
+              <Controller
+                name="datosFiliacion.apellidoMaterno"
+                control={control}
+                render={({ field }) => <Input id="apellidoMaterno" {...field} />}
               />
             ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.apellidoMaterno || "No registrado"}</div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="fechaIngreso">Fecha de ingreso</Label>
-            {isEditing ? (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !data.fechaIngreso && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.fechaIngreso ? (
-                      format(data.fechaIngreso, "PPP", { locale: es })
-                    ) : (
-                      <span>Seleccionar fecha</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={data.fechaIngreso}
-                    onSelect={(date) => onUpdateField("fechaIngreso", date)}
-                    initialFocus
-                    locale={es}
-                  />
-                </PopoverContent>
-              </Popover>
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">
-                {data.fechaIngreso ? format(data.fechaIngreso, "PPP", { locale: es }) : "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="edad">Edad</Label>
-            {isEditing ? (
-              <Input
-                id="edad"
-                type="number"
-                value={data.edad || ""}
-                onChange={(e) => onUpdateField("edad", e.target.value)}
+              <Controller
+                name="datosFiliacion.apellidoMaterno"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
               />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.edad || "No registrado"}</div>
             )}
           </div>
 
           <div className="space-y-3">
             <Label htmlFor="genero">Género</Label>
             {isEditing ? (
-              <Select value={data.genero || ""} onValueChange={(value) => onUpdateField("genero", value)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar género" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Masculino">Masculino</SelectItem>
-                  <SelectItem value="Femenino">Femenino</SelectItem>
-                </SelectContent>
-              </Select>
+              <Controller
+                name="datosFiliacion.genero"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={(value) => {
+                      handleGenderChange(value);
+                      field.onChange(value);
+                    }}
+                    value={localGender || field.value || undefined}
+                  >
+                    <SelectTrigger id="genero">
+                      <SelectValue placeholder="Seleccionar género" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Masculino">Masculino</SelectItem>
+                      <SelectItem value="Femenino">Femenino</SelectItem>
+                      <SelectItem value="Otro">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">{data.genero || "No registrado"}</div>
+              <Controller
+                name="datosFiliacion.genero"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
+                )}
+              />
             )}
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="fechaUltimoEmo">Fecha último EMO ejecutado</Label>
+            <Label htmlFor="fechaNacimiento">Fecha de nacimiento</Label>
             {isEditing ? (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !data.fechaUltimoEmo && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {data.fechaUltimoEmo ? (
-                      format(data.fechaUltimoEmo, "PPP", { locale: es })
-                    ) : (
-                      <span>Seleccionar fecha</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={data.fechaUltimoEmo}
-                    onSelect={(date) => onUpdateField("fechaUltimoEmo", date)}
-                    initialFocus
-                    locale={es}
+              <Controller
+                name="datosFiliacion.fechaNacimiento"
+                control={control}
+                render={({ field }) => (
+                  <DatePickerWithYearMonth
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    placeholder="Seleccionar fecha"
+                    clearable
                   />
-                </PopoverContent>
-              </Popover>
+                )}
+              />
             ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20">
-                {data.fechaUltimoEmo ? format(data.fechaUltimoEmo, "PPP", { locale: es }) : "No registrado"}
-              </div>
+              <Controller
+                name="datosFiliacion.fechaNacimiento"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
+                  </div>
+                )}
+              />
             )}
           </div>
 
-          {/* Custom Fields */}
-          {(data.customFields || []).map((field: any, index: number) => (
-            <div key={`custom-${index}`} className="space-y-3">
-              <div className="flex items-center justify-between">
-                {isEditing && editingFieldIndex === index ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      value={tempFieldName}
-                      onChange={(e) => setTempFieldName(e.target.value)}
-                      className="max-w-xs"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditFieldName(index)}
-                      className="h-8 w-8"
-                    >
-                      <Check className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`custom-${index}`}>{capitalizeFirstLetter(field.name)}</Label>
-                    {isEditing && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEditingField(index, field.name)}
-                        className="h-6 w-6"
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                    )}
+          <div className="space-y-3">
+            <Label htmlFor="edad">Edad</Label>
+            <div className="text-md font-medium py-2">{edadCalculada}</div>
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="emodate">Fecha ultimo emo ejecutado</Label>
+            {isEditing ? (
+              <Controller
+                name="datosFiliacion.emodate"
+                control={control}
+                render={({ field }) => (
+                  <DatePicker
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    placeholder="Seleccionar fecha"
+                    clearable
+                  />
+                )}
+              />
+            ) : (
+              <Controller
+                name="datosFiliacion.emodate"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
                   </div>
                 )}
-                {isEditing && editingFieldIndex !== index && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemoveCustomField(index)}
-                    className="h-8 w-8 text-destructive"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
+              />
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="entryDate">Fecha de registro</Label>
+            {isEditing ? (
+              <Controller
+                name="datosFiliacion.entryDate"
+                control={control}
+                render={({ field }) => (
+                  <DatePickerWithYearMonth
+                    selected={field.value}
+                    onSelect={field.onChange}
+                    placeholder="Seleccionar fecha"
+                    clearable
+                  />
                 )}
-              </div>
-              {isEditing ? (
-                <Input
-                  id={`custom-${index}`}
-                  value={field.value || ""}
-                  onChange={(e) => onUpdateCustomField(index, "value", e.target.value)}
-                />
-              ) : (
-                <div className="py-2 px-3 border rounded-md bg-muted/20">{field.value || "No registrado"}</div>
-              )}
-            </div>
-          ))}
+              />
+            ) : (
+              <Controller
+                name="datosFiliacion.entryDate"
+                control={control}
+                render={({ field }) => (
+                  <div className="py-2 px-3 border rounded-md bg-muted/20">
+                    {field.value ? format(new Date(field.value), "PPP", { locale: es }) : "No registrado"}
+                  </div>
+                )}
+              />
+            )}
+          </div>
         </div>
-
-        {isEditing && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAddFieldDialogOpen(true)}
-            className="mt-6"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Agregar Campo
-          </Button>
-        )}
-
-        <NewFieldDialog
-          open={isAddFieldDialogOpen}
-          onOpenChange={setIsAddFieldDialogOpen}
-          onAddField={onAddCustomField}
-          existingFields={existingFields}
-        />
       </CardContent>
     </Card>
   );

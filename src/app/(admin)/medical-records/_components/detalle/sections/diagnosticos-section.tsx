@@ -1,288 +1,239 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Edit, Plus, Trash } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Edit2, Save } from "lucide-react";
+import { useFormContext } from "react-hook-form";
+import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
-import { DynamicList } from "../dynamic-list";
-import { NewFieldDialog } from "../new-field-dialog";
+import { useUpdateDiagnosticValueName } from "../../../_hooks/useMedicalRecords";
+import { DiagnosticManager } from "../diagnostic-manager";
+import { DynamicListForm } from "../dynamic-list-form";
 
-interface DiagnosticosSectionProps {
-  data: any;
-  isEditing: boolean;
-  onUpdateField: (field: string, value: any) => void;
-  onAddCustomField: (name: string) => void;
-  onUpdateCustomField: (index: number, field: string, value: string) => void;
-  onRemoveCustomField: (index: number) => void;
-  onAddHallazgo: (value: string) => void;
-  onUpdateHallazgo: (index: number, value: string) => void;
-  onRemoveHallazgo: (index: number) => void;
-  onEditCustomField: (index: number, newName: string) => void;
+interface DiagnosticValue {
+  diagnosticId: string | null;
+  diagnosticName: string;
+  id: string;
+  medicalRecordId: string;
+  value: string[];
 }
 
+interface DiagnosticosSectionProps {
+  diagnosticsValues: DiagnosticValue[];
+  isEditing: boolean;
+  recordId: string;
+  onDiagnosticsChange?: () => void;
+}
+
+type FormValues = {
+  diagnosticos: Record<string, string[]>;
+};
+
 export function DiagnosticosSection({
-  data,
   isEditing,
-  onUpdateField,
-  onAddCustomField,
-  onUpdateCustomField,
-  onRemoveCustomField,
-  onAddHallazgo,
-  onUpdateHallazgo,
-  onRemoveHallazgo,
-  onEditCustomField,
+  diagnosticsValues,
+  recordId,
+  onDiagnosticsChange,
 }: DiagnosticosSectionProps) {
-  const [isAddFieldDialogOpen, setIsAddFieldDialogOpen] = useState(false);
-  const [editingFieldIndex, setEditingFieldIndex] = useState<number | null>(null);
-  const [tempFieldName, setTempFieldName] = useState("");
+  // Usar react-hook-form context
+  const { control, setValue, getValues } = useFormContext<FormValues>();
 
-  if (!data) return null;
+  // Estado para diagnósticos personalizados
+  const [_customDiagnostics, setCustomDiagnostics] = useState<string[]>([]);
 
-  const existingFields = [
-    "hallazgosLaboratorio",
-    "diagnosticoOftalmologia",
-    "diagnosticoMusculoesqueletico",
-    "alteracionDiagnosticoPsicologia",
-    "diagnosticoAudiometria",
-    "diagnosticoEspirometria",
-    "diagnosticoEkg",
-    "resultadoTestSomnolencia",
-  ].concat((data.customFields || []).map((field: any) => field.name));
+  // Estado para el modal de edición
+  const [editingDiagnostic, setEditingDiagnostic] = useState<{ id: string; name: string } | null>(null);
+  const [newDiagnosticName, setNewDiagnosticName] = useState("");
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const handleEditFieldName = (index: number) => {
-    if (tempFieldName.trim() !== "") {
-      onEditCustomField(index, tempFieldName);
-      setEditingFieldIndex(null);
+  // Hook para actualizar el nombre del diagnóstico
+  const updateDiagnosticName = useUpdateDiagnosticValueName();
+
+  // Inicializar los valores de diagnóstico de forma dinámica desde los valores recibidos
+  // Solo se debe ejecutar cuando se monta el componente, no en cada rerenderizado
+  useEffect(() => {
+    if (diagnosticsValues && diagnosticsValues.length > 0) {
+      // Verificar si diagnosticos ya tiene valores - no sobreescribir si ya están cargados
+      const currentValues = getValues()?.diagnosticos || {};
+      const hasExistingValues = Object.keys(currentValues).some(
+        (key) => Array.isArray(currentValues[key]) && currentValues[key].length > 0
+      );
+
+      if (!hasExistingValues) {
+        // Inicializar dinámicamente desde los valores recibidos
+        const initialValues = diagnosticsValues.reduce(
+          (acc, diag) => {
+            if (diag.diagnosticName) {
+              // Asegurarse de que value es siempre un array y contiene valores válidos
+              acc[diag.diagnosticName] = Array.isArray(diag.value)
+                ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+                : [];
+            }
+            return acc;
+          },
+          {} as Record<string, string[]>
+        );
+
+        // Solo establecer si hay valores para inicializar
+        if (Object.keys(initialValues).length > 0) {
+          setValue("diagnosticos", initialValues, { shouldDirty: false });
+        }
+      }
+
+      // Identificar diagnósticos personalizados (sin diagnosticId)
+      const customDiags = diagnosticsValues
+        .filter((diag) => diag.diagnosticId === null)
+        .map((diag) => diag.diagnosticName);
+
+      if (customDiags.length > 0) {
+        setCustomDiagnostics(customDiags);
+      }
+    }
+  }, [diagnosticsValues, setValue, getValues]);
+
+  // Manejar cuando se agrega un nuevo diagnóstico desde DiagnosticManager
+  const handleDiagnosticAdded = () => {
+    // Notificar al componente padre que los diagnósticos han cambiado
+    if (onDiagnosticsChange) {
+      onDiagnosticsChange();
     }
   };
 
-  const startEditingField = (index: number, currentName: string) => {
-    setEditingFieldIndex(index);
-    setTempFieldName(currentName);
+  // Abrir el diálogo de edición para un diagnóstico personalizado
+  const handleOpenEditDialog = (id: string, name: string) => {
+    setEditingDiagnostic({ id, name });
+    setNewDiagnosticName(name);
+    setIsEditDialogOpen(true);
   };
 
-  // Capitalizar solo la primera letra
-  const capitalizeFirstLetter = (text: string) => {
-    if (!text) return "";
-    return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+  // Guardar el nuevo nombre del diagnóstico
+  const handleSaveDiagnosticName = async () => {
+    if (!editingDiagnostic) return;
+
+    if (!newDiagnosticName.trim()) {
+      toast.error("El nombre del diagnóstico no puede estar vacío");
+      return;
+    }
+
+    try {
+      await updateDiagnosticName.mutateAsync({
+        diagnosticValueId: editingDiagnostic.id,
+        name: newDiagnosticName.trim(),
+        medicalRecordId: recordId,
+      });
+
+      toast.success("Nombre del diagnóstico actualizado correctamente");
+      setIsEditDialogOpen(false);
+
+      // Notificar al componente padre que los diagnósticos han cambiado
+      if (onDiagnosticsChange) {
+        onDiagnosticsChange();
+      }
+    } catch (_error) {
+      toast.error("Error al actualizar el nombre del diagnóstico");
+    }
   };
+
+  // Ordenar los diagnósticos alfabéticamente por diagnosticName para mantener un orden constante
+  const sortedDiagnostics = [...(diagnosticsValues || [])].sort((a, b) =>
+    a.diagnosticName.localeCompare(b.diagnosticName)
+  );
+
+  // Identificar diagnósticos personalizados completos (con todo el objeto, no solo el nombre)
+  const customDiagnosticsObjects = sortedDiagnostics.filter((diag) => diag.diagnosticId === null);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Diagnósticos o conclusiones médicas por evaluación</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 gap-6">
-          <DynamicList
-            label="Hallazgos de laboratorio"
-            items={data.hallazgosLaboratorio || []}
-            isEditing={isEditing}
-            onAdd={onAddHallazgo}
-            onUpdate={onUpdateHallazgo}
-            onRemove={onRemoveHallazgo}
-          />
+    <div className="space-y-6">
+      {isEditing && (
+        <DiagnosticManager
+          recordId={recordId}
+          diagnosticsValues={diagnosticsValues}
+          onDiagnosticAdded={handleDiagnosticAdded}
+        />
+      )}
 
-          <div className="space-y-3">
-            <Label htmlFor="diagnosticoOftalmologia">Diagnóstico oftalmología</Label>
-            {isEditing ? (
-              <Textarea
-                id="diagnosticoOftalmologia"
-                value={data.diagnosticoOftalmologia || ""}
-                onChange={(e) => onUpdateField("diagnosticoOftalmologia", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.diagnosticoOftalmologia || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="diagnosticoMusculoesqueletico">Diagnóstico musculoesquelético</Label>
-            {isEditing ? (
-              <Textarea
-                id="diagnosticoMusculoesqueletico"
-                value={data.diagnosticoMusculoesqueletico || ""}
-                onChange={(e) => onUpdateField("diagnosticoMusculoesqueletico", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.diagnosticoMusculoesqueletico || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="alteracionDiagnosticoPsicologia">Alteración / diagnóstico psicología</Label>
-            {isEditing ? (
-              <Textarea
-                id="alteracionDiagnosticoPsicologia"
-                value={data.alteracionDiagnosticoPsicologia || ""}
-                onChange={(e) => onUpdateField("alteracionDiagnosticoPsicologia", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.alteracionDiagnosticoPsicologia || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="diagnosticoAudiometria">Diagnóstico de audiometría</Label>
-            {isEditing ? (
-              <Textarea
-                id="diagnosticoAudiometria"
-                value={data.diagnosticoAudiometria || ""}
-                onChange={(e) => onUpdateField("diagnosticoAudiometria", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.diagnosticoAudiometria || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="diagnosticoEspirometria">Diagnóstico de espirometría</Label>
-            {isEditing ? (
-              <Textarea
-                id="diagnosticoEspirometria"
-                value={data.diagnosticoEspirometria || ""}
-                onChange={(e) => onUpdateField("diagnosticoEspirometria", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.diagnosticoEspirometria || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="diagnosticoEkg">Diagnóstico de EKG</Label>
-            {isEditing ? (
-              <Textarea
-                id="diagnosticoEkg"
-                value={data.diagnosticoEkg || ""}
-                onChange={(e) => onUpdateField("diagnosticoEkg", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.diagnosticoEkg || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="resultadoTestSomnolencia">Resultado test de somnolencia</Label>
-            {isEditing ? (
-              <Textarea
-                id="resultadoTestSomnolencia"
-                value={data.resultadoTestSomnolencia || ""}
-                onChange={(e) => onUpdateField("resultadoTestSomnolencia", e.target.value)}
-                rows={3}
-              />
-            ) : (
-              <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                {data.resultadoTestSomnolencia || "No registrado"}
-              </div>
-            )}
-          </div>
-
-          {/* Custom Fields */}
-          {(data.customFields || []).map((field: any, index: number) => (
-            <div key={`custom-${index}`} className="space-y-3">
-              <div className="flex items-center justify-between">
-                {isEditing && editingFieldIndex === index ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <Input
-                      value={tempFieldName}
-                      onChange={(e) => setTempFieldName(e.target.value)}
-                      className="max-w-xs"
-                    />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Diagnósticos o conclusiones médicas por evaluación</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 gap-6">
+            {/* Renderizar primero los diagnósticos personalizados */}
+            {customDiagnosticsObjects.map((diagnostic) => (
+              <div key={`custom-${diagnostic.id}`} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium">{diagnostic.diagnosticName}</h3>
+                  {isEditing && (
                     <Button
                       type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditFieldName(index)}
-                      className="h-8 w-8"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOpenEditDialog(diagnostic.id, diagnostic.diagnosticName)}
                     >
-                      <Check className="h-4 w-4" />
+                      <Edit2 className="h-4 w-4 mr-1" />
+                      Editar nombre
                     </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Label htmlFor={`custom-${index}`}>{capitalizeFirstLetter(field.name)}</Label>
-                    {isEditing && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => startEditingField(index, field.name)}
-                        className="h-6 w-6"
-                      >
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                    )}
-                  </div>
-                )}
-                {isEditing && editingFieldIndex !== index && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemoveCustomField(index)}
-                    className="h-8 w-8 text-destructive"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-              {isEditing ? (
-                <Textarea
-                  id={`custom-${index}`}
-                  value={field.value || ""}
-                  onChange={(e) => onUpdateCustomField(index, "value", e.target.value)}
-                  rows={3}
-                />
-              ) : (
-                <div className="py-2 px-3 border rounded-md bg-muted/20 min-h-[75px] whitespace-pre-wrap">
-                  {field.value || "No registrado"}
+                  )}
                 </div>
+                <DynamicListForm
+                  label={diagnostic.diagnosticName}
+                  name={`diagnosticos.${diagnostic.diagnosticName}`}
+                  control={control}
+                  isEditing={isEditing}
+                  hideLabel
+                />
+              </div>
+            ))}
+
+            {/* Renderizar todos los diagnósticos predefinidos */}
+            {sortedDiagnostics
+              .filter((diag) => diag.diagnosticId !== null)
+              .map((diagnostic) => (
+                <DynamicListForm
+                  key={diagnostic.id}
+                  label={diagnostic.diagnosticName}
+                  name={`diagnosticos.${diagnostic.diagnosticName}`}
+                  control={control}
+                  isEditing={isEditing}
+                />
+              ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Diálogo para editar el nombre del diagnóstico */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar nombre del diagnóstico</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Input
+              value={newDiagnosticName}
+              onChange={(e) => setNewDiagnosticName(e.target.value)}
+              placeholder="Nuevo nombre del diagnóstico"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleSaveDiagnosticName} disabled={updateDiagnosticName.isPending}>
+              {updateDiagnosticName.isPending ? (
+                "Guardando..."
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-1" />
+                  Guardar
+                </>
               )}
-            </div>
-          ))}
-        </div>
-
-        {isEditing && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsAddFieldDialogOpen(true)}
-            className="mt-6"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Agregar Campo
-          </Button>
-        )}
-
-        <NewFieldDialog
-          open={isAddFieldDialogOpen}
-          onOpenChange={setIsAddFieldDialogOpen}
-          onAddField={onAddCustomField}
-          existingFields={existingFields}
-        />
-      </CardContent>
-    </Card>
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

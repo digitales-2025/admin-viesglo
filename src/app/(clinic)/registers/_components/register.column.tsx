@@ -4,16 +4,14 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { FileDown } from "lucide-react";
+import { toast } from "sonner";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClinicResponse } from "../../../(admin)/clinics/_types/clinics.types";
-import ClinicCell from "../../../(admin)/medical-records/_components/ClinicCell";
 import { MedicalRecordResponse } from "../../../(admin)/medical-records/_types/medical-record.types";
 import RegisterTableActions from "./RegisterTableActions";
 
 interface RegistersRecordProps {
-  clinics?: ClinicResponse[];
   downloadCertificate: (id: string) => Promise<any>;
   downloadReport: (id: string) => Promise<any>;
   isDownloadingCertificate: boolean;
@@ -21,7 +19,6 @@ interface RegistersRecordProps {
 }
 
 export const registersRecordColumns = ({
-  clinics = [],
   downloadCertificate,
   downloadReport,
   isDownloadingCertificate,
@@ -49,41 +46,44 @@ export const registersRecordColumns = ({
   // Función para manejar la descarga del certificado
   const handleDownloadCertificate = async (record: MedicalRecordResponse) => {
     try {
-      // const hasCertificate = hasAptitudeCertificate(record.files);
-
-      // La función de descarga ahora maneja internamente los toasts y la descarga
-      await downloadCertificate(record.id);
-    } catch (error) {
-      console.warn("Error inesperado al descargar certificado", error);
+      if (hasAptitudeCertificate(record.files)) {
+        await downloadCertificate(record.id);
+      } else {
+        toast.info(`El certificado de aptitud no está disponible`);
+      }
+    } catch (_error) {
+      // Error silencioso
     }
   };
 
   // Función para manejar la descarga del informe
   const handleDownloadReport = async (record: MedicalRecordResponse) => {
     try {
-      // La función de descarga ahora maneja internamente los toasts y la descarga
-      await downloadReport(record.id);
-    } catch (error) {
-      console.warn("Error inesperado al descargar informe", error);
+      if (hasMedicalReport(record.files)) {
+        await downloadReport(record.id);
+      } else {
+        toast.info(`El informe médico no está disponible`);
+      }
+    } catch (_error) {
+      // Error silencioso
     }
   };
 
   return [
     {
-      id: "clinica",
-      accessorKey: "clinicId",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Clínica" />,
+      id: "cliente",
+      accessorKey: "client",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Cliente" />,
       cell: ({ row }) => {
-        const clinicId = row.original.clinicId;
-        return <ClinicCell clinicId={clinicId} clinicsList={clinics} />;
+        return <div className="font-semibold">{row.original.client?.name || "N/A"}</div>;
       },
     },
     {
-      id: "tipo de examen",
+      id: "tipo_examen",
       accessorKey: "examType",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Examen" />,
       cell: ({ row }) => {
-        const examType = row.getValue("tipo de examen") as string;
+        const examType = row.original.examType;
         let label = "";
 
         switch (examType) {
@@ -107,11 +107,11 @@ export const registersRecordColumns = ({
       },
     },
     {
-      id: "fecha de registro",
+      id: "fecha_registro",
       accessorKey: "createdAt",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Registro" />,
       cell: ({ row }) => {
-        const date = new Date(row.getValue("fecha de registro"));
+        const date = new Date(row.original.createdAt);
         return <div className="min-w-[150px]">{format(date, "PPP", { locale: es })}</div>;
       },
     },
@@ -119,22 +119,60 @@ export const registersRecordColumns = ({
       id: "nombre",
       accessorKey: "firstName",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
-      cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("nombre")}</div>,
+      cell: ({ row }) => {
+        const firstName = row.original.firstName;
+        const secondName = row.original.secondName;
+        return (
+          <div className="font-semibold capitalize min-w-[150px]">
+            {firstName} {secondName || ""}
+          </div>
+        );
+      },
     },
     {
-      id: "apellido paterno",
+      id: "apellidos",
       accessorKey: "firstLastName",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Apellido Paterno" />,
-      cell: ({ row }) => (
-        <div className="font-semibold capitalize min-w-[150px]">{row.getValue("apellido paterno")}</div>
-      ),
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Apellidos" />,
+      cell: ({ row }) => {
+        const firstLastName = row.original.firstLastName;
+        const secondLastName = row.original.secondLastName;
+        return (
+          <div className="font-semibold capitalize min-w-[150px]">
+            {firstLastName} {secondLastName || ""}
+          </div>
+        );
+      },
+    },
+    {
+      id: "genero",
+      accessorKey: "gender",
+      header: ({ column }) => <DataTableColumnHeader column={column} title="Género" />,
+      cell: ({ row }) => {
+        const gender = row.original.gender;
+        let label = "";
+
+        switch (gender) {
+          case "MALE":
+            label = "Masculino";
+            break;
+          case "FEMALE":
+            label = "Femenino";
+            break;
+          case "OTHER":
+            label = "Otro";
+            break;
+          default:
+            label = gender;
+        }
+
+        return <div className="font-semibold capitalize">{label}</div>;
+      },
     },
     {
       id: "estado",
-      accessorKey: "status",
+      accessorKey: "aptitude",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
       cell: ({ row }) => {
-        // Ahora usamos el valor de aptitude directamente del registro médico
         const aptitude = row.original.aptitude;
 
         let status = "";
@@ -166,8 +204,7 @@ export const registersRecordColumns = ({
       },
     },
     {
-      id: "aptitud médica",
-      accessorKey: "aptitude",
+      id: "aptitud_medica",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Aptitud Médica" />,
       cell: ({ row }) => {
         const hasCertificate = hasAptitudeCertificate(row.original.files);
@@ -188,7 +225,7 @@ export const registersRecordColumns = ({
       enableSorting: false,
     },
     {
-      id: "informe médico",
+      id: "informe_medico",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Informe Médico" />,
       cell: ({ row }) => {
         const files = row.original.files;

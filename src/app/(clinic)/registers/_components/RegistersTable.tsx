@@ -1,26 +1,20 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { useClinics } from "../../../(admin)/clinics/_hooks/useClinics";
 import {
   useDownloadAptitudeCertificate,
   useDownloadMedicalReport,
   useMedicalRecords,
 } from "../../../(admin)/medical-records/_hooks/useMedicalRecords";
+import { MedicalRecordsFilter } from "../../../(admin)/medical-records/_types/medical-record.types";
 import { registersRecordColumns } from "./register.column";
 
 export default function RegistersTable() {
-  const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords();
-  const { data: clinics, isLoading: isLoadingClinics, error: clinicsError } = useClinics();
-
-  // Debug logging
-  useEffect(() => {
-    if (medicalRecords) {
-      console.log("Medical Records Data (Clinic view):", medicalRecords);
-    }
-  }, [medicalRecords]);
+  // Estado para almacenar los filtros seleccionados
+  const [filters] = useState<MedicalRecordsFilter>({});
+  const { data: medicalRecords, isLoading: isLoadingRecords, error: recordsError } = useMedicalRecords(filters);
 
   // Mover los hooks de descarga al componente principal
   const { mutateAsync: downloadCertificate, isPending: isDownloadingCertificate } = useDownloadAptitudeCertificate();
@@ -30,16 +24,15 @@ export default function RegistersTable() {
   const columns = useMemo(
     () =>
       registersRecordColumns({
-        clinics: clinics || [],
         downloadCertificate,
         downloadReport,
         isDownloadingCertificate,
         isDownloadingReport,
       }),
-    [clinics, downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
+    [downloadCertificate, downloadReport, isDownloadingCertificate, isDownloadingReport]
   );
 
-  if (recordsError || clinicsError) return <div className="text-center py-4">Error al cargar registros médicos</div>;
+  if (recordsError) return <div className="text-center py-4">Error al cargar registros médicos</div>;
 
-  return <DataTable columns={columns} data={medicalRecords || []} isLoading={isLoadingRecords || isLoadingClinics} />;
+  return <DataTable columns={columns} data={medicalRecords || []} isLoading={isLoadingRecords} />;
 }
