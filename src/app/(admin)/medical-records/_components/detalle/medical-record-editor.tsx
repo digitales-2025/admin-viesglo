@@ -128,28 +128,21 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
   // Función para actualizar dinámicamente los valores de diagnósticos en el formulario
   const updateDiagnosticsInForm = useCallback(
-    (diagnostics: DiagnosticValue[]) => {
-      // Obtener valores actuales
-      const currentValues = getValues()?.diagnosticos || {};
-
-      // Inicializar con valores existentes
-      const initialValues = diagnostics.reduce(
+    (latestDiagnostics: DiagnosticValue[]) => {
+      const formValuesToSet = latestDiagnostics.reduce(
         (acc, diag) => {
           if (diag.diagnosticName) {
-            // Asegurarse de que value es siempre un array y contiene valores válidos
             acc[diag.diagnosticName] = Array.isArray(diag.value)
               ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
               : [];
           }
           return acc;
         },
-        { ...currentValues } as Record<string, string[]>
+        {} as Record<string, string[]>
       );
-
-      // Actualizar formulario con valores combinados
-      setValue("diagnosticos", initialValues, { shouldDirty: false });
+      setValue("diagnosticos", formValuesToSet, { shouldDirty: false });
     },
-    [getValues, setValue]
+    [setValue]
   );
 
   // Effect para detectar cambios y emitir eventos
@@ -188,8 +181,23 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
         generoValue = "Otro";
       }
 
+      // Procesar diagnósticos para defaultValues, similar a updateDiagnosticsInForm/useMemo
+      const processedDiagnosticsForReset = (data.diagnosticValues || []).reduce(
+        (acc, diag) => {
+          if (diag.diagnosticName) {
+            // Usamos el mismo filtro que en updateDiagnosticsInForm para consistencia
+            acc[diag.diagnosticName] = Array.isArray(diag.value)
+              ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+              : [];
+          }
+          return acc;
+        },
+        {} as Record<string, string[]>
+      );
+
       // Inicializar defaultValues para el formulario
-      const defaultValues: FormValues = {
+      const newDefaultValues: FormValues = {
+        // Renombrado para claridad
         datosFiliacion: {
           dni: data.dni || "",
           nombres: data.firstName || "",
@@ -206,10 +214,10 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           restricciones: data.restrictions || "",
           personalHistory: data.personalHistory || "",
         },
-        diagnosticos: {},
+        diagnosticos: processedDiagnosticsForReset, // Usar los diagnósticos procesados
       };
 
-      reset(defaultValues);
+      reset(newDefaultValues);
     }
   }, [data, isLoading, reset]);
 
