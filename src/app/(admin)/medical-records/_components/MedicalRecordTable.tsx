@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FileDown, ShieldAlert, ShieldBan, ShieldCheck } from "lucide-react";
 
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
@@ -15,7 +16,7 @@ import {
   useDownloadMedicalReport,
   useMedicalRecords,
 } from "../_hooks/useMedicalRecords";
-import { MedicalRecordsFilter } from "../_types/medical-record.types";
+import { MedicalRecordResponse, MedicalRecordsFilter } from "../_types/medical-record.types";
 import { useClinics } from "../../clinics/_hooks/useClinics";
 import { columnsMedicalRecord } from "./medical-record.column";
 
@@ -24,6 +25,12 @@ export default function MedicalRecordTable() {
     page: 1,
     limit: 10,
   });
+
+  const router = useRouter();
+
+  const handleRowClick = (row: MedicalRecordResponse) => {
+    router.push(`/medical-records/${row.id}/details`);
+  };
 
   const {
     data: medicalRecordsData,
@@ -254,6 +261,7 @@ export default function MedicalRecordTable() {
       serverFilters={serverFilters}
       serverFilterOptions={medicalRecordFilterOptions as any}
       serverFilterLoading={isLoadingClinics || isLoadingDiagnostics}
+      onClickRow={handleRowClick}
     />
   );
 }

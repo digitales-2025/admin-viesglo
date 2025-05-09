@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, MoreHorizontal, Power, PowerOff } from "lucide-react";
+import { Edit, FileCheck, FileX, MoreHorizontal, RotateCcw, Trash } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
@@ -15,6 +15,7 @@ import { useDialogStore } from "@/shared/stores/useDialogStore";
 import {
   useActivateDiagnosticInSystem,
   useDeactivateDiagnosticInSystem,
+  useToggleIncludeReportsDiagnostic,
 } from "../../medical-records/_hooks/useMedicalRecords";
 import { DiagnosticEntity } from "../../medical-records/_types/medical-record.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
@@ -27,7 +28,8 @@ export default function DiagnosticsTableActions({ row }: DiagnosticsTableActions
   const { open } = useDialogStore();
   const activateDiagnosticMutation = useActivateDiagnosticInSystem();
   const deactivateDiagnosticMutation = useDeactivateDiagnosticInSystem();
-
+  const { mutateAsync: toggleIncludeReportsDiagnosticMutation, isPending: toggleIncludeReportsDiagnosticIsPending } =
+    useToggleIncludeReportsDiagnostic();
   // Constante para módulo
   const MODULE = "diagnostics";
 
@@ -41,6 +43,10 @@ export default function DiagnosticsTableActions({ row }: DiagnosticsTableActions
 
   const handleDeactivate = async () => {
     await deactivateDiagnosticMutation.mutateAsync(row.id);
+  };
+
+  const handleToggleIncludeReports = () => {
+    toggleIncludeReportsDiagnosticMutation(row.id);
   };
 
   return (
@@ -71,9 +77,9 @@ export default function DiagnosticsTableActions({ row }: DiagnosticsTableActions
               requiredPermissions={[{ resource: EnumResource.diagnostic, action: EnumAction.update }]}
             >
               <DropdownMenuItem onClick={handleActivate} disabled={activateDiagnosticMutation.isPending}>
-                Activar
+                Reactivar
                 <DropdownMenuShortcut>
-                  <Power className="size-4 mr-2 text-green-500" />
+                  <RotateCcw className="size-4 mr-2 text-yellow-500" />
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
             </ProtectedComponent>
@@ -83,13 +89,26 @@ export default function DiagnosticsTableActions({ row }: DiagnosticsTableActions
               requiredPermissions={[{ resource: EnumResource.diagnostic, action: EnumAction.update }]}
             >
               <DropdownMenuItem onClick={handleDeactivate} disabled={deactivateDiagnosticMutation.isPending}>
-                Desactivar
+                Eliminar
                 <DropdownMenuShortcut>
-                  <PowerOff className="size-4 mr-2 text-red-500" />
+                  <Trash className="size-4 mr-2 " />
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
             </ProtectedComponent>
           )}
+
+          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.diagnostic, action: EnumAction.update }]}>
+            <DropdownMenuItem onClick={handleToggleIncludeReports} disabled={toggleIncludeReportsDiagnosticIsPending}>
+              {!row.isDefaultIncluded ? "Incluir en informes" : "Excluir de informes"}
+              <DropdownMenuShortcut>
+                {!row.isDefaultIncluded ? (
+                  <FileCheck className="size-4 mr-2 text-green-500" />
+                ) : (
+                  <FileX className="size-4 mr-2 text-red-500" />
+                )}
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </ProtectedComponent>
         </DropdownMenuContent>
       </DropdownMenu>
     </ProtectedComponent>
