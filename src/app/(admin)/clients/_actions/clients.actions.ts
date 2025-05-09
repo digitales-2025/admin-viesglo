@@ -122,6 +122,22 @@ export async function deleteClient(id: string): Promise<{ success: boolean; erro
 }
 
 /**
+ * Activar/Reactivar cliente
+ */
+export async function toggleClientActive(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch<ClientResponse>(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al obtener cliente por RUC" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al activar/desactivar cliente", error);
+    return { success: false, error: "Error al activar el  cliente" };
+  }
+}
+
+/**
  * buscar clientes por un filtro (nombre, email, rut)
  */
 export async function searchClients(

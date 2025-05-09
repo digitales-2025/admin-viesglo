@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Bot, Send } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -32,6 +32,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCreateClient, useUpdateClient } from "../_hooks/useClients";
 import { ClientCreate, ClientResponse } from "../_types/clients.types";
@@ -227,6 +228,60 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
 
   const isChangePassword = isUpdate && form.watch("password") !== "";
 
+  const [clinicsOptions, setClinicsOptions] = useState<{ label: string; value: string }[]>([]);
+  useEffect(() => {
+    // Crear array para almacenar todas las opciones
+    let allOptions: { label: string; value: string }[] = [];
+
+    // 1. Añadir todas las clínicas activas del hook
+    if (clinics) {
+      const activeClinicOptions = clinics
+        .filter((clinic) => clinic.isActive)
+        .map((clinic) => ({ label: clinic.name, value: clinic.id }));
+
+      allOptions = [...activeClinicOptions];
+    }
+
+    // 2. Si estamos en modo edición, procesar las clínicas del cliente
+    if (isUpdate && currentRow?.clinics && Array.isArray(currentRow.clinics)) {
+      // Obtener las clínicas asignadas al cliente
+      const clientClinics = currentRow.clinics.map((clinic: any) => ({
+        label: clinic.name,
+        value: clinic.id,
+      }));
+
+      // Para cada clínica del cliente
+      clientClinics.forEach((clientClinic) => {
+        // Verificar si ya existe en las opciones
+        const exists = allOptions.some((option) => option.value === clientClinic.value);
+
+        if (!exists) {
+          // Si no existe, añadirla (puede ser inactiva o eliminada)
+          allOptions.push(clientClinic);
+        }
+      });
+
+      // 3. Si hay clínicas inactivas en el hook que están asignadas al cliente, asegurarnos de incluirlas
+      if (clinics) {
+        const clientClinicIds = clientClinics.map((c) => c.value);
+
+        const inactiveAssignedOptions = clinics
+          .filter((clinic) => !clinic.isActive && clientClinicIds.includes(clinic.id))
+          .map((clinic) => ({ label: clinic.name, value: clinic.id }));
+
+        // Añadir solo las que no estén ya en la lista
+        inactiveAssignedOptions.forEach((option) => {
+          if (!allOptions.some((item) => item.value === option.value)) {
+            allOptions.push(option);
+          }
+        });
+      }
+    }
+
+    // Establecer las opciones
+    setClinicsOptions(allOptions);
+  }, [clinics, isUpdate, currentRow]);
+
   return (
     <Sheet
       open={open}
@@ -239,8 +294,12 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     >
       <SheetContent className="flex flex-col">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} Cliente</SheetTitle>
-          <SheetDescription>{isUpdate ? "Actualiza los datos del cliente" : "Crea un nuevo cliente"}</SheetDescription>
+          <SheetTitle className="text-2xl font-bold capitalize">
+            {isUpdate ? "Actualizar" : "Crear"} usuario tipo cliente
+          </SheetTitle>
+          <SheetDescription>
+            {isUpdate ? "Actualiza los datos del usuario tipo cliente" : "Crea un nuevo usuario tipo cliente"}
+          </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
           <Form {...form}>
@@ -252,7 +311,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>RUC</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el RUC del cliente" {...field} />
+                      <Input placeholder="Introduce el RUC de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -265,7 +324,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Razón Social</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la razón social del cliente" {...field} />
+                      <Input placeholder="Introduce la razón social de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -278,7 +337,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Dirección</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la dirección del cliente" {...field} />
+                      <Input placeholder="Introduce la dirección de la empresa cliente" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -291,7 +350,11 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                   <FormItem>
                     <FormLabel>Teléfono</FormLabel>
                     <FormControl>
-                      <PhoneInput defaultCountry="PE" placeholder="Introduce el teléfono del cliente" {...field} />
+                      <PhoneInput
+                        defaultCountry="PE"
+                        placeholder="Introduce el teléfono de la empresa cliente"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -319,22 +382,21 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     name="clinicIds"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Clínicas</FormLabel>
+                        <FormLabel>Clínicas asociadas a la empresa cliente</FormLabel>
                         <FormControl>
-                          <MultiSelectAutocomplete
-                            options={
-                              clinics?.map((clinic) => ({
-                                label: clinic.name,
-                                value: clinic.id,
-                              })) || []
-                            }
-                            selected={field.value || []}
-                            onChange={field.onChange}
-                            id="client-clinics-select"
-                            searchPlaceholder="Buscar por nombre de clínica..."
-                            placeholder="Seleccionar clínicas..."
-                            emptyMessage="No se encontraron clínicas con ese nombre."
-                          />
+                          {isLoadingClinics ? (
+                            <Skeleton className="h-10 w-full" />
+                          ) : (
+                            <MultiSelectAutocomplete
+                              options={clinicsOptions}
+                              selected={field.value || []}
+                              onChange={field.onChange}
+                              id="client-clinics-select"
+                              searchPlaceholder="Buscar por nombre de clínica..."
+                              placeholder="Seleccionar clínicas asociadas a la empresa cliente..."
+                              emptyMessage="No se encontraron clínicas con ese nombre."
+                            />
+                          )}
                         </FormControl>
                         <FormDescription>Selecciona las clínicas a las que el cliente pertenece.</FormDescription>
                       </FormItem>
@@ -351,7 +413,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem>
                       <FormLabel>Usuario (Correo electrónico)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el email del cliente" {...field} />
+                        <Input placeholder="Introduce el email del usuario tipo cliente" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -369,7 +431,7 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                             placeholder={
                               isUpdate
                                 ? "Dejar en blanco para mantener la contraseña actual"
-                                : "Introduce la contraseña del cliente"
+                                : "Introduce la contraseña del usuario tipo cliente"
                             }
                             {...field}
                           />
@@ -395,8 +457,8 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormMessage />
                       {isUpdate && (
                         <AlertMessage
-                          title="Cambiar la contraseña del cliente."
-                          description="Si desea cambiar la contraseña del cliente, genere una nueva contraseña y se enviará al correo electrónico del cliente."
+                          title="Cambiar la contraseña del usuario tipo cliente."
+                          description="Si desea cambiar la contraseña del usuario tipo cliente, genere una nueva contraseña y se enviará al correo electrónico del usuario tipo cliente."
                           variant="info"
                         />
                       )}

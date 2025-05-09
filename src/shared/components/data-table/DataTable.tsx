@@ -110,7 +110,8 @@ export function DataTable<TData, TValue>({
     left: ["select"],
   });
 
-  // Estado para manejar el valor de búsqueda global del servidor
+  // Estado para manejar el valor de búsqueda global
+  const [globalFilter, setGlobalFilter] = React.useState("");
   const [serverSearchValue, setServerSearchValue] = React.useState("");
 
   // Validar configuración consistente
@@ -156,7 +157,7 @@ export function DataTable<TData, TValue>({
       rowSelection,
       columnFilters,
       columnPinning,
-      globalFilter: isServerMode ? serverSearchValue : undefined,
+      globalFilter: isServerMode ? serverSearchValue : globalFilter,
     },
     manualPagination: isServerMode, // Activar paginación manual en modo servidor
     manualFiltering: isServerMode, // Activar filtrado manual en modo servidor
@@ -167,6 +168,7 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: handleColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

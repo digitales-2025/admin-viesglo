@@ -516,7 +516,7 @@ export default function PaymentGraph() {
                     outerRadius={80}
                     paddingAngle={5}
                     dataKey="value"
-                    strokeWidth={5}
+                    strokeWidth={0}
                     activeIndex={0}
                     activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                       <Sector {...props} outerRadius={outerRadius + 10} />

@@ -223,9 +223,11 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     >
       <SheetContent className="flex flex-col ">
         <SheetHeader className="text-left">
-          <SheetTitle className="text-2xl font-bold capitalize">{isUpdate ? "Actualizar" : "Crear"} clínica</SheetTitle>
+          <SheetTitle className="text-2xl font-bold capitalize">
+            {isUpdate ? "Actualizar" : "Crear"} usuario tipo clínica
+          </SheetTitle>
           <SheetDescription>
-            {isUpdate ? "Actualiza los datos de la clínica" : "Crea una nueva clínica"}
+            {isUpdate ? "Actualiza los datos del usuario tipo clínica" : "Crea un nuevo usuario tipo clínica"}
           </SheetDescription>
         </SheetHeader>
         <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
@@ -315,7 +317,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                     <FormItem>
                       <FormLabel>Usuario (Correo electrónico)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el email de la clínica" {...field} />
+                        <Input placeholder="Introduce el email del usuario tipo clínica" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -333,7 +335,7 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                             placeholder={
                               isUpdate
                                 ? "Dejar en blanco para mantener la contraseña actual"
-                                : "Introduce la contraseña de la clínica"
+                                : "Introduce la contraseña del usuario tipo clínica"
                             }
                             {...field}
                           />
@@ -359,8 +361,8 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                       <FormMessage />
                       {isUpdate && (
                         <AlertMessage
-                          title="Cambiar la contraseña de la clínica."
-                          description="Si desea cambiar la contraseña de la clínica, genere una nueva contraseña y se enviará al correo electrónico de la clínica."
+                          title="Cambiar la contraseña del usuario tipo clínica."
+                          description="Si desea cambiar la contraseña del usuario tipo clínica, genere una nueva contraseña y se enviará al correo electrónico del usuario tipo clínica."
                           variant="info"
                         />
                       )}
