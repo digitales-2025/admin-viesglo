@@ -4,11 +4,11 @@ import { useMemo } from "react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { useAvailableDiagnostics } from "../../medical-records/_hooks/useMedicalRecords";
+import { useAllDiagnostics } from "../../medical-records/_hooks/useMedicalRecords";
 import { columnsDiagnostics } from "./diagnostics.columns";
 
 export default function DiagnosticsTable() {
-  const { data: diagnostics, isLoading, error } = useAvailableDiagnostics();
+  const { data: diagnostics, isLoading, error } = useAllDiagnostics();
 
   const columns = useMemo(() => columnsDiagnostics(), []);
 
