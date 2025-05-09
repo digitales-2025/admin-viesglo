@@ -120,6 +120,22 @@ export async function deleteCertificate(id: string): Promise<{ success: boolean;
 }
 
 /**
+ * Reactiva un certificado existente
+ */
+export async function reactivateCertificate(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al reactivar certificado" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al reactivar certificado", error);
+    return { success: false, error: "Error al reactivar certificado" };
+  }
+}
+
+/**
  * Obtiene un certificado por su código
  */
 export async function getCertificateByCode(

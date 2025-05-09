@@ -10,6 +10,7 @@ import {
   getCertificateByCode,
   getCertificates,
   getCertificatesPaginated,
+  reactivateCertificate,
   updateCertificate,
 } from "../_actions/certificates.actions";
 import { CertificateResponse, CertificatesFilters, PaginatedCertificatesResponse } from "../_types/certificates.types";
@@ -124,6 +125,28 @@ export function useDeleteCertificate() {
     },
     onError: () => {
       toast.error("Error al eliminar certificado");
+    },
+  });
+}
+
+/**
+ * Hook para reactivar un certificado
+ */
+export function useReactivateCertificate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await reactivateCertificate(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al reactivar certificado");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CERTIFICATES_KEYS.lists() });
+      toast.success("Certificado reactivado correctamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al reactivar certificado");
     },
   });
 }
