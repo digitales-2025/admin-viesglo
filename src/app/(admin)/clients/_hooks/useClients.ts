@@ -10,6 +10,7 @@ import {
   getClientByRuc,
   getClients,
   searchClients,
+  toggleClientActive,
   updateClient,
 } from "../_actions/clients.actions";
 import { ClientCreate, ClientUpdate } from "../_types/clients.types";
@@ -145,6 +146,29 @@ export function useDeleteClient() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar cliente");
+    },
+  });
+}
+
+/**
+ * Hook para toggle active el cliente
+ */
+export function useToggleActiveClients() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleClientActive(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al activar/desactivar cliente");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
+      toast.success("Cliente activado/desactivado exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al activar/desactivar cliente");
     },
   });
 }
