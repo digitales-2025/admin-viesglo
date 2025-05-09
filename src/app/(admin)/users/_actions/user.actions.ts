@@ -92,6 +92,22 @@ export async function deleteUser(id: string): Promise<{ success: boolean; error?
 }
 
 /**
+ * Reactivar un usuario
+ */
+export async function toggleActiveUser(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al reactivar usuario" };
+    }
+    return { success: true };
+  } catch (error: any) {
+    console.error(`Error al reactivar usuario ${id}:`, error);
+    return { success: false, error: error.message || "Error al reactivar usuario" };
+  }
+}
+
+/**
  * Obtiene los permisos de un usuario
  */
 export async function getUserPermissions(
