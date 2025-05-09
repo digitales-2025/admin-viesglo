@@ -44,9 +44,9 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     ),
   },
   {
-    id: "nombre del usuario",
+    id: "nombre del participante",
     accessorKey: "nameUser",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del usuario" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre del participante" />,
     cell: ({ row }) => (
       <div className="capitalize min-w-[150px] max-w-[150px]">
         {row.original.nameUser} {row.original.lastNameUser}

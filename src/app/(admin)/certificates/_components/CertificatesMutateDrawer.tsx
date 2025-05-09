@@ -57,8 +57,8 @@ const schema = z.object({
     ),
   businessName: z.string().optional(),
   nameCapacitation: z.string().min(1, "El nombre de la capacitación es requerido."),
-  nameUser: z.string().min(1, "El nombre del usuario es requerido."),
-  lastNameUser: z.string().min(1, "El apellido del usuario es requerido."),
+  nameUser: z.string().min(1, "El nombre del participante es requerido."),
+  lastNameUser: z.string().min(1, "El apellido del participante es requerido."),
   emailUser: z
     .string()
     .optional()
@@ -68,7 +68,7 @@ const schema = z.object({
         return z.string().email().safeParse(val).success;
       },
       {
-        message: "El correo electrónico del usuario debe ser un correo electrónico válido.",
+        message: "El correo electrónico del participante debe ser un correo electrónico válido.",
       }
     ),
   dateEmision: z.string().min(1, "La fecha de emisión es requerida."),
@@ -261,7 +261,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                   <FormItem>
                     <FormLabel>RUC</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el RUC del cliente" {...field} />
+                      <Input placeholder="Introduce el RUC de la empresa cliente" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -274,7 +274,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                   <FormItem>
                     <FormLabel>Nombre de la empresa</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el nombre de la empresa" {...field} />
+                      <Input placeholder="Introduce el nombre de la empresa" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -287,7 +287,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                   <FormItem>
                     <FormLabel>Tema de la capacitación</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el tema de la capacitación" {...field} />
+                      <Input placeholder="Introduce el tema de la capacitación" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -298,9 +298,9 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 name="nameUser"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre del usuario</FormLabel>
+                    <FormLabel>Nombre del participante</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el nombre del usuario" {...field} />
+                      <Input placeholder="Introduce el nombre del participante" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -311,9 +311,9 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 name="lastNameUser"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Apellido del usuario</FormLabel>
+                    <FormLabel>Apellido del participante</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el apellido del usuario" {...field} />
+                      <Input placeholder="Introduce el apellido del participante" {...field} disabled={isPending} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -324,9 +324,13 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 name="emailUser"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Correo electrónico del usuario</FormLabel>
+                    <FormLabel>Correo electrónico del participante</FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el correo electrónico del usuario" {...field} />
+                      <Input
+                        placeholder="Introduce el correo electrónico del participante"
+                        {...field}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -342,6 +346,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                       <DatePicker
                         selected={field.value ? new Date(field.value) : undefined}
                         onSelect={(date) => field.onChange(date?.toISOString())}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormMessage />
@@ -358,6 +363,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                       <DatePicker
                         selected={field.value ? new Date(field.value) : undefined}
                         onSelect={(date) => field.onChange(date?.toISOString())}
+                        disabled={isPending}
                       />
                     </FormControl>
                     <FormDescription>La fecha de expiración será el mismo día de aquí a un año.</FormDescription>
@@ -389,6 +395,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                         buttonText={
                           currentRow?.fileCertificate?.originalName ? "Cambiar certificado" : "Seleccionar certificado"
                         }
+                        disabled={isPending}
                       />
                     </FormControl>
                     {filePreview && filePreview.startsWith("data:image") && (
