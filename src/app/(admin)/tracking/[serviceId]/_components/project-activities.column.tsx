@@ -48,7 +48,6 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
     cell: function Cell({ row }) {
       const responsibleUser = users.find((user) => user.id === row.original.responsibleUser.id);
-
       const { mutate: updateResponsibleUserId, isPending } = useUpdateTrackingActivity();
       const onUpdateResponsibleUserId = (id: string) => {
         updateResponsibleUserId({
@@ -70,19 +69,22 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
             isLoading={isPending}
             className="border-none"
           />
-          {!responsibleUser && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Info className="size-4 text-rose-500" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  El usuario {row.original.responsibleUser.fullName} ha sido eliminado. Seleccione otro usuario
-                  responsable
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
+
+          {!row.original.responsibleUser.id
+            ? null
+            : !responsibleUser && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="size-4 text-rose-500" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      El usuario {row.original.responsibleUser.fullName} ha sido eliminado. Seleccione otro usuario
+                      responsable
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
         </div>
       );
     },

@@ -26,13 +26,7 @@ import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface ProjectCardProps {
   className?: string;
-  project: ProjectResponse & {
-    responsibleUserId?: string;
-    responsibleUser?: {
-      id: string;
-      name: string;
-    } | null;
-  };
+  project: ProjectResponse;
 }
 
 const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCardProps) {

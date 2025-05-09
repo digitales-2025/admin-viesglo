@@ -45,6 +45,7 @@ export type ProjectFilters = {
   startDateTo?: string;
   endDateFrom?: string;
   endDateTo?: string;
+  responsableUserId?: string;
   status?: string;
   search?: string;
   clientId?: string;

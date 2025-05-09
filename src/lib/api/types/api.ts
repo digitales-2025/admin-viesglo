@@ -141,6 +141,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/users/users-project": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["UsersController_getProjectTrackers_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/users/{id}": {
     parameters: {
       query?: never;
@@ -1373,7 +1389,7 @@ export interface components {
        * @example admin
        * @enum {string}
        */
-      type?: "admin" | "clinic" | "client";
+      type?: "admin" | "clinic" | "client" | "Seguimientos de Proyectos";
       roles: string[][];
     };
     UpdatePasswordDto: {
@@ -1393,7 +1409,6 @@ export interface components {
     };
     TokenVerificationResponse: Record<string, never>;
     RoleResponseDto: {
-      role: any;
       /**
        * @description ID único del rol
        * @example 5f9d5e7b8e7a6c1d4c8e7a6c
@@ -2293,6 +2308,11 @@ export interface components {
        */
       endDate?: string;
       /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
+      /**
        * @description Estado del proyecto
        * @example En progreso
        */
@@ -2556,6 +2576,38 @@ export interface components {
        */
       completedActivities?: number;
     };
+    ResponsibleUserDto: {
+      /**
+       * @description ID del usuario responsable
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      id?: string;
+      /**
+       * @description Nombre del usuario responsable
+       * @example Juan Pérez
+       */
+      fullName?: string;
+      /**
+       * @description Email del usuario responsable
+       * @example abc@gmail.com
+       */
+      email?: string;
+      /**
+       * @description Teléfono del usuario responsable
+       * @example 123456789
+       */
+      phone?: string | null;
+      /**
+       * @description Puesto del usuario responsable
+       * @example Gerente de Proyecto
+       */
+      post?: string | null;
+      /**
+       * @description Indica si el usuario responsable está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
     ProjectResponseDto: {
       /**
        * @description ID único del proyecto
@@ -2572,6 +2624,11 @@ export interface components {
        * @example Implementación
        */
       typeProject?: string;
+      /**
+       * @description ID del usuario responsable del proyecto
+       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       */
+      responsibleUserId?: string;
       /**
        * Format: date-time
        * @description Fecha de inicio del proyecto
@@ -2608,6 +2665,8 @@ export interface components {
        * @example 50
        */
       progress?: number;
+      /** @description Usuario responsable del proyecto */
+      responsibleUser?: components["schemas"]["ResponsibleUserDto"];
     };
     PaginatedProjectResponseDto: {
       /** @description Lista de proyectos paginados */
@@ -2698,6 +2757,11 @@ export interface components {
        * @example Implementación
        */
       typeProject?: string;
+      /**
+       * @description ID del usuario responsable
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      responsibleUserId?: string;
       /**
        * @description Fecha de inicio del proyecto
        * @example 2023-01-01T00:00:00.000Z
@@ -4053,6 +4117,25 @@ export interface operations {
       };
     };
   };
+  UsersController_getProjectTrackers_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"][];
+        };
+      };
+    };
+  };
   UsersController_findById_v1: {
     parameters: {
       query?: never;
@@ -5110,6 +5193,8 @@ export interface operations {
         endDateTo?: string;
         /** @description Filtrar por estado del proyecto */
         status?: string;
+        /** @description Filtrar por usuario responsable */
+        responsibleUserId?: string;
         /** @description Filtrar por búsqueda en nombre o descripción */
         search?: string;
         /** @description Filtrar por ID de cliente */
