@@ -108,7 +108,6 @@ export default function BuscarCertificadoPage() {
         });
       }
     } catch (error) {
-      console.error("Error al cargar certificado:", error);
       setError(error instanceof Error ? error.message : "Error desconocido");
     } finally {
       setLoading(false);
