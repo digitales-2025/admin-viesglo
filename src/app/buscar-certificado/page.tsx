@@ -238,7 +238,7 @@ export default function BuscarCertificadoPage() {
             {/* Información del certificado */}
             {certificado && (
               <div className="space-y-6">
-                <Card className="">
+                <Card>
                   <CardHeader className=" pb-4 border-b">
                     <div className="flex justify-between items-start">
                       <div>
@@ -263,10 +263,7 @@ export default function BuscarCertificadoPage() {
                 </Card>
 
                 {/* Vista previa del documento */}
-                <Card className="border-2 border-primary/20 print:border-primary/10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-40 h-40 -mt-8 -mr-8 bg-primary/5 rounded-full" />
-                  <div className="absolute bottom-0 left-0 w-40 h-40 -mb-8 -ml-8 bg-primary/5 rounded-full" />
-
+                <Card className="border border-primary/20 print:border-primary/10 relative p-0 overflow-hidden">
                   {loading ? (
                     <div className="w-full h-64 flex items-center justify-center">
                       <div className="h-10 w-10 animate-spin text-primary border-2 border-current border-t-transparent rounded-full"></div>
@@ -278,11 +275,11 @@ export default function BuscarCertificadoPage() {
                     </div>
                   ) : previewUrl ? (
                     <>
-                      <CardContent className="p-4 overflow-auto">
+                      <CardContent className="p-0 overflow-auto">
                         {isPDF ? (
                           <iframe
                             src={previewUrl}
-                            className="w-full h-[400px] border-0"
+                            className="w-full min-h-[600px] border-0"
                             title={fileInfo?.filename || "Documento PDF"}
                           />
                         ) : isImage ? (
