@@ -973,6 +973,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/certificate/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar certificados con paginación */
+    get: operations["CertificateController_findAllPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/certificate/{id}": {
     parameters: {
       query?: never;
@@ -1009,23 +1026,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/certificate/filter/date": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Filtrar certificados por rango de fechas */
-    get: operations["CertificateController_filterByDateRange_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
   "/api/v1/medical-records": {
     parameters: {
       query?: never;
@@ -1033,7 +1033,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Obtener registros médicos */
+    /** Obtener registros médicos con filtros opcionales y paginación */
     get: operations["MedicalRecordsController_getMedicalRecords_v1"];
     put?: never;
     /** Crear un registro médico */
@@ -1042,6 +1042,42 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/by-diagnostic": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar registros médicos por nombre de diagnóstico */
+    get: operations["MedicalRecordsController_getMedicalRecordsByDiagnostic_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/medical-records/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener registro médico por ID */
+    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar registro médico */
+    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar registro médico */
+    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
     trace?: never;
   };
   "/api/v1/medical-records/{id}/aptitude-certificate": {
@@ -1114,25 +1150,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/medical-records/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener registro médico por ID */
-    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
-    put?: never;
-    post?: never;
-    /** Eliminar registro médico */
-    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
-    options?: never;
-    head?: never;
-    /** Actualizar registro médico */
-    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
-    trace?: never;
-  };
   "/api/v1/medical-records/{id}/details": {
     parameters: {
       query?: never;
@@ -1167,25 +1184,24 @@ export interface paths {
     patch: operations["MedicalRecordsController_updateCustomSections_v1"];
     trace?: never;
   };
-  "/api/v1/medical-records/{id}/diagnostics": {
+  "/api/v1/diagnostics": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener diagnósticos de un registro médico */
-    get: operations["MedicalRecordsController_getDiagnostics_v1"];
+    /** Obtener todos los diagnósticos disponibles en el sistema */
+    get: operations["DiagnosticsController_getAllDiagnostics_v1"];
     put?: never;
-    /** Añadir un diagnóstico a un registro médico */
-    post: operations["MedicalRecordsController_addDiagnostic_v1"];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/medical-records/{id}/diagnostics/{diagnosticId}": {
+  "/api/v1/diagnostics/{diagnosticId}/deactivate": {
     parameters: {
       query?: never;
       header?: never;
@@ -1195,28 +1211,97 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Eliminar un diagnóstico de un registro médico */
-    delete: operations["MedicalRecordsController_deleteDiagnostic_v1"];
+    delete?: never;
     options?: never;
     head?: never;
-    patch?: never;
+    /** Desactivar un diagnóstico (eliminación lógica) */
+    patch: operations["DiagnosticsController_deactivateDiagnostic_v1"];
     trace?: never;
   };
-  "/api/v1/medical-records/categories/all": {
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostics": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener todas las categorías médicas y sus condiciones */
-    get: operations["MedicalRecordsController_getAllMedicalCategories_v1"];
+    /** Obtener diagnósticos de un registro médico */
+    get: operations["DiagnosticsController_getDiagnosticsForMedicalRecord_v1"];
+    put?: never;
+    /** Añadir un diagnóstico a un registro médico */
+    post: operations["DiagnosticsController_addDiagnosticToMedicalRecord_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/bulk-diagnostics": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Añadir múltiples diagnósticos a un registro médico */
+    post: operations["DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-value": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear un nuevo valor de diagnóstico para un registro médico */
+    post: operations["DiagnosticsController_addDiagnosticValue_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-values": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los valores de diagnóstico de un registro médico con la información del diagnóstico */
+    get: operations["DiagnosticsController_getDiagnosticValuesWithDetails_v1"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/diagnostic-values/{diagnosticValueId}/name": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el nombre de un valor de diagnóstico personalizado */
+    patch: operations["DiagnosticsController_updateDiagnosticValueName_v1"];
     trace?: never;
   };
   "/api/v1/payments": {
@@ -1226,8 +1311,25 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get all payments */
+    /** Todos los pagos de cotizaciones */
     get: operations["PaymentController_findAll_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar pagos con paginación */
+    get: operations["PaymentController_findAllPaginated_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1339,6 +1441,59 @@ export interface paths {
     head?: never;
     /** Activar/Desactivar grupo de cotización */
     patch: operations["QuotationGroupsController_togleActive_v1"];
+    trace?: never;
+  };
+  "/api/v1/installment-payments": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener un pago por cuota de cotización */
+    get: operations["InstallmentPaymentController_findByPaymentId_v1"];
+    put?: never;
+    /** Crear un pago por cuota de cotización */
+    post: operations["InstallmentPaymentController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/installment-payments/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un pago por cuota de cotización */
+    put: operations["InstallmentPaymentController_update_v1"];
+    post?: never;
+    /** Eliminar un pago por cuota de cotización */
+    delete: operations["InstallmentPaymentController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/installment-payments/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado activo de un pago por cuota de cotización */
+    patch: operations["InstallmentPaymentController_toggleActive_v1"];
     trace?: never;
   };
 }
@@ -3270,7 +3425,7 @@ export interface components {
       emailUser?: string;
       /**
        * Format: binary
-       * @description Archivo del certificado
+       * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
     };
@@ -3325,11 +3480,8 @@ export interface components {
        * @example juan.perez@gmail.com
        */
       emailUser?: string;
-      /**
-       * @description Url del archivo del certificado
-       * @example https://www.google.com
-       */
-      fileCertificate?: string;
+      /** @description Archivo del certificado */
+      fileCertificate?: components["schemas"]["FileMetadataResponseDto"];
       /**
        * @description El estado del certificado
        * @example Activo
@@ -3352,6 +3504,33 @@ export interface components {
       urlCertificate?: string;
       /** @description El estado del certificado */
       isActive?: boolean;
+    };
+    PaginatedCertificateResponseDto: {
+      /** @description Lista de certificados */
+      data: components["schemas"]["CertificateResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     UpdateCertificateDto: {
       /**
@@ -3398,13 +3577,13 @@ export interface components {
       emailUser?: string;
       /**
        * Format: binary
-       * @description Archivo del certificado
+       * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
     };
     CreateMedicalRecordDto: {
       /**
-       * @description RUC del paciente
+       * @description RUC del cliente
        * @example 20603465157
        */
       ruc: string;
@@ -3434,6 +3613,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01T00:00:00Z
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01T00:00:00Z
+       */
+      entryDate: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01T00:00:00Z
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3460,6 +3660,135 @@ export interface components {
        * @description Informe médico (PDF, máximo 5MB)
        */
       medicalReport?: string;
+    };
+    ClientDetailsDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20603465157
+       */
+      ruc: string;
+      /**
+       * @description Nombre del cliente
+       * @example Empresa ABC S.A.C.
+       */
+      name: string;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Teléfono del cliente
+       * @example 999888777
+       */
+      phone: string;
+      /**
+       * @description Email del cliente
+       * @example contacto@empresa.com
+       */
+      email: string;
+      /**
+       * @description Departamento del cliente
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia del cliente
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito del cliente
+       * @example San Isidro
+       */
+      district?: string;
+    };
+    ClinicDetailsDto: {
+      /**
+       * @description RUC de la clínica
+       * @example 20603465158
+       */
+      ruc: string;
+      /**
+       * @description Nombre de la clínica
+       * @example Clínica Médica XYZ
+       */
+      name: string;
+      /**
+       * @description Dirección de la clínica
+       * @example Av. Central 456
+       */
+      address: string;
+      /**
+       * @description Teléfono de la clínica
+       * @example 999000111
+       */
+      phone: string;
+      /**
+       * @description Email de la clínica
+       * @example contacto@clinica.com
+       */
+      email: string;
+      /**
+       * @description Departamento de la clínica
+       * @example Lima
+       */
+      department?: string;
+      /**
+       * @description Provincia de la clínica
+       * @example Lima
+       */
+      province?: string;
+      /**
+       * @description Distrito de la clínica
+       * @example Miraflores
+       */
+      district?: string;
+    };
+    DiagnosticValueResponseDto: {
+      /**
+       * @description ID del valor de diagnóstico
+       * @example 123e4567-e89b-12d3-a456-426614174003
+       */
+      id: string;
+      /**
+       * @description ID del registro médico asociado
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      medicalRecordId: string;
+      /**
+       * @description ID del diagnóstico asociado
+       * @example 123e4567-e89b-12d3-a456-426614174004
+       */
+      diagnosticId: string;
+      /**
+       * @description Valor del diagnóstico
+       * @example {
+       *       "values": [
+       *         "Valor 1",
+       *         "Valor 2",
+       *         "Observación adicional"
+       *       ]
+       *     }
+       */
+      value: Record<string, never>;
+      /**
+       * @description Nombre del diagnóstico asociado
+       * @example Diagnóstico Oftalmológico
+       */
+      diagnosticName?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2023-04-01T12:00:00Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2023-04-01T12:00:00Z
+       */
+      updatedAt: string;
     };
     MedicalRecordResponseDto: {
       /**
@@ -3498,6 +3827,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01
+       */
+      entryDate: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen médico
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3515,6 +3865,11 @@ export interface components {
        */
       restrictions?: string;
       /**
+       * @description Antecedentes personales del paciente
+       * @example Hipertensión controlada, diabetes tipo 2
+       */
+      personalHistory?: string;
+      /**
        * @description ID del cliente al que pertenece el registro
        * @example 123e4567-e89b-12d3-a456-426614174001
        */
@@ -3524,6 +3879,10 @@ export interface components {
        * @example 123e4567-e89b-12d3-a456-426614174002
        */
       clinicId: string;
+      /** @description Detalles del cliente asociado */
+      client?: components["schemas"]["ClientDetailsDto"];
+      /** @description Detalles de la clínica asociada */
+      clinic?: components["schemas"]["ClinicDetailsDto"];
       /**
        * Format: date-time
        * @description Fecha de creación del registro
@@ -3538,21 +3897,8 @@ export interface components {
       updatedAt: string;
       /** @description Archivos asociados al registro médico */
       files?: components["schemas"]["FileMetadataResponseDto"][];
-      /**
-       * @description Diagnósticos médicos asociados al registro
-       * @example [
-       *       {
-       *         "id": "123e4567-e89b-12d3-a456-426614174003",
-       *         "categoryName": "Cardiología",
-       *         "conditionName": "Hipertensión arterial",
-       *         "isDefault": false,
-       *         "medicalRecordId": "123e4567-e89b-12d3-a456-426614174000",
-       *         "createdAt": "2023-04-01T12:00:00Z",
-       *         "updatedAt": "2023-04-01T12:00:00Z"
-       *       }
-       *     ]
-       */
-      diagnostics?: unknown[];
+      /** @description Valores de diagnósticos asociados al registro */
+      diagnosticValues?: components["schemas"]["DiagnosticValueResponseDto"][];
       /**
        * @description Detalles médicos del registro
        * @example {
@@ -3587,6 +3933,34 @@ export interface components {
        *     }
        */
       details?: Record<string, never>;
+    };
+    PaginationMetaDto: {
+      /**
+       * @description Página actual
+       * @example 1
+       */
+      currentPage: number;
+      /**
+       * @description Número de elementos por página
+       * @example 10
+       */
+      itemsPerPage: number;
+      /**
+       * @description Total de elementos
+       * @example 100
+       */
+      totalItems: number;
+      /**
+       * @description Total de páginas
+       * @example 10
+       */
+      totalPages: number;
+    };
+    PaginatedMedicalRecordsResponseDto: {
+      /** @description Lista de registros médicos */
+      data: components["schemas"]["MedicalRecordResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetaDto"];
     };
     CustomSectionFieldDto: {
       /** @example resultado */
@@ -3703,6 +4077,27 @@ export interface components {
        */
       secondLastName?: string;
       /**
+       * @description Fecha de nacimiento
+       * @example 1990-01-01
+       */
+      birthDate?: string;
+      /**
+       * @description Género del paciente
+       * @example MALE
+       * @enum {string}
+       */
+      gender?: "MALE" | "FEMALE" | "OTHER";
+      /**
+       * @description Fecha de ingreso
+       * @example 2023-01-01
+       */
+      entryDate?: string;
+      /**
+       * @description Fecha del último examen médico ocupacional
+       * @example 2023-01-01
+       */
+      lastEmoDate?: string;
+      /**
        * @description Tipo de examen
        * @example PRE_OCCUPATIONAL
        * @enum {string}
@@ -3719,142 +4114,204 @@ export interface components {
        * @example No levantar objetos pesados
        */
       restrictions?: string | null;
+      /**
+       * Format: uuid
+       * @description ID del cliente
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      clientId?: string;
+      /**
+       * Format: uuid
+       * @description ID de la clínica
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      clinicId?: string;
+      /**
+       * @description Antecedentes personales del paciente
+       * @example Hipertensión controlada, diabetes tipo 2
+       */
+      personalHistory?: string | null;
     };
     CreateDiagnosticDto: {
       /**
-       * @description Nombre de la categoría médica
-       * @example VISUAL
+       * Format: uuid
+       * @description ID del diagnóstico (requerido si no se proporciona diagnosticValueId)
+       * @example 550e8400-e29b-41d4-a716-446655440000
        */
-      categoryName: string;
+      diagnosticId?: string;
       /**
-       * @description Nombre de la condición médica
-       * @example MIOPIA
+       * Format: uuid
+       * @description ID del valor de diagnóstico (para actualizar valores sin diagnosticId)
+       * @example 550e8400-e29b-41d4-a716-446655440001
        */
-      conditionName: string;
+      diagnosticValueId?: string;
       /**
-       * @description Indica si es el diagnóstico por defecto
+       * @description Nombre personalizado para el diagnóstico (útil cuando no hay diagnosticId)
+       * @example Diagnóstico personalizado
+       */
+      name?: string;
+      values: string[][];
+      /**
+       * @description Indica si este diagnóstico debe incluirse en los reportes
        * @example false
        */
-      isDefault?: boolean;
+      isReportIncluded?: boolean;
     };
-    CategoryResponseDto: {
+    CreateMultipleDiagnosticsDto: {
+      /** @description Array de diagnósticos a crear o actualizar */
+      diagnostics: unknown[][];
+    };
+    AddDiagnosticValueDto: {
       /**
-       * @description ID de la categoría médica
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * @description ID del diagnóstico (opcional si se proporciona name)
+       * @example 550e8400-e29b-41d4-a716-446655440000
        */
-      id: string;
+      diagnosticId?: string;
       /**
-       * @description Nombre de la categoría médica
-       * @example VISUAL
+       * @description Nombre del valor de diagnóstico (requerido si no se proporciona diagnosticId)
+       * @example Diagnóstico personalizado
+       */
+      name?: string;
+      /**
+       * @description Valores del diagnóstico (array de strings)
+       * @example [
+       *       "Valor 1",
+       *       "Valor 2",
+       *       "Observación adicional"
+       *     ]
+       */
+      value: string[];
+    };
+    UpdateDiagnosticValueNameDto: {
+      /**
+       * @description Nuevo nombre para el valor de diagnóstico personalizado
+       * @example Diagnóstico personalizado actualizado
        */
       name: string;
-      /**
-       * @description Indica si la categoría está activa
-       * @example true
-       */
-      isActive: boolean;
-    };
-    ConditionResponseDto: {
-      /**
-       * @description ID de la condición médica
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre de la condición médica
-       * @example MIOPIA
-       */
-      name: string;
-      /**
-       * @description ID de la categoría a la que pertenece
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      categoryId: string;
-      /**
-       * @description Indica si la condición está activa
-       * @example true
-       */
-      isActive: boolean;
-    };
-    CategoryWithConditionsResponseDto: {
-      /** @description Datos de la categoría médica */
-      category: components["schemas"]["CategoryResponseDto"];
-      /** @description Lista de condiciones médicas asociadas a la categoría */
-      conditions: components["schemas"]["ConditionResponseDto"][];
-    };
-    CategoriesListResponseDto: {
-      /** @description Lista de categorías médicas con sus condiciones */
-      categories: components["schemas"]["CategoryWithConditionsResponseDto"][];
     };
     PaymentResponseDto: {
       /**
-       * @description Payment ID
+       * @description ID del pago
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       id: string;
       /**
-       * @description Payment code
-       * @example PAY-COT-202401-001
+       * @description Codigo de la cotizacion
+       * @example COT-202401-001
        */
       code: string;
       /**
-       * @description Client RUC
+       * @description RUC del cliente
        * @example 20123456789
        */
       ruc: string;
       /**
-       * @description Client business name
+       * @description Razon social del cliente
        * @example Empresa SAC
        */
       businessName: string;
       /**
-       * @description Service name
+       * @description Nombre del servicio
        * @example Consultoría médica
        */
       service: string;
       /**
-       * @description Payment amount
+       * @description Monto del pago
        * @example 1500
        */
       amount: number;
       /**
-       * @description Client email
+       * @description Tipo de pago
+       * @example PUNCTUAL
+       * @enum {string}
+       */
+      typePayment: "MONTHLY" | "PUNCTUAL";
+      /**
+       * @description Correo del cliente
        * @example juan.perez@empresa.com
        */
       email: string;
       /**
        * Format: date-time
-       * @description Payment date
+       * @description Fecha de pago
        * @example 2024-01-15T10:00:00Z
        */
       paymentDate: string | null;
       /**
-       * @description Billing code
+       * @description Codigo de facturacion
        * @example F001-000001
        */
       billingCode: string | null;
       /**
-       * @description Payment status
+       * @description Estado del pago
        * @example false
        */
       isPaid: boolean;
       /**
-       * @description Associated quotation ID
+       * @description ID de la cotizacion asociada
        * @example 123e4567-e89b-12d3-a456-426614174000
        */
       quotationId: string;
+      /**
+       * Format: date-time
+       * @description Fecha de facturacion
+       * @example 2024-01-15T10:00:00Z
+       */
+      billingDate: string | null;
+      /**
+       * @description Correo de destinatario
+       * @example juan.perez@empresa.com
+       */
+      emailBilling: string | null;
+    };
+    PaginatedPaymentResponseDto: {
+      /** @description Lista de pagos paginados */
+      data: components["schemas"]["PaymentResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: {
+        /**
+         * @description Página actual
+         * @example 1
+         */
+        currentPage?: number;
+        /**
+         * @description Elementos por página
+         * @example 10
+         */
+        itemsPerPage?: number;
+        /**
+         * @description Total de elementos
+         * @example 100
+         */
+        totalItems?: number;
+        /**
+         * @description Total de páginas
+         * @example 10
+         */
+        totalPages?: number;
+      };
     };
     UpdatePaymentStatusDto: {
       /**
        * @description Payment date
        * @example 2024-01-15T10:00:00Z
        */
-      paymentDate: string;
+      paymentDate?: string;
       /**
        * @description Billing code
        * @example F001-000001
        */
-      billingCode: string;
+      billingCode?: string;
+      /**
+       * @description Billing date
+       * @example 2024-01-15T10:00:00Z
+       */
+      billingDate?: string;
+      /**
+       * @description Email billing
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
     };
     MarkPaymentStatusDto: {
       /**
@@ -3906,6 +4363,131 @@ export interface components {
        * @example Grupo de cotizaciones para la empresa 1
        */
       description?: string;
+    };
+    CreateInstallmentPaymentDto: {
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid: boolean;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate?: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+    };
+    InstallmentPaymentResponseDto: {
+      /**
+       * @description ID de la cuota de pago
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Número de la cuota
+       * @example 1
+       */
+      installmentNumber: number;
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate?: string;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode?: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate?: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid: boolean;
+      /**
+       * @description Estado de la cuota
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateInstallmentPaymentDto: {
+      /**
+       * @description Monto de la cuota
+       * @example 1000
+       */
+      amount?: number;
+      /**
+       * @description Fecha de pago
+       * @example 2021-01-01
+       */
+      paymentDate?: string;
+      /**
+       * @description Confirmación de pago
+       * @example true
+       */
+      isPaid?: boolean;
+      /**
+       * @description Código de facturación
+       * @example F001-000001
+       */
+      billingCode?: string;
+      /**
+       * @description Fecha de facturación
+       * @example 2021-01-01
+       */
+      billingDate?: string;
+      /**
+       * @description Email de facturación
+       * @example juan.perez@empresa.com
+       */
+      emailBilling?: string;
+    };
+    InstallmentPayment: {
+      id: string;
+      installmentNumber: number;
+      amount: number;
+      /** Format: date-time */
+      paymentDate?: string;
+      isPaid: boolean;
+      billingCode?: string;
+      /** Format: date-time */
+      billingDate?: string;
+      emailBilling?: string;
+      isActive: boolean;
+      paymentId: string;
     };
   };
   responses: never;
@@ -5993,7 +6575,30 @@ export interface operations {
   };
   QuotationController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo cotizaciones concretadas */
+        isConcrete?: string;
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -6220,20 +6825,29 @@ export interface operations {
   };
   CertificateController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Fecha de inicio para filtrar certificados */
+        from?: string;
+        /** @description Fecha de fin para filtrar certificados */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Los certificados han sido recuperados exitosamente. */
+      /** @description Lista de certificados obtenida exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
+          "application/json": components["schemas"]["CertificateResponseDto"][];
         };
       };
     };
@@ -6258,6 +6872,35 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["CertificateResponseDto"];
+        };
+      };
+    };
+  };
+  CertificateController_findAllPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Fecha de inicio para filtrar certificados */
+        from?: string;
+        /** @description Fecha de fin para filtrar certificados */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Certificados encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedCertificateResponseDto"];
         };
       };
     };
@@ -6350,40 +6993,27 @@ export interface operations {
       };
     };
   };
-  CertificateController_filterByDateRange_v1: {
-    parameters: {
-      query?: {
-        /** @description Fecha de inicio para filtrar por fecha de emisión */
-        startDate?: string;
-        /** @description Fecha de fin para filtrar por fecha de emisión */
-        endDate?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Los certificados han sido filtrados exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"][];
-        };
-      };
-    };
-  };
   MedicalRecordsController_getMedicalRecords_v1: {
     parameters: {
       query?: {
         /** @description ID del cliente (Opcional) */
         clientId?: string;
-        /** @description ID de la categoría médica (Opcional) */
-        categoryId?: string;
-        /** @description ID de la condición médica (Opcional) */
-        conditionId?: string;
+        /** @description ID de la clínica (Opcional) */
+        clinicId?: string;
+        /** @description Búsqueda por nombre o documento del paciente */
+        search?: string;
+        /** @description Filtrar por diagnóstico */
+        diagnosticName?: string[];
+        /** @description Fecha desde (YYYY-MM-DD) */
+        from?: string;
+        /** @description Fecha hasta (YYYY-MM-DD) */
+        to?: string;
+        /** @description Filtrar por aptitud (APT, APT_WITH_RESTRICTIONS, NOT_APT) */
+        aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+        /** @description Número de página */
+        page?: number;
+        /** @description Elementos por página */
+        limit?: number;
       };
       header?: never;
       path?: never;
@@ -6391,13 +7021,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Lista de registros médicos obtenida exitosamente. */
+      /** @description Lista paginada de registros médicos */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
+          "application/json": components["schemas"]["PaginatedMedicalRecordsResponseDto"];
         };
       };
     };
@@ -6424,6 +7054,124 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["MedicalRecordResponseDto"];
         };
+      };
+    };
+  };
+  MedicalRecordsController_getMedicalRecordsByDiagnostic_v1: {
+    parameters: {
+      query: {
+        /** @description Nombre del diagnóstico a buscar */
+        diagnosticName: string;
+        /** @description ID del cliente (opcional) */
+        clientId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de registros médicos que coinciden con el diagnóstico */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
+        };
+      };
+    };
+  };
+  MedicalRecordsController_getMedicalRecordById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico obtenido exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_deleteMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Registro médico eliminado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MedicalRecordsController_updateMedicalRecord_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos para actualizar el registro médico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
+      };
+    };
+    responses: {
+      /** @description Registro médico actualizado exitosamente. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MedicalRecordResponseDto"];
+        };
+      };
+      /** @description Registro médico no encontrado. */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6629,99 +7377,6 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getMedicalRecordById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico obtenido exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_deleteMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico eliminado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_updateMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos para actualizar el registro médico */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
-      };
-    };
-    responses: {
-      /** @description Registro médico actualizado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
   MedicalRecordsController_updateMedicalRecordDetails_v1: {
     parameters: {
       query?: never;
@@ -6816,13 +7471,54 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getDiagnostics_v1: {
+  DiagnosticsController_getAllDiagnostics_v1: {
+    parameters: {
+      query: {
+        includeInactive: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de diagnósticos disponibles */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_deactivateDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a desactivar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico desactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_getDiagnosticsForMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
+        medicalRecordId: string;
       };
       cookie?: never;
     };
@@ -6837,13 +7533,13 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_addDiagnostic_v1: {
+  DiagnosticsController_addDiagnosticToMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
+        medicalRecordId: string;
       };
       cookie?: never;
     };
@@ -6863,21 +7559,71 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_deleteDiagnostic_v1: {
+  DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1: {
     parameters: {
       query?: never;
       header?: never;
       path: {
         /** @description ID del registro médico */
-        id: string;
-        /** @description ID del diagnóstico a eliminar */
-        diagnosticId: string;
+        medicalRecordId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Lista de diagnósticos a crear o actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMultipleDiagnosticsDto"];
+      };
+    };
+    responses: {
+      /** @description Diagnósticos creados/actualizados exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_addDiagnosticValue_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        medicalRecordId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del valor de diagnóstico a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddDiagnosticValueDto"];
+      };
+    };
+    responses: {
+      /** @description Valor de diagnóstico creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_getDiagnosticValuesWithDetails_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del registro médico */
+        medicalRecordId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Diagnóstico eliminado exitosamente */
+      /** @description Valores de diagnóstico obtenidos exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
@@ -6886,42 +7632,118 @@ export interface operations {
       };
     };
   };
-  MedicalRecordsController_getAllMedicalCategories_v1: {
+  DiagnosticsController_updateDiagnosticValueName_v1: {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        /** @description ID del valor de diagnóstico a actualizar */
+        diagnosticValueId: string;
+      };
       cookie?: never;
     };
-    requestBody?: never;
+    /** @description Datos para actualizar el nombre del diagnóstico */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDiagnosticValueNameDto"];
+      };
+    };
     responses: {
-      /** @description Lista de categorías médicas con sus condiciones */
+      /** @description Nombre del diagnóstico actualizado exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["CategoriesListResponseDto"];
-        };
+        content?: never;
       };
     };
   };
   PaymentController_findAll_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        typePayment?: "MONTHLY" | "PUNCTUAL";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Payments found */
+      /** @description Pagos encontrados */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["PaymentResponseDto"][];
+        };
+      };
+    };
+  };
+  PaymentController_findAllPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        typePayment?: "MONTHLY" | "PUNCTUAL";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Pagos encontrados exitosamente (paginados) */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedPaymentResponseDto"];
         };
       };
     };
@@ -7161,6 +7983,160 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  InstallmentPaymentController_findByPaymentId_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_create_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateInstallmentPaymentDto"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateInstallmentPaymentDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPayment"];
+        };
+      };
+    };
+  };
+  InstallmentPaymentController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
       };
     };
   };

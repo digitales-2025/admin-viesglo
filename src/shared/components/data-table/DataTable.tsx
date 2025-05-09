@@ -15,6 +15,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   OnChangeFn,
+  Row,
   SortingState,
   useReactTable,
   VisibilityState,
@@ -36,6 +37,7 @@ interface DataTableProps<TData, TValue> {
   pagination?: boolean;
   className?: string;
   viewOptions?: boolean;
+  getRowCanExpand?: (row: Row<TData>) => boolean;
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
@@ -92,6 +94,7 @@ export function DataTable<TData, TValue>({
   className,
   viewOptions = true,
   getSubRows,
+  getRowCanExpand,
   renderExpandedRow,
   mode = "client",
   serverPagination,
@@ -107,7 +110,8 @@ export function DataTable<TData, TValue>({
     left: ["select"],
   });
 
-  // Estado para manejar el valor de búsqueda global del servidor
+  // Estado para manejar el valor de búsqueda global
+  const [globalFilter, setGlobalFilter] = React.useState("");
   const [serverSearchValue, setServerSearchValue] = React.useState("");
 
   // Validar configuración consistente
@@ -146,13 +150,14 @@ export function DataTable<TData, TValue>({
   const table = useReactTable({
     data,
     columns,
+    getRowCanExpand,
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
       columnPinning,
-      globalFilter: isServerMode ? serverSearchValue : undefined,
+      globalFilter: isServerMode ? serverSearchValue : globalFilter,
     },
     manualPagination: isServerMode, // Activar paginación manual en modo servidor
     manualFiltering: isServerMode, // Activar filtrado manual en modo servidor
@@ -163,6 +168,7 @@ export function DataTable<TData, TValue>({
     onColumnFiltersChange: handleColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
     onColumnPinningChange: setColumnPinning,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),

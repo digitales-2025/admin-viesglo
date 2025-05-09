@@ -121,6 +121,16 @@ export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
     enableSorting: false,
   },
   {
+    id: "estado",
+    accessorKey: "isActive",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => (
+      <Badge variant={row.getValue("estado") ? "success" : "error"} className="flex items-center gap-2 capitalize">
+        {row.getValue("estado") ? "activo" : "inactivo"}
+      </Badge>
+    ),
+  },
+  {
     id: "actions",
     size: 20,
     cell: ({ row }) => <ClientsTableActions client={row.original} />,

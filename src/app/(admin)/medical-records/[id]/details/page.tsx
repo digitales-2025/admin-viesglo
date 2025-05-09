@@ -5,10 +5,8 @@ import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Briefcase, Building, Calendar, FileText, Mail, MapPin, Phone, Stethoscope, User } from "lucide-react";
+import { Briefcase, Building, Calendar, Mail, MapPin, Phone, Stethoscope, User } from "lucide-react";
 
-import { useClient } from "@/app/(admin)/clients/_hooks/useClients";
-import { useClinic } from "@/app/(admin)/clinics/_hooks/useClinics";
 import { BackButton } from "@/app/(admin)/medical-records/_components/BackButton";
 import { MedicalRecordDetails } from "@/app/(admin)/medical-records/_components/detalle/medical-record-editor";
 import { Badge } from "@/shared/components/ui/badge";
@@ -45,14 +43,8 @@ export default function MedicalRecordDetailsPage() {
   // Get ID from params
   const { id } = useParams();
 
-  // Use hooks for data fetching
+  // Use hooks for data fetching - solo necesitamos el registro médico
   const { data: record, isLoading: isRecordLoading } = useMedicalRecord(id as string);
-
-  // Fetch clinic data if record has clinicId
-  const { data: clinic, isLoading: isClinicLoading } = useClinic(record?.clinicId ? record.clinicId : "");
-
-  // Fetch client data if record has clientId
-  const { data: client, isLoading: isClientLoading } = useClient(record?.clientId ? record.clientId : "");
 
   // Display loading state when fetching record data
   if (isRecordLoading) {
@@ -88,6 +80,10 @@ export default function MedicalRecordDetailsPage() {
       </div>
     );
   }
+
+  // Obtener cliente y clínica directamente del registro médico
+  const client = record.client;
+  const clinic = record.clinic;
 
   return (
     <div className="container py-6 pb-24">
@@ -166,9 +162,11 @@ export default function MedicalRecordDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isClientLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : client ? (
+              {!client ? (
+                <div className="flex items-center justify-center py-4 text-muted-foreground">
+                  <p>No hay información de cliente disponible</p>
+                </div>
+              ) : (
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -208,10 +206,6 @@ export default function MedicalRecordDetailsPage() {
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center py-4 text-muted-foreground">
-                  <p>No hay información de cliente disponible</p>
-                </div>
               )}
             </CardContent>
           </Card>
@@ -225,9 +219,11 @@ export default function MedicalRecordDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {isClinicLoading ? (
-                <Skeleton className="h-[200px] w-full" />
-              ) : clinic ? (
+              {!clinic ? (
+                <div className="flex items-center justify-center py-4 text-muted-foreground">
+                  <p>No hay información de clínica disponible</p>
+                </div>
+              ) : (
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
                     <Building className="h-5 w-5 text-muted-foreground mt-0.5" />
@@ -267,30 +263,16 @@ export default function MedicalRecordDetailsPage() {
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="flex items-center justify-center py-4 text-muted-foreground">
-                  <p>No hay información de clínica disponible</p>
-                </div>
               )}
             </CardContent>
           </Card>
         </div>
 
-        {/* Contenido de información médica detallada - en columna derecha */}
+        {/* Columna derecha con diagnósticos y otros detalles */}
         <div className="md:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="size-5" />
-                Información médica
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Suspense fallback={<FormSkeleton />}>
-                <MedicalRecordDetails recordId={id as string} mode="view" />
-              </Suspense>
-            </CardContent>
-          </Card>
+          <Suspense fallback={<FormSkeleton />}>
+            <MedicalRecordDetails recordId={id as string} mode="view" />
+          </Suspense>
         </div>
       </div>
     </div>
@@ -300,17 +282,8 @@ export default function MedicalRecordDetailsPage() {
 function FormSkeleton() {
   return (
     <div className="space-y-6">
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="border rounded-lg p-4 space-y-4">
-          <Skeleton className="h-8 w-64" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </div>
-      ))}
+      <Skeleton className="h-10 w-[200px]" />
+      <Skeleton className="h-[500px] w-full" />
     </div>
   );
 }

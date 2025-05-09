@@ -8,7 +8,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Briefcase, Calendar, Eye, FileText, Stethoscope, User } from "lucide-react";
 
-import { useClient } from "@/app/(admin)/clients/_hooks/useClients";
 import { BackButton } from "@/app/(admin)/medical-records/_components/BackButton";
 import { MedicalRecordDetails } from "@/app/(admin)/medical-records/_components/detalle/medical-record-editor";
 import { Badge } from "@/shared/components/ui/badge";
@@ -39,16 +38,11 @@ const examTypeLabels = {
 };
 
 export default function MedicalRecordEditPage() {
-  // Correctamente esperar la promesa de params
+  // Get ID from params
   const { id } = useParams();
 
-  // // Obtener datos para tener información previa
-  // const recordData = await getMedicalRecord(id);
-  // const record = recordData.success ? recordData.data : null;
+  // Obtener datos para tener información previa
   const { data: record, isLoading } = useMedicalRecord(id as string);
-
-  // Obtener la información del cliente si existe clientId
-  const { data: client, isLoading: isClientLoading, isError: isClientError } = useClient(record?.clientId as string);
 
   // Display loading state when fetching record data
   if (isLoading) {
@@ -86,6 +80,9 @@ export default function MedicalRecordEditPage() {
       </div>
     );
   }
+
+  // Obtener el cliente directamente del registro médico
+  const client = record.client;
 
   return (
     <div className="container py-6 pb-24">
@@ -128,23 +125,15 @@ export default function MedicalRecordEditPage() {
                   </div>
                 </div>
 
-                {isClientLoading ? (
+                {!client ? (
                   <div className="flex items-center gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium">Cliente</p>
-                      <Skeleton className="h-4 w-32" />
+                      <p className="text-sm text-muted-foreground">No hay información de cliente disponible</p>
                     </div>
                   </div>
-                ) : isClientError ? (
-                  <div className="flex items-center gap-3">
-                    <Briefcase className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Cliente</p>
-                      <p className="text-sm text-red-500">Error al cargar cliente</p>
-                    </div>
-                  </div>
-                ) : client ? (
+                ) : (
                   <div className="flex items-center gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground" />
                     <div>
@@ -152,15 +141,7 @@ export default function MedicalRecordEditPage() {
                       <p className="text-sm text-muted-foreground">{client.name}</p>
                     </div>
                   </div>
-                ) : record.clientId ? (
-                  <div className="flex items-center gap-3">
-                    <Briefcase className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium">Cliente</p>
-                      <p className="text-sm text-muted-foreground">Cliente no encontrado</p>
-                    </div>
-                  </div>
-                ) : null}
+                )}
               </div>
 
               <div>

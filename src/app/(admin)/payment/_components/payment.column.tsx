@@ -1,9 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { TZDate } from "@date-fns/tz";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, Check, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Banknote,
+  Calendar,
+  CheckCircle2,
+  ChevronDown,
+  ChevronRight,
+  Info,
+  Loader2,
+  Minus,
+  Save,
+  XCircle,
+} from "lucide-react";
+import { toast } from "sonner";
+import { z } from "zod";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
@@ -13,8 +27,9 @@ import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
+import { useMarkPaymentStatus, usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
 import { PaymentResponse } from "../_types/payment.types";
+import { LabelTypePayment, TypePayment } from "../../quotation/_types/quotation.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 // Almacenamiento global para los estados
@@ -81,169 +96,77 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
     }
   }, [payment.isPaid, payment.id, isReady]);
 
+  const { mutate: markPaymentStatus, isPending } = useMarkPaymentStatus();
+
   const handlePaidChange = () => {
     if (!isPaid) {
-      open(MODULE, "update", payment);
+      if (payment.typePayment !== TypePayment.MONTHLY) {
+        open(MODULE, "update", payment);
+      } else {
+        open(MODULE, "update", {
+          ...payment,
+          isPaid: true,
+          paymentDate: payment.paymentDate || new Date().toISOString(),
+          billingCode: payment.billingCode || "Pago mensual completado",
+        });
+      }
+    } else {
+      markPaymentStatus({
+        id: payment.id,
+        data: {
+          isPaid: false,
+          paymentDate: payment.paymentDate || "",
+          billingCode:
+            payment.typePayment === TypePayment.MONTHLY ? "Pago mensual incompleto" : payment.billingCode || "",
+        },
+      });
     }
   };
 
   // Durante la carga inicial, mostrar el botón desactivado para evitar parpadeos
   if (!isReady) {
     return (
-      <div className="flex items-center gap-2">
-        <Switch checked={false} onCheckedChange={handlePaidChange} />
-        <span className="text-sm text-muted-foreground">
-          <XCircle className="size-4 text-gray-500" />
-        </span>
-      </div>
+      <ProtectedComponent
+        requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+        fallback={
+          <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
+            <XCircle className="size-4 text-gray-500" />
+          </Badge>
+        }
+      >
+        <div className="flex items-center gap-2">
+          <Switch checked={false} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
+          <span className="text-sm text-muted-foreground">
+            <XCircle className="size-4 text-gray-500" />
+          </span>
+        </div>
+      </ProtectedComponent>
     );
   }
-
   return (
-    <div className="flex items-center gap-2">
-      <Switch checked={isPaid} onCheckedChange={handlePaidChange} />
-      <span className="text-sm text-muted-foreground">
-        {isPaid ? (
-          <span className="flex items-center gap-1">
-            <CheckCircle2 className="size-4 text-emerald-500" />
-            Pagado
-          </span>
-        ) : (
-          <XCircle className="size-4 text-gray-500" />
-        )}
-      </span>
-    </div>
-  );
-}
-
-// Componente para la celda de acciones
-function ActionsCell({ payment }: { payment: PaymentResponse }) {
-  const { mutate: updatePaymentStatus } = useUpdatePaymentStatus();
-  const [date, setDate] = useState<Date | undefined>(payment.paymentDate ? new Date(payment.paymentDate) : undefined);
-  const [code, setCode] = useState(payment.billingCode || "");
-
-  // Obtener los valores actualizados del almacenamiento global
-  useEffect(() => {
-    // Inicializar el estado en el mapa al montar el componente
-    if (!paymentStates.has(payment.id)) {
-      paymentStates.set(payment.id, {
-        date: payment.paymentDate ? new Date(payment.paymentDate) : undefined,
-        code: payment.billingCode || "",
-        isPaid: payment.isPaid,
-      });
-    }
-
-    const intervalId = setInterval(() => {
-      const state = paymentStates.get(payment.id);
-      if (state) {
-        if (state.date !== undefined) {
-          setDate(state.date);
-        }
-        if (state.code) {
-          setCode(state.code);
-        }
+    <ProtectedComponent
+      requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+      fallback={
+        <Badge variant="outline" className="flex h-9 items-center gap-2 text-xs text-rose-400 italic">
+          <Info className="size-4" />
+          Sin permiso
+        </Badge>
       }
-    }, 500);
-
-    return () => clearInterval(intervalId);
-  }, [payment.id, payment.paymentDate, payment.billingCode, payment.isPaid]);
-
-  const handleUpdate = () => {
-    if (date && code) {
-      const paymentDate = new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString();
-
-      updatePaymentStatus({
-        id: payment.id,
-        data: {
-          paymentDate,
-          billingCode: code,
-        },
-      });
-    }
-  };
-
-  return (
-    <div className="flex items-center justify-center w-full">
-      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleUpdate}
-          disabled={!date || !code || payment.isPaid}
-          className="h-8 w-8 p-0"
-        >
-          <Check className="h-4 w-4" />
-        </Button>
-      </ProtectedComponent>
-    </div>
-  );
-}
-
-interface DatePickerCellProps {
-  initialDate: Date | undefined;
-  paymentId: string;
-  disabled: boolean;
-}
-
-interface BillingCodeInputCellProps {
-  initialCode: string;
-  paymentId: string;
-  disabled: boolean;
-}
-
-function DatePickerCell({ initialDate, paymentId, disabled }: DatePickerCellProps): React.ReactElement {
-  const [date, setDate] = useState<Date | undefined>(initialDate);
-
-  // Asegurarse de que el estado siempre refleje el valor inicial
-  useEffect(() => {
-    setDate(initialDate);
-  }, [initialDate]);
-
-  useEffect(() => {
-    if (date !== undefined) {
-      const state = paymentStates.get(paymentId) || { code: "" };
-      paymentStates.set(paymentId, { ...state, date });
-    }
-  }, [date, paymentId]);
-
-  return (
-    <div className="min-w-[150px]">
-      <DatePicker
-        selected={date}
-        onSelect={setDate}
-        placeholder="Seleccionar fecha"
-        className="w-full"
-        disabled={disabled}
-      />
-    </div>
-  );
-}
-
-function BillingCodeInputCell({ initialCode, paymentId, disabled }: BillingCodeInputCellProps): React.ReactElement {
-  const [code, setCode] = useState(initialCode);
-
-  // Asegurarse de que el estado siempre refleje el valor inicial
-  useEffect(() => {
-    setCode(initialCode);
-  }, [initialCode]);
-
-  useEffect(() => {
-    if (code) {
-      const state = paymentStates.get(paymentId) || { date: undefined };
-      paymentStates.set(paymentId, { ...state, code });
-    }
-  }, [code, paymentId]);
-
-  return (
-    <div className="min-w-[150px]">
-      <Input
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="Ingrese el código"
-        className="w-full"
-        disabled={disabled}
-      />
-    </div>
+    >
+      <div className="flex items-center gap-2">
+        <Switch checked={isPaid} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
+        <span className="text-sm text-muted-foreground w-36">
+          {isPaid ? (
+            <span className="flex items-center gap-1 text-wrap">
+              <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+              {payment.typePayment === TypePayment.MONTHLY ? "Pago completo con todas las cuotas" : "Pagado"}
+            </span>
+          ) : (
+            <XCircle className="size-4 text-gray-500" />
+          )}
+        </span>
+      </div>
+    </ProtectedComponent>
   );
 }
 
@@ -252,10 +175,27 @@ export { usePaymentsWithCleanup };
 
 export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
   {
-    id: "code",
+    id: "select",
+    size: 40,
+    cell: ({ row }) => {
+      return row.getCanExpand() ? (
+        <Button
+          variant="ghost"
+          {...{
+            onClick: row.getToggleExpandedHandler(),
+          }}
+        >
+          {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
+        </Button>
+      ) : null;
+    },
+    enableSorting: false,
+  },
+  {
+    id: "codigo",
     accessorKey: "code",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Código" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("code")}</div>,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Código de Cotización" />,
+    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("codigo")}</div>,
   },
   {
     id: "ruc",
@@ -264,87 +204,279 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("ruc")}</div>,
   },
   {
-    id: "businessName",
+    id: "razon social",
     accessorKey: "businessName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
     cell: ({ row }) => (
       <div
         className="font-semibold capitalize min-w-[200px] max-w-[200px] truncate"
-        title={row.getValue("businessName")}
+        title={row.getValue("razon social")}
       >
-        {row.getValue("businessName")}
+        {row.getValue("razon social")}
       </div>
     ),
   },
   {
-    id: "service",
+    id: "servicio",
     accessorKey: "service",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Servicio" />,
     cell: ({ row }) => (
-      <div className="capitalize min-w-[150px] max-w-[250px] truncate" title={row.getValue("service")}>
-        {row.getValue("service")}
+      <div className="capitalize min-w-[150px] max-w-[250px] truncate" title={row.getValue("servicio")}>
+        {row.getValue("servicio")}
       </div>
     ),
   },
   {
-    id: "amount",
+    id: "monto",
     accessorKey: "amount",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
     cell: ({ row }) => (
-      <div className="min-w-[150px]">
+      <div className="w-24">
         <Badge variant="outline" className="flex items-center gap-2">
           <Banknote className="size-3" />
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("amount"))}
+          }).format(row.getValue("monto"))}
         </Badge>
       </div>
     ),
   },
   {
-    id: "paymentDate",
+    id: "tipo de pago",
+    accessorKey: "typePayment",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    cell: ({ row }) => (
+      <Badge
+        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        className="capitalize w-24 truncate"
+      >
+        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+      </Badge>
+    ),
+  },
+  {
+    id: "fecha de pago",
     accessorKey: "paymentDate",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Pago" />,
-    cell: ({ row }) => {
-      const payment = row.original;
-      const isPaid = payment.isPaid;
-      const initialDate = payment.paymentDate ? new Date(payment.paymentDate) : undefined;
+    cell: function Cell({ row }) {
+      const paymentDate = row.original.paymentDate;
+      const paymentDateFormatted = paymentDate ? new TZDate(paymentDate as string) : undefined;
 
-      return <DatePickerCell initialDate={initialDate} paymentId={payment.id} disabled={isPaid} />;
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const handleChange = (date: Date | undefined) => {
+        updatePayment({
+          id: row.original.id,
+          data: {
+            paymentDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
+        <ProtectedComponent
+          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+          fallback={
+            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
+              {paymentDateFormatted ? (
+                paymentDateFormatted?.toLocaleDateString("es-PE", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              ) : (
+                <span className="text-muted-foreground text-xs italic">Sin fecha de pago</span>
+              )}
+              <Calendar className="text-muted-foreground" />
+            </Badge>
+          }
+        >
+          <div className="relative">
+            {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+            <DatePicker selected={paymentDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
+          </div>
+        </ProtectedComponent>
+      );
     },
   },
   {
-    id: "billingCode",
+    id: "codigo de facturacion",
     accessorKey: "billingCode",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Código de Facturación" />,
-    cell: ({ row }) => {
+    cell: function Cell({ row }) {
       const payment = row.original;
-      const isPaid = payment.isPaid;
       const initialCode = payment.billingCode || "";
+      const isPaid = payment.isPaid;
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
 
-      return <BillingCodeInputCell initialCode={initialCode} paymentId={payment.id} disabled={isPaid} />;
+      const [code, setCode] = useState(initialCode);
+
+      const handleSave = () => {
+        updatePayment(
+          {
+            id: row.original.id,
+            data: { billingCode: code },
+          },
+          {
+            onError: (_) => {
+              setCode(initialCode);
+            },
+          }
+        );
+      };
+
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCode(e.target.value);
+      };
+
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
+        <ProtectedComponent
+          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+          fallback={<Input value={code} readOnly />}
+        >
+          <div className="relative inline-flex gap-1">
+            {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+            <Input
+              value={code}
+              onChange={handleChange}
+              disabled={isPaid}
+              className="min-w-[200px] max-w-[200px] truncate"
+              placeholder="Ingrese el código de facturación"
+            />
+            {code !== initialCode && (
+              <Button type="button" variant="outline" size="icon" onClick={handleSave} className="border-emerald-500">
+                <Save className="size-4 text-emerald-500" />
+              </Button>
+            )}
+          </div>
+        </ProtectedComponent>
+      );
     },
   },
   {
-    id: "isPaid",
-    accessorKey: "isPaid",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="¿Realizó Pago?" />,
-    cell: ({ row }) => <PaidCell payment={row.original} />,
+    id: "fecha de facturacion",
+    accessorKey: "billingDate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Facturación" />,
+    cell: function Cell({ row }) {
+      const billingDate = row.original.billingDate;
+      const billingDateFormatted = billingDate ? new TZDate(billingDate as string) : undefined;
+
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const handleChange = (date: Date | undefined) => {
+        updatePayment({
+          id: row.original.id,
+          data: {
+            billingDate: date
+              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
+        <ProtectedComponent
+          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+          fallback={
+            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
+              {billingDateFormatted ? (
+                billingDateFormatted?.toLocaleDateString("es-PE", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              ) : (
+                <span className="text-muted-foreground text-xs italic">Sin fecha de facturación</span>
+              )}
+              <Calendar className="text-muted-foreground" />
+            </Badge>
+          }
+        >
+          <div className="relative">
+            {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+            <DatePicker selected={billingDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
+          </div>
+        </ProtectedComponent>
+      );
+    },
   },
   {
-    id: "actions",
-    header: ({ column }) => (
-      <div className="text-center">
-        <DataTableColumnHeader column={column} title="Actualizar" />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex justify-center items-center">
-        <ActionsCell payment={row.original} />
-      </div>
-    ),
-    enableSorting: false,
-    enableHiding: false,
+    id: "email destinatario",
+    accessorKey: "emailBilling",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Email Destinatario" />,
+    cell: function Cell({ row }) {
+      const initialEmail = row.original.emailBilling || "";
+
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const [email, setEmail] = useState(initialEmail);
+
+      const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setEmail(e.target.value);
+      };
+
+      const handleSave = () => {
+        if (!z.string().email().safeParse(email).success && email !== "") {
+          toast.error("El email no es válido");
+          return;
+        }
+
+        updatePayment(
+          {
+            id: row.original.id,
+            data: { emailBilling: email },
+          },
+          {
+            onError: (_) => {
+              setEmail(initialEmail);
+            },
+          }
+        );
+      };
+
+      return row.original.typePayment === TypePayment.MONTHLY ? (
+        <Minus className="text-muted/80" />
+      ) : (
+        <div className="relative inline-flex gap-1">
+          {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+
+          <ProtectedComponent
+            requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+            fallback={<Input value={email || ""} readOnly />}
+          >
+            <Input
+              value={email || ""}
+              onChange={handleChange}
+              disabled={row.original.isPaid}
+              placeholder="Ingrese el email del destinatario"
+              className="min-w-[200px] max-w-[200px] truncate"
+            />
+            {email !== initialEmail && (
+              <Button type="button" variant="outline" size="icon" onClick={handleSave} className="border-emerald-500">
+                <Save className="size-4 text-emerald-500" />
+              </Button>
+            )}
+          </ProtectedComponent>
+        </div>
+      );
+    },
+  },
+  {
+    id: "realizo pago",
+    accessorKey: "isPaid",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="¿Realizó Pago?" />,
+    cell: function Cell({ row }) {
+      const payment = row.original;
+      return <PaidCell payment={payment} />;
+    },
   },
 ];

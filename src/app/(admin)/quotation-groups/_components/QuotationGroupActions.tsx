@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowUpDown, Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, IterationCcw, MoreHorizontal, Trash } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
@@ -68,7 +68,7 @@ export default function QuotationGroupActions({ row }: QuotationGroupActionsProp
             <DropdownMenuItem onClick={handleTogleActive}>
               Activar
               <DropdownMenuShortcut>
-                <ArrowUpDown className="size-4 mr-2" />
+                <IterationCcw className="size-4 mr-2 scale-x-[-1]" />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           )}

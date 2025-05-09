@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { MEDICAL_RECORDS_KEYS } from "@/app/(admin)/medical-records/_hooks/useMedicalRecords";
 import { currentUser, getUserPermissions, login, logout, updatePassword } from "../_actions/auth.actions";
 import { AuthResponse, SignIn, UpdatePassword } from "../_types/auth.types";
 
@@ -110,6 +111,7 @@ export function useSignIn() {
     },
     onSuccess: async (result) => {
       await queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
+      await queryClient.invalidateQueries({ queryKey: MEDICAL_RECORDS_KEYS.lists() });
       toast.success("Inicio de sesión exitoso");
       setTimeout(() => {
         // Usar la URL de redirección devuelta por la acción login si está disponible

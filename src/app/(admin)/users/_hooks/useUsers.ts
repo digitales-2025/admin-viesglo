@@ -4,7 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
-import { createUser, deleteUser, getUser, getUserPermissions, getUsers, updateUser } from "../_actions/user.actions";
+import {
+  createUser,
+  deleteUser,
+  getUser,
+  getUserPermissions,
+  getUsers,
+  toggleActiveUser,
+  updateUser,
+} from "../_actions/user.actions";
 import { UserCreate, UserUpdate } from "../_types/user.types";
 import { USERS_PROJECTS_KEYS } from "../../tracking/_hooks/useProjectTraking";
 
@@ -141,6 +149,31 @@ export function useDeleteUser() {
     },
   });
 }
+
+/**
+ * Hook para reactivar un usuario
+ */
+export function useToggleActiveUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleActiveUser(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al reactivar usuario");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
+      toast.success("Usuario reactivado exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al reactivar usuario");
+    },
+  });
+}
+
 // Hook para obtener los permisos de un usuario
 export function useUserPermissions(id: string) {
   return useQuery({

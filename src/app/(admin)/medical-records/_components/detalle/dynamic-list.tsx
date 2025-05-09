@@ -19,6 +19,9 @@ interface DynamicListProps {
 export function DynamicList({ label, items = [], isEditing, onAdd, onUpdate, onRemove }: DynamicListProps) {
   const [newItem, setNewItem] = useState("");
 
+  // Ensure items is always an array to prevent the "items.map is not a function" error
+  const safeItems = Array.isArray(items) ? items : [];
+
   const handleAdd = () => {
     if (newItem.trim()) {
       onAdd(newItem.trim());
@@ -30,7 +33,7 @@ export function DynamicList({ label, items = [], isEditing, onAdd, onUpdate, onR
     <div className="space-y-3">
       <Label>{label}</Label>
       <div className="space-y-2">
-        {items.map((item, index) => (
+        {safeItems.map((item, index) => (
           <div key={`item-${index}`} className="flex items-center gap-2">
             {isEditing ? (
               <Input
@@ -83,7 +86,7 @@ export function DynamicList({ label, items = [], isEditing, onAdd, onUpdate, onR
           </div>
         )}
 
-        {items.length === 0 && !isEditing && (
+        {safeItems.length === 0 && !isEditing && (
           <div className="text-sm text-muted-foreground italic py-2">No hay {label.toLowerCase()} registrados</div>
         )}
       </div>

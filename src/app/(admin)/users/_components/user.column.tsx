@@ -60,18 +60,20 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="rol" />,
     cell: ({ row }) => {
       return (
-        <div className="flex flex-wrap gap-2 capitalize font-semibold">
-          {row.original.roles.map((role) => (
-            <span key={role.id} className="inline-flex items-center gap-2">
-              {row.original.isSuperAdmin ? (
-                <Shield className="w-4 h-4 text-emerald-500" />
-              ) : (
-                <IdCard className="w-4 h-4 text-muted-foreground" />
-              )}
-              {role.name}
-            </span>
-          ))}
-        </div>
+        <Link href="/roles">
+          <div className="flex flex-wrap gap-2 capitalize font-semibold">
+            {row.original.roles.map((role) => (
+              <span key={role.id} className="inline-flex items-center gap-2">
+                {row.original.isSuperAdmin ? (
+                  <Shield className="w-4 h-4 text-emerald-500" />
+                ) : (
+                  <IdCard className="w-4 h-4 text-muted-foreground" />
+                )}
+                {role.name}
+              </span>
+            ))}
+          </div>
+        </Link>
       );
     },
     filterFn: (row, _, filterValue) => {

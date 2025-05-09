@@ -3,7 +3,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { createClinic, deleteClinic, getClinic, getClinics, updateClinic } from "../_actions/clinics.actions";
+import {
+  createClinic,
+  deleteClinic,
+  getClinic,
+  getClinics,
+  toggleActiveClinic,
+  updateClinic,
+} from "../_actions/clinics.actions";
 import { ClinicCreate, ClinicUpdate } from "../_types/clinics.types";
 
 export const CLINICS_KEYS = {
@@ -121,6 +128,29 @@ export function useDeleteClinic() {
     },
     onError: (error: Error) => {
       toast.error(error.message || "Error al eliminar clínica");
+    },
+  });
+}
+
+/**
+ * Hook para activar o desactivar una clínica
+ */
+export function useToggleActiveClinic() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleActiveClinic(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al activar o desactivar clínica");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
+      toast.success("Clínica activada exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al activar o desactivar clínica");
     },
   });
 }

@@ -91,3 +91,19 @@ export async function deleteClinic(id: string): Promise<{ success: boolean; erro
     return { success: false, error: "Error al eliminar clínica" };
   }
 }
+
+/**
+ * Activar o desactivar una clínica
+ */
+export async function toggleActiveClinic(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch<ClinicResponse>(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al activar o desactivar clínica" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al activar o desactivar clínica", error);
+    return { success: false, error: "Error al activar o desactivar clínica" };
+  }
+}
