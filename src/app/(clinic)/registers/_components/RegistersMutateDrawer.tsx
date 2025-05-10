@@ -511,6 +511,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                             const value = e.target.value.replace(/\D/g, "");
                             field.onChange(value);
                           }}
+                          disabled={isPending}
                         />
                       </FormControl>
                       <FormMessage />
@@ -524,7 +525,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Género</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona el género" />
@@ -586,9 +587,9 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   name="firstName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Primer nombre</FormLabel>
+                      <FormLabel>Primer nombre del paciente</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el primer nombre" {...field} />
+                        <Input placeholder="Introduce el primer nombre del paciente" {...field} disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -601,7 +602,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                     <FormItem>
                       <FormLabel>Segundo nombre (opcional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el segundo nombre" {...field} />
+                        <Input placeholder="Introduce el segundo nombre del paciente" {...field} disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -615,9 +616,13 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   name="firstLastName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Apellido paterno</FormLabel>
+                      <FormLabel>Apellido paterno del paciente</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el apellido paterno" {...field} />
+                        <Input
+                          placeholder="Introduce el apellido paterno del paciente"
+                          {...field}
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -630,7 +635,11 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                     <FormItem>
                       <FormLabel>Apellido materno (opcional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el apellido materno" {...field} />
+                        <Input
+                          placeholder="Introduce el apellido materno del paciente"
+                          {...field}
+                          disabled={isPending}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -645,7 +654,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Tipo de examen</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona el tipo de examen" />
@@ -669,7 +678,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Aptitud</FormLabel>
-                      <Select value={field.value} onValueChange={field.onChange}>
+                      <Select value={field.value} onValueChange={field.onChange} disabled={isPending}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Selecciona la aptitud" />
@@ -699,7 +708,7 @@ export default function RegistersMutateDrawer({ open, onOpenChange, currentRow }
                         Restricciones {isRestrictionsRequired && <span className="text-red-500">*</span>}
                       </FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce las restricciones" {...field} />
+                        <Input placeholder="Introduce las restricciones" {...field} disabled={isPending} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
