@@ -9,6 +9,7 @@ import { ClinicResponse } from "@/app/(admin)/clinics/_types/clinics.types";
 import { MedicalRecordResponse } from "@/app/(admin)/medical-records/_types/medical-record.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import MedicalRecordTableActions from "./MedicalRecordTableActions";
 
 interface ColumnsMedicalRecordProps {
@@ -177,14 +178,18 @@ export const columnsMedicalRecord = ({
 
         return (
           <div className="flex items-center">
-            <div
+            <Button
+              variant="outline"
               className="flex items-center cursor-pointer"
-              onClick={() => handleDownloadCertificate(row.original)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadCertificate(row.original);
+              }}
               style={{ opacity: hasCertificate && !isDownloadingCertificate ? 1 : 0.5 }}
             >
               <FileDown className="h-4 w-4 mr-2" />
-              <span className="underline">Certificado de aptitud</span>
-            </div>
+              Certificado de aptitud
+            </Button>
           </div>
         );
       },
@@ -199,14 +204,18 @@ export const columnsMedicalRecord = ({
 
         return (
           <div className="flex items-center">
-            <div
+            <Button
+              variant="outline"
               className="flex items-center cursor-pointer"
-              onClick={() => handleDownloadReport(row.original)}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDownloadReport(row.original);
+              }}
               style={{ opacity: hasReport && !isDownloadingReport ? 1 : 0.5 }}
             >
               <FileDown className="h-4 w-4 mr-2" />
-              <span className="underline">Informe médico</span>
-            </div>
+              Informe médico
+            </Button>
           </div>
         );
       },
