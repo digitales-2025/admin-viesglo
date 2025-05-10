@@ -5,12 +5,14 @@ import { format } from "date-fns";
 import { Calendar, FileDown } from "lucide-react";
 import { toast } from "sonner";
 
+import { ClinicResponse } from "@/app/(admin)/clinics/_types/clinics.types";
+import { MedicalRecordResponse } from "@/app/(admin)/medical-records/_types/medical-record.types";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
-import { MedicalRecordResponse } from "../_types/medical-record.types";
 import MedicalRecordTableActions from "./MedicalRecordTableActions";
 
 interface ColumnsMedicalRecordProps {
+  clinics?: ClinicResponse[];
   downloadCertificate: (id: string) => Promise<any>;
   downloadReport: (id: string) => Promise<any>;
   isDownloadingCertificate: boolean;
