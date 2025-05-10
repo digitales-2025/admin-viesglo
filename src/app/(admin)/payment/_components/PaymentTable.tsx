@@ -1,11 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Banknote, Check, Circle, CreditCard, DownloadCloud } from "lucide-react";
+import { Banknote, Check, Circle, CreditCard } from "lucide-react";
 
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { cn, debounce } from "@/shared/lib/utils";
@@ -13,12 +12,11 @@ import { usePayments } from "../_hooks/usePayments";
 import { usePaymentsStore } from "../_hooks/usePaymentStore";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 import { TypePayment } from "../../quotation/_types/quotation.types";
+import { DownloadExcelButton } from "./DownloadExcelButton";
 import { columnsPayment } from "./payment.column";
 import PaymentMonthlyTable from "./PaymentMonthlyTable";
 
 export default function PaymentTable() {
-  //const { data: payments, isLoading, error } = usePaymentsWithCleanup();
-
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
 
@@ -192,9 +190,7 @@ export default function PaymentTable() {
   const actions = useMemo(
     () => (
       <>
-        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-          <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
-        </Button>
+        <DownloadExcelButton filters={filters} />
         <DatePickerWithRange
           size="sm"
           initialValue={{
