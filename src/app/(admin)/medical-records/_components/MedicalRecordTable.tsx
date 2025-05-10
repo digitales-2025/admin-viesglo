@@ -122,7 +122,6 @@ export default function MedicalRecordTable() {
   const columns = useMemo(
     () =>
       columnsMedicalRecord({
-        clinics: clinics || [],
         downloadCertificate,
         downloadReport,
         isDownloadingCertificate,
