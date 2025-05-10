@@ -107,7 +107,7 @@ export default function MedicalRecordEditPage() {
                 <div className="flex items-center gap-3 mb-4">
                   <User className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="font-medium">
+                    <p className="font-medium capitalize">
                       {record.firstName} {record.secondName ? record.secondName + " " : ""}
                       {record.firstLastName} {record.secondLastName || ""}
                     </p>
@@ -129,15 +129,15 @@ export default function MedicalRecordEditPage() {
                   <div className="flex items-center gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium">Cliente</p>
-                      <p className="text-sm text-muted-foreground">No hay información de cliente disponible</p>
+                      <p className="text-sm font-medium">Empresa cliente</p>
+                      <p className="text-sm text-muted-foreground">No hay información de empresa cliente disponible</p>
                     </div>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <Briefcase className="h-5 w-5 text-muted-foreground" />
                     <div>
-                      <p className="text-sm font-medium">Cliente</p>
+                      <p className="text-sm font-medium">Empresa cliente</p>
                       <p className="text-sm text-muted-foreground">{client.name}</p>
                     </div>
                   </div>
