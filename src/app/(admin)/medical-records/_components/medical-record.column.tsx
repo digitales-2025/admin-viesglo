@@ -8,12 +8,9 @@ import { toast } from "sonner";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { MedicalRecordResponse } from "../_types/medical-record.types";
-import { ClinicResponse } from "../../clinics/_types/clinics.types";
-import ClinicCell from "./ClinicCell";
 import MedicalRecordTableActions from "./MedicalRecordTableActions";
 
 interface ColumnsMedicalRecordProps {
-  clinics?: ClinicResponse[];
   downloadCertificate: (id: string) => Promise<any>;
   downloadReport: (id: string) => Promise<any>;
   isDownloadingCertificate: boolean;
@@ -21,7 +18,6 @@ interface ColumnsMedicalRecordProps {
 }
 
 export const columnsMedicalRecord = ({
-  clinics = [],
   downloadCertificate,
   downloadReport,
   isDownloadingCertificate,
@@ -70,8 +66,7 @@ export const columnsMedicalRecord = ({
       accessorKey: "clinicId",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Clínica" />,
       cell: ({ row }) => {
-        const clinicId = row.original.clinicId;
-        return <ClinicCell clinicId={clinicId} clinicsList={clinics} />;
+        return <div className="font-semibold capitalize min-w-[150px]">{row.original.clinic?.name}</div>;
       },
     },
     {
