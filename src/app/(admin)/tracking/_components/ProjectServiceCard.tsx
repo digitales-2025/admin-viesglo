@@ -1,6 +1,7 @@
 import { useRouter } from "next/navigation";
 import { CheckCircle, Circle, Clock, Edit, MoreVertical, Trash } from "lucide-react";
 
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -14,6 +15,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectServiceResponse } from "../_types/tracking.types";
+import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import { PROJECT_SERVICE_MODULE } from "./ProjectsDialogs";
 
 interface ProjectServiceCardProps {
@@ -52,27 +54,42 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
               <span className="first-letter:uppercase">{service.name}</span>
             </div>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={handleEditService}>
-                Editar
-                <DropdownMenuShortcut>
-                  <Edit />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDeleteService}>
-                Eliminar
-                <DropdownMenuShortcut>
-                  <Trash />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <ProtectedComponent
+            requiredPermissions={[
+              { resource: EnumResource.projects, action: EnumAction.edit },
+              { resource: EnumResource.projects, action: EnumAction.delete },
+            ]}
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <ProtectedComponent
+                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.edit }]}
+                >
+                  <DropdownMenuItem onClick={handleEditService}>
+                    Editar
+                    <DropdownMenuShortcut>
+                      <Edit />
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </ProtectedComponent>
+                <ProtectedComponent
+                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+                >
+                  <DropdownMenuItem onClick={handleDeleteService}>
+                    Eliminar
+                    <DropdownMenuShortcut>
+                      <Trash />
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                </ProtectedComponent>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ProtectedComponent>
         </CardTitle>
         <CardDescription className="flex flex-col gap-2 ">{service.description}</CardDescription>
       </CardHeader>

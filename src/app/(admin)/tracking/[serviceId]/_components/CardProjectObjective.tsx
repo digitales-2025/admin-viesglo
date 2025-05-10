@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
+import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -65,52 +67,71 @@ export default function CardProjectObjective({ objective }: Props) {
               <span className="text-sm text-nowrap">{progress} %</span>
             </div>
             <div className="inline-flex justify-end items-center gap-2 xl:order-5 order-3 lg:order-4">
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const dataWithObjectiveId = {
-                    ...objective,
-                    objectiveId: objective.id,
-                  };
-
-                  open(MODULE_PROJECT_ACTIVITIES, "create", dataWithObjectiveId);
-                }}
+              <ProtectedComponent
+                requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}
               >
-                <PlusCircle className="w-4 h-4 mr-1" />
-                Agregar actividad
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Ellipsis className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(MODULE_PROJECT_OBJECTIVES, "edit", objective);
-                    }}
-                  >
-                    Editar
-                    <DropdownMenuShortcut>
-                      <Edit className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(MODULE_PROJECT_OBJECTIVES, "delete", objective);
-                    }}
-                  >
-                    Eliminar
-                    <DropdownMenuShortcut>
-                      <Trash className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                <Button
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const dataWithObjectiveId = {
+                      ...objective,
+                      objectiveId: objective.id,
+                    };
+
+                    open(MODULE_PROJECT_ACTIVITIES, "create", dataWithObjectiveId);
+                  }}
+                >
+                  <PlusCircle className="w-4 h-4 mr-1" />
+                  Agregar actividad
+                </Button>
+              </ProtectedComponent>
+              <ProtectedComponent
+                requiredPermissions={[
+                  { resource: EnumResource.projects, action: EnumAction.edit },
+                  { resource: EnumResource.projects, action: EnumAction.delete },
+                ]}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Ellipsis className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <ProtectedComponent
+                      requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.edit }]}
+                    >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          open(MODULE_PROJECT_OBJECTIVES, "edit", objective);
+                        }}
+                      >
+                        Editar
+                        <DropdownMenuShortcut>
+                          <Edit className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </ProtectedComponent>
+                    <ProtectedComponent
+                      requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+                    >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          open(MODULE_PROJECT_OBJECTIVES, "delete", objective);
+                        }}
+                      >
+                        Eliminar
+                        <DropdownMenuShortcut>
+                          <Trash className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </ProtectedComponent>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </ProtectedComponent>
             </div>
           </CardTitle>
         </CardHeader>
