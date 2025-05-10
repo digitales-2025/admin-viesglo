@@ -2,6 +2,7 @@ import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComp
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { EnumAction, EnumResource } from "../roles/_utils/groupedPermission";
+import { DownloadExcelProjectsButton } from "./_components/DownloadExcelProjectsButton";
 import ProjectContainer from "./_components/ProjectContainer";
 
 export default function TrackingPage() {
@@ -18,6 +19,7 @@ export default function TrackingPage() {
     >
       <ShellHeader>
         <ShellTitle title="Proyectos" description="Seguimiento de proyectos" />
+        <DownloadExcelProjectsButton />
       </ShellHeader>
       <ProjectContainer />
     </ProtectedComponent>
