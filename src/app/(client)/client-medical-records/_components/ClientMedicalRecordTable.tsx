@@ -10,17 +10,20 @@ import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { Input } from "@/shared/components/ui/input";
 import { debounce } from "@/shared/lib/utils";
+import { useClinics } from "../../../(admin)/clinics/_hooks/useClinics";
 import {
   useAvailableDiagnostics,
   useDownloadAptitudeCertificate,
   useDownloadMedicalReport,
   useMedicalRecords,
-} from "../_hooks/useMedicalRecords";
-import { MedicalRecordResponse, MedicalRecordsFilter } from "../_types/medical-record.types";
-import { useClinics } from "../../clinics/_hooks/useClinics";
+} from "../../../(admin)/medical-records/_hooks/useMedicalRecords";
+import {
+  MedicalRecordResponse,
+  MedicalRecordsFilter,
+} from "../../../(admin)/medical-records/_types/medical-record.types";
 import { columnsMedicalRecord } from "./medical-record.column";
 
-export default function MedicalRecordTable() {
+export default function ClientMedicalRecordTable() {
   const [filters, setFilters] = useState<MedicalRecordsFilter>({
     page: 1,
     limit: 10,
@@ -29,7 +32,7 @@ export default function MedicalRecordTable() {
   const router = useRouter();
 
   const handleRowClick = (row: MedicalRecordResponse) => {
-    router.push(`/medical-records/${row.id}/details`);
+    router.push(`/client-medical-records/${row.id}/details`);
   };
 
   const {
@@ -122,6 +125,7 @@ export default function MedicalRecordTable() {
   const columns = useMemo(
     () =>
       columnsMedicalRecord({
+        clinics: clinics || [],
         downloadCertificate,
         downloadReport,
         isDownloadingCertificate,

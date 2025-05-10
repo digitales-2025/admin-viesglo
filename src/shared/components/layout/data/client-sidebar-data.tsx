@@ -19,7 +19,7 @@ export const clientSidebarData: SidebarData = {
         },
         {
           title: "Registros médicos",
-          url: "/registers-medical",
+          url: "/client-medical-records",
           icon: Files,
         },
       ],
