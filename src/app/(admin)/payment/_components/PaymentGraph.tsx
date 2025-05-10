@@ -53,14 +53,9 @@ export default function PaymentGraph() {
   const { filters, updateFilter } = usePaymentsStore();
   // Si no hay filtros de fecha, establecer el año actual
   useEffect(() => {
-    // Solo aplicar filtro del año actual si no hay filtros de fecha explícitos
-    if (!filters.from && !filters.to) {
-      const currentYear = new Date().getFullYear();
-      const startOfYear = new Date(currentYear, 0, 1); // 1 de enero del año actual
-      const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59); // 31 de diciembre del año actual
-
-      updateFilter("from", startOfYear);
-      updateFilter("to", endOfYear);
+    if (filters.from && filters.to) {
+      updateFilter("from", filters.from);
+      updateFilter("to", filters.to);
     }
   }, [filters.from, filters.to, updateFilter]);
 
