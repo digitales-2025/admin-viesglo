@@ -1,11 +1,12 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { ClockArrowUp, Edit, MoreVertical, Trash, User, UserCog } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
+import { FileXls } from "@/shared/components/icons/Files";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -20,6 +21,7 @@ import { Progress } from "@/shared/components/ui/progress";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { downloadProjectDetailXls } from "../_actions/project.actions";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import { ProjectResponse } from "../_types/tracking.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
@@ -41,6 +43,40 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
       setSelectedProject(null);
     } else {
       setSelectedProject(project);
+    }
+  };
+
+  const [isLoading, setIsLoading] = useState(false);
+  const handleDownload = async () => {
+    try {
+      setIsLoading(true);
+      const blob = await downloadProjectDetailXls(project.id);
+
+      if (!blob) {
+        console.error("No se pudo obtener el archivo Excel");
+        return;
+      }
+
+      // Crear un URL para el blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Crear un enlace temporal
+      const link = document.createElement("a");
+      link.href = url;
+      const date = new Date();
+      link.setAttribute("download", `proyecto-${project.typeContract}-${date.toLocaleDateString()}.xlsx`);
+
+      // Simular clic en el enlace
+      document.body.appendChild(link);
+      link.click();
+
+      // Limpiar
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error al descargar proyecto:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -105,6 +141,19 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 </ProtectedComponent>
+                <DropdownMenuItem
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload();
+                  }}
+                  className="text-xs sm:text-sm"
+                  disabled={isLoading}
+                >
+                  Descargar
+                  <DropdownMenuShortcut>
+                    <FileXls className="size-3 sm:size-4" />
+                  </DropdownMenuShortcut>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </ProtectedComponent>

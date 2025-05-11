@@ -373,3 +373,25 @@ export async function downloadProjectsXls(filters: ProjectFilters): Promise<Blob
     return null;
   }
 }
+
+/**
+ * Descarga proyecto en formato XLS
+ */
+export async function downloadProjectDetailXls(id: string): Promise<Blob | null> {
+  try {
+    // URL final con los parámetros de consulta
+    const url = `${API_ENDPOINT}/generate-excel-project-detail?id=${id}`;
+    const [_, err, response] = await http.downloadFile(url);
+    if (err !== null || !response) {
+      console.error("Error al descargar proyecto", err);
+      return null;
+    }
+
+    // Convertir el Response a Blob
+    const blob = await response.blob();
+    return blob;
+  } catch (error) {
+    console.error("Error al descargar proyecto", error);
+    return null;
+  }
+}

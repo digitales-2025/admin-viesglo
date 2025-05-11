@@ -38,7 +38,7 @@ export function DownloadExcelProjectsButton() {
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error("Error al descargar pagos de cotizaciones:", error);
+      console.error("Error al descargar proyectos:", error);
     } finally {
       setIsLoading(false);
     }
