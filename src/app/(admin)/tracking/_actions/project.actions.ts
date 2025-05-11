@@ -294,3 +294,104 @@ export async function getProjectsPaginated(
     };
   }
 }
+
+/**
+ * Descarga proyectos en formato XLS
+ */
+export async function downloadProjectsXls(filters: ProjectFilters): Promise<Blob | null> {
+  try {
+    // Procesar y validar los filtros antes de añadirlos a la URL
+    const processedFilters: Record<string, string> = {};
+
+    // Función auxiliar para procesar y validar fechas
+    const processDate = (dateStr: string | undefined, fieldName: string): string | null => {
+      if (!dateStr) return null;
+
+      try {
+        // Intentar parsear la fecha
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) {
+          console.warn(`Invalid ${fieldName} format:`, dateStr);
+          return null;
+        }
+
+        // Devolver en formato YYYY-MM-DD
+        return date.toISOString().split("T")[0];
+      } catch (e) {
+        console.warn(`Error processing ${fieldName}:`, e);
+        return null;
+      }
+    };
+
+    // Procesar tipos de contrato y proyecto (string)
+    if (filters.typeContract) processedFilters.typeContract = filters.typeContract;
+    if (filters.typeProject) processedFilters.typeProject = filters.typeProject;
+
+    // Procesar fechas de inicio
+    const startDateFrom = processDate(filters.startDateFrom, "startDateFrom");
+    const startDateTo = processDate(filters.startDateTo, "startDateTo");
+
+    if (startDateFrom) processedFilters.startDateFrom = startDateFrom;
+    if (startDateTo) processedFilters.startDateTo = startDateTo;
+
+    // Procesar fechas de finalización
+    const endDateFrom = processDate(filters.endDateFrom, "endDateFrom");
+    const endDateTo = processDate(filters.endDateTo, "endDateTo");
+
+    if (endDateFrom) processedFilters.endDateFrom = endDateFrom;
+    if (endDateTo) processedFilters.endDateTo = endDateTo;
+
+    // Procesar estado (string)
+    if (filters.status) processedFilters.status = filters.status;
+
+    // Procesar búsqueda (string)
+    if (filters.search) processedFilters.search = filters.search;
+
+    // Procesar ID de cliente (string)
+    if (filters.clientId) processedFilters.clientId = filters.clientId;
+
+    // Procesar isActive (boolean)
+    if (filters.isActive !== undefined && filters.isActive !== null && filters.isActive !== "") {
+      // Convertir a boolean explícitamente
+      const isActiveBoolean = filters.isActive === "true";
+      processedFilters.isActive = isActiveBoolean.toString();
+    }
+
+    // URL final con los parámetros de consulta
+    const url = `${API_ENDPOINT}/generate-excel?${new URLSearchParams(processedFilters).toString()}`;
+    const [_, err, response] = await http.downloadFile(url);
+    if (err !== null || !response) {
+      console.error("Error al descargar proyectos", err);
+      return null;
+    }
+
+    // Convertir el Response a Blob
+    const blob = await response.blob();
+    return blob;
+  } catch (error) {
+    console.error("Error al descargar proyectos", error);
+    return null;
+  }
+}
+
+/**
+ * Descarga proyecto en formato XLS
+ */
+export async function downloadProjectDetailXls(id: string): Promise<Blob | null> {
+  try {
+    // URL final con los parámetros de consulta
+    const url = `${API_ENDPOINT}/generate-excel-project-detail?id=${id}`;
+    const [_, err, response] = await http.downloadFile(url);
+    if (err !== null || !response) {
+      console.error("Error al descargar proyecto", err);
+      return null;
+    }
+
+    // Convertir el Response a Blob
+    const blob = await response.blob();
+    return blob;
+  } catch (error) {
+    console.error("Error al descargar proyecto", error);
+    return null;
+  }
+}

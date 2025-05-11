@@ -9,6 +9,7 @@ import { Button } from "@/shared/components/ui/button";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useProjectsPaginated } from "../_hooks/useProject";
+import { useProjectFiltersStore } from "../_stores/useProjectFiltersStore";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import ProjectCard from "./ProjectCard";
 import { ProjectFilterValues, ProjectsAdvancedSearch } from "./ProjectsAdvancedSearch";
@@ -16,7 +17,7 @@ import { ProjectFilterValues, ProjectsAdvancedSearch } from "./ProjectsAdvancedS
 // Componente optimizado con memo para evitar re-renders innecesarios
 const ProjectList = memo(function ProjectList() {
   const { open } = useDialogStore();
-  const [filters, setFilters] = useState<ProjectFilterValues>({});
+  const { filters, setFilters } = useProjectFiltersStore();
   const listContainerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
 

@@ -2,11 +2,10 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FileDown, ShieldAlert, ShieldBan, ShieldCheck } from "lucide-react";
+import { ShieldAlert, ShieldBan, ShieldCheck } from "lucide-react";
 
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { Input } from "@/shared/components/ui/input";
 import { debounce } from "@/shared/lib/utils";
@@ -19,6 +18,7 @@ import {
 import { MedicalRecordResponse, MedicalRecordsFilter } from "../_types/medical-record.types";
 import { useClinics } from "../../clinics/_hooks/useClinics";
 import { columnsMedicalRecord } from "./medical-record.column";
+import { MedicalRecordDownloadExcelButton } from "./MedicalRecordDownloadExcelButton";
 
 export default function MedicalRecordTable() {
   const [filters, setFilters] = useState<MedicalRecordsFilter>({
@@ -232,9 +232,7 @@ export default function MedicalRecordTable() {
           onChange={handleFreeTextDiagnosticChange}
           className="h-8 w-[120px] lg:w-[180px]"
         />
-        <Button variant="outline" size="sm" className="h-8 lg:flex">
-          <FileDown className="mr-2 h-4 w-4" /> Descargar
-        </Button>
+        <MedicalRecordDownloadExcelButton filters={filters} />
       </div>
     ),
     [freeTextDiagnosticName, handleFreeTextDiagnosticChange]

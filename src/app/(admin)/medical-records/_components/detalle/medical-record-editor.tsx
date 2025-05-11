@@ -435,21 +435,21 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
             <TabsTrigger
               title="Datos de Filiación"
               value="datos-filiacion"
-              className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+              className="truncate cursor-pointer text-sm md:text-base w-full data-[state=active]:shadow-none data-[state=active]:border-sky-500 data-[state=active]:border"
             >
               Datos de Filiación
             </TabsTrigger>
             <TabsTrigger
               title="Aptitud"
               value="aptitud"
-              className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+              className="truncate cursor-pointer text-sm md:text-base w-full data-[state=active]:shadow-none data-[state=active]:border-emerald-500 data-[state=active]:border"
             >
               Aptitud
             </TabsTrigger>
             <TabsTrigger
               title="Diagnósticos"
               value="diagnosticos"
-              className="truncate text-sm md:text-base w-full data-[state=active]:shadow-none"
+              className="truncate cursor-pointer text-sm md:text-base w-full data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:border"
             >
               Diagnósticos
             </TabsTrigger>

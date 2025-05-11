@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   BarChart3,
   Calendar,
@@ -50,19 +50,7 @@ export default function PaymentGraph() {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
 
   // Obtenemos los filtros del store
-  const { filters, updateFilter } = usePaymentsStore();
-  // Si no hay filtros de fecha, establecer el año actual
-  useEffect(() => {
-    // Solo aplicar filtro del año actual si no hay filtros de fecha explícitos
-    if (!filters.from && !filters.to) {
-      const currentYear = new Date().getFullYear();
-      const startOfYear = new Date(currentYear, 0, 1); // 1 de enero del año actual
-      const endOfYear = new Date(currentYear, 11, 31, 23, 59, 59); // 31 de diciembre del año actual
-
-      updateFilter("from", startOfYear);
-      updateFilter("to", endOfYear);
-    }
-  }, [filters.from, filters.to, updateFilter]);
+  const { filters } = usePaymentsStore();
 
   // Obtenemos los datos directamente de la API usando los filtros del store
   const { data, isLoading, error } = usePaymentsForStats({ ...filters });

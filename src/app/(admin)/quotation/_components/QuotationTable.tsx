@@ -1,12 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Check, Circle, DownloadCloud, Locate } from "lucide-react";
+import { Check, Circle, Locate } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Loading } from "@/shared/components/loading";
-import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
@@ -14,6 +13,7 @@ import { useQuotations } from "../_hooks/useQuotations";
 import { useQuotationsStore } from "../_hooks/useQuotationsStore";
 import { CustomFilterGroup, CustomFilterOption } from "../../../../shared/components/data-table/custom-types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
+import { DownloadExcelButton } from "./DownloadExcelButton";
 import { columnsQuotation } from "./quotation.column";
 
 export default function QuotationTable() {
@@ -191,9 +191,7 @@ export default function QuotationTable() {
   const actions = useMemo(
     () => (
       <>
-        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-          <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
-        </Button>
+        <DownloadExcelButton filters={filters} />
         <DatePickerWithRange
           size="sm"
           initialValue={{
@@ -221,7 +219,7 @@ export default function QuotationTable() {
         />
       </>
     ),
-    [storeFilters, updateFilter, setFilters]
+    [storeFilters, updateFilter, setFilters, filters]
   );
 
   const serverPagination = useMemo(

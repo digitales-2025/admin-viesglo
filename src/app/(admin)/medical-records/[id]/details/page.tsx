@@ -12,6 +12,7 @@ import { MedicalRecordDetails } from "@/app/(admin)/medical-records/_components/
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+import { cn } from "@/shared/lib/utils";
 import { useMedicalRecord } from "../../_hooks/useMedicalRecords";
 
 // interface PageProps {
@@ -99,7 +100,7 @@ export default function MedicalRecordDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <User className="size-5" />
+                <User className="size-5 text-primary" />
                 Información del paciente
               </CardTitle>
             </CardHeader>
@@ -138,7 +139,9 @@ export default function MedicalRecordDetailsPage() {
 
                 <div className="pt-2">
                   <p className="text-sm font-medium mb-2">Aptitud médica</p>
-                  <Badge className={aptitudeColors[record.aptitude as keyof typeof aptitudeColors]}>
+                  <Badge
+                    className={cn("font-semibold", aptitudeColors[record.aptitude as keyof typeof aptitudeColors])}
+                  >
                     {aptitudeLabels[record.aptitude as keyof typeof aptitudeLabels] || record.aptitude}
                   </Badge>
 
@@ -157,8 +160,8 @@ export default function MedicalRecordDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Briefcase className="size-5" />
-                Información del cliente
+                <Briefcase className="size-5 text-sky-500" />
+                Información de la empresa cliente
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -214,7 +217,7 @@ export default function MedicalRecordDetailsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="size-5" />
+                <Building className="size-5 text-emerald-500" />
                 Información de la clínica
               </CardTitle>
             </CardHeader>
