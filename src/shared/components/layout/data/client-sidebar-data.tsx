@@ -1,4 +1,4 @@
-import { Files, LayoutDashboard, UsersRound } from "lucide-react";
+import { Files, UsersRound } from "lucide-react";
 
 import { type SidebarData } from "./types";
 
@@ -7,11 +7,6 @@ export const clientSidebarData: SidebarData = {
     {
       title: "Inicio",
       items: [
-        {
-          title: "Dashboard",
-          url: "/",
-          icon: LayoutDashboard,
-        },
         {
           title: "Estado del proyecto",
           url: "/project-status",

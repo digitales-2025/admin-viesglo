@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   createClinic,
   deleteClinic,
@@ -10,6 +11,7 @@ import {
   getClinics,
   toggleActiveClinic,
   updateClinic,
+  updateClinicProfile,
 } from "../_actions/clinics.actions";
 import { ClinicCreate, ClinicUpdate } from "../_types/clinics.types";
 
@@ -101,6 +103,30 @@ export function useUpdateClinic() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
+      toast.success("Clínica actualizada exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al actualizar clínica");
+    },
+  });
+}
+
+/**
+ * Hook para actualizar el perfil del cliente
+ */
+export function useUpdateClinicProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ClinicUpdate> }) => {
+      const response = await updateClinicProfile(id, data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar clínica");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Clínica actualizada exitosamente");
     },
     onError: (error: Error) => {

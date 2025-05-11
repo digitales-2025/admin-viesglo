@@ -106,6 +106,24 @@ export async function updateClient(
 }
 
 /**
+ * Actualiza el perfil de un cliente
+ */
+export async function updateClientProfile(
+  id: string,
+  client: ClientUpdate
+): Promise<{ data: ClientResponse | null; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.patch<ClientResponse>(`${API_ENDPOINT}/${id}/profile`, client);
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al actualizar cliente" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al actualizar cliente", error);
+    return { success: false, data: null, error: "Error al actualizar cliente" };
+  }
+}
+/**
  * Elimina un cliente existente
  */
 export async function deleteClient(id: string): Promise<{ success: boolean; error?: string }> {
