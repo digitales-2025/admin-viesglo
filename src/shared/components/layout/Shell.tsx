@@ -4,11 +4,16 @@ import { ProfileDropdown } from "./ProfileDropdown";
 import { Search } from "./Search";
 import { ThemeSwitch } from "./ThemeSwitch";
 
-export function Shell({ children }: { children: React.ReactNode }) {
+interface ShellProps {
+  children: React.ReactNode;
+  search?: boolean;
+}
+
+export function Shell({ children, search = true }: ShellProps) {
   return (
     <>
       <Header fixed>
-        <Search />
+        {search && <Search />}
         <div className="ml-auto flex items-center space-x-4">
           <ThemeSwitch />
           <ProfileDropdown />

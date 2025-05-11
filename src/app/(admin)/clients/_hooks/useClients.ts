@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { AUTH_KEYS } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import {
   createClient,
   deleteClient,
@@ -12,6 +13,7 @@ import {
   searchClients,
   toggleClientActive,
   updateClient,
+  updateClientProfile,
 } from "../_actions/clients.actions";
 import { ClientCreate, ClientUpdate } from "../_types/clients.types";
 
@@ -121,6 +123,30 @@ export function useUpdateClient() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.detail(variables.id) });
+      toast.success("Cliente actualizado exitosamente");
+    },
+    onError: (error: Error) => {
+      toast.error(error.message || "Error al actualizar cliente");
+    },
+  });
+}
+
+/**
+ * Hook para actualizar el perfil del cliente
+ */
+export function useUpdateClientProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<ClientUpdate> }) => {
+      const response = await updateClientProfile(id, data);
+      if (!response.success) {
+        throw new Error(response.error || "Error al actualizar cliente");
+      }
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Cliente actualizado exitosamente");
     },
     onError: (error: Error) => {

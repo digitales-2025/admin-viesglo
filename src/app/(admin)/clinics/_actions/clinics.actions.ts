@@ -77,6 +77,25 @@ export async function updateClinic(
 }
 
 /**
+ * Actualiza el perfil de un cliente
+ */
+export async function updateClinicProfile(
+  id: string,
+  client: ClinicUpdate
+): Promise<{ data: ClinicResponse | null; success: boolean; error?: string }> {
+  try {
+    const [data, err] = await http.patch<ClinicResponse>(`${API_ENDPOINT}/${id}/profile`, client);
+    if (err !== null) {
+      return { success: false, data: null, error: err.message || "Error al actualizar cliente" };
+    }
+    return { success: true, data };
+  } catch (error) {
+    console.error("Error al actualizar clínica", error);
+    return { success: false, data: null, error: "Error al actualizar clínica" };
+  }
+}
+
+/**
  * Elimina una clínica existente
  */
 export async function deleteClinic(id: string): Promise<{ success: boolean; error?: string }> {

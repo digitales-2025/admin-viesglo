@@ -79,6 +79,36 @@ export function ProfileDropdown() {
                 </DropdownMenuGroup>
               </>
             )}
+            {user?.type === "client" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/client-settings">
+                      Mi cuenta
+                      <DropdownMenuShortcut>
+                        <BadgeCheck />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
+            {user?.type === "clinic" && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/clinic-settings">
+                      Mi cuenta
+                      <DropdownMenuShortcut>
+                        <BadgeCheck />
+                      </DropdownMenuShortcut>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
               Cerrar sesión
