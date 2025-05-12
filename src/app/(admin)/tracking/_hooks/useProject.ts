@@ -9,6 +9,7 @@ import {
   getProjects,
   getProjectsByFilters,
   getProjectsPaginated,
+  toggleProjectActive,
   updateProject,
 } from "../_actions/project.actions";
 import { CreateProject, ProjectFilters, UpdateProjectWithoutServices } from "../_types/tracking.types";
@@ -105,6 +106,30 @@ export function useDeleteProject() {
     },
     onError: () => {
       toast.error("Error al eliminar proyecto");
+    },
+  });
+}
+
+/**
+ * Hook para toggle active estado de un proyecto
+ */
+export function useToggleProjectActive() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const response = await toggleProjectActive(id);
+      if (!response.success) {
+        throw new Error(response.error || "Error al cambiar estado del proyecto");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      toast.success("Estado del proyecto actualizado correctamente");
+    },
+    onError: () => {
+      toast.error("Error al cambiar estado del proyecto");
     },
   });
 }

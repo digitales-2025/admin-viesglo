@@ -99,6 +99,22 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
 }
 
 /**
+ * Toggle active estado de un proyecto
+ */
+export async function toggleProjectActive(id: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch<ProjectResponse>(`${API_ENDPOINT}/${id}/toggle-active`);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al cambiar estado del proyecto" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al cambiar estado del proyecto", error);
+    return { success: false, error: "Error al cambiar estado del proyecto" };
+  }
+}
+
+/**
  * Obtiene los proyectos segun filtros
  */
 export async function getProjectsByFilters(

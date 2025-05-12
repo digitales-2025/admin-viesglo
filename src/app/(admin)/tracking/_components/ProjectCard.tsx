@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, MoreVertical, Trash, User, UserCog } from "lucide-react";
+import { ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { FileXls } from "@/shared/components/icons/Files";
@@ -22,8 +22,9 @@ import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { downloadProjectDetailXls } from "../_actions/project.actions";
+import { useToggleProjectActive } from "../_hooks/useProject";
 import { useProjectStore } from "../_hooks/useProjectStore";
-import { ProjectResponse } from "../_types/tracking.types";
+import { ProjectResponse, ProjectStatus, ProjectStatusColors, ProjectStatusLabels } from "../_types/tracking.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface ProjectCardProps {
@@ -32,6 +33,7 @@ interface ProjectCardProps {
 }
 
 const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCardProps) {
+  const { mutate: toggleProjectActive, isPending: isToggling } = useToggleProjectActive();
   const { setSelectedProject, selectedProject } = useProjectStore();
   const { open } = useDialogStore();
   const isMobile = useIsMobile();
@@ -91,11 +93,14 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
       )}
       onClick={handleClick}
     >
-      <CardHeader className="px-3 pt-3 pb-2 sm:px-6 sm:py-4">
+      <CardHeader className="px-3 pt-1 pb-2 sm:px-6 sm:py-1">
         <CardTitle className="grid grid-cols-[1fr_auto] gap-1 sm:gap-2 min-h-9 sm:min-h-10 justify-center items-start">
-          <span className="first-letter:uppercase text-wrap text-sm sm:text-base line-clamp-2">
-            {project.typeContract}
-          </span>
+          <Badge
+            variant="outline"
+            className={cn("text-xs sm:text-sm border-none", ProjectStatusColors[project.status as ProjectStatus])}
+          >
+            {ProjectStatusLabels[project.status as ProjectStatus]}
+          </Badge>
           <ProtectedComponent
             requiredPermissions={[
               { resource: EnumResource.projects, action: EnumAction.update },
@@ -128,18 +133,35 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                 <ProtectedComponent
                   requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
                 >
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open("projects", "delete", project);
-                    }}
-                    className="text-xs sm:text-sm"
-                  >
-                    Eliminar
-                    <DropdownMenuShortcut>
-                      <Trash className="size-3 sm:size-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
+                  {project.isActive ? (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        open("projects", "delete", project);
+                      }}
+                      className="text-xs sm:text-sm"
+                      disabled={!project.isActive}
+                    >
+                      Eliminar
+                      <DropdownMenuShortcut>
+                        <Trash className="size-3 sm:size-4" />
+                      </DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleProjectActive(project.id);
+                      }}
+                      className="text-xs sm:text-sm"
+                      disabled={isToggling}
+                    >
+                      Reactivar
+                      <DropdownMenuShortcut>
+                        <RotateCcw className="size-3 sm:size-4 text-yellow-500" />
+                      </DropdownMenuShortcut>
+                    </DropdownMenuItem>
+                  )}
                 </ProtectedComponent>
                 <DropdownMenuItem
                   onClick={(e) => {
@@ -157,6 +179,9 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
               </DropdownMenuContent>
             </DropdownMenu>
           </ProtectedComponent>
+          <span className="first-letter:uppercase text-wrap text-sm sm:text-base line-clamp-2">
+            {project.typeContract}
+          </span>
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm line-clamp-2">{project.description}</CardDescription>
       </CardHeader>

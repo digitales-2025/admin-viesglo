@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { cn } from "@/lib/utils";
 import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
@@ -18,6 +19,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -29,7 +31,14 @@ import {
 } from "@/shared/components/ui/sheet-responsive";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
 import { useUsersProject } from "../_hooks/useProjectTraking";
-import { CreateProject, ProjectResponse, UpdateProjectWithoutServices } from "../_types/tracking.types";
+import {
+  CreateProject,
+  ProjectResponse,
+  ProjectStatus,
+  ProjectStatusColors,
+  ProjectStatusLabels,
+  UpdateProjectWithoutServices,
+} from "../_types/tracking.types";
 import { searchClients } from "../../clients/_actions/clients.actions";
 import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
@@ -41,6 +50,7 @@ interface Props {
 }
 
 const formSchema = z.object({
+  status: z.nativeEnum(ProjectStatus),
   typeContract: z.string().min(1, "El tipo de contrato es requerido."),
   description: z.string().optional(),
   startDate: z.string().optional(),
@@ -82,6 +92,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const form = useForm<ProjectsForm>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      status: ProjectStatus.ACTIVE,
       typeContract: "",
       description: "",
       startDate: "",
@@ -157,15 +168,17 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   useEffect(() => {
     if (isUpdate && extendedCurrentRow?.id) {
       form.reset({
+        status: extendedCurrentRow.status as ProjectStatus,
         typeContract: extendedCurrentRow.typeContract || "",
         description: extendedCurrentRow.description || "",
         startDate: extendedCurrentRow.startDate || "",
         clientId: extendedCurrentRow.client?.id || "",
         services: [],
-        responsibleUserId: "",
+        responsibleUserId: extendedCurrentRow.responsibleUserId || "",
       });
     } else {
       form.reset({
+        status: ProjectStatus.ACTIVE,
         typeContract: "",
         description: "",
         startDate: "",
@@ -180,6 +193,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   useEffect(() => {
     if (!open) {
       form.reset({
+        status: ProjectStatus.ACTIVE,
         typeContract: "",
         description: "",
         startDate: "",
@@ -224,6 +238,34 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
             <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
               <Form {...form}>
                 <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem className="space-y-1 grid grid-cols-2 items-center gap-2 w-full">
+                        <FormLabel>Este proyecto inicia como:</FormLabel>
+                        <FormControl>
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <FormItem className="w-full">
+                              <FormControl>
+                                <SelectTrigger className={cn("w-full ", ProjectStatusColors[field.value])}>
+                                  <SelectValue placeholder="Selecciona un estado" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {Object.values(ProjectStatus).map((status) => (
+                                  <SelectItem key={status} value={status}>
+                                    {ProjectStatusLabels[status as ProjectStatus]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </FormItem>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="clientId"
