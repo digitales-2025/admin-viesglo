@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, CircleFadingArrowUp, Clock, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
+import { Check, CircleFadingArrowUp, Clock, ClockFading, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
+import { AuditType } from "@/shared/actions/audit/audit.types";
+import { useAudit } from "@/shared/actions/audit/useAudit";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { FileUpload } from "@/shared/components/file-upload";
 import { FileUploadAlert } from "@/shared/components/file-upload-alert";
@@ -12,6 +14,7 @@ import { Doc, File, Pdf } from "@/shared/components/icons/Files";
 import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
@@ -37,7 +40,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Actividad" />,
     cell: ({ row }) => (
-      <div className="font-medium" title={row.getValue("name")}>
+      <div className="font-medium truncate max-w-[200px]" title={row.getValue("name")}>
         {row.getValue("name")}
       </div>
     ),
@@ -352,6 +355,65 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "actions",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
     cell: ({ row }) => <ProjectActivitiesActions row={row.original} />,
+    enableHiding: false,
+    enableSorting: false,
+    size: 20,
+  },
+  {
+    id: "history",
+    cell: function Cell({ row }) {
+      const [isOpen, setIsOpen] = useState(false);
+
+      const { data: audit } = useAudit(row.original.id);
+
+      const handleHistoryActivity = () => {
+        console.log(audit);
+        setIsOpen((prev) => !prev);
+      };
+
+      return (
+        <div className="flex items-center gap-2">
+          <Popover open={isOpen} onOpenChange={handleHistoryActivity}>
+            <PopoverTrigger>
+              <ClockFading className="size-4 text-muted-foreground" />
+            </PopoverTrigger>
+            <PopoverContent>
+              {audit?.map((item) => (
+                <li key={item.id} className="flex items-start gap-1 text-xs">
+                  {item.action === AuditType.UPDATE && (
+                    <span className="text-muted-foreground">
+                      Última <span className="text-amber-500 font-semibold">modificación</span> por{" "}
+                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                      <span className="font-semibold capitalize">
+                        {new TZDate(item.createdAt as string).toLocaleString()}
+                      </span>
+                    </span>
+                  )}
+                  {item.action === AuditType.CREATE && (
+                    <span className="text-muted-foreground">
+                      <span className="text-emerald-500 font-semibold">Creada</span> por{" "}
+                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                      <span className="font-semibold capitalize">
+                        {new TZDate(item.createdAt as string).toLocaleString()}
+                      </span>
+                    </span>
+                  )}
+                  {item.action === AuditType.DELETE && (
+                    <span className="text-muted-foreground">
+                      <span className="text-rose-500 font-semibold">Eliminada</span> por{" "}
+                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                      <span className="font-semibold capitalize">
+                        {new TZDate(item.createdAt as string).toLocaleString()}
+                      </span>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
     enableHiding: false,
     enableSorting: false,
     size: 20,
