@@ -5,7 +5,7 @@ import { Check, CircleFadingArrowUp, Clock, ClockFading, Download, Image, Info, 
 import { toast } from "sonner";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
-import { AuditType } from "@/shared/actions/audit/audit.types";
+import { AuditResponse, AuditType } from "@/shared/actions/audit/audit.types";
 import { useAudit } from "@/shared/actions/audit/useAudit";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { FileUpload } from "@/shared/components/file-upload";
@@ -363,52 +363,98 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     id: "history",
     cell: function Cell({ row }) {
       const [isOpen, setIsOpen] = useState(false);
+      const [page, setPage] = useState(1);
+      const [auditItems, setAuditItems] = useState<AuditResponse[]>([]);
+      // Usar refetch para controlar manualmente la carga de datos
+      const { data: audit, isLoading: isAuditLoading } = useAudit(row.original.id, {
+        page,
+        limit: 10,
+      });
+      useEffect(() => {
+        if (audit) {
+          setAuditItems(audit?.response.data || []);
+        }
+      }, [isAuditLoading, audit]);
 
-      const { data: audit } = useAudit(row.original.id);
-
-      const handleHistoryActivity = () => {
-        console.log(audit);
-        setIsOpen((prev) => !prev);
+      const handleHistoryActivity = async (open: boolean) => {
+        if (open === isOpen) return;
+        setIsOpen(open);
       };
 
       return (
         <div className="flex items-center gap-2">
           <Popover open={isOpen} onOpenChange={handleHistoryActivity}>
             <PopoverTrigger>
-              <ClockFading className="size-4 text-muted-foreground" />
+              <ClockFading className="size-4 text-muted-foreground hover:text-primary cursor-pointer" />
             </PopoverTrigger>
-            <PopoverContent>
-              {audit?.map((item) => (
-                <li key={item.id} className="flex items-start gap-1 text-xs">
-                  {item.action === AuditType.UPDATE && (
-                    <span className="text-muted-foreground">
-                      Última <span className="text-amber-500 font-semibold">modificación</span> por{" "}
-                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
-                      <span className="font-semibold capitalize">
-                        {new TZDate(item.createdAt as string).toLocaleString()}
-                      </span>
-                    </span>
+            <PopoverContent className="max-h-[300px] overflow-y-auto w-[350px] p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="text-sm font-medium">Historial de actividad</h4>
+                {isAuditLoading && page === 1 && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+              </div>
+
+              {auditItems && auditItems.length > 0 ? (
+                <>
+                  {page > 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => setPage(page - 1)}>
+                      Mostrar anterior
+                    </Button>
                   )}
-                  {item.action === AuditType.CREATE && (
-                    <span className="text-muted-foreground">
-                      <span className="text-emerald-500 font-semibold">Creada</span> por{" "}
-                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
-                      <span className="font-semibold capitalize">
-                        {new TZDate(item.createdAt as string).toLocaleString()}
-                      </span>
-                    </span>
-                  )}
-                  {item.action === AuditType.DELETE && (
-                    <span className="text-muted-foreground">
-                      <span className="text-rose-500 font-semibold">Eliminada</span> por{" "}
-                      <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
-                      <span className="font-semibold capitalize">
-                        {new TZDate(item.createdAt as string).toLocaleString()}
-                      </span>
-                    </span>
-                  )}
-                </li>
-              ))}
+                  <ul className="space-y-2">
+                    {auditItems.map((item) => (
+                      <li key={item.id} className="flex items-start gap-1 text-xs">
+                        {item.action === AuditType.UPDATE && (
+                          <span className="text-muted-foreground">
+                            Última <span className="text-amber-500 font-semibold">modificación</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                        {item.action === AuditType.CREATE && (
+                          <span className="text-muted-foreground">
+                            <span className="text-emerald-500 font-semibold">Creada</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                        {item.action === AuditType.DELETE && (
+                          <span className="text-muted-foreground">
+                            <span className="text-rose-500 font-semibold">Eliminada</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {audit?.response?.meta &&
+                    "totalItems" in audit.response.meta &&
+                    "totalPages" in audit.response.meta &&
+                    audit.response.meta.totalItems > auditItems.length &&
+                    audit.response.meta.totalPages > page && (
+                      <Button
+                        variant="ghost"
+                        className="text-xs mt-3 flex items-center justify-center"
+                        size="sm"
+                        onClick={() => setPage(page + 1)}
+                      >
+                        Cargar más
+                      </Button>
+                    )}
+                </>
+              ) : isAuditLoading ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">No hay historial disponible</p>
+              )}
             </PopoverContent>
           </Popover>
         </div>

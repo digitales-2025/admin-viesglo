@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { AUDIT_KEYS } from "@/shared/actions/audit/useAudit";
 import {
   createActivityProject,
   deleteActivityProject,
@@ -60,6 +61,7 @@ export function useCreateActivityProject() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.list(variables.objectiveId) });
       toast.success("Actividad creada correctamente");
     },
     onError: (error) => {
@@ -92,6 +94,7 @@ export function useUpdateActivityProject() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.list(variables.objectiveId) });
       toast.success("Actividad actualizada correctamente");
     },
     onError: () => {
@@ -118,6 +121,7 @@ export function useDeleteActivityProject() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.detail(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.list(variables.objectiveId) });
       toast.success("Actividad eliminada correctamente");
     },
     onError: () => {
@@ -185,6 +189,7 @@ export function useUpdateTrackingActivity() {
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: SERVICES_PROJECT_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: PROJECT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.all });
       toast.success("Responsable actualizado correctamente");
     },
   });
@@ -210,6 +215,7 @@ export function useUploadEvidence() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.list(variables.objectiveId) });
       toast.success("Evidencia subida correctamente");
     },
     onError: (error) => {
@@ -230,6 +236,7 @@ export function useDeleteEvidence() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ACTIVITIES_PROJECT_KEYS.list(variables.objectiveId) });
       queryClient.invalidateQueries({ queryKey: OBJECTIVES_PROJECT_KEYS.list(variables.objectiveId) });
+      queryClient.invalidateQueries({ queryKey: AUDIT_KEYS.list(variables.objectiveId) });
       toast.success("Evidencia eliminada correctamente");
     },
     onError: (error) => {
