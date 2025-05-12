@@ -243,7 +243,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                     name="status"
                     render={({ field }) => (
                       <FormItem className="space-y-1 grid grid-cols-2 items-center gap-2 w-full">
-                        <FormLabel>Este proyecto inicia como:</FormLabel>
+                        <FormLabel>{isUpdate ? "Estado actual" : "Este proyecto inicia como:"}</FormLabel>
                         <FormControl>
                           <Select value={field.value} onValueChange={field.onChange}>
                             <FormItem className="w-full">
