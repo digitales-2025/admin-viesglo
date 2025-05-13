@@ -6,7 +6,7 @@ import AlertMessage from "@/shared/components/alerts/Alert";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useMarkPaymentStatus } from "../_hooks/usePayments";
-import { TypePayment } from "../../quotation/_types/quotation.types";
+import { PaymentPlan } from "../../quotation/_types/quotation.types";
 
 export default function PaymentDialogs() {
   const { isOpenForModule, data, close } = useDialogStore();
@@ -56,7 +56,7 @@ export default function PaymentDialogs() {
           <br />
           Esta acción es irreversible.
           <br />
-          {data?.typePayment === TypePayment.MONTHLY ? (
+          {data?.paymentPlan === PaymentPlan.INSTALLMENTS ? (
             <AlertMessage
               variant="info"
               title="Pago Mensual"

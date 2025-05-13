@@ -11,7 +11,7 @@ import { cn, debounce } from "@/shared/lib/utils";
 import { usePayments } from "../_hooks/usePayments";
 import { usePaymentsStore } from "../_hooks/usePaymentStore";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
-import { TypePayment } from "../../quotation/_types/quotation.types";
+import { PaymentPlan } from "../../quotation/_types/quotation.types";
 import { DownloadExcelButton } from "./DownloadExcelButton";
 import { columnsPayment } from "./payment.column";
 import PaymentMonthlyTable from "./PaymentMonthlyTable";
@@ -49,11 +49,11 @@ export default function PaymentTable() {
       },
       {
         label: "Tipo de pago",
-        value: "typePayment",
+        value: "paymentPlan",
         multiSelect: false,
         options: [
-          { label: "Mensual", value: TypePayment.MONTHLY, icon: Banknote },
-          { label: "Puntual", value: TypePayment.PUNCTUAL, icon: CreditCard },
+          { label: "Fraccionado", value: PaymentPlan.INSTALLMENTS, icon: Banknote },
+          { label: "Único	", value: PaymentPlan.SINGLE, icon: CreditCard },
         ],
       },
     ],
@@ -251,7 +251,7 @@ export default function PaymentTable() {
     <DataTable
       columns={columns}
       data={payments || []}
-      getRowCanExpand={(row) => row.original.typePayment === TypePayment.MONTHLY}
+      getRowCanExpand={(row) => row.original.paymentPlan === PaymentPlan.INSTALLMENTS}
       renderExpandedRow={(row) => <PaymentMonthlyTable payment={row} />}
       isLoading={isLoading}
       actions={actions}

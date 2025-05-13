@@ -8,7 +8,7 @@ import { useCertificates } from "@/app/(admin)/certificates/_hooks/useCertificat
 import AdminDashboardLayout from "@/app/(admin)/layout";
 import { usePaymentsForStats } from "@/app/(admin)/payment/_hooks/usePayments";
 import { useQuotationsForStats } from "@/app/(admin)/quotation/_hooks/useQuotations";
-import { LabelTypePayment, TypePayment } from "@/app/(admin)/quotation/_types/quotation.types";
+import { LabelPaymentPlan, PaymentPlan } from "@/app/(admin)/quotation/_types/quotation.types";
 import { useProjects } from "@/app/(admin)/tracking/_hooks/useProject";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
@@ -124,25 +124,25 @@ export default function AdminDashboard() {
     };
   }, [payments]);
 
-  // Procesar datos para el gráfico de tipo de pago
-  const getPaymentTypeData = () => {
-    const paymentTypeCount: { [key: string]: number } = {
-      [TypePayment.MONTHLY]: 0,
-      [TypePayment.PUNCTUAL]: 0,
+  // Procesar datos para el gráfico de la forma de pago
+  const getPaymentPlanData = () => {
+    const paymentPlanCount: { [key: string]: number } = {
+      [PaymentPlan.INSTALLMENTS]: 0,
+      [PaymentPlan.SINGLE]: 0,
     };
 
     quotations?.forEach((quotation: any) => {
-      const paymentType = quotation.typePayment || TypePayment.PUNCTUAL;
-      paymentTypeCount[paymentType] += 1;
+      const paymentPlan = quotation.paymentPlan || PaymentPlan.SINGLE;
+      paymentPlanCount[paymentPlan] += 1;
     });
 
-    return Object.entries(paymentTypeCount).map(([name, value]) => ({
-      name: LabelTypePayment[name as TypePayment],
+    return Object.entries(paymentPlanCount).map(([name, value]) => ({
+      name: LabelPaymentPlan[name as PaymentPlan],
       value,
     }));
   };
 
-  const paymentTypeData = getPaymentTypeData();
+  const paymentPlanData = getPaymentPlanData();
 
   return (
     <AdminDashboardLayout>
@@ -251,15 +251,15 @@ export default function AdminDashboard() {
                   <div className="text-sm text-muted-foreground">Cotizaciones totales</div>
 
                   <div className="mt-6 space-y-2">
-                    {paymentTypeData.map((payType, index) => (
+                    {paymentPlanData.map((payPlan, index) => (
                       <div key={index} className="flex items-center gap-2 text-sm">
                         <div
                           className="h-3 w-3 rounded-full"
                           style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                         ></div>
                         <div className="flex justify-between w-full">
-                          <span>{payType.name}</span>
-                          <span className="font-medium">{payType.value}</span>
+                          <span>{payPlan.name}</span>
+                          <span className="font-medium">{payPlan.value}</span>
                         </div>
                       </div>
                     ))}
@@ -268,8 +268,8 @@ export default function AdminDashboard() {
                       <div className="flex justify-between text-sm font-medium">
                         <span>Proporción mensual/puntual:</span>
                         <span>
-                          {paymentTypeData.length === 2
-                            ? `${((paymentTypeData[0].value / (paymentTypeData[0].value + paymentTypeData[1].value)) * 100).toFixed(1)}%`
+                          {paymentPlanData.length === 2
+                            ? `${((paymentPlanData[0].value / (paymentPlanData[0].value + paymentPlanData[1].value)) * 100).toFixed(1)}%`
                             : "N/A"}
                         </span>
                       </div>
@@ -281,7 +281,7 @@ export default function AdminDashboard() {
                   <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
                     <ReChartPie>
                       <Pie
-                        data={paymentTypeData}
+                        data={paymentPlanData}
                         cx="50%"
                         cy="50%"
                         outerRadius={80}
@@ -290,7 +290,7 @@ export default function AdminDashboard() {
                         nameKey="name"
                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                       >
-                        {paymentTypeData.map((_, index) => (
+                        {paymentPlanData.map((_, index) => (
                           <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                         ))}
                       </Pie>

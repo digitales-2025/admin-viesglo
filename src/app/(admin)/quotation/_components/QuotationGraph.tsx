@@ -33,6 +33,7 @@ import {
 } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
+import Empty from "@/shared/components/empty";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   ChartContainer,
@@ -45,7 +46,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useQuotationsForStats } from "../_hooks/useQuotations";
 import { useQuotationsStore } from "../_hooks/useQuotationsStore";
-import { LabelTypePayment, TypePayment } from "../_types/quotation.types";
+import { LabelPaymentPlan, PaymentPlan } from "../_types/quotation.types";
 
 // Usamos las variables de color definidas en globals.css
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
@@ -93,13 +94,15 @@ export default function QuotationGraph() {
               <span>Gráfico de cotizaciones</span>
             </div>
           </CardTitle>
-          <CardDescription>Error al cargar los datos</CardDescription>
+          <CardDescription>No se pudieron cargar los datos</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-96 w-full flex items-center justify-center">
-            <p className="text-destructive">
-              {error instanceof Error ? error.message : "No hay datos de cotizaciones disponibles para mostrar."}
-            </p>
+            <Empty
+              message={
+                error instanceof Error ? error.message : "No hay datos de cotizaciones disponibles para mostrar."
+              }
+            />
           </div>
         </CardContent>
       </Card>
@@ -232,17 +235,17 @@ export default function QuotationGraph() {
   // Procesar datos para el gráfico de tipo de pago
   const getPaymentTypeData = () => {
     const paymentTypeCount: { [key: string]: number } = {
-      [TypePayment.MONTHLY]: 0,
-      [TypePayment.PUNCTUAL]: 0,
+      [PaymentPlan.INSTALLMENTS]: 0,
+      [PaymentPlan.SINGLE]: 0,
     };
 
     quotations.forEach((quotation: any) => {
-      const paymentType = quotation.typePayment || TypePayment.PUNCTUAL;
+      const paymentType = quotation.paymentPlan || PaymentPlan.SINGLE;
       paymentTypeCount[paymentType] += 1;
     });
 
     return Object.entries(paymentTypeCount).map(([name, value]) => ({
-      name: LabelTypePayment[name as TypePayment],
+      name: LabelPaymentPlan[name as PaymentPlan],
       value,
     }));
   };

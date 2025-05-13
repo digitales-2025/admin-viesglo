@@ -40,12 +40,12 @@ export type QuotationFilters = {
   to?: Date;
 };
 
-export enum TypePayment {
-  MONTHLY = "MONTHLY",
-  PUNCTUAL = "PUNCTUAL",
+export enum PaymentPlan {
+  SINGLE = "SINGLE",
+  INSTALLMENTS = "INSTALLMENTS",
 }
 
-export const LabelTypePayment = {
-  [TypePayment.MONTHLY]: "Mensual",
-  [TypePayment.PUNCTUAL]: "Puntual",
+export const LabelPaymentPlan = {
+  [PaymentPlan.SINGLE]: "Único",
+  [PaymentPlan.INSTALLMENTS]: "Fraccionado",
 };

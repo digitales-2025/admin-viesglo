@@ -29,7 +29,7 @@ import { Switch } from "@/shared/components/ui/switch";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useMarkPaymentStatus, usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
 import { PaymentResponse } from "../_types/payment.types";
-import { LabelTypePayment, TypePayment } from "../../quotation/_types/quotation.types";
+import { LabelPaymentPlan, PaymentPlan } from "../../quotation/_types/quotation.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 // Almacenamiento global para los estados
@@ -100,7 +100,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
 
   const handlePaidChange = () => {
     if (!isPaid) {
-      if (payment.typePayment !== TypePayment.MONTHLY) {
+      if (payment.paymentPlan !== PaymentPlan.INSTALLMENTS) {
         open(MODULE, "update", payment);
       } else {
         open(MODULE, "update", {
@@ -117,7 +117,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
           isPaid: false,
           paymentDate: payment.paymentDate || "",
           billingCode:
-            payment.typePayment === TypePayment.MONTHLY ? "Pago mensual incompleto" : payment.billingCode || "",
+            payment.paymentPlan === PaymentPlan.INSTALLMENTS ? "Pago mensual incompleto" : payment.billingCode || "",
         },
       });
     }
@@ -159,7 +159,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
           {isPaid ? (
             <span className="flex items-center gap-1 text-wrap">
               <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
-              {payment.typePayment === TypePayment.MONTHLY ? "Pago completo con todas las cuotas" : "Pagado"}
+              {payment.paymentPlan === PaymentPlan.INSTALLMENTS ? "Pago completo con todas las cuotas" : "Pagado"}
             </span>
           ) : (
             <XCircle className="size-4 text-gray-500" />
@@ -248,10 +248,10 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
     cell: ({ row }) => (
       <Badge
-        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        variant={row.getValue("tipo de pago") === PaymentPlan.INSTALLMENTS ? "info" : "success"}
         className="capitalize w-24 truncate"
       >
-        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+        {LabelPaymentPlan[row.getValue("tipo de pago") as PaymentPlan]}
       </Badge>
     ),
   },
@@ -276,7 +276,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         });
       };
 
-      return row.original.typePayment === TypePayment.MONTHLY ? (
+      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
         <ProtectedComponent
@@ -334,7 +334,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         setCode(e.target.value);
       };
 
-      return row.original.typePayment === TypePayment.MONTHLY ? (
+      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
         <ProtectedComponent
@@ -381,7 +381,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         });
       };
 
-      return row.original.typePayment === TypePayment.MONTHLY ? (
+      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
         <ProtectedComponent
@@ -443,7 +443,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         );
       };
 
-      return row.original.typePayment === TypePayment.MONTHLY ? (
+      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
         <div className="relative inline-flex gap-1">

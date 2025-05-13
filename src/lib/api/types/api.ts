@@ -1879,7 +1879,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Find audit by entity id */
+    /** Find audit by entity id with pagination */
     get: operations["AuditController_findAudit_v1"];
     put?: never;
     post?: never;
@@ -3554,20 +3554,15 @@ export interface components {
       isConcrete: boolean;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart: string;
-      /**
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd: string;
+      dateQuotation: string;
       /** @description Grupo de cotización */
       quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
     };
@@ -3638,17 +3633,17 @@ export interface components {
        * @description Departamento
        * @example Lima
        */
-      department: string;
+      department?: string;
       /**
        * @description Provincia
        * @example Lima
        */
-      province: string;
+      province?: string;
       /**
        * @description Distrito
        * @example San Isidro
        */
-      district: string;
+      district?: string;
       /**
        * @description Nombre del contacto principal
        * @example Juan Pérez
@@ -3658,7 +3653,7 @@ export interface components {
        * @description Cargo del contacto principal
        * @example Gerente
        */
-      position: string;
+      position?: string;
       /**
        * @description Teléfono del contacto principal
        * @example +51987654321
@@ -3677,22 +3672,16 @@ export interface components {
       quotationGroupId: string;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
        * Format: date-time
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd?: string;
+      dateQuotation?: string;
     };
     UpdateQuotationDto: {
       /**
@@ -3783,22 +3772,16 @@ export interface components {
       quotationGroupId?: string;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment?: "MONTHLY" | "PUNCTUAL";
+      paymentPlan?: "INSTALLMENTS" | "SINGLE";
       /**
        * Format: date-time
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd?: string;
+      dateQuotation?: string;
     };
     ConcreteQuotationDto: {
       /**
@@ -4693,10 +4676,10 @@ export interface components {
       amount: number;
       /**
        * @description Tipo de pago
-       * @example PUNCTUAL
+       * @example SINGLE
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
        * @description Correo del cliente
        * @example juan.perez@empresa.com
@@ -4959,44 +4942,6 @@ export interface components {
       emailBilling?: string;
       isActive: boolean;
       paymentId: string;
-    };
-    AuditResponseDto: {
-      /**
-       * @description El id de la entidad
-       * @example 123
-       */
-      entityId: string;
-      /**
-       * @description El tipo de la entidad
-       * @example project
-       */
-      entityType: string;
-      /**
-       * @description La acción de la entidad
-       * @example create
-       */
-      action: string;
-      /**
-       * @description El id del usuario que realizó la acción
-       * @example 123
-       */
-      performedById: string;
-      /**
-       * @description El id de la entidad
-       * @example 123
-       */
-      id: string;
-      /**
-       * Format: date-time
-       * @description La fecha de la entidad
-       * @example 2021-01-01
-       */
-      createdAt: string;
-      performedBy: {
-        id: string;
-        email: string;
-        fullName: string;
-      };
     };
   };
   responses: never;
@@ -6454,7 +6399,7 @@ export interface operations {
         /** @description Filtrar por fecha de finalización (hasta) */
         endDateTo?: string;
         /** @description Filtrar por estado del proyecto */
-        status?: string;
+        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
         /** @description Filtrar por búsqueda en nombre o descripción */
         search?: string;
         /** @description Filtrar por ID de cliente */
@@ -8723,7 +8668,7 @@ export interface operations {
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -8768,7 +8713,7 @@ export interface operations {
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -8813,7 +8758,7 @@ export interface operations {
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -9236,6 +9181,10 @@ export interface operations {
     parameters: {
       query: {
         entityId: string;
+        /** @description Page number (default: 1) */
+        page?: number;
+        /** @description Items per page (default: 10, max: 100) */
+        limit?: number;
       };
       header?: never;
       path?: never;
@@ -9247,9 +9196,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["AuditResponseDto"][];
-        };
+        content?: never;
       };
     };
   };
