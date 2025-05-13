@@ -22,6 +22,7 @@ export default function QuotationTable() {
 
   // Obtenemos los filtros del store
   const { filters: storeFilters, setFilters, updateFilter } = useQuotationsStore();
+  console.log("🚀 ~ QuotationTable ~ storeFilters:", storeFilters);
 
   // Mantenemos los filtros de paginación localmente
   const [pagination, setPagination] = useState({

@@ -293,7 +293,7 @@ export function DatosFiliacionSection({ isEditing }: DatosFiliacionSectionProps)
           </div>
 
           <div className="space-y-3">
-            <Label htmlFor="emodate">Fecha ultimo emo ejecutado</Label>
+            <Label htmlFor="emodate">Fecha último EMO ejecutado</Label>
             {isEditing ? (
               <Controller
                 name="datosFiliacion.emodate"

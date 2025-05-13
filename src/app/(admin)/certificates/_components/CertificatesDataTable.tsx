@@ -1,11 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { DownloadCloud } from "lucide-react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { debounce } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -107,9 +105,6 @@ export default function CertificatesDataTable() {
   const actions = useMemo(
     () => (
       <>
-        <Button variant="outline" size="sm" className="ml-auto h-8 lg:flex">
-          <DownloadCloud className="mr-2 h-4 w-4" /> Descargar
-        </Button>
         <DatePickerWithRange
           size="sm"
           initialValue={{
