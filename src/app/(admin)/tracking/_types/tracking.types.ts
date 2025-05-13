@@ -58,3 +58,27 @@ export enum FileType {
   DOCUMENT = "DOCUMENT",
   OTHER = "OTHER",
 }
+
+export enum ProjectStatus {
+  PLANNED = "PLANNED",
+  ACTIVE = "ACTIVE",
+  ON_HOLD = "ON_HOLD",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+}
+
+export const ProjectStatusLabels: Record<ProjectStatus, string> = {
+  [ProjectStatus.PLANNED]: "Planificado",
+  [ProjectStatus.ACTIVE]: "Activo",
+  [ProjectStatus.ON_HOLD]: "En espera",
+  [ProjectStatus.COMPLETED]: "Completado",
+  [ProjectStatus.CANCELLED]: "Cancelado",
+};
+
+export const ProjectStatusColors: Record<ProjectStatus, string> = {
+  [ProjectStatus.PLANNED]: "text-sky-500 bg-sky-500/10",
+  [ProjectStatus.ACTIVE]: "text-emerald-500 bg-emerald-500/10",
+  [ProjectStatus.ON_HOLD]: "text-orange-500 bg-orange-500/10",
+  [ProjectStatus.COMPLETED]: "text-green-500 bg-green-500/10",
+  [ProjectStatus.CANCELLED]: "text-rose-500 bg-rose-500/10",
+};

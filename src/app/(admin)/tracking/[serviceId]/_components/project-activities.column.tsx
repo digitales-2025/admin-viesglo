@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, CircleFadingArrowUp, Clock, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
+import { Check, CircleFadingArrowUp, Clock, ClockFading, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { User as UserResponse } from "@/app/(admin)/users/_types/user.types";
+import { AuditResponse, AuditType } from "@/shared/actions/audit/audit.types";
+import { useAudit } from "@/shared/actions/audit/useAudit";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { FileUpload } from "@/shared/components/file-upload";
 import { FileUploadAlert } from "@/shared/components/file-upload-alert";
@@ -12,6 +14,7 @@ import { Doc, File, Pdf } from "@/shared/components/icons/Files";
 import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
@@ -37,7 +40,7 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Actividad" />,
     cell: ({ row }) => (
-      <div className="font-medium" title={row.getValue("name")}>
+      <div className="font-medium truncate max-w-[200px]" title={row.getValue("name")}>
         {row.getValue("name")}
       </div>
     ),
@@ -352,6 +355,111 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
     accessorKey: "actions",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Acciones" />,
     cell: ({ row }) => <ProjectActivitiesActions row={row.original} />,
+    enableHiding: false,
+    enableSorting: false,
+    size: 20,
+  },
+  {
+    id: "history",
+    cell: function Cell({ row }) {
+      const [isOpen, setIsOpen] = useState(false);
+      const [page, setPage] = useState(1);
+      const [auditItems, setAuditItems] = useState<AuditResponse[]>([]);
+      // Usar refetch para controlar manualmente la carga de datos
+      const { data: audit, isLoading: isAuditLoading } = useAudit(row.original.id, {
+        page,
+        limit: 10,
+      });
+      useEffect(() => {
+        if (audit) {
+          setAuditItems(audit?.response.data || []);
+        }
+      }, [isAuditLoading, audit]);
+
+      const handleHistoryActivity = async (open: boolean) => {
+        if (open === isOpen) return;
+        setIsOpen(open);
+      };
+
+      return (
+        <div className="flex items-center gap-2">
+          <Popover open={isOpen} onOpenChange={handleHistoryActivity}>
+            <PopoverTrigger>
+              <ClockFading className="size-4 text-muted-foreground hover:text-primary cursor-pointer" />
+            </PopoverTrigger>
+            <PopoverContent className="max-h-[300px] overflow-y-auto w-[350px] p-3">
+              <div className="mb-2 flex items-center justify-between">
+                <h4 className="text-sm font-medium">Historial de actividad</h4>
+                {isAuditLoading && page === 1 && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
+              </div>
+
+              {auditItems && auditItems.length > 0 ? (
+                <>
+                  {page > 1 && (
+                    <Button variant="ghost" size="sm" onClick={() => setPage(page - 1)}>
+                      Mostrar anterior
+                    </Button>
+                  )}
+                  <ul className="space-y-2">
+                    {auditItems.map((item) => (
+                      <li key={item.id} className="flex items-start gap-1 text-xs">
+                        {item.action === AuditType.UPDATE && (
+                          <span className="text-muted-foreground">
+                            Última <span className="text-amber-500 font-semibold">modificación</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                        {item.action === AuditType.CREATE && (
+                          <span className="text-muted-foreground">
+                            <span className="text-emerald-500 font-semibold">Creada</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                        {item.action === AuditType.DELETE && (
+                          <span className="text-muted-foreground">
+                            <span className="text-rose-500 font-semibold">Eliminada</span> por{" "}
+                            <span className="font-semibold capitalize">{item.performedBy.fullName}</span> a las{" "}
+                            <span className="font-semibold capitalize">
+                              {new TZDate(item.createdAt as string).toLocaleString()}
+                            </span>
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  {audit?.response?.meta &&
+                    "totalItems" in audit.response.meta &&
+                    "totalPages" in audit.response.meta &&
+                    audit.response.meta.totalItems > auditItems.length &&
+                    audit.response.meta.totalPages > page && (
+                      <Button
+                        variant="ghost"
+                        className="text-xs mt-3 flex items-center justify-center"
+                        size="sm"
+                        onClick={() => setPage(page + 1)}
+                      >
+                        Cargar más
+                      </Button>
+                    )}
+                </>
+              ) : isAuditLoading ? (
+                <div className="flex justify-center py-2">
+                  <Loader2 className="size-4 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">No hay historial disponible</p>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+      );
+    },
     enableHiding: false,
     enableSorting: false,
     size: 20,

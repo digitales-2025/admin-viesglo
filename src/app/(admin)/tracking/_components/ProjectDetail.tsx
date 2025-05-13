@@ -2,7 +2,7 @@ import { memo } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ClockArrowUp, User } from "lucide-react";
+import { ClockArrowUp, User, UserCog } from "lucide-react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -52,10 +52,12 @@ const ProjectDetail = memo(function ProjectDetail() {
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground grid grid-cols-1 sm:grid-cols-[150px_1fr] lg:grid-cols-[200px_1fr] w-full">
               <span className="flex items-center gap-2">
-                <User className="size-3 sm:size-4 shrink-0" />
+                <UserCog className="size-3 sm:size-4 shrink-0" />
                 Responsable:
               </span>
-              <strong className="line-clamp-1 sm:line-clamp-none">{selectedProject.responsibleUser?.fullName}</strong>
+              <strong className="line-clamp-1 sm:line-clamp-none capitalize">
+                {selectedProject.responsibleUser?.fullName}
+              </strong>
             </div>
           </div>
           <div className="flex-grow flex flex-col min-h-0">

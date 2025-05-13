@@ -246,8 +246,8 @@ export default function BuscarCertificadoPage() {
                           <FileTextIcon className="mr-2 h-5 w-5 text-primary" />
                           Certificado {certificado.code || certificado.id}
                         </CardTitle>
-                        <CardDescription className="mt-1 flex items-center">
-                          <GraduationCap className="w-4 h-4 mr-2 shrink-0" />
+                        <CardDescription className="mt-1 flex items-center capitalize">
+                          <GraduationCap className="w-4 h-4 mr-2 shrink-0 " />
                           {certificado.nameUser} {certificado.lastNameUser}
                         </CardDescription>
                         <div className="text-sm mt-1">

@@ -56,7 +56,6 @@ export function DatePicker({
           initialFocus
           locale={es}
           defaultMonth={selected}
-          fromMonth={selected}
         />
         {clearable && (
           <Button

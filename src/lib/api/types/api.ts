@@ -480,6 +480,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clinics/{id}/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el perfil de la clínica */
+    patch: operations["ClinicsController_updateProfile_v1"];
+    trace?: never;
+  };
   "/api/v1/clinics/{id}/toggle-active": {
     parameters: {
       query?: never;
@@ -587,6 +604,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/clients/{id}/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el perfil de un cliente */
+    patch: operations["ClientsController_updateProfile_v1"];
+    trace?: never;
+  };
   "/api/v1/clients/{id}/toggle-active": {
     parameters: {
       query?: never;
@@ -673,6 +707,40 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/projects/generate-excel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generar Excel de cotizaciones */
+    get: operations["ProjectsController_generateExcel_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/projects/generate-excel-project-detail": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generar Excel de detalle de proyecto */
+    get: operations["ProjectsController_generateExcelProjectDetail_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/projects/{id}": {
     parameters: {
       query?: never;
@@ -690,6 +758,23 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/api/v1/projects/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado activo de un proyecto */
+    patch: operations["ProjectsController_toggleActive_v1"];
     trace?: never;
   };
   "/api/v1/project-services/{projectId}": {
@@ -987,6 +1072,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/quotations/generate-excel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generar Excel de cotizaciones */
+    get: operations["QuotationController_generateExcel_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/quotations/{id}": {
     parameters: {
       query?: never;
@@ -1214,6 +1316,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/medical-records/generate-excel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generar Excel de cotizaciones */
+    get: operations["MedicalRecordsController_generateExcel_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/medical-records/by-diagnostic": {
     parameters: {
       query?: never;
@@ -1364,6 +1483,24 @@ export interface paths {
     /** Obtener todos los diagnósticos disponibles en el sistema */
     get: operations["DiagnosticsController_getAllDiagnostics_v1"];
     put?: never;
+    /** Crear un nuevo diagnóstico */
+    post: operations["DiagnosticsController_createDiagnostic_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/diagnostics/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los diagnósticos activos */
+    get: operations["DiagnosticsController_getActiveDiagnostics_v1"];
+    put?: never;
     post?: never;
     delete?: never;
     options?: never;
@@ -1386,6 +1523,40 @@ export interface paths {
     head?: never;
     /** Desactivar un diagnóstico (eliminación lógica) */
     patch: operations["DiagnosticsController_deactivateDiagnostic_v1"];
+    trace?: never;
+  };
+  "/api/v1/diagnostics/{diagnosticId}/toggle-include-reports": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar el estado de inclusión en informes de un diagnóstico */
+    patch: operations["DiagnosticsController_toggleIncludeReportsDiagnostic_v1"];
+    trace?: never;
+  };
+  "/api/v1/diagnostics/{diagnosticId}/activate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar un diagnóstico (activación lógica) */
+    patch: operations["DiagnosticsController_activateDiagnostic_v1"];
     trace?: never;
   };
   "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostics": {
@@ -1474,6 +1645,24 @@ export interface paths {
     patch: operations["DiagnosticsController_updateDiagnosticValueName_v1"];
     trace?: never;
   };
+  "/api/v1/diagnostics/{diagnosticId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Eliminar un diagnóstico */
+    delete: operations["DiagnosticsController_deleteDiagnostic_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar un diagnóstico existente */
+    patch: operations["DiagnosticsController_updateDiagnostic_v1"];
+    trace?: never;
+  };
   "/api/v1/payments": {
     parameters: {
       query?: never;
@@ -1500,6 +1689,23 @@ export interface paths {
     };
     /** Buscar pagos con paginación */
     get: operations["PaymentController_findAllPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/generate-excel": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Generar Excel de cotizaciones */
+    get: operations["PaymentController_generateExcel_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1664,6 +1870,23 @@ export interface paths {
     head?: never;
     /** Cambiar el estado activo de un pago por cuota de cotización */
     patch: operations["InstallmentPaymentController_toggleActive_v1"];
+    trace?: never;
+  };
+  "/api/v1/audit": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Find audit by entity id */
+    get: operations["AuditController_findAudit_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
 }
@@ -2640,8 +2863,9 @@ export interface components {
       /**
        * @description Estado del proyecto
        * @example En progreso
+       * @enum {string}
        */
-      status?: string;
+      status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
       /**
        * @description Descripción del proyecto
        * @example Implementación de sistema de gestión
@@ -3020,6 +3244,38 @@ export interface components {
         totalPages?: number;
       };
     };
+    ProjectDetailResponseDto: {
+      /** @description ID del proyecto */
+      id: string;
+      /** @description Tipo de contrato */
+      typeContract: string;
+      /** @description Tipo de proyecto */
+      typeProject: string;
+      /**
+       * Format: date-time
+       * @description Fecha de inicio
+       */
+      startDate: string;
+      /**
+       * Format: date-time
+       * @description Fecha de finalización
+       */
+      endDate: string;
+      /** @description Estado del proyecto */
+      status: string;
+      /** @description Descripción del proyecto */
+      description: string;
+      /** @description Indica si el proyecto está activo */
+      isActive: boolean;
+      /** @description Progreso general del proyecto */
+      progress: number;
+      /** @description Cliente asociado al proyecto */
+      client: components["schemas"]["ClientResponseDto"];
+      /** @description Servicios del proyecto */
+      services: components["schemas"]["ProjectServiceResponseDto"][];
+      /** @description Usuario responsable del proyecto */
+      responsibleUser?: components["schemas"]["UserResponseDto"];
+    };
     UpdateProjectActivityDto: {
       /**
        * @description Nombre de la actividad
@@ -3100,8 +3356,9 @@ export interface components {
       /**
        * @description Estado del proyecto
        * @example En progreso
+       * @enum {string}
        */
-      status?: string;
+      status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
       /**
        * @description Descripción del proyecto
        * @example Implementación de sistema de gestión
@@ -4359,6 +4616,50 @@ export interface components {
        */
       name: string;
     };
+    CreateNewDiagnosticDto: {
+      /**
+       * @description Nombre del diagnóstico
+       * @example Hallazgos de Laboratorio
+       */
+      name: string;
+      /**
+       * @description Descripción del diagnóstico
+       * @example Resultados de análisis de laboratorio
+       */
+      description?: string;
+      /**
+       * @description Tipo de dato del diagnóstico
+       * @default JSON
+       * @example JSON
+       */
+      dataType: string;
+      /**
+       * @description Indica si el diagnóstico está activo
+       * @default true
+       */
+      isActive: boolean;
+      /**
+       * @description Indica si el diagnóstico debe incluirse en la creación de medical record
+       * @default true
+       */
+      isDefaultIncluded: boolean;
+    };
+    UpdateDiagnosticDto: {
+      /**
+       * @description Nombre del diagnóstico
+       * @example Hallazgos de Laboratorio Actualizado
+       */
+      name?: string;
+      /**
+       * @description Descripción del diagnóstico
+       * @example Resultados actualizados de análisis de laboratorio
+       */
+      description?: string;
+      /** @description Indica si el diagnóstico está activo */
+      isActive?: boolean;
+      /** @description Indica si el diagnóstico debe incluirse por defecto en la creación de historias clínicas */
+      isDefaultIncluded?: boolean;
+    };
     PaymentResponseDto: {
       /**
        * @description ID del pago
@@ -4658,6 +4959,44 @@ export interface components {
       emailBilling?: string;
       isActive: boolean;
       paymentId: string;
+    };
+    AuditResponseDto: {
+      /**
+       * @description El id de la entidad
+       * @example 123
+       */
+      entityId: string;
+      /**
+       * @description El tipo de la entidad
+       * @example project
+       */
+      entityType: string;
+      /**
+       * @description La acción de la entidad
+       * @example create
+       */
+      action: string;
+      /**
+       * @description El id del usuario que realizó la acción
+       * @example 123
+       */
+      performedById: string;
+      /**
+       * @description El id de la entidad
+       * @example 123
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description La fecha de la entidad
+       * @example 2021-01-01
+       */
+      createdAt: string;
+      performedBy: {
+        id: string;
+        email: string;
+        fullName: string;
+      };
     };
   };
   responses: never;
@@ -5647,6 +5986,30 @@ export interface operations {
       };
     };
   };
+  ClinicsController_updateProfile_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClinicDto"];
+      };
+    };
+    responses: {
+      /** @description Perfil actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ClinicsController_toggleActive_v1: {
     parameters: {
       query?: never;
@@ -5922,6 +6285,30 @@ export interface operations {
       };
     };
   };
+  ClientsController_updateProfile_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClientDto"];
+      };
+    };
+    responses: {
+      /** @description Perfil actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ClientsController_toggleActive_v1: {
     parameters: {
       query?: never;
@@ -6024,7 +6411,7 @@ export interface operations {
         /** @description Filtrar por fecha de finalización (hasta) */
         endDateTo?: string;
         /** @description Filtrar por estado del proyecto */
-        status?: string;
+        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
         /** @description Filtrar por usuario responsable */
         responsibleUserId?: string;
         /** @description Filtrar por búsqueda en nombre o descripción */
@@ -6096,6 +6483,67 @@ export interface operations {
       };
     };
   };
+  ProjectsController_generateExcel_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de contrato */
+        typeContract?: string;
+        /** @description Filtrar por tipo de proyecto */
+        typeProject?: string;
+        /** @description Filtrar por fecha de inicio (desde) */
+        startDateFrom?: string;
+        /** @description Filtrar por fecha de inicio (hasta) */
+        startDateTo?: string;
+        /** @description Filtrar por fecha de finalización (desde) */
+        endDateFrom?: string;
+        /** @description Filtrar por fecha de finalización (hasta) */
+        endDateTo?: string;
+        /** @description Filtrar por estado del proyecto */
+        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
+        /** @description Filtrar por usuario responsable */
+        responsibleUserId?: string;
+        /** @description Filtrar por búsqueda en nombre o descripción */
+        search?: string;
+        /** @description Filtrar por ID de cliente */
+        clientId?: string;
+        /** @description Filtrar solo proyectos activos */
+        isActive?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Excel generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectsController_generateExcelProjectDetail_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Excel generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ProjectsController_getProjectById_v1: {
     parameters: {
       query?: never;
@@ -6113,7 +6561,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ProjectResponseDto"];
+          "application/json": components["schemas"]["ProjectDetailResponseDto"];
         };
       };
     };
@@ -6162,10 +6610,30 @@ export interface operations {
         };
         content: {
           "application/json": {
-            /** @example Project deleted successfully */
+            /** @example Proyecto eliminado exitosamente */
             message?: string;
           };
         };
+      };
+    };
+  };
+  ProjectsController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado activo cambiado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -6940,6 +7408,47 @@ export interface operations {
       };
     };
   };
+  QuotationController_generateExcel_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo cotizaciones concretadas */
+        isConcrete?: string;
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Excel generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   QuotationController_findById_v1: {
     parameters: {
       query?: never;
@@ -7435,6 +7944,24 @@ export interface operations {
       };
     };
   };
+  MedicalRecordsController_generateExcel_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Excel generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   MedicalRecordsController_getMedicalRecordsByDiagnostic_v1: {
     parameters: {
       query: {
@@ -7869,6 +8396,47 @@ export interface operations {
       };
     };
   };
+  DiagnosticsController_createDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos del diagnóstico a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateNewDiagnosticDto"];
+      };
+    };
+    responses: {
+      /** @description Diagnóstico creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_getActiveDiagnostics_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de diagnósticos activos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   DiagnosticsController_deactivateDiagnostic_v1: {
     parameters: {
       query?: never;
@@ -7883,6 +8451,62 @@ export interface operations {
     responses: {
       /** @description Diagnóstico desactivado exitosamente */
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_toggleIncludeReportsDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a actualizar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_activateDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a reactivar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico reactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Prohibido si el usuario no es ADMIN */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Diagnóstico no encontrado */
+      404: {
         headers: {
           [name: string]: unknown;
         };
@@ -8036,6 +8660,53 @@ export interface operations {
       };
     };
   };
+  DiagnosticsController_deleteDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a eliminar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Diagnóstico eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DiagnosticsController_updateDiagnostic_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del diagnóstico a actualizar */
+        diagnosticId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del diagnóstico a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDiagnosticDto"];
+      };
+    };
+    responses: {
+      /** @description Diagnóstico actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   PaymentController_findAll_v1: {
     parameters: {
       query?: {
@@ -8123,6 +8794,49 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["PaginatedPaymentResponseDto"];
         };
+      };
+    };
+  };
+  PaymentController_generateExcel_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
+        service?: string[];
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        typePayment?: "MONTHLY" | "PUNCTUAL";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Excel generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -8514,6 +9228,27 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
+  AuditController_findAudit_v1: {
+    parameters: {
+      query: {
+        entityId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AuditResponseDto"][];
         };
       };
     };
