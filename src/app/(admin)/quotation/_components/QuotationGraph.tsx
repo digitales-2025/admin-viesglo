@@ -130,8 +130,8 @@ export default function QuotationGraph() {
   // Procesar datos para el gráfico de pagos
   const getPaymentStatusData = () => {
     return [
-      { name: "Concretadas", value: concreteQuotations, color: "var(--chart-1)" },
-      { name: "No concretadas", value: unConcreteQuotations, color: "var(--chart-4)" },
+      { name: "Concretadas", value: concreteQuotations, color: "var(--chart-4)" },
+      { name: "No concretadas", value: unConcreteQuotations, color: "var(--chart-5)" },
     ];
   };
 
@@ -623,7 +623,7 @@ export default function QuotationGraph() {
               <div className="text-sm text-muted-foreground">Tasa de conversión</div>
               <div className="mt-6 space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-1"></div>
+                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
                   <div className="flex justify-between w-full">
                     <span className="flex items-center gap-1">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
@@ -634,7 +634,7 @@ export default function QuotationGraph() {
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
+                  <div className="h-3 w-3 rounded-full bg-chart-5"></div>
                   <div className="flex justify-between w-full">
                     <span className="flex items-center gap-1">
                       <XCircle className="h-4 w-4 text-gray-500" />
