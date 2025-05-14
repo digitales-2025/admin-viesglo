@@ -6,6 +6,7 @@ import {
   BarChart3,
   Calendar,
   CalendarCheck,
+  ChartSpline,
   CheckCircle2,
   Clipboard,
   ClipboardCheck,
@@ -212,7 +213,7 @@ export default function QuotationGraph() {
     const groupedByDate: { [key: string]: { count: number; amount: number } } = {};
 
     quotations.forEach((quotation: any) => {
-      const date = new Date(quotation.dateStart || new Date());
+      const date = new Date(quotation.dateQuotation || new Date());
       if (date >= startDate && date <= endDate) {
         // Formatear la fecha según el rango seleccionado
         let dateKey: string;
@@ -339,12 +340,12 @@ export default function QuotationGraph() {
   const quotationGroupData = getQuotationGroupData();
   // Calculamos el período que estamos visualizando en forma de texto 2 mayo 2025 - 10 junio 2025
   const getPeriodLabel = () => {
+    const currentYear = new Date().getFullYear();
     if (filters.from && filters.to) {
       const fromDate = new Date(filters.from);
       const toDate = new Date(filters.to);
 
       // Si es todo el año actual
-      const currentYear = new Date().getFullYear();
       if (
         fromDate.getFullYear() === currentYear &&
         fromDate.getMonth() === 0 &&
@@ -366,7 +367,7 @@ export default function QuotationGraph() {
       const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
       return `${from} - ${to}`;
     } else {
-      return "En el año actual";
+      return `Año ${currentYear}`;
     }
   };
 
@@ -463,7 +464,7 @@ export default function QuotationGraph() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <ChartSpline className="h-5 w-5 text-primary" />
                 Cotizaciones por {timeRange === "week" ? "semana" : timeRange === "month" ? "mes" : "año"}
               </CardTitle>
               <CardDescription>Cantidad de cotizaciones por período</CardDescription>
