@@ -136,26 +136,84 @@ export default function QuotationGraph() {
   const getTimeData = () => {
     const now = new Date();
     let startDate: Date;
+    let endDate = new Date(now);
 
     // Determinar fecha de inicio según el rango seleccionado
     if (timeRange === "week") {
       startDate = new Date(now);
-      startDate.setDate(now.getDate() - 7);
+      startDate.setDate(now.getDate() - 6); // 7 días incluyendo hoy
+      startDate.setHours(0, 0, 0, 0); // Inicio del día
+      endDate.setHours(23, 59, 59, 999); // Fin del día
     } else if (timeRange === "month") {
       startDate = new Date(now);
-      startDate.setMonth(now.getMonth() - 1);
+      startDate.setDate(1); // Primer día del mes actual
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Último día del mes actual
+      endDate.setHours(23, 59, 59, 999);
     } else {
-      startDate = new Date(now);
-      startDate.setFullYear(now.getFullYear() - 1);
+      startDate = new Date(now.getFullYear(), 0, 1); // 1 enero del año actual
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), 11, 31); // 31 diciembre del año actual
+      endDate.setHours(23, 59, 59, 999);
     }
 
-    // Agrupar por fecha
+    // Crear un array con todos los períodos (días o meses)
+    type PeriodData = {
+      date: string;
+      dateObj: Date;
+      cantidad: number;
+      monto: number;
+      label: string;
+    };
+
+    const allPeriods: PeriodData[] = [];
+
+    if (timeRange === "year") {
+      // Para año - genera todos los meses
+      for (let month = 0; month < 12; month++) {
+        const monthDate = new Date(now.getFullYear(), month, 1);
+        allPeriods.push({
+          date: `${month + 1}/${now.getFullYear()}`,
+          dateObj: monthDate, // Para ordenar más tarde
+          cantidad: 0,
+          monto: 0,
+          label: monthDate.toLocaleDateString("es-ES", { month: "short" }),
+        });
+      }
+    } else if (timeRange === "month") {
+      // Para mes - genera todos los días del mes
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDate = new Date(now.getFullYear(), now.getMonth(), day);
+        allPeriods.push({
+          date: `${day}/${now.getMonth() + 1}`,
+          dateObj: dayDate,
+          cantidad: 0,
+          monto: 0,
+          label: day.toString(),
+        });
+      }
+    } else {
+      // Para semana - genera 7 días
+      for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(now);
+        dayDate.setDate(now.getDate() - 6 + i);
+        allPeriods.push({
+          date: `${dayDate.getDate()}/${dayDate.getMonth() + 1}`,
+          dateObj: dayDate,
+          cantidad: 0,
+          monto: 0,
+          label: dayDate.toLocaleDateString("es-ES", { weekday: "short" }),
+        });
+      }
+    }
+
+    // Agrupar cotizaciones por fecha
     const groupedByDate: { [key: string]: { count: number; amount: number } } = {};
 
     quotations.forEach((quotation: any) => {
-      // Asumimos que hay una propiedad de fecha de creación o similar
       const date = new Date(quotation.dateStart || new Date());
-      if (date >= startDate) {
+      if (date >= startDate && date <= endDate) {
         // Formatear la fecha según el rango seleccionado
         let dateKey: string;
         if (timeRange === "year") {
@@ -174,33 +232,22 @@ export default function QuotationGraph() {
       }
     });
 
-    // Convertir a array para el gráfico
-    const result = Object.entries(groupedByDate).map(([date, data]) => ({
-      date,
-      cantidad: data.count,
-      monto: data.amount,
+    // Actualizar los períodos con los datos reales
+    allPeriods.forEach((period) => {
+      if (groupedByDate[period.date]) {
+        period.cantidad = groupedByDate[period.date].count;
+        period.monto = groupedByDate[period.date].amount;
+      }
+    });
+
+    // Ordenar por fecha
+    allPeriods.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+    // Eliminar la propiedad dateObj que solo se usó para ordenar
+    return allPeriods.map(({ dateObj: _, ...rest }) => ({
+      ...rest,
+      date: rest.label, // Usar las etiquetas legibles
     }));
-
-    // Ordenar según el formato de fecha
-    if (timeRange === "year") {
-      // Ordenar por mes/año
-      result.sort((a, b) => {
-        const [aMonth, aYear] = a.date.split("/").map(Number);
-        const [bMonth, bYear] = b.date.split("/").map(Number);
-        if (aYear !== bYear) return aYear - bYear;
-        return aMonth - bMonth;
-      });
-    } else {
-      // Ordenar por día/mes
-      result.sort((a, b) => {
-        const [aDay, aMonth] = a.date.split("/").map(Number);
-        const [bDay, bMonth] = b.date.split("/").map(Number);
-        if (aMonth !== bMonth) return aMonth - bMonth;
-        return aDay - bDay;
-      });
-    }
-
-    return result;
   };
 
   const getQuotationGroupData = () => {
@@ -449,7 +496,15 @@ export default function QuotationGraph() {
                 }}
               >
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 10 }}
+                  tickMargin={5}
+                  tickFormatter={(value) => value}
+                  interval={timeRange === "year" ? 0 : timeRange === "month" ? Math.floor(timeData.length / 10) : 0}
+                />
                 <YAxis
                   dataKey="cantidad"
                   tickLine={false}
@@ -457,13 +512,22 @@ export default function QuotationGraph() {
                   tick={{ fontSize: 10 }}
                   tickMargin={5}
                   width={25}
+                  allowDecimals={false}
                 />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
+                      const fecha = payload[0].payload.date;
+                      const formattedDate =
+                        timeRange === "year"
+                          ? `${fecha} ${new Date().getFullYear()}`
+                          : timeRange === "week"
+                            ? `${fecha}`
+                            : `${fecha} ${new Date().toLocaleDateString("es-ES", { month: "short" })}`;
+
                       return (
                         <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                          <p className="font-medium mb-1">{`Fecha: ${payload[0].payload.date}`}</p>
+                          <p className="font-medium mb-1">{`Fecha: ${formattedDate}`}</p>
                           <p className="text-chart-1">{`Cantidad: ${payload[0].payload.cantidad}`}</p>
                           <p className="text-chart-2">{`Monto: S/ ${payload[0].payload.monto.toLocaleString("es-PE")}`}</p>
                         </div>
