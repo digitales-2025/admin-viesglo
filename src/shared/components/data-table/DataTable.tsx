@@ -41,6 +41,7 @@ interface DataTableProps<TData, TValue> {
   getSubRows?: (row: TData) => TData[] | undefined;
   renderExpandedRow?: (row: TData) => React.ReactNode;
   onClickRow?: (row: TData) => void;
+  initialColumnVisibility?: VisibilityState;
 
   /**
    * Modo de paginación y filtrado:
@@ -89,6 +90,7 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   toolBar = true,
   pagination = true,
+  initialColumnVisibility = {},
   filterOptions,
   onClickRow,
   className,
@@ -103,7 +105,7 @@ export function DataTable<TData, TValue>({
   serverFilterLoading,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(initialColumnVisibility || {});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnPinning, setColumnPinning] = React.useState<ColumnPinningState>({

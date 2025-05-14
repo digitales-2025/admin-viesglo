@@ -254,6 +254,11 @@ export default function QuotationTable() {
         <Loading text="Cargando grupos de cotizacion" />
       ) : (
         <DataTable
+          initialColumnVisibility={{
+            cargo: false,
+            "correo electrónico": false,
+            departamento: false,
+          }}
           columns={columns}
           data={quotations}
           isLoading={isLoading}
