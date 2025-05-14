@@ -1,3 +1,4 @@
+;
 /* eslint-disable import/no-anonymous-default-export */
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -6,6 +7,10 @@ import js from "@eslint/js";
 import typescriptEslintEslintPlugin from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 import prettier from "eslint-plugin-prettier";
+
+
+
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +63,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-var-requires": "off",
       "@typescript-eslint/no-use-before-define": "off",
+      "@typescript-eslint/no-unused-expressions": "warn",
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
