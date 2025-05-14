@@ -95,9 +95,9 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
     ),
   },
   {
-    id: "monto",
+    id: "monto total",
     accessorKey: "amount",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto total" />,
     cell: ({ row }) => (
       <div className="min-w-[150px]">
         <Badge variant="outline" className="flex items-center gap-2">
@@ -105,7 +105,7 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("monto"))}
+          }).format(row.getValue("monto total"))}
         </Badge>
       </div>
     ),

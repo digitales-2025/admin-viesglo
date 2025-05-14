@@ -5,13 +5,14 @@ import {
   BarChart2,
   BarChart3,
   Calendar,
+  CalendarCheck,
   CheckCircle2,
-  ChevronRight,
+  Clipboard,
+  ClipboardCheck,
+  ClipboardX,
   DollarSign,
   PieChart,
   TrendingUp,
-  Users,
-  Wallet,
   XCircle,
 } from "lucide-react";
 import {
@@ -33,6 +34,7 @@ import {
 } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
+import MetricCard from "@/shared/components/dashboard/MetricCard";
 import Empty from "@/shared/components/empty";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -112,20 +114,21 @@ export default function QuotationGraph() {
   // Calcular KPIs principales
   const totalQuotations = quotations.length;
   const totalAmount = quotations.reduce((sum: number, q: any) => sum + q.amount, 0);
-  const averageAmount = totalAmount / (totalQuotations || 1);
-  const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
-  const conversionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
+  const totalPaidAmount = quotations
+    .filter((q: any) => q.isConcrete)
+    .reduce((sum: number, q: any) => sum + q.amount, 0);
+  const totalUnpaidAmount = totalAmount - totalPaidAmount;
 
   // Calcular cotizaciones pagadas y no pagadas
-  const paidQuotations = quotations.filter((q: any) => q.isConcrete).length;
-  const unpaidQuotations = totalQuotations - paidQuotations;
-  const paymentCompletionRate = (paidQuotations / (totalQuotations || 1)) * 100;
+  const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
+  const unConcreteQuotations = totalQuotations - concreteQuotations;
+  const paymentCompletionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
 
   // Procesar datos para el gráfico de pagos
   const getPaymentStatusData = () => {
     return [
-      { name: "Concretadas", value: paidQuotations, color: "var(--chart-1)" },
-      { name: "No concretadas", value: unpaidQuotations, color: "var(--chart-4)" },
+      { name: "Concretadas", value: concreteQuotations, color: "var(--chart-1)" },
+      { name: "No concretadas", value: unConcreteQuotations, color: "var(--chart-4)" },
     ];
   };
 
@@ -287,7 +290,7 @@ export default function QuotationGraph() {
   const paymentTypeData = getPaymentTypeData();
   const paymentStatusData = getPaymentStatusData();
   const quotationGroupData = getQuotationGroupData();
-  // Calculamos el período que estamos visualizando
+  // Calculamos el período que estamos visualizando en forma de texto 2 mayo 2025 - 10 junio 2025
   const getPeriodLabel = () => {
     if (filters.from && filters.to) {
       const fromDate = new Date(filters.from);
@@ -306,12 +309,18 @@ export default function QuotationGraph() {
         return `Año ${currentYear}`;
       }
 
+      // Si es un mes exacto del 01 al 31
+      if (fromDate.getDate() === 1 && toDate.getDate() === 31) {
+        return `${fromDate.toLocaleDateString("es-ES", { month: "long", year: "numeric" })}`;
+      }
+
       // Formatear fechas
-      const from = fromDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
-      const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const from = fromDate.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
+      const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
       return `${from} - ${to}`;
+    } else {
+      return "En el año actual";
     }
-    return "";
   };
 
   // Si hay filtros activos, mostramos un mensaje indicando el número de resultados filtrados
@@ -320,6 +329,7 @@ export default function QuotationGraph() {
   );
   const filterMessage = hasFiltros ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
   const periodLabel = getPeriodLabel();
+  console.log("🚀 ~ QuotationGraph ~ periodLabel:", periodLabel);
 
   return (
     <div className="space-y-4">
@@ -336,49 +346,68 @@ export default function QuotationGraph() {
 
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total de cotizaciones</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              {totalQuotations}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Total de cotizaciones"
+          value={totalQuotations.toString()}
+          description={
+            <div className="flex items-center gap-1">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+            </div>
+          }
+          icon={<ClipboardCheck className="size-8 shrink-0 text-emerald-500 bg-emerald-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto total</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              S/ {totalAmount.toLocaleString("es-PE")}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total`}
+          value={`S/. ${totalAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center gap-1">
+                <Clipboard className="size-3 text-teal-500" /> De {totalQuotations} cotizaciones, {concreteQuotations}{" "}
+                son concretadas y {unConcreteQuotations} {""}
+                no son.
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-teal-500 bg-teal-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto promedio</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
-              S/ {averageAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total concretadas`}
+          value={`S/. ${totalPaidAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground flex gap-1 flex-col">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center gap-1">
+                <ClipboardCheck className="size-3 text-emerald-500" /> De {concreteQuotations} cotizaciones concretadas
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-cyan-500 bg-cyan-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Tasa de conversión</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              {conversionRate.toFixed(1)}%
-            </CardTitle>
-            <CardDescription className="text-xs flex items-center gap-1">
-              <ChevronRight className="h-3 w-3" />
-              {concreteQuotations} cotizaciones concretadas
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total a pagar`}
+          value={`S/. ${totalUnpaidAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground flex gap-1 flex-col">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center gap-1">
+                <ClipboardX className="size-3 text-rose-500" /> De {unConcreteQuotations} cotizaciones no concretadas
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-rose-500 bg-rose-500/20 rounded-md p-2" />}
+        />
       </div>
 
       {/* Gráfico principal de tendencia */}
@@ -491,7 +520,7 @@ export default function QuotationGraph() {
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                       Concretadas
                     </span>
-                    <span className="font-medium">{paidQuotations}</span>
+                    <span className="font-medium">{concreteQuotations}</span>
                   </div>
                 </div>
 
@@ -502,7 +531,7 @@ export default function QuotationGraph() {
                       <XCircle className="h-4 w-4 text-gray-500" />
                       No concretadas
                     </span>
-                    <span className="font-medium">{unpaidQuotations}</span>
+                    <span className="font-medium">{unConcreteQuotations}</span>
                   </div>
                 </div>
               </div>
