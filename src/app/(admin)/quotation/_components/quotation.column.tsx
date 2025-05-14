@@ -28,7 +28,11 @@ function ConcreteCell({ quotation }: { quotation: QuotationResponse }) {
   return (
     <div className="flex items-center gap-2">
       <ProtectedComponent requiredPermissions={[{ resource: EnumResource.quotations, action: EnumAction.update }]}>
-        <Switch checked={quotation.isConcrete} onCheckedChange={handleConcreteChange} className="cursor-pointer" />
+        <Switch
+          checked={quotation.isConcrete}
+          onCheckedChange={handleConcreteChange}
+          className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500"
+        />
       </ProtectedComponent>
       <span className="text-sm text-muted-foreground">
         {quotation.isConcrete ? (
