@@ -31,7 +31,7 @@ function ConcreteCell({ quotation }: { quotation: QuotationResponse }) {
         <Switch
           checked={quotation.isConcrete}
           onCheckedChange={handleConcreteChange}
-          className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500"
+          className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500 dark:data-[state=unchecked]:bg-rose-500"
         />
       </ProtectedComponent>
       <span className="text-sm text-muted-foreground">
