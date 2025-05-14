@@ -3681,7 +3681,7 @@ export interface components {
        * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateQuotation?: string;
+      dateQuotation: string;
     };
     UpdateQuotationDto: {
       /**

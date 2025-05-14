@@ -68,7 +68,7 @@ const baseSchema = {
   email: z.string().email("El email no es válido."),
   quotationGroup: z.string().min(1, "Se debe seleccionar un grupo de cotización."),
   paymentPlan: z.nativeEnum(PaymentPlan),
-  dateQuotation: z.date().optional(),
+  dateQuotation: z.date({ required_error: "La fecha de cotización es requerida." }),
 };
 
 const createSchema = z.object(baseSchema);
