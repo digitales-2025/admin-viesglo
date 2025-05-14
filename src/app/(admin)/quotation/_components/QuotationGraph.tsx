@@ -13,7 +13,9 @@ import {
   ClipboardX,
   DollarSign,
   PieChart,
+  TrendingDown,
   TrendingUp,
+  TrendingUpDown,
   XCircle,
 } from "lucide-react";
 import {
@@ -415,10 +417,25 @@ export default function QuotationGraph() {
               <div className="flex items-center gap-1">
                 <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
               </div>
-              <div className="flex items-center gap-1">
-                <Clipboard className="size-3 text-teal-500" /> De {totalQuotations} cotizaciones, {concreteQuotations}{" "}
-                son concretadas y {unConcreteQuotations} {""}
-                no son.
+              <div className="flex items-center justify-between gap-1">
+                <span className="flex items-center gap-1">
+                  <Clipboard className="size-3 text-teal-500" /> De {totalQuotations} cotizaciones, {concreteQuotations}{" "}
+                  son concretadas y {unConcreteQuotations} {""}
+                  no son.
+                </span>
+                {concreteQuotations > unConcreteQuotations ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : concreteQuotations === unConcreteQuotations ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
               </div>
             </div>
           }
@@ -433,8 +450,24 @@ export default function QuotationGraph() {
               <div className="flex items-center gap-1">
                 <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
               </div>
-              <div className="flex items-center gap-1">
-                <ClipboardCheck className="size-3 text-emerald-500" /> De {concreteQuotations} cotizaciones concretadas
+              <div className="flex items-center gap-1 justify-between">
+                <span className="flex items-center gap-1">
+                  <ClipboardCheck className="size-3 text-emerald-500" /> De {concreteQuotations} cotizaciones
+                  concretadas
+                </span>
+                {concreteQuotations > unConcreteQuotations ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : concreteQuotations === unConcreteQuotations ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
               </div>
             </div>
           }
@@ -449,8 +482,19 @@ export default function QuotationGraph() {
               <div className="flex items-center gap-1">
                 <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
               </div>
-              <div className="flex items-center gap-1">
-                <ClipboardX className="size-3 text-rose-500" /> De {unConcreteQuotations} cotizaciones no concretadas
+              <div className="flex items-center gap-1 justify-between">
+                <span className="flex items-center gap-1">
+                  <ClipboardX className="size-3 text-rose-500" /> De {unConcreteQuotations} cotizaciones no concretadas
+                </span>
+                {unConcreteQuotations > 0 ? (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                )}
               </div>
             </div>
           }
