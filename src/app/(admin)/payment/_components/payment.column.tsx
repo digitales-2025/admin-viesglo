@@ -16,14 +16,13 @@ import {
   Save,
   XCircle,
 } from "lucide-react";
-import { toast } from "sonner";
-import { z } from "zod";
+import { DateRange } from "react-day-picker";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Input } from "@/shared/components/ui/input";
 import { Switch } from "@/shared/components/ui/switch";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
@@ -243,66 +242,17 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     ),
   },
   {
-    id: "tipo de pago",
-    accessorKey: "typePayment",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    id: "forma de pago",
+    accessorKey: "paymentPlan",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Forma de Pago" />,
     cell: ({ row }) => (
       <Badge
-        variant={row.getValue("tipo de pago") === PaymentPlan.INSTALLMENTS ? "info" : "success"}
+        variant={row.getValue("forma de pago") === PaymentPlan.INSTALLMENTS ? "info" : "success"}
         className="capitalize w-24 truncate"
       >
-        {LabelPaymentPlan[row.getValue("tipo de pago") as PaymentPlan]}
+        {LabelPaymentPlan[row.getValue("forma de pago") as PaymentPlan]}
       </Badge>
     ),
-  },
-  {
-    id: "fecha de pago",
-    accessorKey: "paymentDate",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Pago" />,
-    cell: function Cell({ row }) {
-      const paymentDate = row.original.paymentDate;
-      const paymentDateFormatted = paymentDate ? new TZDate(paymentDate as string) : undefined;
-
-      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
-
-      const handleChange = (date: Date | undefined) => {
-        updatePayment({
-          id: row.original.id,
-          data: {
-            paymentDate: date
-              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
-              : undefined,
-          },
-        });
-      };
-
-      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
-        <Minus className="text-muted/80" />
-      ) : (
-        <ProtectedComponent
-          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-          fallback={
-            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
-              {paymentDateFormatted ? (
-                paymentDateFormatted?.toLocaleDateString("es-PE", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-              ) : (
-                <span className="text-muted-foreground text-xs italic">Sin fecha de pago</span>
-              )}
-              <Calendar className="text-muted-foreground" />
-            </Badge>
-          }
-        >
-          <div className="relative">
-            {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
-            <DatePicker selected={paymentDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
-          </div>
-        </ProtectedComponent>
-      );
-    },
   },
   {
     id: "codigo de facturacion",
@@ -370,12 +320,14 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
 
       const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
 
-      const handleChange = (date: Date | undefined) => {
+      const handleChange = (date: DateRange | undefined) => {
+        const { from, to: _ } = date || {};
+
         updatePayment({
           id: row.original.id,
           data: {
-            billingDate: date
-              ? new TZDate(date.getFullYear(), date.getMonth(), date.getDate(), "America/Lima").toISOString()
+            billingDate: from
+              ? new TZDate(from.getFullYear(), from.getMonth(), from.getDate(), "America/Lima").toISOString()
               : undefined,
           },
         });
@@ -403,7 +355,15 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         >
           <div className="relative">
             {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
-            <DatePicker selected={billingDateFormatted} onSelect={handleChange} disabled={row.original.isPaid} />
+            <CalendarDatePicker
+              variant="outline"
+              date={{ from: billingDateFormatted, to: billingDateFormatted }}
+              onDateSelect={({ from, to }) => {
+                handleChange({ from, to });
+              }}
+              disabled={row.original.isPaid}
+              numberOfMonths={1}
+            />
           </div>
         </ProtectedComponent>
       );
@@ -425,11 +385,6 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       };
 
       const handleSave = () => {
-        if (!z.string().email().safeParse(email).success && email !== "") {
-          toast.error("El email no es válido");
-          return;
-        }
-
         updatePayment(
           {
             id: row.original.id,
@@ -467,6 +422,65 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
             )}
           </ProtectedComponent>
         </div>
+      );
+    },
+  },
+  {
+    id: "fecha de pago",
+    accessorKey: "paymentDate",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Pago" />,
+    cell: function Cell({ row }) {
+      const paymentDate = row.original.paymentDate;
+      const paymentDateFormatted = paymentDate ? new TZDate(paymentDate as string) : undefined;
+
+      const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
+
+      const handleChange = (date: DateRange | undefined) => {
+        const { from, to: _ } = date || {};
+
+        updatePayment({
+          id: row.original.id,
+          data: {
+            paymentDate: from
+              ? new TZDate(from.getFullYear(), from.getMonth(), from.getDate(), "America/Lima").toISOString()
+              : undefined,
+          },
+        });
+      };
+
+      return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
+        <Minus className="text-muted/80" />
+      ) : (
+        <ProtectedComponent
+          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
+          fallback={
+            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
+              {paymentDateFormatted ? (
+                paymentDateFormatted?.toLocaleDateString("es-PE", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })
+              ) : (
+                <span className="text-muted-foreground text-xs italic">Sin fecha de pago</span>
+              )}
+              <Calendar className="text-muted-foreground" />
+            </Badge>
+          }
+        >
+          <div className="relative">
+            {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
+            <CalendarDatePicker
+              variant="outline"
+              date={{ from: paymentDateFormatted, to: paymentDateFormatted }}
+              onDateSelect={({ from, to }) => {
+                handleChange({ from, to });
+              }}
+              numberOfMonths={1}
+              disabled={row.original.isPaid}
+            />
+          </div>
+        </ProtectedComponent>
       );
     },
   },
