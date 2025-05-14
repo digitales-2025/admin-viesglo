@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Check, Circle, Locate } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { Loading } from "@/shared/components/loading";
-import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { debounce } from "@/shared/lib/utils";
 import { useQuotations } from "../_hooks/useQuotations";
@@ -22,8 +22,6 @@ export default function QuotationTable() {
 
   // Obtenemos los filtros del store
   const { filters: storeFilters, setFilters, updateFilter } = useQuotationsStore();
-  console.log("🚀 ~ QuotationTable ~ storeFilters:", storeFilters);
-
   // Mantenemos los filtros de paginación localmente
   const [pagination, setPagination] = useState({
     page: 1,
@@ -193,13 +191,14 @@ export default function QuotationTable() {
     () => (
       <>
         <DownloadExcelButton filters={filters} />
-        <DatePickerWithRange
+        <CalendarDatePicker
           size="sm"
-          initialValue={{
+          variant="outline"
+          date={{
             from: storeFilters.from ? new Date(storeFilters.from) : undefined,
             to: storeFilters.to ? new Date(storeFilters.to) : undefined,
           }}
-          onConfirm={(value) => {
+          onDateSelect={(value) => {
             if (value?.from) updateFilter("from", value.from);
             if (value?.to) updateFilter("to", value.to);
             if (!value?.from && !value?.to) {
