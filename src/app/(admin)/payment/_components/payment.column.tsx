@@ -363,6 +363,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
               }}
               disabled={row.original.isPaid}
               numberOfMonths={1}
+              closeOnSelect={true}
             />
           </div>
         </ProtectedComponent>
@@ -478,6 +479,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
               }}
               numberOfMonths={1}
               disabled={row.original.isPaid}
+              closeOnSelect={true}
             />
           </div>
         </ProtectedComponent>

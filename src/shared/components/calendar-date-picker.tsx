@@ -142,6 +142,7 @@ export const CalendarDatePicker = React.forwardRef<HTMLButtonElement, CalendarDa
         setYearFrom(from.getFullYear());
         setMonthTo(to);
         setYearTo(to.getFullYear());
+        closeOnSelect && setIsPopoverOpen(false);
       }
       setSelectedRange(null);
     };
