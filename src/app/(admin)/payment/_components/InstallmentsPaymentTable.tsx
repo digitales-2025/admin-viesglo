@@ -9,6 +9,7 @@ import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
 
 import { useAuthPermissions } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { AdminComponent } from "@/auth/presentation/components/AdminComponent";
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { cn } from "@/lib/utils";
 import AlertMessage from "@/shared/components/alerts/Alert";
@@ -350,15 +351,15 @@ export default function InstallmentsPaymentTable({ payment }: InstallmentsPaymen
                     </TableCell>
                     <TableCell className="p-2">
                       {editingId === item.id ? (
-                        <Input
-                          type="email"
+                        <Textarea
                           value={editingPayment.email || ""}
                           onChange={(e) => setEditingPayment({ ...editingPayment, email: e.target.value })}
-                          className="h-8 w-56"
+                          className="min-h-7 w-56"
                         />
                       ) : (
                         <span
                           className={cn(
+                            "text-wrap",
                             !item.isActive && "text-destructive line-through",
                             item.isPaid && "text-emerald-500 font-semibold"
                           )}
@@ -390,11 +391,13 @@ export default function InstallmentsPaymentTable({ payment }: InstallmentsPaymen
                       )}
                     </TableCell>
                     <TableCell className="p-2 text-center">
-                      {item.isActive ? (
-                        <Badge variant="success">Activo</Badge>
-                      ) : (
-                        <Badge variant="error">Inactivo</Badge>
-                      )}
+                      <AdminComponent>
+                        {item.isActive ? (
+                          <Badge variant="success">Activo</Badge>
+                        ) : (
+                          <Badge variant="error">Inactivo</Badge>
+                        )}
+                      </AdminComponent>
                     </TableCell>
                     <TableCell className="p-2 text-center">
                       <div className="flex items-center gap-2">
@@ -545,7 +548,7 @@ export default function InstallmentsPaymentTable({ payment }: InstallmentsPaymen
                     onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
                     placeholder="Ingrese los emails destinatarios"
                     disabled={payment.isPaid}
-                    className="w-56"
+                    className="w-56 min-h-7"
                   />
                 </TableCell>
                 <TableCell className="p-2">

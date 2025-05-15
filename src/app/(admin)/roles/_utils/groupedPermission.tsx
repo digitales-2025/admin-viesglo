@@ -48,6 +48,7 @@ export const labelPermission = {
   [EnumAction.download]: "Descargar",
   [EnumAction.upload]: "Subir",
   [EnumAction.edit]: "Editar",
+  [EnumAction.execute]: "Ejecutar",
 };
 
 export enum EnumResource {

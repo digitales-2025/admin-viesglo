@@ -16,13 +16,13 @@ export const columnsUsers = (): ColumnDef<User>[] => [
   {
     id: "nombre completo",
     accessorKey: "fullName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="nombre completo" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre Completo" />,
     cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("nombre completo")}</div>,
   },
   {
     id: "email",
     accessorKey: "email",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="email" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Correo electrónico" />,
     cell: ({ row }) => (
       <Link href={`mailto:${row.getValue("email")}`}>
         <Badge variant="outline">
@@ -35,7 +35,7 @@ export const columnsUsers = (): ColumnDef<User>[] => [
   {
     id: "teléfono",
     accessorKey: "phone",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="teléfono" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
     cell: ({ row }) =>
       row.original.phone && row.original.phone !== "" ? (
         <Link href={`tel:${row.getValue("teléfono")}`}>
@@ -51,13 +51,13 @@ export const columnsUsers = (): ColumnDef<User>[] => [
   {
     id: "cargo",
     accessorKey: "post",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="cargo" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
     cell: ({ row }) => <div className=" capitalize">{row.getValue("cargo")}</div>,
   },
   {
     id: "rol",
     accessorKey: "roles",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="rol" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
     cell: ({ row }) => {
       return (
         <Link href="/roles">
@@ -83,7 +83,7 @@ export const columnsUsers = (): ColumnDef<User>[] => [
   {
     id: "estado",
     accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="estado" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
     cell: ({ row }) => {
       return (
         <div className="truncate max-w-[300px]">
