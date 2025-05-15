@@ -4,12 +4,14 @@ import { useState } from "react";
 import {
   BarChart3,
   Calendar,
+  CalendarCheck,
   CheckCircle2,
-  ChevronRight,
   DollarSign,
+  FileInput,
   PieChart,
+  TrendingDown,
   TrendingUp,
-  Users,
+  TrendingUpDown,
   Wallet,
   XCircle,
 } from "lucide-react";
@@ -29,6 +31,7 @@ import {
 } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
+import MetricCard from "@/shared/components/dashboard/MetricCard";
 import Empty from "@/shared/components/empty";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -105,10 +108,11 @@ export default function PaymentGraph() {
 
   // Calcular KPIs principales
   const totalPayments = payments.length;
-  const totalAmount = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
-  const averageAmount = totalAmount / (totalPayments || 1);
   const paidPayments = payments.filter((p: any) => p.isPaid).length;
-  const paymentRate = (paidPayments / (totalPayments || 1)) * 100;
+
+  const totalAmount = payments.reduce((sum: number, p: any) => sum + p.amount, 0);
+  const totalPaidAmount = payments.filter((p: any) => p.isPaid).reduce((sum: number, p: any) => sum + p.amount, 0);
+  const totalUnpaidAmount = totalAmount - totalPaidAmount;
 
   // Calcular pagos pagados y no pagados
   const unpaidPayments = totalPayments - paidPayments;
@@ -260,12 +264,12 @@ export default function PaymentGraph() {
   const paymentStatusData = getPaymentStatusData();
   // Calculamos el período que estamos visualizando
   const getPeriodLabel = () => {
+    const currentYear = new Date().getFullYear();
     if (filters.from && filters.to) {
       const fromDate = new Date(filters.from);
       const toDate = new Date(filters.to);
 
       // Si es todo el año actual
-      const currentYear = new Date().getFullYear();
       if (
         fromDate.getFullYear() === currentYear &&
         fromDate.getMonth() === 0 &&
@@ -282,7 +286,7 @@ export default function PaymentGraph() {
       const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
       return `${from} - ${to}`;
     }
-    return "";
+    return `Año ${currentYear}`;
   };
 
   // Si hay filtros activos, mostramos un mensaje indicando el número de resultados filtrados
@@ -307,49 +311,114 @@ export default function PaymentGraph() {
 
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total de pagos</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              {totalPayments}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Total de pagos facturados"
+          value={totalPayments.toString()}
+          icon={<FileInput className="size-8 text-teal-500 bg-teal-500/20 rounded-md p-2" />}
+          description={
+            <div className="text-xs text-muted-foreground flex gap-1 flex-col">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+            </div>
+          }
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto total</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              S/ {totalAmount.toLocaleString("es-PE")}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Monto total facturado"
+          value={`S/. ${totalAmount.toLocaleString("es-PE")}`}
+          icon={<DollarSign className="size-8 text-orange-500 bg-orange-500/20 rounded-md p-2" />}
+          description={
+            <div className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <span className="flex items-center gap-1 ">
+                  <DollarSign className="size-3 text-teal-500" />
+                  De {totalPayments} pagos facturados.
+                </span>
+                {paidPayments > unpaidPayments ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : paidPayments === unpaidPayments ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto promedio</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
-              S/ {averageAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Monto total pagado"
+          value={`S/. ${totalPaidAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}`}
+          icon={<Wallet className="size-8 text-emerald-500 bg-emerald-500/20 rounded-md p-2" />}
+          description={
+            <div className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <span className="flex items-center gap-1">
+                  <DollarSign className="size-3 text-teal-500" />
+                  De <span className="font-semibold">{paidPayments} </span> pagos concretados.
+                </span>
+                {paidPayments > unpaidPayments ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : paidPayments === unpaidPayments ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Ratio de pagos</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              {paymentRate.toFixed(1)}%
-            </CardTitle>
-            <CardDescription className="text-xs flex items-center gap-1">
-              <ChevronRight className="h-3 w-3" />
-              {paidPayments} pagos completados
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Monto no pagado"
+          value={`S/. ${totalUnpaidAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}`}
+          icon={<Wallet className="size-8 text-rose-500 bg-rose-500/20 rounded-md p-2" />}
+          description={
+            <div className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <span className="flex items-center gap-1">
+                  <DollarSign className="size-3 text-teal-500" />
+                  De <span className="font-semibold">{unpaidPayments} </span> pagos no pagados.
+                </span>
+                {unpaidPayments > paidPayments ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : unpaidPayments === paidPayments ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+        />
       </div>
 
       {/* Gráfico principal de tendencia */}
