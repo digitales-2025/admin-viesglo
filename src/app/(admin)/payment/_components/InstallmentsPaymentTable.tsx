@@ -269,7 +269,9 @@ export default function InstallmentsPaymentTable({ payment }: InstallmentsPaymen
               <TableHead className="p-2 text-left w-56">Fecha facturación</TableHead>
               <TableHead className="p-2 text-left w-56">Email destinatario</TableHead>
               <TableHead className="p-2 text-left w-56">Fecha de pago</TableHead>
-              <TableHead className="p-2 text-left w-56">Estado</TableHead>
+              <TableHead className="p-2 text-left w-56">
+                <AdminComponent>Estado</AdminComponent>
+              </TableHead>
               <TableHead className="p-2 text-left w-56">Estado de pago</TableHead>
               <TableHead className="p-2 text-center w-56">Acciones</TableHead>
             </TableRow>
