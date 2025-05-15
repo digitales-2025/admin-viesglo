@@ -379,8 +379,6 @@ export default function QuotationGraph() {
   );
   const filterMessage = hasFiltros ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
   const periodLabel = getPeriodLabel();
-  console.log("🚀 ~ QuotationGraph ~ periodLabel:", periodLabel);
-
   return (
     <div className="space-y-4">
       {/* Mensaje de filtros aplicados y período */}

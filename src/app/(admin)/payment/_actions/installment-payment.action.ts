@@ -6,6 +6,7 @@ import {
   InstallmentPaymentResponse,
   InstallmentPaymentUpdate,
 } from "../_types/installment-payment.types";
+import { MarkPaymentStatus } from "../_types/payment.types";
 
 const API_ENDPOINT = "/installment-payments";
 
@@ -106,6 +107,28 @@ export async function toggleInstallmentPayment(id: string): Promise<{ success: b
     return {
       success: false,
       error: error instanceof Error ? error.message : "Error al reactivar o desactivar pago de cuota",
+    };
+  }
+}
+
+/**
+ * Concretar pago de cuota
+ */
+export async function concretizeInstallmentPayment(
+  id: string,
+  installmentPayment: MarkPaymentStatus
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const [_, err] = await http.patch(`${API_ENDPOINT}/${id}/mark-status`, installmentPayment);
+    if (err !== null) {
+      return { success: false, error: err.message || "Error al concretar pago de cuota" };
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error al concretar pago de cuota", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Error al concretar pago de cuota",
     };
   }
 }

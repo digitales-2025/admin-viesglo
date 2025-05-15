@@ -4,18 +4,7 @@ import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  Banknote,
-  Calendar,
-  CheckCircle2,
-  ChevronDown,
-  ChevronRight,
-  Info,
-  Loader2,
-  Minus,
-  Save,
-  XCircle,
-} from "lucide-react";
+import { Banknote, Calendar, ChevronDown, ChevronRight, Info, Loader2, Minus, Save, XCircle } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
@@ -134,10 +123,13 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
         }
       >
         <div className="flex items-center gap-2">
-          <Switch checked={false} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
-          <span className="text-sm text-muted-foreground">
-            <XCircle className="size-4 text-gray-500" />
-          </span>
+          <Switch
+            checked={false}
+            onCheckedChange={handlePaidChange}
+            disabled={isPending}
+            className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500 dark:data-[state=unchecked]:bg-rose-500"
+          />
+          <Badge variant="error">Pendiente</Badge>
         </div>
       </ProtectedComponent>
     );
@@ -153,15 +145,19 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
       }
     >
       <div className="flex items-center gap-2">
-        <Switch checked={isPaid} onCheckedChange={handlePaidChange} disabled={isPending} className="cursor-pointer" />
+        <Switch
+          checked={isPaid}
+          onCheckedChange={handlePaidChange}
+          disabled={isPending}
+          className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500 dark:data-[state=unchecked]:bg-rose-500"
+        />
         <span className="text-sm text-muted-foreground w-36">
           {isPaid ? (
-            <span className="flex items-center gap-1 text-wrap">
-              <CheckCircle2 className="size-4 text-emerald-500 shrink-0" />
+            <Badge variant="success">
               {payment.paymentPlan === PaymentPlan.INSTALLMENTS ? "Pago completo con todas las cuotas" : "Pagado"}
-            </span>
+            </Badge>
           ) : (
-            <XCircle className="size-4 text-gray-500" />
+            <Badge variant="error">Pendiente</Badge>
           )}
         </span>
       </div>
@@ -226,9 +222,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     ),
   },
   {
-    id: "monto",
+    id: "monto total",
     accessorKey: "amount",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto Total" />,
     cell: ({ row }) => (
       <div className="w-24">
         <Badge variant="outline" className="flex items-center gap-2">
@@ -236,7 +232,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("monto"))}
+          }).format(row.getValue("monto total"))}
         </Badge>
       </div>
     ),
@@ -487,9 +483,9 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
     },
   },
   {
-    id: "realizo pago",
+    id: "estado de pago",
     accessorKey: "isPaid",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="¿Realizó Pago?" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado de pago" />,
     cell: function Cell({ row }) {
       const payment = row.original;
       return <PaidCell payment={payment} />;

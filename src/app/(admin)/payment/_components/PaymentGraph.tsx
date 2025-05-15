@@ -29,6 +29,7 @@ import {
 } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
+import Empty from "@/shared/components/empty";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   ChartContainer,
@@ -89,13 +90,13 @@ export default function PaymentGraph() {
               <span>Gráfico de pagos</span>
             </div>
           </CardTitle>
-          <CardDescription>Error al cargar los datos</CardDescription>
+          <CardDescription>No se pudieron obtener los datos de pagos</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-96 w-full flex items-center justify-center">
-            <p className="text-destructive">
-              {error instanceof Error ? error.message : "No hay datos de pagos disponibles para mostrar."}
-            </p>
+            <Empty
+              message={error instanceof Error ? error.message : "No hay datos de pagos disponibles para mostrar."}
+            />
           </div>
         </CardContent>
       </Card>

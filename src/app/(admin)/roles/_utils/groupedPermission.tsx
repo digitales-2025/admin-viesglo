@@ -30,6 +30,7 @@ export enum EnumAction {
   download = "download",
   upload = "upload",
   edit = "edit",
+  execute = "execute",
 }
 
 export const labelPermission = {

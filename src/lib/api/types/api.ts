@@ -1855,6 +1855,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/installment-payments/{id}/mark-status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el estado de un pago por cuota de cotización */
+    patch: operations["InstallmentPaymentController_updateStatus_v1"];
+    trace?: never;
+  };
   "/api/v1/installment-payments/{id}/toggle-active": {
     parameters: {
       query?: never;
@@ -1884,6 +1901,42 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-installment-config": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener una configuración de pago por cuotas por ID de pago */
+    get: operations["PaymentInstallmentConfigController_findByPaymentId_v1"];
+    put?: never;
+    /** Crear una configuración de pago por cuotas */
+    post: operations["PaymentInstallmentConfigController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-installment-config/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar una configuración de pago por cuotas */
+    put: operations["PaymentInstallmentConfigController_update_v1"];
+    post?: never;
+    /** Eliminar una configuración de pago por cuotas */
+    delete: operations["PaymentInstallmentConfigController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -4825,10 +4878,11 @@ export interface components {
        */
       amount: number;
       /**
+       * Format: date-time
        * @description Fecha de pago
        * @example 2021-01-01
        */
-      paymentDate: string;
+      paymentDate?: string;
       /**
        * @description Confirmación de pago
        * @example true
@@ -4840,6 +4894,7 @@ export interface components {
        */
       billingCode: string;
       /**
+       * Format: date-time
        * @description Fecha de facturación
        * @example 2021-01-01
        */
@@ -4904,6 +4959,7 @@ export interface components {
        */
       amount?: number;
       /**
+       * Format: date-time
        * @description Fecha de pago
        * @example 2021-01-01
        */
@@ -4919,6 +4975,7 @@ export interface components {
        */
       billingCode?: string;
       /**
+       * Format: date-time
        * @description Fecha de facturación
        * @example 2021-01-01
        */
@@ -4942,6 +4999,115 @@ export interface components {
       emailBilling?: string;
       isActive: boolean;
       paymentId: string;
+    };
+    CreatePaymentInstallmentConfigDto: {
+      /**
+       * @description Cantidad de cuotas
+       * @example Este pago se paga en 1 cuota
+       */
+      installmentsQuantity: string;
+      /**
+       * @description Monto de cada cuota
+       * @example Las cuotas son de 1000 soles cada una
+       */
+      installmentsAmount: string;
+      /**
+       * @description Emails de cada cuota
+       * @example El email de cada cuota es para juan@gmail.com
+       */
+      installmentsEmails: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example Las fechas de cada cuota son el 1 de cada mes
+       */
+      installmentsDates: string;
+      /**
+       * Format: date
+       * @description Fecha de inicio del servicio
+       * @example 2024-03-20
+       */
+      startDateService: string;
+      /**
+       * Format: date
+       * @description Fecha de fin del servicio
+       * @example 10-05-2025
+       */
+      endDateService: string;
+    };
+    PaymentInstallmentConfigResponseDto: {
+      /**
+       * @description ID de la configuración de pago
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /** @description Pago */
+      payment: components["schemas"]["PaymentResponseDto"];
+      /**
+       * @description Cantidad de cuotas
+       * @example 1
+       */
+      installmentsQuantity: string;
+      /**
+       * @description Monto de cada cuota
+       * @example 1000
+       */
+      installmentsAmount: string;
+      /**
+       * @description Emails de cada cuota
+       * @example juan@gmail.com
+       */
+      installmentsEmails: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example 2021-01-01
+       */
+      installmentsDates: string;
+      /**
+       * Format: date-time
+       * @description Fecha de inicio del servicio
+       * @example 2021-01-01
+       */
+      startDateService: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin del servicio
+       * @example 2021-01-01
+       */
+      endDateService: string;
+    };
+    UpdatePaymentInstallmentConfigDto: {
+      /**
+       * @description Cantidad de cuotas
+       * @example Este pago se paga en 1 cuota
+       */
+      installmentsQuantity?: string;
+      /**
+       * @description Monto de cada cuota
+       * @example Las cuotas son de 1000 soles cada una
+       */
+      installmentsAmount?: string;
+      /**
+       * @description Emails de cada cuota
+       * @example El email de cada cuota es para juan@gmail.com
+       */
+      installmentsEmails?: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example Las fechas de cada cuota son el 1 de cada mes
+       */
+      installmentsDates?: string;
+      /**
+       * Format: date
+       * @description Fecha de inicio del servicio
+       * @example 2024-03-20
+       */
+      startDateService?: string;
+      /**
+       * Format: date
+       * @description Fecha de fin del servicio
+       * @example 10-05-2025
+       */
+      endDateService?: string;
     };
   };
   responses: never;
@@ -9147,6 +9313,40 @@ export interface operations {
       };
     };
   };
+  InstallmentPaymentController_updateStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MarkPaymentStatusDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
   InstallmentPaymentController_toggleActive_v1: {
     parameters: {
       query?: never;
@@ -9192,6 +9392,100 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  PaymentInstallmentConfigController_findByPaymentId_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Configuración de pago por cuotas encontrada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_create_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePaymentInstallmentConfigDto"];
+      };
+    };
+    responses: {
+      /** @description Configuración de pago por cuotas creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_update_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePaymentInstallmentConfigDto"];
+      };
+    };
+    responses: {
+      /** @description Configuración de pago por cuotas actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_delete_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Configuración de pago por cuotas eliminada exitosamente */
       200: {
         headers: {
           [name: string]: unknown;

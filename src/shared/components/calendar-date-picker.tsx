@@ -511,9 +511,9 @@ export const CalendarDatePicker = React.forwardRef<HTMLButtonElement, CalendarDa
                         variant="ghost"
                         size="sm"
                         className={cn(
-                          "justify-start hover:bg-emerald-500/90 hover:text-background",
+                          "justify-start hover:bg-primary hover:text-background",
                           selectedRange === label &&
-                            "bg-emerald-500 text-background hover:bg-emerald-500/90 hover:text-background"
+                            "bg-primary text-background hover:bg-primary/90 hover:text-background"
                         )}
                         onClick={() => {
                           selectDateRange(start, end, label);
@@ -618,7 +618,7 @@ export const CalendarDatePicker = React.forwardRef<HTMLButtonElement, CalendarDa
                       selected={date}
                       onSelect={handleDateSelect}
                       numberOfMonths={numberOfMonths}
-                      showOutsideDays={false}
+                      showOutsideDays={true}
                       className={className}
                       locale={es}
                     />
