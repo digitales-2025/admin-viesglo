@@ -62,6 +62,25 @@ export default function PaymentGraph() {
   // Extraemos los datos de pagos
   const payments = data || [];
 
+  // Configuración de fechas según el rango seleccionado
+  const now = new Date();
+  let startDate = new Date(now);
+  let endDate = new Date(now);
+
+  // Determinar fechas de inicio y fin según el rango seleccionado
+  if (timeRange === "week") {
+    startDate.setDate(now.getDate() - 7);
+  } else if (timeRange === "month") {
+    startDate = new Date(now.getFullYear(), now.getMonth(), 1); // Primer día del mes actual
+    endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Último día del mes actual
+  } else {
+    startDate = new Date(now.getFullYear(), 0, 1); // 1 de enero del año actual
+    endDate = new Date(now.getFullYear(), 11, 31); // 31 de diciembre del año actual
+  }
+
+  // Obtenemos el nombre del mes para mostrar en el título
+  const nombreMesActual = timeRange === "month" ? startDate.toLocaleString("es-ES", { month: "long" }) : "";
+
   if (isLoading) {
     return (
       <Card>
@@ -128,79 +147,166 @@ export default function PaymentGraph() {
 
   // Procesar datos para el gráfico de tendencia temporal
   const getTimeData = () => {
-    const now = new Date();
-    let startDate: Date;
+    // Nombres de meses y días para mostrar en el gráfico
+    const nombresMeses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+    const nombresDias = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-    // Determinar fecha de inicio según el rango seleccionado
-    if (timeRange === "week") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 7);
+    // Inicializar estructura para almacenar todos los períodos posibles
+    const allPeriods: {
+      [key: string]: {
+        total: number;
+        facturas: number; // Pagos facturados ese día
+        pagos: number; // Pagos concretados ese día
+        paid: number;
+        unpaid: number;
+        amount: number;
+        label: string;
+        rawDate: string;
+      };
+    } = {};
+
+    // Generar todos los períodos posibles según el rango seleccionado
+    if (timeRange === "year") {
+      // Para año: generar todos los meses
+      for (let month = 0; month < 12; month++) {
+        // Guardamos el mes/año numérico como clave para matching
+        const monthKey = `${month + 1}/${now.getFullYear()}`;
+        // Pero también guardamos el nombre del mes para mostrar
+        const label = nombresMeses[month];
+        allPeriods[monthKey] = {
+          total: 0,
+          facturas: 0,
+          pagos: 0,
+          paid: 0,
+          unpaid: 0,
+          amount: 0,
+          label,
+          rawDate: monthKey,
+        };
+      }
     } else if (timeRange === "month") {
-      startDate = new Date(now);
-      startDate.setMonth(now.getMonth() - 1);
-    } else {
-      startDate = new Date(now);
-      startDate.setFullYear(now.getFullYear() - 1);
+      // Para mes: generar todos los días del mes actual
+      const year = startDate.getFullYear();
+      const month = startDate.getMonth(); // 0-11
+      // Obtenemos la cantidad de días en el mes actual
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayKey = `${day}/${month + 1}`;
+        // Solo el número del día
+        const label = `${day}`;
+        allPeriods[dayKey] = {
+          total: 0,
+          facturas: 0,
+          pagos: 0,
+          paid: 0,
+          unpaid: 0,
+          amount: 0,
+          label,
+          rawDate: dayKey,
+        };
+      }
+    } else if (timeRange === "week") {
+      // Para semana: generar todos los días de la semana
+      const tempDate = new Date(startDate);
+      while (tempDate <= endDate) {
+        const dayKey = `${tempDate.getDate()}/${tempDate.getMonth() + 1}`;
+        const dayOfWeek = tempDate.getDay(); // 0-6 (domingo-sábado)
+        // Para semana usamos nombre del día + número
+        const label = `${nombresDias[dayOfWeek]} ${tempDate.getDate()}`;
+        allPeriods[dayKey] = {
+          total: 0,
+          facturas: 0,
+          pagos: 0,
+          paid: 0,
+          unpaid: 0,
+          amount: 0,
+          label,
+          rawDate: dayKey,
+        };
+        tempDate.setDate(tempDate.getDate() + 1);
+      }
     }
 
-    // Agrupar por fecha
-    const groupedByDate: { [key: string]: { total: number; paid: number; unpaid: number; amount: number } } = {};
-
+    // Ahora procesamos los pagos y los asignamos a los períodos correspondientes
     payments.forEach((payment: any) => {
-      // Usar la fecha de pago para el análisis
-      const date = payment.paymentDate ? new Date(payment.paymentDate) : new Date();
+      // Fecha de facturación (creación del pago)
+      const fechaFacturacion = payment.createdAt ? new Date(payment.createdAt) : new Date();
 
-      if (date >= startDate) {
-        // Formatear la fecha según el rango seleccionado
-        let dateKey: string;
+      // Fecha del pago efectivo (si existe, sino usamos null)
+      const fechaPago = payment.paymentDate ? new Date(payment.paymentDate) : null;
+
+      // Formatear la fecha de facturación según el rango seleccionado
+      let facturaKey: string | null = null;
+      if (fechaFacturacion >= startDate && fechaFacturacion <= endDate) {
         if (timeRange === "year") {
           // Para año, agrupar por mes
-          dateKey = `${date.getMonth() + 1}/${date.getFullYear()}`;
+          facturaKey = `${fechaFacturacion.getMonth() + 1}/${fechaFacturacion.getFullYear()}`;
         } else {
           // Para semana o mes, agrupar por día
-          dateKey = `${date.getDate()}/${date.getMonth() + 1}`;
+          facturaKey = `${fechaFacturacion.getDate()}/${fechaFacturacion.getMonth() + 1}`;
         }
 
-        if (!groupedByDate[dateKey]) {
-          groupedByDate[dateKey] = { total: 0, paid: 0, unpaid: 0, amount: 0 };
+        // Registrar factura en su fecha correspondiente
+        if (facturaKey && allPeriods[facturaKey]) {
+          allPeriods[facturaKey].facturas += 1;
+          allPeriods[facturaKey].total += 1;
+
+          // Contabilizar como pagado o no pagado según su estado actual
+          if (payment.isPaid) {
+            allPeriods[facturaKey].paid += 1;
+          } else {
+            allPeriods[facturaKey].unpaid += 1;
+          }
+
+          allPeriods[facturaKey].amount += payment.amount;
         }
+      }
 
-        groupedByDate[dateKey].total += 1;
-
-        // Contabilizar pagados y no pagados
-        if (payment.isPaid) {
-          groupedByDate[dateKey].paid += 1;
+      // Si tiene fecha de pago, registrarlo en esa fecha
+      if (fechaPago && fechaPago >= startDate && fechaPago <= endDate) {
+        let pagoKey: string;
+        if (timeRange === "year") {
+          // Para año, agrupar por mes
+          pagoKey = `${fechaPago.getMonth() + 1}/${fechaPago.getFullYear()}`;
         } else {
-          groupedByDate[dateKey].unpaid += 1;
+          // Para semana o mes, agrupar por día
+          pagoKey = `${fechaPago.getDate()}/${fechaPago.getMonth() + 1}`;
         }
 
-        groupedByDate[dateKey].amount += payment.amount;
+        // Registrar pago en su fecha correspondiente
+        if (allPeriods[pagoKey]) {
+          allPeriods[pagoKey].pagos += 1;
+        }
       }
     });
 
     // Convertir a array para el gráfico
-    const result = Object.entries(groupedByDate).map(([date, data]) => ({
-      date,
+    const result = Object.entries(allPeriods).map(([_, data]: [string, any]) => ({
+      date: data.label, // Usamos la etiqueta con nombres en lugar de la fecha numérica
+      dateRaw: data.rawDate, // Mantenemos la fecha original para ordenación
       total: data.total,
+      facturados: data.facturas, // Pagos facturados en esta fecha
+      concretados: data.pagos, // Pagos efectivamente pagados en esta fecha
       pagados: data.paid,
       pendientes: data.unpaid,
       monto: data.amount,
     }));
 
-    // Ordenar según el formato de fecha
+    // Ordenar según el formato de fecha original
     if (timeRange === "year") {
       // Ordenar por mes/año
       result.sort((a, b) => {
-        const [aMonth, aYear] = a.date.split("/").map(Number);
-        const [bMonth, bYear] = b.date.split("/").map(Number);
+        const [aMonth, aYear] = a.dateRaw.split("/").map(Number);
+        const [bMonth, bYear] = b.dateRaw.split("/").map(Number);
         if (aYear !== bYear) return aYear - bYear;
         return aMonth - bMonth;
       });
     } else {
       // Ordenar por día/mes
       result.sort((a, b) => {
-        const [aDay, aMonth] = a.date.split("/").map(Number);
-        const [bDay, bMonth] = b.date.split("/").map(Number);
+        const [aDay, aMonth] = a.dateRaw.split("/").map(Number);
+        const [bDay, bMonth] = b.dateRaw.split("/").map(Number);
         if (aMonth !== bMonth) return aMonth - bMonth;
         return aDay - bDay;
       });
@@ -421,109 +527,6 @@ export default function PaymentGraph() {
         />
       </div>
 
-      {/* Gráfico principal de tendencia */}
-      <Card className="overflow-hidden">
-        <CardHeader className="pb-0">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
-                Pagos por {timeRange === "week" ? "semana" : timeRange === "month" ? "mes" : "año"}
-              </CardTitle>
-              <CardDescription>Cantidad de pagos por período</CardDescription>
-            </div>
-            <Tabs defaultValue="month" onValueChange={(value) => setTimeRange(value as any)}>
-              <TabsList className="h-8">
-                <TabsTrigger value="week" className="text-xs px-2">
-                  Semana
-                </TabsTrigger>
-                <TabsTrigger value="month" className="text-xs px-2">
-                  Mes
-                </TabsTrigger>
-                <TabsTrigger value="year" className="text-xs px-2">
-                  Año
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-4 pb-0 px-2">
-          <div className="h-48 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={timeData}
-                margin={{
-                  top: 5,
-                  right: 5,
-                  left: 0,
-                  bottom: 0,
-                }}
-              >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} />
-                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} width={25} />
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                          <p className="font-medium mb-1">{`Fecha: ${payload[0].payload.date}`}</p>
-                          <p className="text-chart-1">{`Pagados: ${payload[0].payload.pagados}`}</p>
-                          <p className="text-chart-4">{`Pendientes: ${payload[0].payload.pendientes}`}</p>
-                          <p className="text-chart-1">{`Total: ${payload[0].payload.total}`}</p>
-                          <p className="text-chart-2">{`Monto: S/ ${payload[0].payload.monto.toLocaleString("es-PE")}`}</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <defs>
-                  <linearGradient id="fillPagados" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
-                  </linearGradient>
-                  <linearGradient id="fillPendientes" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--chart-4)" stopOpacity={0.8} />
-                    <stop offset="95%" stopColor="var(--chart-4)" stopOpacity={0.1} />
-                  </linearGradient>
-                </defs>
-                <Area
-                  dataKey="pagados"
-                  type="monotone"
-                  fill="url(#fillPagados)"
-                  fillOpacity={0.4}
-                  stroke="var(--chart-1)"
-                  strokeWidth={2}
-                  stackId="1"
-                />
-                <Area
-                  dataKey="pendientes"
-                  type="monotone"
-                  fill="url(#fillPendientes)"
-                  fillOpacity={0.4}
-                  stroke="var(--chart-4)"
-                  strokeWidth={2}
-                  stackId="1"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-        <CardFooter className="pt-0 pb-2 px-4">
-          <div className="flex justify-end items-center gap-4 text-xs text-muted-foreground w-full">
-            <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-chart-1"></div>
-              <span>Pagados</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <div className="h-3 w-3 rounded-full bg-chart-4"></div>
-              <span>Pendientes</span>
-            </div>
-          </div>
-        </CardFooter>
-      </Card>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Estado de Pagos (Donut Chart) */}
         <Card>
@@ -690,6 +693,164 @@ export default function PaymentGraph() {
           </CardContent>
         </Card>
       </div>
+      {/* Gráfico principal de tendencia */}
+      <Card className="overflow-hidden">
+        <CardHeader className="pb-0">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                {timeRange === "week"
+                  ? "Actividad de facturación y pagos por semana"
+                  : timeRange === "month"
+                    ? `Actividad de facturación y pagos: ${nombreMesActual}`
+                    : "Actividad de facturación y pagos anual"}
+              </CardTitle>
+              <CardDescription>
+                Comparación entre fechas de emisión de facturas y fechas de pago efectivo por{" "}
+                {timeRange === "week" ? "día" : timeRange === "month" ? "día del mes" : "mes"}
+              </CardDescription>
+            </div>
+            <Tabs defaultValue="month" onValueChange={(value) => setTimeRange(value as any)}>
+              <TabsList className="h-8">
+                <TabsTrigger value="week" className="text-xs px-2">
+                  Semana
+                </TabsTrigger>
+                <TabsTrigger value="month" className="text-xs px-2">
+                  Mes
+                </TabsTrigger>
+                <TabsTrigger value="year" className="text-xs px-2">
+                  Año
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-4 pb-0 px-2">
+          <div className="h-48 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart
+                data={timeData}
+                margin={{
+                  top: 5,
+                  right: 5,
+                  left: 0,
+                  bottom: 0,
+                }}
+              >
+                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} />
+                <YAxis tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} width={25} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      let label = "";
+
+                      // Formatear la etiqueta según el timeRange
+                      if (timeRange === "year") {
+                        // Convertir número de mes a nombre
+                        const [month, year] = data.dateRaw.split("/");
+                        const monthNames = [
+                          "Enero",
+                          "Febrero",
+                          "Marzo",
+                          "Abril",
+                          "Mayo",
+                          "Junio",
+                          "Julio",
+                          "Agosto",
+                          "Septiembre",
+                          "Octubre",
+                          "Noviembre",
+                          "Diciembre",
+                        ];
+                        label = `${monthNames[parseInt(month) - 1]} ${year}`;
+                      } else if (timeRange === "month") {
+                        // Para mes, mostrar el día y mes
+                        const [day, month] = data.dateRaw.split("/");
+                        label = `${day} de ${["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"][parseInt(month) - 1]}`;
+                      } else {
+                        // Para semana, mostrar el día de semana y fecha
+                        const [day, month] = data.dateRaw.split("/");
+                        const currentYear = new Date().getFullYear();
+                        const date = new Date(currentYear, parseInt(month) - 1, parseInt(day));
+                        const dayName = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"][date.getDay()];
+                        label = `${dayName} ${day}/${month}`;
+                      }
+
+                      return (
+                        <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
+                          <p className="font-medium mb-2 text-center border-b pb-1">{label}</p>
+                          <div className="space-y-1">
+                            <p className="flex justify-between">
+                              <span className="text-muted-foreground">Facturas emitidas:</span>
+                              <span className="font-medium text-chart-3">{data.facturados}</span>
+                            </p>
+                            <p className="flex justify-between">
+                              <span className="text-muted-foreground">Pagos realizados:</span>
+                              <span className="font-medium text-chart-1">{data.concretados}</span>
+                            </p>
+                            <div className="border-t mt-1 pt-1">
+                              <p className="flex justify-between">
+                                <span className="text-muted-foreground">Monto total:</span>
+                                <span className="font-medium text-chart-2">
+                                  S/ {data.monto.toLocaleString("es-PE")}
+                                </span>
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <defs>
+                  <linearGradient id="fillPagados" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--chart-1)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--chart-1)" stopOpacity={0.1} />
+                  </linearGradient>
+                  <linearGradient id="fillFacturados" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="var(--chart-3)" stopOpacity={0.1} />
+                  </linearGradient>
+                </defs>
+                <Area
+                  dataKey="concretados"
+                  name="Pagos realizados"
+                  type="monotone"
+                  fill="url(#fillPagados)"
+                  fillOpacity={0.4}
+                  stroke="var(--chart-1)"
+                  strokeWidth={2}
+                />
+                <Area
+                  dataKey="facturados"
+                  name="Facturas emitidas"
+                  type="monotone"
+                  fill="url(#fillFacturados)"
+                  fillOpacity={0.2}
+                  stroke="var(--chart-3)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+        <CardFooter className="pt-0 pb-2 px-4">
+          <div className="flex justify-end items-center gap-4 text-xs text-muted-foreground w-full">
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-chart-1"></div>
+              <span>Pagos realizados en la fecha</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-chart-3"></div>
+              <span>Facturas emitidas en la fecha</span>
+            </div>
+          </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
