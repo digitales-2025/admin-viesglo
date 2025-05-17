@@ -12,7 +12,6 @@ import {
   TrendingUpDown,
   Users,
   Wallet,
-  XCircle,
 } from "lucide-react";
 import {
   Area,
@@ -23,12 +22,10 @@ import {
   Pie,
   PieChart as ReChartPie,
   ResponsiveContainer,
-  Sector,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 import MetricCard from "@/shared/components/dashboard/MetricCard";
 import Empty from "@/shared/components/empty";
@@ -58,7 +55,6 @@ export default function PaymentGraph() {
 
   // Obtenemos los datos directamente de la API usando los filtros del store
   const { data, isLoading, error } = usePaymentsForStats({ ...filters });
-
   // Extraemos los datos de pagos
   const payments = data || [];
 
@@ -135,7 +131,6 @@ export default function PaymentGraph() {
 
   // Calcular pagos pagados y no pagados
   const unpaidPayments = totalPayments - paidPayments;
-  const paymentCompletionRate = (paidPayments / (totalPayments || 1)) * 100;
 
   // Métrica de usuarios únicos facturados (considerando RUC o clientId como identificador único)
   const uniqueClients = new Set();
@@ -154,12 +149,69 @@ export default function PaymentGraph() {
   // Análisis de pagos pendientes
   const duePaymentsPercentage = (unpaidPayments / (totalPayments || 1)) * 100;
 
-  // Procesar datos para el gráfico de pagos
-  const getPaymentStatusData = () => {
-    return [
-      { name: "Pagados", value: paidPayments, color: "var(--chart-4)" },
-      { name: "Pendientes", value: unpaidPayments, color: "var(--chart-5)" },
-    ];
+  // Agrupar pagos por tipo de servicio o departamento
+  const paymentsByQuotationGroup: { [key: string]: { count: number; amount: number; paid: number; color: string } } =
+    {};
+
+  // Colores para los diferentes grupos de cotización
+  const groupColors = [
+    "var(--chart-1)",
+    "var(--chart-2)",
+    "var(--chart-3)",
+    "var(--chart-4)",
+    "var(--chart-5)",
+    "var(--chart-6)",
+  ];
+
+  // Clasificar pagos por tipo de servicio o departamento
+  payments.forEach((payment: PaymentResponse) => {
+    // Extraer un posible identificador de grupo desde el código del pago
+    let groupCategory = "No especificado";
+
+    if (payment.code) {
+      // Intentar extraer un prefijo del código que podría representar un grupo
+      const parts = payment.code.split("-");
+      if (parts.length > 1) {
+        groupCategory = parts[0].toUpperCase();
+      } else {
+        // Si no tiene guión, tomar los primeros caracteres
+        groupCategory = payment.code.substring(0, 4).toUpperCase();
+      }
+    } else {
+      // Si no hay código, usar el servicio como alternativa
+      groupCategory = payment.service || "No especificado";
+    }
+
+    if (!paymentsByQuotationGroup[groupCategory]) {
+      paymentsByQuotationGroup[groupCategory] = {
+        count: 0,
+        amount: 0,
+        paid: 0,
+        color: groupColors[Object.keys(paymentsByQuotationGroup).length % groupColors.length],
+      };
+    }
+
+    paymentsByQuotationGroup[groupCategory].count += 1;
+    paymentsByQuotationGroup[groupCategory].amount += payment.amount || 0;
+
+    if (payment.isPaid) {
+      paymentsByQuotationGroup[groupCategory].paid += payment.amount || 0;
+    }
+  });
+
+  // Procesar datos para el gráfico de pagos por grupo de cotización
+  const getPaymentsByGroupData = () => {
+    const data = Object.entries(paymentsByQuotationGroup).map(([name, data]) => ({
+      name,
+      value: data.amount,
+      count: data.count,
+      paid: data.paid,
+      paidPercentage: (data.paid / (data.amount || 1)) * 100,
+      color: data.color,
+    }));
+
+    // Ordenar por monto
+    return data.sort((a, b) => b.value - a.value);
   };
 
   // Procesar datos para el gráfico de tendencia temporal
@@ -384,7 +436,6 @@ export default function PaymentGraph() {
 
   const timeData = getTimeData();
   const paymentPlanData = getPaymentPlanData();
-  const paymentStatusData = getPaymentStatusData();
   // Calculamos el período que estamos visualizando
   const getPeriodLabel = () => {
     const currentYear = new Date().getFullYear();
@@ -575,37 +626,33 @@ export default function PaymentGraph() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-primary" />
-              Estado de pagos
+              <PieChart className="h-5 w-5 text-primary" />
+              Distribución por Código de Grupo
             </CardTitle>
-            <CardDescription>Pagos completados vs. pendientes</CardDescription>
+            <CardDescription>Montos facturados agrupados por código identificador</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col justify-center items-center">
-              <div className="text-4xl font-bold">{paymentCompletionRate.toFixed(1)}%</div>
-              <div className="text-sm text-muted-foreground">Ratio de pagos</div>
-              <div className="mt-6 space-y-2">
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
-                  <div className="flex justify-between w-full">
-                    <span className="flex items-center gap-1">
-                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                      Pagados
-                    </span>
-                    <span className="font-medium">{paidPayments}</span>
-                  </div>
-                </div>
+              <div className="text-3xl font-bold">
+                S/. {totalAmount.toLocaleString("es-PE", { maximumFractionDigits: 0 })}
+              </div>
+              <div className="text-sm text-muted-foreground">Total facturado</div>
 
-                <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-5"></div>
-                  <div className="flex justify-between w-full">
-                    <span className="flex items-center gap-1">
-                      <XCircle className="h-4 w-4 text-gray-500" />
-                      Pendientes
-                    </span>
-                    <span className="font-medium">{unpaidPayments}</span>
-                  </div>
-                </div>
+              {/* Desglose por grupos de cotización */}
+              <div className="mt-4 space-y-2 w-full">
+                {getPaymentsByGroupData()
+                  .slice(0, 5)
+                  .map((group, index) => (
+                    <div key={index} className="flex items-center gap-2 text-xs">
+                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: group.color }}></div>
+                      <div className="flex justify-between w-full">
+                        <span className="truncate" title={group.name}>
+                          {group.name.length > 14 ? `${group.name.slice(0, 14)}...` : group.name}
+                        </span>
+                        <span className="font-medium">{((group.value / totalAmount) * 100).toFixed(1)}%</span>
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
 
@@ -613,20 +660,17 @@ export default function PaymentGraph() {
               <ResponsiveContainer width="100%" height="100%">
                 <ReChartPie>
                   <Pie
-                    data={paymentStatusData}
+                    data={getPaymentsByGroupData()}
                     cx="50%"
                     cy="50%"
                     innerRadius={60}
                     outerRadius={80}
                     paddingAngle={5}
                     dataKey="value"
+                    nameKey="name"
                     strokeWidth={0}
-                    activeIndex={0}
-                    activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
-                      <Sector {...props} outerRadius={outerRadius + 10} />
-                    )}
                   >
-                    {paymentStatusData.map((entry, index) => (
+                    {getPaymentsByGroupData().map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                     <Label
@@ -642,7 +686,7 @@ export default function PaymentGraph() {
                                 y={(viewBox.cy || 0) + 24}
                                 className="fill-muted-foreground text-xs"
                               >
-                                Pagos
+                                Facturas
                               </tspan>
                             </text>
                           );
@@ -653,12 +697,29 @@ export default function PaymentGraph() {
                   <Tooltip
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
-                        const value = Number(payload[0].value) || 0;
-                        const percentage = totalPayments ? ((value / totalPayments) * 100).toFixed(1) : "0.0";
+                        const data = payload[0].payload;
+                        const percentage = totalAmount ? ((data.value / totalAmount) * 100).toFixed(1) : "0.0";
                         return (
                           <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                            <p className="font-medium mb-1">{`${payload[0].name}: ${value}`}</p>
-                            <p className="text-muted-foreground">{`${percentage}%`}</p>
+                            <p className="font-medium mb-1">{data.name}</p>
+                            <div className="space-y-1">
+                              <p className="flex justify-between">
+                                <span>Monto:</span>
+                                <span className="font-medium">S/. {data.value.toLocaleString("es-PE")}</span>
+                              </p>
+                              <p className="flex justify-between">
+                                <span>Facturas:</span>
+                                <span className="font-medium">{data.count}</span>
+                              </p>
+                              <p className="flex justify-between">
+                                <span>% del total:</span>
+                                <span className="font-medium">{percentage}%</span>
+                              </p>
+                              <p className="flex justify-between">
+                                <span>Cobrado:</span>
+                                <span className="font-medium">{data.paidPercentage.toFixed(0)}%</span>
+                              </p>
+                            </div>
                           </div>
                         );
                       }
