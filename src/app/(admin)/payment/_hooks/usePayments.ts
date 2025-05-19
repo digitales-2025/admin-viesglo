@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  comparePaymentsWithPreviousYears,
   findPaymentsForStats,
   getPayment,
   getPayments,
@@ -18,6 +19,7 @@ export const PAYMENTS_KEYS = {
   list: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...PAYMENTS_KEYS.all, id] as const,
   stats: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.list(), { filters }] as const,
+  compare: (filters: PaymentFilters = {}) => [...PAYMENTS_KEYS.stats(), { filters }] as const,
 };
 
 /**
@@ -111,6 +113,22 @@ export function usePaymentsForStats(filters?: PaymentFilters) {
       const response = await findPaymentsForStats(filters);
       if (!response.success) {
         throw new Error(response.error || "Error al obtener pagos para estadísticas");
+      }
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Hook para obtener los pagos para la comparación con años anteriores
+ */
+export function useComparePaymentsWithPreviousYears(filters?: PaymentFilters) {
+  return useQuery({
+    queryKey: PAYMENTS_KEYS.compare(filters),
+    queryFn: async () => {
+      const response = await comparePaymentsWithPreviousYears(filters);
+      if (!response.success) {
+        throw new Error(response.error || "Error al obtener pagos para comparación con años anteriores");
       }
       return response.data;
     },

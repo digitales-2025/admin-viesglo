@@ -7,11 +7,11 @@ import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { Loading } from "@/shared/components/loading";
 import Redirect from "@/shared/components/redirect";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
 import {
   Form,
   FormControl,
@@ -68,7 +68,13 @@ const baseSchema = {
   email: z.string().email("El email no es válido."),
   quotationGroup: z.string().min(1, "Se debe seleccionar un grupo de cotización."),
   paymentPlan: z.nativeEnum(PaymentPlan),
-  dateQuotation: z.date({ required_error: "La fecha de cotización es requerida." }),
+  dateQuotation: z.object(
+    {
+      from: z.date({ required_error: "La fecha de cotización es requerida." }),
+      to: z.date({ required_error: "La fecha de cotización es requerida." }),
+    },
+    { required_error: "La fecha de cotización es requerida." }
+  ),
 };
 
 const createSchema = z.object(baseSchema);
@@ -117,7 +123,7 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
       numberOfWorkers: parseInt(data.numberOfWorkers),
       quotationGroupId: quotationGroup,
       paymentPlan: data.paymentPlan as PaymentPlan,
-      dateQuotation: data.dateQuotation?.toISOString(),
+      dateQuotation: data.dateQuotation?.from.toISOString(),
     };
 
     if (isUpdate) {
@@ -164,7 +170,10 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
               // Extraer directamente año, mes y día de la cadena ISO
               const [year, month, day] = currentRow.dateQuotation.split("T")[0].split("-").map(Number);
               // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
-              return new Date(year, month - 1, day, 12, 0, 0);
+              return {
+                from: new Date(year, month - 1, day, 12, 0, 0),
+                to: new Date(year, month - 1, day, 12, 0, 0),
+              };
             })()
           : undefined,
       });
@@ -460,10 +469,18 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                         <FormItem>
                           <FormLabel>Fecha de Cotización</FormLabel>
                           <FormControl>
-                            <DatePicker
-                              selected={field.value}
-                              onSelect={(date) => field.onChange(date)}
-                              placeholder="Selecciona la fecha de cotización"
+                            <CalendarDatePicker
+                              variant="outline"
+                              date={field.value || { from: undefined, to: undefined }}
+                              onDateSelect={({ from, to }) => {
+                                form.setValue("dateQuotation", {
+                                  from: from || new Date(),
+                                  to: to || new Date(),
+                                });
+                              }}
+                              numberOfMonths={1}
+                              disabled={isPending}
+                              closeOnSelect={true}
                             />
                           </FormControl>
                           <FormMessage />

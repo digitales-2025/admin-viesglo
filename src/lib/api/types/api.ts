@@ -1714,6 +1714,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/payments/years-comparison": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Comparación de pagos por años y meses */
+    get: operations["PaymentController_compareYears_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/payments/{id}": {
     parameters: {
       query?: never;
@@ -4797,6 +4814,114 @@ export interface components {
          */
         totalPages?: number;
       };
+    };
+    MonthlyComparisonDto: {
+      /**
+       * @description Número del mes (1-12)
+       * @example 1
+       */
+      month: number;
+      /**
+       * @description Cantidad total de transacciones en el mes
+       * @example 25
+       */
+      totalCount: number;
+      /**
+       * @description Cantidad de facturas emitidas en el mes
+       * @example 20
+       */
+      billingsCount: number;
+      /**
+       * @description Cantidad de pagos recibidos en el mes
+       * @example 18
+       */
+      paymentsCount: number;
+      /**
+       * @description Monto total de transacciones en el mes
+       * @example 15000
+       */
+      totalAmount: number;
+      /**
+       * @description Monto facturado en el mes
+       * @example 12000
+       */
+      billedAmount: number;
+      /**
+       * @description Monto pagado en el mes
+       * @example 10000
+       */
+      paidAmount: number;
+    };
+    YearlyComparisonDto: {
+      /**
+       * @description Año
+       * @example 2023
+       */
+      year: number;
+      /** @description Datos mensuales */
+      months: components["schemas"]["MonthlyComparisonDto"][];
+      /**
+       * @description Monto total del año
+       * @example 180000
+       */
+      totalAmount: number;
+      /**
+       * @description Monto facturado del año
+       * @example 150000
+       */
+      billedAmount: number;
+      /**
+       * @description Monto pagado del año
+       * @example 120000
+       */
+      paidAmount: number;
+    };
+    ComparisonDetailsDto: {
+      /**
+       * @description Cambio porcentual total entre años
+       * @example {
+       *       "2023-2022": 15.5,
+       *       "2022-2021": 8.7
+       *     }
+       */
+      percentageChangeByYear: Record<string, never>;
+      /**
+       * @description Cambio porcentual de facturación entre años
+       * @example {
+       *       "2023-2022": 12.3,
+       *       "2022-2021": 7.5
+       *     }
+       */
+      percentageBilledChangeByYear: Record<string, never>;
+      /**
+       * @description Cambio porcentual de pagos entre años
+       * @example {
+       *       "2023-2022": 18.2,
+       *       "2022-2021": 9.1
+       *     }
+       */
+      percentagePaidChangeByYear: Record<string, never>;
+      /**
+       * @description Promedio de crecimiento total
+       * @example 12.1
+       */
+      averageGrowth: number;
+      /**
+       * @description Promedio de crecimiento de facturación
+       * @example 9.9
+       */
+      averageBilledGrowth: number;
+      /**
+       * @description Promedio de crecimiento de pagos
+       * @example 13.6
+       */
+      averagePaidGrowth: number;
+    };
+    PaymentsComparisonResponseDto: {
+      /** @description Datos por año */
+      years: components["schemas"]["YearlyComparisonDto"][];
+      /** @description Detalles de la comparación */
+      comparison: components["schemas"]["ComparisonDetailsDto"];
     };
     UpdatePaymentStatusDto: {
       /**
@@ -8948,6 +9073,29 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  PaymentController_compareYears_v1: {
+    parameters: {
+      query?: {
+        /** @description Años para comparar (ej: 2023,2022,2021) */
+        years?: number[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Comparación de pagos generada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentsComparisonResponseDto"];
+        };
       };
     };
   };

@@ -31,3 +31,5 @@ export type PaymentFilters = {
   from?: Date;
   to?: Date;
 };
+
+export type PaymentsComparisonResponse = components["schemas"]["PaymentsComparisonResponseDto"];

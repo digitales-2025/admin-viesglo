@@ -43,6 +43,7 @@ import { usePaymentsForStats } from "../_hooks/usePayments";
 import { usePaymentsStore } from "../_hooks/usePaymentStore";
 import { PaymentResponse } from "../_types/payment.types";
 import { LabelPaymentPlan, PaymentPlan } from "../../quotation/_types/quotation.types";
+import YearlyComparisonChart from "./YearlyComparisonChart";
 
 // Usamos las variables de color definidas en globals.css
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
@@ -955,6 +956,7 @@ export default function PaymentGraph() {
           </div>
         </CardFooter>
       </Card>
+      <YearlyComparisonChart />
     </div>
   );
 }
