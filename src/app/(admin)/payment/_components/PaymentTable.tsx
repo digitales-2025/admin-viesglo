@@ -21,7 +21,6 @@ export default function PaymentTable() {
   const { departmentOptions } = useUbigeo();
 
   const { filters: storeFilters, setFilters, updateFilter } = usePaymentsStore();
-
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,

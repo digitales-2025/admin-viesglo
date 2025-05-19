@@ -102,7 +102,6 @@ export default function YearlyComparisonChart() {
 
   // Cast data to expected format
   const data = apiData as unknown as CompareResponse;
-
   // Si está cargando, mostrar skeleton
   if (isLoading) {
     return (
@@ -182,7 +181,6 @@ export default function YearlyComparisonChart() {
 
   // Transformar datos para el gráfico según el tipo de visualización
   const chartData = transformDataForChart(data, selectedYearsIds, viewType);
-
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-2">
