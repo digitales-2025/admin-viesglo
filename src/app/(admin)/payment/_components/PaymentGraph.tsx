@@ -649,7 +649,7 @@ export default function PaymentGraph() {
                         <span className="truncate" title={group.name}>
                           {group.name.length > 14 ? `${group.name.slice(0, 14)}...` : group.name}
                         </span>
-                        <span className="font-medium">{((group.value / totalAmount) * 100).toFixed(1)}%</span>
+                        <span className="font-medium">{group.count} pagos</span>
                       </div>
                     </div>
                   ))}
