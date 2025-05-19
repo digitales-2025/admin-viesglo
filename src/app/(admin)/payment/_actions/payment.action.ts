@@ -152,7 +152,7 @@ export async function findPaymentsForStats(
     }
 
     const queryString = queryParams.toString();
-    const url = `${API_ENDPOINT}/${queryString ? `?${queryString}` : ""}`;
+    const url = `${API_ENDPOINT}/stats${queryString ? `?${queryString}` : ""}`;
     const [data, err] = await http.get<PaymentResponse[]>(url);
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener pagos para estadísticas" };
