@@ -300,53 +300,56 @@ export default function PaymentGraph() {
 
     // Ahora procesamos los pagos y los asignamos a los períodos correspondientes
     payments.forEach((payment: any) => {
-      // Fecha de facturación (creación del pago)
-      const fechaFacturacion = payment.createdAt ? new Date(payment.createdAt) : new Date();
+      // Solo procesar como facturado si tiene fecha de facturación
+      if (payment.billingDate) {
+        const fechaFacturacion = new Date(payment.billingDate);
 
-      // Fecha del pago efectivo (si existe, sino usamos null)
-      const fechaPago = payment.paymentDate ? new Date(payment.paymentDate) : null;
-
-      // Formatear la fecha de facturación según el rango seleccionado
-      let facturaKey: string | null = null;
-      if (fechaFacturacion >= startDate && fechaFacturacion <= endDate) {
-        if (timeRange === "year") {
-          // Para año, agrupar por mes
-          facturaKey = `${fechaFacturacion.getMonth() + 1}/${fechaFacturacion.getFullYear()}`;
-        } else {
-          // Para semana o mes, agrupar por día
-          facturaKey = `${fechaFacturacion.getDate()}/${fechaFacturacion.getMonth() + 1}`;
-        }
-
-        // Registrar factura en su fecha correspondiente
-        if (facturaKey && allPeriods[facturaKey]) {
-          allPeriods[facturaKey].facturas += 1;
-          allPeriods[facturaKey].total += 1;
-
-          // Contabilizar como pagado o no pagado según su estado actual
-          if (payment.isPaid) {
-            allPeriods[facturaKey].paid += 1;
+        // Formatear la fecha de facturación según el rango seleccionado
+        let facturaKey: string | null = null;
+        if (fechaFacturacion >= startDate && fechaFacturacion <= endDate) {
+          if (timeRange === "year") {
+            // Para año, agrupar por mes
+            facturaKey = `${fechaFacturacion.getMonth() + 1}/${fechaFacturacion.getFullYear()}`;
           } else {
-            allPeriods[facturaKey].unpaid += 1;
+            // Para semana o mes, agrupar por día
+            facturaKey = `${fechaFacturacion.getDate()}/${fechaFacturacion.getMonth() + 1}`;
           }
 
-          allPeriods[facturaKey].amount += payment.amount;
+          // Registrar factura en su fecha correspondiente
+          if (facturaKey && allPeriods[facturaKey]) {
+            allPeriods[facturaKey].facturas += 1;
+            allPeriods[facturaKey].total += 1;
+
+            // Contabilizar como pagado o no pagado según su estado actual
+            if (payment.isPaid) {
+              allPeriods[facturaKey].paid += 1;
+            } else {
+              allPeriods[facturaKey].unpaid += 1;
+            }
+
+            allPeriods[facturaKey].amount += payment.amount;
+          }
         }
       }
 
-      // Si tiene fecha de pago, registrarlo en esa fecha
-      if (fechaPago && fechaPago >= startDate && fechaPago <= endDate) {
-        let pagoKey: string;
-        if (timeRange === "year") {
-          // Para año, agrupar por mes
-          pagoKey = `${fechaPago.getMonth() + 1}/${fechaPago.getFullYear()}`;
-        } else {
-          // Para semana o mes, agrupar por día
-          pagoKey = `${fechaPago.getDate()}/${fechaPago.getMonth() + 1}`;
-        }
+      // Si tiene fecha de pago y está marcado como pagado, registrarlo en esa fecha
+      if (payment.paymentDate && payment.isPaid) {
+        const fechaPago = new Date(payment.paymentDate);
 
-        // Registrar pago en su fecha correspondiente
-        if (allPeriods[pagoKey]) {
-          allPeriods[pagoKey].pagos += 1;
+        if (fechaPago >= startDate && fechaPago <= endDate) {
+          let pagoKey: string;
+          if (timeRange === "year") {
+            // Para año, agrupar por mes
+            pagoKey = `${fechaPago.getMonth() + 1}/${fechaPago.getFullYear()}`;
+          } else {
+            // Para semana o mes, agrupar por día
+            pagoKey = `${fechaPago.getDate()}/${fechaPago.getMonth() + 1}`;
+          }
+
+          // Registrar pago en su fecha correspondiente
+          if (allPeriods[pagoKey]) {
+            allPeriods[pagoKey].pagos += 1;
+          }
         }
       }
     });
@@ -381,7 +384,6 @@ export default function PaymentGraph() {
         return aDay - bDay;
       });
     }
-
     return result;
   };
 
