@@ -260,7 +260,13 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       const isPaid = payment.isPaid;
       const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
 
+      // Usar useEffect para sincronizar el estado con el valor inicial
       const [code, setCode] = useState(initialCode);
+
+      // Actualizar el estado local cuando cambia el valor inicial (por ejemplo, al filtrar)
+      useEffect(() => {
+        setCode(initialCode);
+      }, [initialCode]);
 
       const handleSave = () => {
         updatePayment(
@@ -376,6 +382,11 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       const { mutate: updatePayment, isPending } = useUpdatePaymentStatus();
 
       const [email, setEmail] = useState(initialEmail);
+
+      // Actualizar el estado local cuando cambia el valor inicial (por ejemplo, al filtrar)
+      useEffect(() => {
+        setEmail(initialEmail);
+      }, [initialEmail]);
 
       const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);

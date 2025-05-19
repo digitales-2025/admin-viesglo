@@ -17,7 +17,7 @@ import { useInstallmentPayments } from "../_hooks/useInstallmentPayment";
 import { usePaymentInstallmentConfig } from "../_hooks/usePaymentInstallmentConfig";
 import { PaymentResponse } from "../_types/payment.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
-import InstallmentsDialogs from "./InstallmentsDialogs";
+import InstallmentsDialogs, { MODULE_INSTALLMENT_PAYMENTS } from "./InstallmentsDialogs";
 import InstallmentsPaymentTable from "./InstallmentsPaymentTable";
 
 interface InstallmentsPaymentDetailProps {
@@ -59,7 +59,7 @@ export default function InstallmentsPaymentDetail({ payment }: InstallmentsPayme
       <Card className="w-full">
         <CardHeader className=" flex items-center justify-between flex-row">
           <div className="flex flex-col">
-            <CardTitle className="text-lg font-bold">Pagos de la cotización</CardTitle>
+            <CardTitle className="text-lg font-bold">Pagos</CardTitle>
             <CardDescription>Detalles del cronograma de pagos</CardDescription>
           </div>
           <ProtectedComponent requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.execute }]}>
@@ -68,7 +68,11 @@ export default function InstallmentsPaymentDetail({ payment }: InstallmentsPayme
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  open("installments-payments", "update", paymentInstallmentConfig);
+                  open(
+                    MODULE_INSTALLMENT_PAYMENTS,
+                    "update",
+                    paymentInstallmentConfig ? paymentInstallmentConfig : { paymentId: payment.id }
+                  );
                 }}
               >
                 <CalendarSync className="w-4 h-4 mr-2" />
@@ -145,7 +149,15 @@ export default function InstallmentsPaymentDetail({ payment }: InstallmentsPayme
         </CardContent>
         <Separator />
         <CardFooter>
-          <InstallmentsPaymentTable payment={payment} />
+          {paymentInstallmentConfig ? (
+            <InstallmentsPaymentTable payment={payment} />
+          ) : (
+            <AlertMessage
+              variant="warning"
+              title="No hay cronograma de pagos configurado"
+              description="Para ingresar los pagos, primero configure el cronograma de pagos"
+            />
+          )}
         </CardFooter>
       </Card>
       <InstallmentsDialogs />
