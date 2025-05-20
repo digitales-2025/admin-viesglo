@@ -1680,6 +1680,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/payments/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Estadísticas de pagos */
+    get: operations["PaymentController_findAllForStats_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/payments/paginated": {
     parameters: {
       query?: never;
@@ -5125,6 +5142,44 @@ export interface components {
       isActive: boolean;
       paymentId: string;
     };
+    AuditResponseDto: {
+      /**
+       * @description El id de la entidad
+       * @example 123
+       */
+      entityId: string;
+      /**
+       * @description El tipo de la entidad
+       * @example project
+       */
+      entityType: string;
+      /**
+       * @description La acción de la entidad
+       * @example create
+       */
+      action: string;
+      /**
+       * @description El id del usuario que realizó la acción
+       * @example 123
+       */
+      performedById: string;
+      /**
+       * @description El id de la entidad
+       * @example 123
+       */
+      id: string;
+      /**
+       * Format: date-time
+       * @description La fecha de la entidad
+       * @example 2021-01-01
+       */
+      createdAt: string;
+      performedBy: {
+        id: string;
+        email: string;
+        fullName: string;
+      };
+    };
     CreatePaymentInstallmentConfigDto: {
       /**
        * @description Cantidad de cuotas
@@ -7536,8 +7591,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -7610,8 +7663,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -7653,8 +7704,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -8952,8 +9001,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
@@ -8988,6 +9035,47 @@ export interface operations {
       };
     };
   };
+  PaymentController_findAllForStats_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estadísticas de pagos encontradas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   PaymentController_findAllPaginated_v1: {
     parameters: {
       query?: {
@@ -8997,8 +9085,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
@@ -9042,8 +9128,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
@@ -9544,7 +9628,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["AuditResponseDto"][];
+        };
       };
     };
   };
