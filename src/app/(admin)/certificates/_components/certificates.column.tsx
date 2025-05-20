@@ -49,8 +49,7 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     accessorKey: "documentNumber",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Documento" />,
     cell: ({ row }) => (
-      <span className="text-slate-600 font-normal capitalize inline-flex gap-2">
-        {DocumentTypeLabel[row.original.documentType as keyof typeof DocumentTypeLabel]}
+      <span className="text-slate-600 font-normal capitalize inline-flex gap-2 items-center">
         {row.original.documentNumber && (
           <CopyButton
             variant="outline"
@@ -59,6 +58,9 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
             label={row.original.documentNumber}
           />
         )}
+        <span className="text-xs font-normal capitalize">
+          {DocumentTypeLabel[row.original.documentType as keyof typeof DocumentTypeLabel]}
+        </span>
       </span>
     ),
   },
