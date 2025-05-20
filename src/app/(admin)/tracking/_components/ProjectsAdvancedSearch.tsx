@@ -13,11 +13,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
+import { ProjectStatus, ProjectStatusLabels } from "../_types/tracking.types";
 
 // Interfaz que coincide con ProjectFilters
 export interface ProjectFilterValues {
   search?: string;
-  status?: string;
+  status?: ProjectStatus;
   typeProject?: string;
   typeContract?: string;
   startDateFrom?: string;
@@ -25,12 +26,11 @@ export interface ProjectFilterValues {
   endDateFrom?: string;
   endDateTo?: string;
   clientId?: string;
-  isActive?: string;
 }
 
 const formSchema = z.object({
   search: z.string().optional(),
-  status: z.string().optional(),
+  status: z.union([z.nativeEnum(ProjectStatus), z.literal("all")]).optional(),
   typeProject: z.string().optional(),
   typeContract: z.string().optional(),
   startDateFrom: z.string().optional(),
@@ -38,17 +38,9 @@ const formSchema = z.object({
   endDateFrom: z.string().optional(),
   endDateTo: z.string().optional(),
   clientId: z.string().optional(),
-  isActive: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-const PROJECT_STATUS = [
-  { id: "active", label: "Activo" },
-  { id: "completed", label: "Completado" },
-  { id: "pending", label: "Pendiente" },
-  { id: "cancelled", label: "Cancelado" },
-];
 
 export interface ProjectsAdvancedSearchProps {
   onSearch: (filters: ProjectFilterValues) => void;
@@ -70,7 +62,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   const defaultFormValues = useMemo(
     () => ({
       search: "",
-      status: "all",
+      status: "all" as const,
       typeProject: "",
       typeContract: "",
       startDateFrom: "",
@@ -78,7 +70,6 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       endDateFrom: "",
       endDateTo: "",
       clientId: "",
-      isActive: "true",
       ...defaultValues,
     }),
     [defaultValues]
@@ -132,7 +123,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       addFilter(!!values.search, `Búsqueda: ${values.search}`);
 
       if (values.status && values.status !== "all") {
-        const statusLabel = PROJECT_STATUS.find((s) => s.id === values.status)?.label;
+        const statusLabel = ProjectStatusLabels[values.status as ProjectStatus];
         addFilter(!!statusLabel, `Estado: ${statusLabel}`);
       }
 
@@ -141,7 +132,6 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       addFilter(isValidDate(values.endDateFrom), `Fin desde: ${formatDate(values.endDateFrom!)}`);
       addFilter(isValidDate(values.endDateTo), `Fin hasta: ${formatDate(values.endDateTo!)}`);
 
-      addFilter(values.isActive === "false", "Inactivos");
       addFilter(!!values.clientId, `Cliente: ${values.clientId}`);
 
       // Convertir a JSON para comparación
@@ -172,12 +162,10 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
 
   const handleSearch = (values: FormValues) => {
     // Convertimos los valores a los filtros esperados por la API
-    const apiFilters: ProjectFilterValues = { ...values };
-
-    // Si el status es "all", lo eliminamos para no enviarlo al backend
-    if (apiFilters.status === "all") {
-      apiFilters.status = "";
-    }
+    const apiFilters: ProjectFilterValues = {
+      ...values,
+      status: values.status && values.status !== "all" ? (values.status as ProjectStatus) : undefined,
+    };
 
     // Enviamos los filtros al componente padre
     onSearch(apiFilters);
@@ -187,12 +175,13 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
   const handleSimpleSearch = () => {
     const values = form.getValues();
 
-    // Si el status es "all", lo eliminamos para no enviarlo al backend
-    if (values.status === "all") {
-      values.status = "";
-    }
+    // Convertimos los valores para enviarlos correctamente
+    const apiFilters: ProjectFilterValues = {
+      ...values,
+      status: values.status && values.status !== "all" ? (values.status as ProjectStatus) : undefined,
+    };
 
-    onSearch(values);
+    onSearch(apiFilters);
   };
 
   const removeFilter = (filter: string) => {
@@ -228,22 +217,22 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
         break;
     }
 
-    if (filter === "Inactivos") {
-      form.setValue("isActive", "true", { shouldDirty: true });
-    }
-
     // Después de actualizar el form, ejecutamos la búsqueda con los nuevos valores
     setTimeout(() => {
-      const formValues = form.getValues();
-      onSearch(formValues);
+      const values = form.getValues();
+      const apiFilters: ProjectFilterValues = {
+        ...values,
+        status: values.status && values.status !== "all" ? (values.status as ProjectStatus) : undefined,
+      };
+      onSearch(apiFilters);
     }, 0);
   };
 
   const clearAllFilters = () => {
-    form.reset(defaultFormValues);
-    onSearch({
+    // Resetear el formulario con valores iniciales vacíos
+    const emptyValues = {
       search: "",
-      status: "",
+      status: "all" as const, // Mantener "all" como valor predeterminado para status
       typeProject: "",
       typeContract: "",
       startDateFrom: "",
@@ -251,8 +240,32 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       endDateFrom: "",
       endDateTo: "",
       clientId: "",
-      isActive: "true",
+    };
+
+    // Resetear cada campo individualmente para asegurar que los selects también se limpien
+    Object.entries(emptyValues).forEach(([key, value]) => {
+      form.setValue(key as any, value, { shouldDirty: true });
     });
+
+    // Enviar búsqueda con filtros vacíos
+    onSearch({
+      search: "",
+      status: undefined,
+      typeProject: "",
+      typeContract: "",
+      startDateFrom: "",
+      startDateTo: "",
+      endDateFrom: "",
+      endDateTo: "",
+      clientId: "",
+    });
+
+    // Cerrar el popover después de limpiar
+    setIsOpen(false);
+
+    // Actualizar UI
+    updateFilters();
+    setAppliedFilters([]);
   };
 
   // Función para manejar fechas de forma segura
@@ -327,33 +340,11 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
                                           </FormControl>
                                           <SelectContent>
                                             <SelectItem value="all">Todos</SelectItem>
-                                            {PROJECT_STATUS.map((status) => (
-                                              <SelectItem key={status.id} value={status.id}>
-                                                {status.label}
+                                            {Object.values(ProjectStatus).map((status) => (
+                                              <SelectItem key={status} value={status}>
+                                                {ProjectStatusLabels[status]}
                                               </SelectItem>
                                             ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </FormItem>
-                                    )}
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <FormField
-                                    control={form.control}
-                                    name="isActive"
-                                    render={({ field }) => (
-                                      <FormItem className="flex flex-col">
-                                        <FormLabel>Estado activo</FormLabel>
-                                        <Select value={field.value} onValueChange={field.onChange}>
-                                          <FormControl>
-                                            <SelectTrigger className="h-8 sm:h-9">
-                                              <SelectValue placeholder="Selecciona un estado" />
-                                            </SelectTrigger>
-                                          </FormControl>
-                                          <SelectContent>
-                                            <SelectItem value="true">Activos</SelectItem>
-                                            <SelectItem value="false">Inactivos</SelectItem>
                                           </SelectContent>
                                         </Select>
                                       </FormItem>
@@ -466,7 +457,7 @@ export function ProjectsAdvancedSearch({ onSearch, defaultValues, className }: P
       </Form>
 
       {appliedFilters.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 rounded-b-md border-b border-l border-r p-1.5 shadow-sm">
+        <div className="flex flex-wrap gap-1.5 rounded-md border  p-2">
           {appliedFilters.map((filter, index) => (
             <Badge
               key={`${filter}-${index}`}
