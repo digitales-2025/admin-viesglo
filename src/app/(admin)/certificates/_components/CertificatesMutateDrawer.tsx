@@ -20,6 +20,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -30,7 +31,7 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
 import { useCreateCertificate, useUpdateCertificate } from "../_hooks/useCertificates";
-import { CertificateResponse, CreateCertificate } from "../_types/certificates.types";
+import { CertificateResponse, CreateCertificate, DocumentType, DocumentTypeLabel } from "../_types/certificates.types";
 
 interface Props {
   open: boolean;
@@ -73,6 +74,8 @@ const schema = z.object({
     ),
   dateEmision: z.string().min(1, "La fecha de emisión es requerida."),
   dateExpiration: z.string().min(1, "La fecha de expiración es requerida."),
+  documentType: z.nativeEnum(DocumentType),
+  documentNumber: z.string().min(1, "El número de documento es requerido."),
 }) satisfies z.ZodType<CreateCertificate>;
 
 type FormValues = z.infer<typeof schema> & {
@@ -99,6 +102,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       emailUser: "",
       dateEmision: new Date().toISOString(),
       dateExpiration: "",
+      documentType: DocumentType.DNI,
+      documentNumber: "",
     },
     mode: "onChange",
   });
@@ -114,14 +119,19 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         emailUser: "",
         dateEmision: "",
         dateExpiration: "",
+        documentType: DocumentType.DNI,
+        documentNumber: "",
       });
       setSelectedFile(null);
       setFilePreview(null);
     } else if (!isUpdate) {
       const today = new Date().toISOString();
+      const values = form.getValues();
       form.reset({
-        ...form.getValues(),
+        ...values,
         dateEmision: today,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,6 +173,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     formData.append("emailUser", data.emailUser || "");
     formData.append("dateEmision", data.dateEmision);
     formData.append("dateExpiration", data.dateExpiration);
+    formData.append("documentType", data.documentType);
+    formData.append("documentNumber", data.documentNumber);
     if (selectedFile) {
       formData.append("fileCertificate", selectedFile);
     }
@@ -201,6 +213,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         nameUser: currentRow.nameUser,
         lastNameUser: currentRow.lastNameUser,
         emailUser: currentRow.emailUser,
+        documentType: currentRow.documentType as DocumentType,
+        documentNumber: currentRow.documentNumber,
         dateEmision: currentRow.dateEmision
           ? (() => {
               // Extraer directamente año, mes y día de la cadena ISO
@@ -233,10 +247,18 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
   useEffect(() => {
     form.clearErrors();
     if (isUpdate) {
-      form.reset(form.getValues());
-    } else {
+      const values = form.getValues();
       form.reset({
-        ...form.getValues(),
+        ...values,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
+      });
+    } else {
+      const values = form.getValues();
+      form.reset({
+        ...values,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -321,6 +343,52 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
               />
               <FormField
                 control={form.control}
+                name="documentType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de documento</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value || DocumentType.DNI}>
+                        <FormItem>
+                          <FormControl>
+                            <SelectTrigger disabled={isPending} className="w-full">
+                              <SelectValue placeholder="Selecciona un tipo de documento" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(DocumentType).map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {DocumentTypeLabel[type]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </FormItem>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="documentNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Número de documento</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Introduce el número de documento"
+                        {...field}
+                        value={field.value || ""}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="emailUser"
                 render={({ field }) => (
                   <FormItem>
@@ -329,6 +397,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                       <Input
                         placeholder="Introduce el correo electrónico del participante"
                         {...field}
+                        value={field.value || ""}
                         disabled={isPending}
                       />
                     </FormControl>

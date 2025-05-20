@@ -7,7 +7,8 @@ import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableC
 import { Pdf } from "@/shared/components/icons/Files";
 import { Badge } from "@/shared/components/ui/badge";
 import CopyButton from "@/shared/components/ui/button-copy";
-import { CertificateResponse } from "../_types/certificates.types";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { CertificateResponse, DocumentTypeLabel } from "../_types/certificates.types";
 import CertificatesTableActions from "./CertificatesTableActions";
 
 export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
@@ -41,6 +42,24 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
           </Badge>
         )}
       </div>
+    ),
+  },
+  {
+    id: "documento",
+    accessorKey: "documentNumber",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Documento" />,
+    cell: ({ row }) => (
+      <span className="text-slate-600 font-normal capitalize inline-flex gap-2">
+        {DocumentTypeLabel[row.original.documentType as keyof typeof DocumentTypeLabel]}
+        {row.original.documentNumber && (
+          <CopyButton
+            variant="outline"
+            size="sm"
+            content={row.original.documentNumber}
+            label={row.original.documentNumber}
+          />
+        )}
+      </span>
     ),
   },
   {
@@ -97,22 +116,31 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
     id: "certificado",
     accessorKey: "fileCertificate",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Certificado" />,
-    cell: ({ row }) => (
-      <div className="min-w-[150px] max-w-[150px]">
-        {row.original.fileCertificate ? (
-          <Badge variant="outline" className="text-slate-600 font-normal capitalize">
-            {row.original.fileCertificate.fileType === "PDF" && <Pdf className="w-4 h-4 text-rose-400" />}
-            {row.original.fileCertificate.fileType === "IMAGE" && <ImageIcon className="w-4 h-4 text-emerald-400" />}
-            {row.original.fileCertificate.fileType === "DOCUMENT" && <File className="w-4 h-4 text-sky-400" />}
-            {row.original.fileCertificate.originalName}
-          </Badge>
-        ) : (
-          <Badge variant="outline" className="text-slate-600 font-normal capitalize">
-            No tiene certificado
-          </Badge>
-        )}
-      </div>
-    ),
+    cell: function Cell({ row }) {
+      const { open } = useDialogStore();
+      return (
+        <div
+          className="min-w-[150px] max-w-[150px] cursor-pointer"
+          role="button"
+          onClick={() => {
+            open("certificates", "view", row.original);
+          }}
+        >
+          {row.original.fileCertificate ? (
+            <Badge variant="outline" className="text-slate-600 font-normal capitalize">
+              {row.original.fileCertificate.fileType === "PDF" && <Pdf className="w-4 h-4 text-rose-400" />}
+              {row.original.fileCertificate.fileType === "IMAGE" && <ImageIcon className="w-4 h-4 text-emerald-400" />}
+              {row.original.fileCertificate.fileType === "DOCUMENT" && <File className="w-4 h-4 text-sky-400" />}
+              {row.original.fileCertificate.originalName}
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-slate-600 font-normal capitalize">
+              No tiene certificado
+            </Badge>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "estado",

@@ -7,7 +7,6 @@ import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { debounce } from "@/shared/lib/utils";
-import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useCertificatesStore } from "../_hooks/useCertificateFilterStore";
 import { useCertificatesPaginated } from "../_hooks/useCertificates";
 import { columnsCertificates } from "./certificates.column";
@@ -27,8 +26,6 @@ export default function CertificatesDataTable() {
     }),
     [storeFilters, pagination]
   );
-
-  const { open } = useDialogStore();
 
   const debouncedSearch = useMemo(() => {
     return debounce((searchTem: string) => {
@@ -174,9 +171,6 @@ export default function CertificatesDataTable() {
         mode="server"
         serverPagination={serverPagination as any}
         serverFilters={serverFilters}
-        onClickRow={(row) => {
-          open("certificates", "view", row);
-        }}
         initialColumnVisibility={{
           estado: isAdmin,
         }}

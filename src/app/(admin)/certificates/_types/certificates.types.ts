@@ -15,3 +15,13 @@ export type CertificatesFilters = {
   from?: Date;
   to?: Date;
 };
+
+export enum DocumentType {
+  DNI = "DNI",
+  PASSPORT = "PASSPORT",
+}
+
+export const DocumentTypeLabel = {
+  [DocumentType.DNI]: "DNI",
+  [DocumentType.PASSPORT]: "Pasaporte",
+};
