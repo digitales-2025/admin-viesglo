@@ -3,7 +3,7 @@
 import { memo, useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
+import { ChevronsRight, ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
@@ -123,7 +123,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
   return (
     <Card
       className={cn(
-        "h-fit shadow-none cursor-pointer select-none border transition-all duration-200",
+        "h-fit shadow-none relative cursor-pointer select-none border transition-all duration-200",
         selectedProject?.id === project.id && "border-sky-500 bg-sky-50/30 dark:bg-sky-950/20",
         className
       )}
@@ -266,7 +266,9 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
         >
           <User className="size-3 sm:size-4" />
           Cliente:
-          <strong className="first-letter:uppercase line-clamp-1">{project.client.name}</strong>
+          <strong className="first-letter:uppercase line-clamp-1 text-wrap" title={project.client.name}>
+            {project.client.name}
+          </strong>
         </Badge>
 
         {project.responsibleUserId && (
@@ -290,6 +292,9 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           </Badge>
         )}
       </CardFooter>
+      {selectedProject?.id === project.id && (
+        <ChevronsRight className="absolute opacity-30 -right-3 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-sky-500" />
+      )}
     </Card>
   );
 });
