@@ -30,7 +30,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
-import { useCreateCertificate, useUpdateCertificate } from "../_hooks/useCertificates";
+import { useCertificates, useCreateCertificate, useUpdateCertificate } from "../_hooks/useCertificates";
 import { CertificateResponse, CreateCertificate, DocumentType, DocumentTypeLabel } from "../_types/certificates.types";
 
 interface Props {
@@ -83,6 +83,7 @@ type FormValues = z.infer<typeof schema> & {
 };
 
 export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+  const { data: certificates = [] } = useCertificates();
   const { mutate: createCertificate, isPending: isCreating } = useCreateCertificate();
   const { mutate: updateCertificate, isPending: isUpdating } = useUpdateCertificate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -107,6 +108,35 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     },
     mode: "onChange",
   });
+
+  // Autocompletar datos cuando se ingresa un RUC existente
+  useEffect(() => {
+    const rucValue = form.watch("ruc");
+    if (rucValue && rucValue.length === 11 && certificates.length > 0) {
+      const existingCertificateWithRuc = certificates.find((cert) => cert.ruc === rucValue);
+      if (existingCertificateWithRuc) {
+        form.setValue("businessName", existingCertificateWithRuc.businessName || "");
+      }
+    }
+  }, [form, form.watch("ruc"), certificates]);
+
+  // Autocompletar datos cuando se ingresa un número de documento existente
+  useEffect(() => {
+    const documentNumber = form.watch("documentNumber");
+    const documentType = form.watch("documentType");
+
+    if (documentNumber && documentType && certificates.length > 0) {
+      const existingCertificateWithDocument = certificates.find(
+        (cert) => cert.documentNumber === documentNumber && cert.documentType === documentType
+      );
+
+      if (existingCertificateWithDocument) {
+        form.setValue("nameUser", existingCertificateWithDocument.nameUser || "");
+        form.setValue("lastNameUser", existingCertificateWithDocument.lastNameUser || "");
+        form.setValue("emailUser", existingCertificateWithDocument.emailUser || "");
+      }
+    }
+  }, [form, form.watch("documentNumber"), form.watch("documentType"), certificates]);
 
   useEffect(() => {
     if (!open) {
@@ -317,36 +347,10 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
               />
               <FormField
                 control={form.control}
-                name="nameUser"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Nombre del participante</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Introduce el nombre del participante" {...field} disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="lastNameUser"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Apellido del participante</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Introduce el apellido del participante" {...field} disabled={isPending} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
                 name="documentType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tipo de documento</FormLabel>
+                    <FormLabel>Tipo de documento del participante</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value || DocumentType.DNI}>
                         <FormItem>
@@ -374,7 +378,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                 name="documentNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Número de documento</FormLabel>
+                    <FormLabel>Número de documento del participante</FormLabel>
                     <FormControl>
                       <Input
                         placeholder="Introduce el número de documento"
@@ -387,6 +391,33 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="nameUser"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nombre del participante</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce el nombre del participante" {...field} disabled={isPending} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastNameUser"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Apellido del participante</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Introduce el apellido del participante" {...field} disabled={isPending} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               <FormField
                 control={form.control}
                 name="emailUser"
