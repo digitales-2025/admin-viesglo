@@ -243,7 +243,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm line-clamp-2">{project.description}</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-[1fr_auto] gap-2 sm:gap-4 items-center px-3 pb-0 sm:px-6">
+      <CardContent className="grid grid-cols-[1fr_auto] gap-2 sm:gap-4 items-center px-3 pb-0 sm:px-6 py-0">
         <Progress
           value={Number(project.progress?.toFixed(2))}
           color={cn(
@@ -259,12 +259,13 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <span className={cn("text-muted-foreground", isMobile ? "sr-only" : "text-xs")}>Completado</span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 py-2 sm:px-6 sm:py-4">
+      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 sm:px-6 py-0">
         <Badge
           variant="outline"
           className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
         >
           <User className="size-3 sm:size-4" />
+          Cliente:
           <strong className="first-letter:uppercase line-clamp-1">{project.client.name}</strong>
         </Badge>
 
@@ -274,6 +275,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
             className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
           >
             <UserCog className="size-3 sm:size-4 shrink-0" />
+            Responsable:
             <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.fullName}</strong>
           </Badge>
         )}
