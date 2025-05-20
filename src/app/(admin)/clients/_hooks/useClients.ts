@@ -10,6 +10,7 @@ import {
   getClient,
   getClientByRuc,
   getClients,
+  getClientsByClinic,
   searchClients,
   toggleClientActive,
   updateClient,
@@ -207,6 +208,22 @@ export function useSearchClients(filter: string) {
     queryKey: CLIENTS_KEYS.search(filter),
     queryFn: async () => {
       const response = await searchClients(filter);
+      if (!response.success) {
+        throw new Error(response.error || "Error al buscar clientes");
+      }
+      return response.data;
+    },
+  });
+}
+
+/**
+ * Hook para obtener clientes de una clinica *
+ */
+export function useClientsByClinic(clinicId: string) {
+  return useQuery({
+    queryKey: CLIENTS_KEYS.lists(),
+    queryFn: async () => {
+      const response = await getClientsByClinic(clinicId);
       if (!response.success) {
         throw new Error(response.error || "Error al buscar clientes");
       }

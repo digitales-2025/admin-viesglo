@@ -3925,6 +3925,17 @@ export interface components {
        * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
+      /**
+       * @description El tipo de documento de la persona certificada
+       * @example DNI
+       * @enum {string}
+       */
+      documentType?: "DNI" | "PASSPORT";
+      /**
+       * @description El número de documento de la persona certificada
+       * @example 12345678901
+       */
+      documentNumber?: string;
     };
     CertificateResponseDto: {
       /**
@@ -4001,6 +4012,17 @@ export interface components {
       urlCertificate?: string;
       /** @description El estado del certificado */
       isActive?: boolean;
+      /**
+       * @description El tipo de documento de la persona certificada
+       * @example DNI
+       * @enum {string}
+       */
+      documentType?: "DNI" | "PASSPORT";
+      /**
+       * @description El número de documento de la persona certificada
+       * @example 12345678901
+       */
+      documentNumber?: string;
     };
     PaginatedCertificateResponseDto: {
       /** @description Lista de certificados */
@@ -4077,6 +4099,17 @@ export interface components {
        * @description Certificado (PDF, máximo 5MB)
        */
       fileCertificate?: string;
+      /**
+       * @description El tipo de documento de la persona certificada
+       * @example DNI
+       * @enum {string}
+       */
+      documentType?: "DNI" | "PASSPORT";
+      /**
+       * @description El número de documento de la persona certificada
+       * @example 12345678901
+       */
+      documentNumber?: string;
     };
     CreateMedicalRecordDto: {
       /**

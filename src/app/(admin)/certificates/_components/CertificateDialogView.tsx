@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "date-fns";
-import { Check, Download, GraduationCap, Link, Loader2, Printer } from "lucide-react";
+import { Check, Download, GraduationCap, Link, Loader2, Printer, SquareUserRound } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { downloadCertificate, generateShareUrl } from "../_actions/certificates.actions";
-import { CertificateResponse } from "../_types/certificates.types";
+import { CertificateResponse, DocumentTypeLabel } from "../_types/certificates.types";
 
 interface CertificateDialogViewProps {
   open: boolean;
@@ -165,9 +165,16 @@ export default function CertificateDialogView({ open, onOpenChange, currentRow }
           <DialogTitle className="text-xl font-bold capitalize">
             Certificado: {currentRow?.nameCapacitation}
           </DialogTitle>
-          <DialogDescription className="capitalize flex items-center">
-            <GraduationCap className="w-4 h-4 mr-2 shrink-0" />
-            {currentRow?.nameUser} {currentRow?.lastNameUser}
+          <DialogDescription className="capitalize flex items-start flex-col gap-2">
+            <span className="inline-flex gap-2 items-center">
+              <GraduationCap className="w-4 h-4 mr-2 shrink-0" />
+              {currentRow?.nameUser} {currentRow?.lastNameUser}
+            </span>
+            <span className="inline-flex gap-2 items-center">
+              <SquareUserRound className="w-4 h-4 mr-2 shrink-0" />
+              {DocumentTypeLabel[currentRow?.documentType as keyof typeof DocumentTypeLabel]}
+              <span className="font-semibold">{currentRow?.documentNumber}</span>
+            </span>
           </DialogDescription>
         </DialogHeader>
 

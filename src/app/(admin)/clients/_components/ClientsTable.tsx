@@ -21,7 +21,7 @@ export default function ClientsTable() {
       columns={columns}
       data={clients || []}
       isLoading={isLoading}
-      initialColumnVisibility={{ estado: isAdmin }}
+      initialColumnVisibility={{ estado: isAdmin, provincia: false, distrito: false }}
     />
   );
 }

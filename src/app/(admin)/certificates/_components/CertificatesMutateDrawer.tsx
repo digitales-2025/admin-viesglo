@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -20,6 +21,7 @@ import {
 } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
   Sheet,
   SheetClose,
@@ -29,8 +31,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
-import { useCreateCertificate, useUpdateCertificate } from "../_hooks/useCertificates";
-import { CertificateResponse, CreateCertificate } from "../_types/certificates.types";
+import { useCertificates, useCreateCertificate, useUpdateCertificate } from "../_hooks/useCertificates";
+import { CertificateResponse, CreateCertificate, DocumentType, DocumentTypeLabel } from "../_types/certificates.types";
 
 interface Props {
   open: boolean;
@@ -73,6 +75,8 @@ const schema = z.object({
     ),
   dateEmision: z.string().min(1, "La fecha de emisión es requerida."),
   dateExpiration: z.string().min(1, "La fecha de expiración es requerida."),
+  documentType: z.nativeEnum(DocumentType),
+  documentNumber: z.string().min(1, "El número de documento es requerido."),
 }) satisfies z.ZodType<CreateCertificate>;
 
 type FormValues = z.infer<typeof schema> & {
@@ -80,6 +84,7 @@ type FormValues = z.infer<typeof schema> & {
 };
 
 export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Props) {
+  const { data: certificates = [] } = useCertificates();
   const { mutate: createCertificate, isPending: isCreating } = useCreateCertificate();
   const { mutate: updateCertificate, isPending: isUpdating } = useUpdateCertificate();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -99,9 +104,40 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
       emailUser: "",
       dateEmision: new Date().toISOString(),
       dateExpiration: "",
+      documentType: DocumentType.DNI,
+      documentNumber: "",
     },
     mode: "onChange",
   });
+
+  // Autocompletar datos cuando se ingresa un RUC existente
+  useEffect(() => {
+    const rucValue = form.watch("ruc");
+    if (rucValue && rucValue.length === 11 && certificates.length > 0) {
+      const existingCertificateWithRuc = certificates.find((cert) => cert.ruc === rucValue);
+      if (existingCertificateWithRuc) {
+        form.setValue("businessName", existingCertificateWithRuc.businessName || "");
+      }
+    }
+  }, [form, form.watch("ruc"), certificates]);
+
+  // Autocompletar datos cuando se ingresa un número de documento existente
+  useEffect(() => {
+    const documentNumber = form.watch("documentNumber");
+    const documentType = form.watch("documentType");
+
+    if (documentNumber && documentType && certificates.length > 0) {
+      const existingCertificateWithDocument = certificates.find(
+        (cert) => cert.documentNumber === documentNumber && cert.documentType === documentType
+      );
+
+      if (existingCertificateWithDocument) {
+        form.setValue("nameUser", existingCertificateWithDocument.nameUser || "");
+        form.setValue("lastNameUser", existingCertificateWithDocument.lastNameUser || "");
+        form.setValue("emailUser", existingCertificateWithDocument.emailUser || "");
+      }
+    }
+  }, [form, form.watch("documentNumber"), form.watch("documentType"), certificates]);
 
   useEffect(() => {
     if (!open) {
@@ -114,14 +150,19 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         emailUser: "",
         dateEmision: "",
         dateExpiration: "",
+        documentType: DocumentType.DNI,
+        documentNumber: "",
       });
       setSelectedFile(null);
       setFilePreview(null);
     } else if (!isUpdate) {
       const today = new Date().toISOString();
+      const values = form.getValues();
       form.reset({
-        ...form.getValues(),
+        ...values,
         dateEmision: today,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -163,6 +204,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
     formData.append("emailUser", data.emailUser || "");
     formData.append("dateEmision", data.dateEmision);
     formData.append("dateExpiration", data.dateExpiration);
+    formData.append("documentType", data.documentType);
+    formData.append("documentNumber", data.documentNumber);
     if (selectedFile) {
       formData.append("fileCertificate", selectedFile);
     }
@@ -201,6 +244,8 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         nameUser: currentRow.nameUser,
         lastNameUser: currentRow.lastNameUser,
         emailUser: currentRow.emailUser,
+        documentType: currentRow.documentType as DocumentType,
+        documentNumber: currentRow.documentNumber,
         dateEmision: currentRow.dateEmision
           ? (() => {
               // Extraer directamente año, mes y día de la cadena ISO
@@ -233,10 +278,18 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
   useEffect(() => {
     form.clearErrors();
     if (isUpdate) {
-      form.reset(form.getValues());
-    } else {
+      const values = form.getValues();
       form.reset({
-        ...form.getValues(),
+        ...values,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
+      });
+    } else {
+      const values = form.getValues();
+      form.reset({
+        ...values,
+        documentType: values.documentType || DocumentType.DNI,
+        documentNumber: values.documentNumber || "",
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -295,6 +348,52 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
               />
               <FormField
                 control={form.control}
+                name="documentType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Tipo de documento del participante</FormLabel>
+                    <FormControl>
+                      <Select onValueChange={field.onChange} value={field.value || DocumentType.DNI}>
+                        <FormItem>
+                          <FormControl>
+                            <SelectTrigger disabled={isPending} className="w-full">
+                              <SelectValue placeholder="Selecciona un tipo de documento" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(DocumentType).map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {DocumentTypeLabel[type]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </FormItem>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="documentNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Número de documento del participante</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Introduce el número de documento"
+                        {...field}
+                        value={field.value || ""}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="nameUser"
                 render={({ field }) => (
                   <FormItem>
@@ -319,6 +418,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                   </FormItem>
                 )}
               />
+
               <FormField
                 control={form.control}
                 name="emailUser"
@@ -329,6 +429,7 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
                       <Input
                         placeholder="Introduce el correo electrónico del participante"
                         {...field}
+                        value={field.value || ""}
                         disabled={isPending}
                       />
                     </FormControl>
@@ -422,7 +523,16 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="certificates-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              "Actualizar"
+            ) : (
+              <>
+                Crear y enviar
+                <Send className="w-4 h-4" />
+              </>
+            )}
           </Button>
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>

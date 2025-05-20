@@ -389,7 +389,10 @@ export function ClinicsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 )}
               </>
             ) : (
-              "Crear"
+              <>
+                Crear y enviar credenciales
+                <Send className="w-4 h-4" />
+              </>
             )}
           </Button>
           <SheetClose asChild>

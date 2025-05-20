@@ -3,7 +3,7 @@
 import { memo, useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
+import { ChevronsRight, ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
@@ -123,7 +123,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
   return (
     <Card
       className={cn(
-        "h-fit shadow-none cursor-pointer select-none border transition-all duration-200",
+        "h-fit shadow-none relative cursor-pointer select-none border transition-all duration-200",
         selectedProject?.id === project.id && "border-sky-500 bg-sky-50/30 dark:bg-sky-950/20",
         className
       )}
@@ -243,7 +243,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
         </CardTitle>
         <CardDescription className="text-xs sm:text-sm line-clamp-2">{project.description}</CardDescription>
       </CardHeader>
-      <CardContent className="grid grid-cols-[1fr_auto] gap-2 sm:gap-4 items-center px-3 pb-0 sm:px-6">
+      <CardContent className="grid grid-cols-[1fr_auto] gap-2 sm:gap-4 items-center px-3 pb-0 sm:px-6 py-0">
         <Progress
           value={Number(project.progress?.toFixed(2))}
           color={cn(
@@ -259,13 +259,16 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <span className={cn("text-muted-foreground", isMobile ? "sr-only" : "text-xs")}>Completado</span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 py-2 sm:px-6 sm:py-4">
+      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 sm:px-6 py-0">
         <Badge
           variant="outline"
           className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
         >
           <User className="size-3 sm:size-4" />
-          <strong className="first-letter:uppercase line-clamp-1">{project.client.name}</strong>
+          Cliente:
+          <strong className="first-letter:uppercase line-clamp-1 text-wrap" title={project.client.name}>
+            {project.client.name}
+          </strong>
         </Badge>
 
         {project.responsibleUserId && (
@@ -274,6 +277,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
             className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
           >
             <UserCog className="size-3 sm:size-4 shrink-0" />
+            Responsable:
             <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.fullName}</strong>
           </Badge>
         )}
@@ -288,6 +292,9 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           </Badge>
         )}
       </CardFooter>
+      {selectedProject?.id === project.id && (
+        <ChevronsRight className="absolute opacity-30 -right-3 top-1/2 -translate-y-1/2 size-4 sm:size-5 text-sky-500" />
+      )}
     </Card>
   );
 });
