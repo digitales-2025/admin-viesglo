@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Send } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -522,7 +523,16 @@ export function CertificatesMutateDrawer({ open, onOpenChange, currentRow }: Pro
         </ScrollArea>
         <SheetFooter className="gap-2">
           <Button form="certificates-form" type="submit" disabled={isPending}>
-            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              "Actualizar"
+            ) : (
+              <>
+                Crear y enviar
+                <Send className="w-4 h-4" />
+              </>
+            )}
           </Button>
           <SheetClose asChild>
             <Button variant="outline" disabled={isPending}>
