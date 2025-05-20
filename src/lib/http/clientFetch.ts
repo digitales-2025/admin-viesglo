@@ -1,3 +1,5 @@
+"use client";
+
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
 interface FetchOptions extends Omit<AxiosRequestConfig, "url"> {
