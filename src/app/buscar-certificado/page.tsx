@@ -1,14 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, CheckCircle2, Download, FileTextIcon, GraduationCap, Link, Printer } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  FileTextIcon,
+  GraduationCap,
+  Link,
+  Printer,
+  SquareUserRound,
+} from "lucide-react";
 
 import {
   downloadCertificatePublic,
   generateShareUrl,
   getCertificateByCode,
 } from "@/app/(admin)/certificates/_actions/certificates.actions";
-import { CertificateResponse } from "@/app/(admin)/certificates/_types/certificates.types";
+import { CertificateResponse, DocumentTypeLabel } from "@/app/(admin)/certificates/_types/certificates.types";
 import LogoLarge from "@/shared/components/icons/LogoLarge";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/components/ui/alert";
 import { Button } from "@/shared/components/ui/button";
@@ -246,18 +255,32 @@ export default function BuscarCertificadoPage() {
                           <FileTextIcon className="mr-2 h-5 w-5 text-primary" />
                           Certificado {certificado.code || certificado.id}
                         </CardTitle>
-                        <CardDescription className="mt-1 flex items-center capitalize">
-                          <GraduationCap className="w-4 h-4 mr-2 shrink-0 " />
-                          {certificado.nameUser} {certificado.lastNameUser}
+                        <CardDescription className="mt-1 flex items-start capitalize font-semibold flex-col my-2">
+                          <span className="inline-flex gap-2 items-center">
+                            <GraduationCap className="w-4 h-4 mr-2 shrink-0 " />
+                            {certificado.nameUser} {certificado.lastNameUser}
+                          </span>
+                          <span className="text-xs font-normal capitalize inline-flex gap-2 items-center">
+                            <SquareUserRound className="w-4 h-4 mr-2 shrink-0 " />
+                            {DocumentTypeLabel[certificado.documentType as keyof typeof DocumentTypeLabel]}
+                            <span className="text-xs font-bold capitalize inline-flex gap-2 items-center">
+                              {certificado.documentNumber}
+                            </span>
+                          </span>
                         </CardDescription>
                         <div className="text-sm mt-1">
-                          <p>Capacitación: {certificado.nameCapacitation}</p>
+                          <p>
+                            Capacitación:{" "}
+                            <span className="font-bold capitalize first-letter:uppercase">
+                              {certificado.nameCapacitation}
+                            </span>
+                          </p>
                           {certificado.dateEmision && (
                             <p>Fecha de emisión: {new Date(certificado.dateEmision).toLocaleDateString()}</p>
                           )}
                         </div>
                       </div>
-                      <CheckCircle2 className="h-6 w-6 text-emerald-600" />
+                      <CheckCircle2 className="h-6 w-6 text-emerald-500" />
                     </div>
                   </CardHeader>
                 </Card>
