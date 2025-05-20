@@ -1,5 +1,3 @@
-"use client";
-
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 
 interface FetchOptions extends Omit<AxiosRequestConfig, "url"> {
@@ -13,7 +11,7 @@ const api: AxiosInstance = axios.create({
   withCredentials: true,
   validateStatus: (status) => {
     // Consideramos 404 como válido durante el logout
-    if (status === 404 && window.location.pathname === "/sign-in") {
+    if (status === 404 && typeof window !== "undefined" && window.location.pathname === "/sign-in") {
       return true;
     }
     return status >= 200 && status < 300;
@@ -23,7 +21,7 @@ const api: AxiosInstance = axios.create({
 // Interceptores para logs
 api.interceptors.request.use(
   (config) => {
-    if (process.env.NODE_ENV !== "production") {
+    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
       console.log(`🚀❌ [${config.method?.toUpperCase()}] ${config.url}`, {
         body: config.data,
       });
@@ -38,7 +36,7 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    if (process.env.NODE_ENV !== "production") {
+    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
       // Solo registramos datos relevantes y seguros para JSON
       console.log(`✅objeto de respuesta usuario en ClientFetch:🚀 [${response.status}] ${response.config.url}`, {
         data: response.data,
@@ -50,7 +48,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (process.env.NODE_ENV !== "production") {
+    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
       console.error("❌ Error en la respuesta:", error.response?.data || error.message);
     }
     return Promise.reject(error);
