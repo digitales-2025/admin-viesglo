@@ -154,7 +154,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
         <span className="text-sm text-muted-foreground w-36">
           {isPaid ? (
             <Badge variant="success">
-              {payment.paymentPlan === PaymentPlan.INSTALLMENTS ? "Pago completo con todas las cuotas" : "Pagado"}
+              {payment.paymentPlan === PaymentPlan.INSTALLMENTS ? "Pagos completos" : "Pagado"}
             </Badge>
           ) : (
             <Badge variant="error">Pendiente</Badge>
@@ -179,6 +179,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
           {...{
             onClick: row.getToggleExpandedHandler(),
           }}
+          className="bg-white dark:bg-muted"
         >
           {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
         </Button>
