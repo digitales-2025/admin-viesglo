@@ -16,7 +16,10 @@ interface QuotationsState {
 }
 
 // Valores por defecto para los filtros (vacíos)
-const DEFAULT_FILTERS: QuotationFilterData = {};
+const DEFAULT_FILTERS: QuotationFilterData = {
+  from: undefined,
+  to: undefined,
+};
 
 export const useQuotationsStore = create<QuotationsState>()((set) => ({
   // Estado inicial de filtros (vacío)

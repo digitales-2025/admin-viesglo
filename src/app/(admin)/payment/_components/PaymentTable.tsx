@@ -3,25 +3,24 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Banknote, Check, Circle, CreditCard } from "lucide-react";
 
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { CustomFilterGroup, CustomFilterOption } from "@/shared/components/data-table/custom-types";
 import { DataTable } from "@/shared/components/data-table/DataTable";
-import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { useUbigeo } from "@/shared/hooks/useUbigeo";
 import { cn, debounce } from "@/shared/lib/utils";
 import { usePayments } from "../_hooks/usePayments";
 import { usePaymentsStore } from "../_hooks/usePaymentStore";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
-import { TypePayment } from "../../quotation/_types/quotation.types";
+import { PaymentPlan } from "../../quotation/_types/quotation.types";
 import { DownloadExcelButton } from "./DownloadExcelButton";
+import InstallmentsPaymentDetail from "./InstallmentsPaymentDetail";
 import { columnsPayment } from "./payment.column";
-import PaymentMonthlyTable from "./PaymentMonthlyTable";
 
 export default function PaymentTable() {
   const { data: quotationGroups, isLoading: isLoadingQuotationGroups } = useQuotationGroups();
   const { departmentOptions } = useUbigeo();
 
   const { filters: storeFilters, setFilters, updateFilter } = usePaymentsStore();
-
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -49,11 +48,11 @@ export default function PaymentTable() {
       },
       {
         label: "Tipo de pago",
-        value: "typePayment",
+        value: "paymentPlan",
         multiSelect: false,
         options: [
-          { label: "Mensual", value: TypePayment.MONTHLY, icon: Banknote },
-          { label: "Puntual", value: TypePayment.PUNCTUAL, icon: CreditCard },
+          { label: "Fraccionado", value: PaymentPlan.INSTALLMENTS, icon: Banknote },
+          { label: "Único	", value: PaymentPlan.SINGLE, icon: CreditCard },
         ],
       },
     ],
@@ -191,13 +190,14 @@ export default function PaymentTable() {
     () => (
       <>
         <DownloadExcelButton filters={filters} />
-        <DatePickerWithRange
+        <CalendarDatePicker
           size="sm"
-          initialValue={{
+          variant="outline"
+          date={{
             from: storeFilters.from ? new Date(storeFilters.from) : undefined,
             to: storeFilters.to ? new Date(storeFilters.to) : undefined,
           }}
-          onConfirm={(value) => {
+          onDateSelect={(value) => {
             if (value?.from) updateFilter("from", value.from);
             if (value?.to) updateFilter("to", value.to);
             if (!value?.from && !value?.to) {
@@ -218,7 +218,7 @@ export default function PaymentTable() {
         />
       </>
     ),
-    []
+    [storeFilters, updateFilter, setFilters, filters]
   );
 
   const serverPagination = useMemo(
@@ -244,15 +244,14 @@ export default function PaymentTable() {
     }),
     [filters, handleSearchChange, handleFilterChange]
   );
-
   if (error) return <div className="text-center py-4">Error al cargar pagos</div>;
 
   return (
     <DataTable
       columns={columns}
       data={payments || []}
-      getRowCanExpand={(row) => row.original.typePayment === TypePayment.MONTHLY}
-      renderExpandedRow={(row) => <PaymentMonthlyTable payment={row} />}
+      getRowCanExpand={(row) => row.original.paymentPlan === PaymentPlan.INSTALLMENTS}
+      renderExpandedRow={(row) => <InstallmentsPaymentDetail payment={row} />}
       isLoading={isLoading}
       actions={actions}
       mode="server"

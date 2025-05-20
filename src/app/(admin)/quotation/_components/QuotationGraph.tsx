@@ -5,13 +5,17 @@ import {
   BarChart2,
   BarChart3,
   Calendar,
+  CalendarCheck,
+  ChartSpline,
   CheckCircle2,
-  ChevronRight,
+  Clipboard,
+  ClipboardCheck,
+  ClipboardX,
   DollarSign,
   PieChart,
+  TrendingDown,
   TrendingUp,
-  Users,
-  Wallet,
+  TrendingUpDown,
   XCircle,
 } from "lucide-react";
 import {
@@ -33,6 +37,8 @@ import {
 } from "recharts";
 import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
+import MetricCard from "@/shared/components/dashboard/MetricCard";
+import Empty from "@/shared/components/empty";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
   ChartContainer,
@@ -45,7 +51,7 @@ import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { useQuotationsForStats } from "../_hooks/useQuotations";
 import { useQuotationsStore } from "../_hooks/useQuotationsStore";
-import { LabelTypePayment, TypePayment } from "../_types/quotation.types";
+import { LabelPaymentPlan, PaymentPlan } from "../_types/quotation.types";
 
 // Usamos las variables de color definidas en globals.css
 const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
@@ -93,13 +99,15 @@ export default function QuotationGraph() {
               <span>Gráfico de cotizaciones</span>
             </div>
           </CardTitle>
-          <CardDescription>Error al cargar los datos</CardDescription>
+          <CardDescription>No se pudieron cargar los datos</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="h-96 w-full flex items-center justify-center">
-            <p className="text-destructive">
-              {error instanceof Error ? error.message : "No hay datos de cotizaciones disponibles para mostrar."}
-            </p>
+            <Empty
+              message={
+                error instanceof Error ? error.message : "No hay datos de cotizaciones disponibles para mostrar."
+              }
+            />
           </div>
         </CardContent>
       </Card>
@@ -109,20 +117,21 @@ export default function QuotationGraph() {
   // Calcular KPIs principales
   const totalQuotations = quotations.length;
   const totalAmount = quotations.reduce((sum: number, q: any) => sum + q.amount, 0);
-  const averageAmount = totalAmount / (totalQuotations || 1);
-  const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
-  const conversionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
+  const totalPaidAmount = quotations
+    .filter((q: any) => q.isConcrete)
+    .reduce((sum: number, q: any) => sum + q.amount, 0);
+  const totalUnpaidAmount = totalAmount - totalPaidAmount;
 
   // Calcular cotizaciones pagadas y no pagadas
-  const paidQuotations = quotations.filter((q: any) => q.isConcrete).length;
-  const unpaidQuotations = totalQuotations - paidQuotations;
-  const paymentCompletionRate = (paidQuotations / (totalQuotations || 1)) * 100;
+  const concreteQuotations = quotations.filter((q: any) => q.isConcrete).length;
+  const unConcreteQuotations = totalQuotations - concreteQuotations;
+  const paymentCompletionRate = (concreteQuotations / (totalQuotations || 1)) * 100;
 
   // Procesar datos para el gráfico de pagos
   const getPaymentStatusData = () => {
     return [
-      { name: "Concretadas", value: paidQuotations, color: "var(--chart-1)" },
-      { name: "No concretadas", value: unpaidQuotations, color: "var(--chart-4)" },
+      { name: "Concretadas", value: concreteQuotations, color: "var(--chart-4)" },
+      { name: "No concretadas", value: unConcreteQuotations, color: "var(--chart-5)" },
     ];
   };
 
@@ -130,26 +139,84 @@ export default function QuotationGraph() {
   const getTimeData = () => {
     const now = new Date();
     let startDate: Date;
+    let endDate = new Date(now);
 
     // Determinar fecha de inicio según el rango seleccionado
     if (timeRange === "week") {
       startDate = new Date(now);
-      startDate.setDate(now.getDate() - 7);
+      startDate.setDate(now.getDate() - 6); // 7 días incluyendo hoy
+      startDate.setHours(0, 0, 0, 0); // Inicio del día
+      endDate.setHours(23, 59, 59, 999); // Fin del día
     } else if (timeRange === "month") {
       startDate = new Date(now);
-      startDate.setMonth(now.getMonth() - 1);
+      startDate.setDate(1); // Primer día del mes actual
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0); // Último día del mes actual
+      endDate.setHours(23, 59, 59, 999);
     } else {
-      startDate = new Date(now);
-      startDate.setFullYear(now.getFullYear() - 1);
+      startDate = new Date(now.getFullYear(), 0, 1); // 1 enero del año actual
+      startDate.setHours(0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), 11, 31); // 31 diciembre del año actual
+      endDate.setHours(23, 59, 59, 999);
     }
 
-    // Agrupar por fecha
+    // Crear un array con todos los períodos (días o meses)
+    type PeriodData = {
+      date: string;
+      dateObj: Date;
+      cantidad: number;
+      monto: number;
+      label: string;
+    };
+
+    const allPeriods: PeriodData[] = [];
+
+    if (timeRange === "year") {
+      // Para año - genera todos los meses
+      for (let month = 0; month < 12; month++) {
+        const monthDate = new Date(now.getFullYear(), month, 1);
+        allPeriods.push({
+          date: `${month + 1}/${now.getFullYear()}`,
+          dateObj: monthDate, // Para ordenar más tarde
+          cantidad: 0,
+          monto: 0,
+          label: monthDate.toLocaleDateString("es-ES", { month: "short" }),
+        });
+      }
+    } else if (timeRange === "month") {
+      // Para mes - genera todos los días del mes
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDate = new Date(now.getFullYear(), now.getMonth(), day);
+        allPeriods.push({
+          date: `${day}/${now.getMonth() + 1}`,
+          dateObj: dayDate,
+          cantidad: 0,
+          monto: 0,
+          label: day.toString(),
+        });
+      }
+    } else {
+      // Para semana - genera 7 días
+      for (let i = 0; i < 7; i++) {
+        const dayDate = new Date(now);
+        dayDate.setDate(now.getDate() - 6 + i);
+        allPeriods.push({
+          date: `${dayDate.getDate()}/${dayDate.getMonth() + 1}`,
+          dateObj: dayDate,
+          cantidad: 0,
+          monto: 0,
+          label: dayDate.toLocaleDateString("es-ES", { weekday: "short" }),
+        });
+      }
+    }
+
+    // Agrupar cotizaciones por fecha
     const groupedByDate: { [key: string]: { count: number; amount: number } } = {};
 
     quotations.forEach((quotation: any) => {
-      // Asumimos que hay una propiedad de fecha de creación o similar
-      const date = new Date(quotation.dateStart || new Date());
-      if (date >= startDate) {
+      const date = new Date(quotation.dateQuotation || new Date());
+      if (date >= startDate && date <= endDate) {
         // Formatear la fecha según el rango seleccionado
         let dateKey: string;
         if (timeRange === "year") {
@@ -168,33 +235,22 @@ export default function QuotationGraph() {
       }
     });
 
-    // Convertir a array para el gráfico
-    const result = Object.entries(groupedByDate).map(([date, data]) => ({
-      date,
-      cantidad: data.count,
-      monto: data.amount,
+    // Actualizar los períodos con los datos reales
+    allPeriods.forEach((period) => {
+      if (groupedByDate[period.date]) {
+        period.cantidad = groupedByDate[period.date].count;
+        period.monto = groupedByDate[period.date].amount;
+      }
+    });
+
+    // Ordenar por fecha
+    allPeriods.sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
+
+    // Eliminar la propiedad dateObj que solo se usó para ordenar
+    return allPeriods.map(({ dateObj: _, ...rest }) => ({
+      ...rest,
+      date: rest.label, // Usar las etiquetas legibles
     }));
-
-    // Ordenar según el formato de fecha
-    if (timeRange === "year") {
-      // Ordenar por mes/año
-      result.sort((a, b) => {
-        const [aMonth, aYear] = a.date.split("/").map(Number);
-        const [bMonth, bYear] = b.date.split("/").map(Number);
-        if (aYear !== bYear) return aYear - bYear;
-        return aMonth - bMonth;
-      });
-    } else {
-      // Ordenar por día/mes
-      result.sort((a, b) => {
-        const [aDay, aMonth] = a.date.split("/").map(Number);
-        const [bDay, bMonth] = b.date.split("/").map(Number);
-        if (aMonth !== bMonth) return aMonth - bMonth;
-        return aDay - bDay;
-      });
-    }
-
-    return result;
   };
 
   const getQuotationGroupData = () => {
@@ -232,17 +288,17 @@ export default function QuotationGraph() {
   // Procesar datos para el gráfico de tipo de pago
   const getPaymentTypeData = () => {
     const paymentTypeCount: { [key: string]: number } = {
-      [TypePayment.MONTHLY]: 0,
-      [TypePayment.PUNCTUAL]: 0,
+      [PaymentPlan.INSTALLMENTS]: 0,
+      [PaymentPlan.SINGLE]: 0,
     };
 
     quotations.forEach((quotation: any) => {
-      const paymentType = quotation.typePayment || TypePayment.PUNCTUAL;
+      const paymentType = quotation.paymentPlan || PaymentPlan.SINGLE;
       paymentTypeCount[paymentType] += 1;
     });
 
     return Object.entries(paymentTypeCount).map(([name, value]) => ({
-      name: LabelTypePayment[name as TypePayment],
+      name: LabelPaymentPlan[name as PaymentPlan],
       value,
     }));
   };
@@ -284,14 +340,14 @@ export default function QuotationGraph() {
   const paymentTypeData = getPaymentTypeData();
   const paymentStatusData = getPaymentStatusData();
   const quotationGroupData = getQuotationGroupData();
-  // Calculamos el período que estamos visualizando
+  // Calculamos el período que estamos visualizando en forma de texto 2 mayo 2025 - 10 junio 2025
   const getPeriodLabel = () => {
+    const currentYear = new Date().getFullYear();
     if (filters.from && filters.to) {
       const fromDate = new Date(filters.from);
       const toDate = new Date(filters.to);
 
       // Si es todo el año actual
-      const currentYear = new Date().getFullYear();
       if (
         fromDate.getFullYear() === currentYear &&
         fromDate.getMonth() === 0 &&
@@ -303,12 +359,18 @@ export default function QuotationGraph() {
         return `Año ${currentYear}`;
       }
 
+      // Si es un mes exacto del 01 al 31
+      if (fromDate.getDate() === 1 && toDate.getDate() === 31) {
+        return `${fromDate.toLocaleDateString("es-ES", { month: "long", year: "numeric" })}`;
+      }
+
       // Formatear fechas
-      const from = fromDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
-      const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "2-digit", year: "numeric" });
+      const from = fromDate.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
+      const to = toDate.toLocaleDateString("es-ES", { day: "2-digit", month: "long", year: "numeric" });
       return `${from} - ${to}`;
+    } else {
+      return `Año ${currentYear}`;
     }
-    return "";
   };
 
   // Si hay filtros activos, mostramos un mensaje indicando el número de resultados filtrados
@@ -317,7 +379,6 @@ export default function QuotationGraph() {
   );
   const filterMessage = hasFiltros ? `Mostrando ${totalQuotations} cotizaciones filtradas` : "";
   const periodLabel = getPeriodLabel();
-
   return (
     <div className="space-y-4">
       {/* Mensaje de filtros aplicados y período */}
@@ -333,49 +394,110 @@ export default function QuotationGraph() {
 
       {/* KPIs principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total de cotizaciones</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Users className="h-5 w-5 text-primary" />
-              {totalQuotations}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title="Total de cotizaciones"
+          value={totalQuotations.toString()}
+          description={
+            <div className="flex items-center gap-1">
+              <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+            </div>
+          }
+          icon={<ClipboardCheck className="size-8 shrink-0 text-emerald-500 bg-emerald-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto total</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              S/ {totalAmount.toLocaleString("es-PE")}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total`}
+          value={`S/. ${totalAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center justify-between gap-1">
+                <span className="flex items-center gap-1">
+                  <Clipboard className="size-3 text-teal-500" /> De {totalQuotations} cotizaciones, {concreteQuotations}{" "}
+                  son concretadas y {unConcreteQuotations} {""}
+                  no son.
+                </span>
+                {concreteQuotations > unConcreteQuotations ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : concreteQuotations === unConcreteQuotations ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-teal-500 bg-teal-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Monto promedio</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <Wallet className="h-5 w-5 text-primary" />
-              S/ {averageAmount.toLocaleString("es-PE", { maximumFractionDigits: 2 })}
-            </CardTitle>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total concretadas`}
+          value={`S/. ${totalPaidAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground flex gap-1 flex-col">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center gap-1 justify-between">
+                <span className="flex items-center gap-1">
+                  <ClipboardCheck className="size-3 text-emerald-500" /> De {concreteQuotations} cotizaciones
+                  concretadas
+                </span>
+                {concreteQuotations > unConcreteQuotations ? (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                ) : concreteQuotations === unConcreteQuotations ? (
+                  <span className="text-sky-500">
+                    <TrendingUpDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-cyan-500 bg-cyan-500/20 rounded-md p-2" />}
+        />
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Tasa de conversión</CardDescription>
-            <CardTitle className="text-3xl flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-primary" />
-              {conversionRate.toFixed(1)}%
-            </CardTitle>
-            <CardDescription className="text-xs flex items-center gap-1">
-              <ChevronRight className="h-3 w-3" />
-              {concreteQuotations} cotizaciones concretadas
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <MetricCard
+          title={`Monto total a pagar`}
+          value={`S/. ${totalUnpaidAmount.toLocaleString("es-PE")}`}
+          description={
+            <div className="text-xs text-muted-foreground flex gap-1 flex-col">
+              <div className="flex items-center gap-1">
+                <CalendarCheck className="size-3 text-emerald-500" /> {periodLabel}
+              </div>
+              <div className="flex items-center gap-1 justify-between">
+                <span className="flex items-center gap-1">
+                  <ClipboardX className="size-3 text-rose-500" /> De {unConcreteQuotations} cotizaciones no concretadas
+                </span>
+                {unConcreteQuotations > 0 ? (
+                  <span className="text-rose-500">
+                    <TrendingDown className="size-3" />
+                  </span>
+                ) : (
+                  <span className="text-emerald-500">
+                    <TrendingUp className="size-3" />
+                  </span>
+                )}
+              </div>
+            </div>
+          }
+          icon={<DollarSign className="size-8 shrink-0 text-rose-500 bg-rose-500/20 rounded-md p-2" />}
+        />
       </div>
 
       {/* Gráfico principal de tendencia */}
@@ -384,7 +506,7 @@ export default function QuotationGraph() {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-primary" />
+                <ChartSpline className="h-5 w-5 text-primary" />
                 Cotizaciones por {timeRange === "week" ? "semana" : timeRange === "month" ? "mes" : "año"}
               </CardTitle>
               <CardDescription>Cantidad de cotizaciones por período</CardDescription>
@@ -417,7 +539,15 @@ export default function QuotationGraph() {
                 }}
               >
                 <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                <XAxis dataKey="date" tickLine={false} axisLine={false} tick={{ fontSize: 10 }} tickMargin={5} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tick={{ fontSize: 10 }}
+                  tickMargin={5}
+                  tickFormatter={(value) => value}
+                  interval={timeRange === "year" ? 0 : timeRange === "month" ? Math.floor(timeData.length / 10) : 0}
+                />
                 <YAxis
                   dataKey="cantidad"
                   tickLine={false}
@@ -425,13 +555,22 @@ export default function QuotationGraph() {
                   tick={{ fontSize: 10 }}
                   tickMargin={5}
                   width={25}
+                  allowDecimals={false}
                 />
                 <Tooltip
                   content={({ active, payload }) => {
                     if (active && payload && payload.length) {
+                      const fecha = payload[0].payload.date;
+                      const formattedDate =
+                        timeRange === "year"
+                          ? `${fecha} ${new Date().getFullYear()}`
+                          : timeRange === "week"
+                            ? `${fecha}`
+                            : `${fecha} ${new Date().toLocaleDateString("es-ES", { month: "short" })}`;
+
                       return (
                         <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                          <p className="font-medium mb-1">{`Fecha: ${payload[0].payload.date}`}</p>
+                          <p className="font-medium mb-1">{`Fecha: ${formattedDate}`}</p>
                           <p className="text-chart-1">{`Cantidad: ${payload[0].payload.cantidad}`}</p>
                           <p className="text-chart-2">{`Monto: S/ ${payload[0].payload.monto.toLocaleString("es-PE")}`}</p>
                         </div>
@@ -482,24 +621,24 @@ export default function QuotationGraph() {
               <div className="text-sm text-muted-foreground">Tasa de conversión</div>
               <div className="mt-6 space-y-2">
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-1"></div>
+                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
                   <div className="flex justify-between w-full">
                     <span className="flex items-center gap-1">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                       Concretadas
                     </span>
-                    <span className="font-medium">{paidQuotations}</span>
+                    <span className="font-medium">{concreteQuotations}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm">
-                  <div className="h-3 w-3 rounded-full bg-chart-4"></div>
+                  <div className="h-3 w-3 rounded-full bg-chart-5"></div>
                   <div className="flex justify-between w-full">
                     <span className="flex items-center gap-1">
                       <XCircle className="h-4 w-4 text-gray-500" />
                       No concretadas
                     </span>
-                    <span className="font-medium">{unpaidQuotations}</span>
+                    <span className="font-medium">{unConcreteQuotations}</span>
                   </div>
                 </div>
               </div>

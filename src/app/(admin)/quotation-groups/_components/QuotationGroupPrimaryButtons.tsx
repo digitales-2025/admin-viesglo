@@ -22,8 +22,8 @@ export default function QuotationGroupPrimaryButtons() {
             open(MODULE_QUOTATION_GROUP, "create");
           }}
         >
-          <Plus className="h-4 w-4" />
           Crear grupo de cotizaciones
+          <Plus className="h-4 w-4" />
         </Button>
       </ProtectedComponent>
     </div>

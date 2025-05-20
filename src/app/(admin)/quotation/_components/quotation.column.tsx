@@ -10,7 +10,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Switch } from "@/shared/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { LabelTypePayment, QuotationResponse, TypePayment } from "../_types/quotation.types";
+import { LabelPaymentPlan, PaymentPlan, QuotationResponse } from "../_types/quotation.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import QuotationTableActions from "./QuotationTableActions";
 
@@ -28,7 +28,11 @@ function ConcreteCell({ quotation }: { quotation: QuotationResponse }) {
   return (
     <div className="flex items-center gap-2">
       <ProtectedComponent requiredPermissions={[{ resource: EnumResource.quotations, action: EnumAction.update }]}>
-        <Switch checked={quotation.isConcrete} onCheckedChange={handleConcreteChange} className="cursor-pointer" />
+        <Switch
+          checked={quotation.isConcrete}
+          onCheckedChange={handleConcreteChange}
+          className="cursor-pointer data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500 dark:data-[state=unchecked]:bg-rose-500"
+        />
       </ProtectedComponent>
       <span className="text-sm text-muted-foreground">
         {quotation.isConcrete ? (
@@ -95,9 +99,9 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
     ),
   },
   {
-    id: "monto",
+    id: "monto total",
     accessorKey: "amount",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Monto total" />,
     cell: ({ row }) => (
       <div className="min-w-[150px]">
         <Badge variant="outline" className="flex items-center gap-2">
@@ -105,58 +109,39 @@ export const columnsQuotation = (): ColumnDef<QuotationResponse>[] => [
           {new Intl.NumberFormat("es-PE", {
             style: "currency",
             currency: "PEN",
-          }).format(row.getValue("monto"))}
+          }).format(row.getValue("monto total"))}
         </Badge>
       </div>
     ),
   },
   {
-    id: "tipo de pago",
-    accessorKey: "typePayment",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Tipo de Pago" />,
+    id: "forma de pago",
+    accessorKey: "paymentPlan",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Forma de Pago" />,
     cell: ({ row }) => (
       <Badge
-        variant={row.getValue("tipo de pago") === TypePayment.MONTHLY ? "info" : "success"}
+        variant={row.getValue("forma de pago") === PaymentPlan.INSTALLMENTS ? "info" : "success"}
         className="capitalize min-w-[150px]"
       >
-        {LabelTypePayment[row.getValue("tipo de pago") as TypePayment]}
+        {LabelPaymentPlan[row.getValue("forma de pago") as PaymentPlan]}
       </Badge>
     ),
   },
   {
-    id: "fecha de inicio",
-    accessorKey: "dateStart",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Inicio" />,
+    id: "fecha de cotización",
+    accessorKey: "dateQuotation",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Cotización" />,
     cell: ({ row }) => (
       <Badge variant="outline" className="capitalize min-w-[150px]">
         <Calendar className="size-3 text-muted-foreground" />
-        {row.getValue("fecha de inicio") ? (
+        {row.getValue("fecha de cotización") ? (
           <span>
-            {typeof row.original.dateStart === "string"
-              ? row.original.dateStart.substring(0, 10).split("-").reverse().join("/")
+            {typeof row.original.dateQuotation === "string"
+              ? row.original.dateQuotation.substring(0, 10).split("-").reverse().join("/")
               : "Fecha inválida"}
           </span>
         ) : (
           <span className="text-muted-foreground text-xs">No iniciada</span>
-        )}
-      </Badge>
-    ),
-  },
-  {
-    id: "fecha de fin",
-    accessorKey: "dateEnd",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Fecha de Concluida" />,
-    cell: ({ row }) => (
-      <Badge variant="outline" className="capitalize min-w-[150px]">
-        <Calendar className="size-3 text-muted-foreground" />
-        {row.getValue("fecha de fin") ? (
-          <span>
-            {typeof row.original.dateEnd === "string"
-              ? row.original.dateEnd.substring(0, 10).split("-").reverse().join("/")
-              : "Fecha inválida"}
-          </span>
-        ) : (
-          <span className="text-muted-foreground text-xs">No concluida</span>
         )}
       </Badge>
     ),

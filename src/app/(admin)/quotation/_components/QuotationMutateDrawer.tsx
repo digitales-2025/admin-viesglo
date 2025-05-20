@@ -2,17 +2,29 @@
 
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Check } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { Loading } from "@/shared/components/loading";
+import Redirect from "@/shared/components/redirect";
 import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
+import { Label } from "@/shared/components/ui/label";
 import { PhoneInput } from "@/shared/components/ui/phone-input";
+import { RadioGroup, RadioGroupItem } from "@/shared/components/ui/radio-group";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { SelectCombobox } from "@/shared/components/ui/select-combobox";
 import {
@@ -24,10 +36,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
-import { Switch } from "@/shared/components/ui/switch";
 import { cn } from "@/shared/lib/utils";
 import { useCreateQuotation, useUpdateQuotation } from "../_hooks/useQuotations";
-import { QuotationCreate, QuotationResponse, TypePayment } from "../_types/quotation.types";
+import { PaymentPlan, QuotationCreate, QuotationResponse } from "../_types/quotation.types";
 import { useQuotationGroups } from "../../quotation-groups/_hooks/useQuotationGroup";
 
 interface Props {
@@ -52,13 +63,18 @@ const baseSchema = {
   province: z.string().optional(),
   district: z.string().optional(),
   mainContact: z.string().min(1, "El contacto principal es requerido."),
-  position: z.string().min(1, "El cargo es requerido."),
+  position: z.string().optional(),
   phone: z.string().refine(isValidPhoneNumber, "El teléfono debe ser un número válido."),
   email: z.string().email("El email no es válido."),
   quotationGroup: z.string().min(1, "Se debe seleccionar un grupo de cotización."),
-  typePayment: z.nativeEnum(TypePayment),
-  dateStart: z.date().optional(),
-  dateEnd: z.date().optional(),
+  paymentPlan: z.nativeEnum(PaymentPlan),
+  dateQuotation: z.object(
+    {
+      from: z.date({ required_error: "La fecha de cotización es requerida." }),
+      to: z.date({ required_error: "La fecha de cotización es requerida." }),
+    },
+    { required_error: "La fecha de cotización es requerida." }
+  ),
 };
 
 const createSchema = z.object(baseSchema);
@@ -91,9 +107,8 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
       phone: "",
       email: "",
       quotationGroup: "",
-      typePayment: TypePayment.PUNCTUAL,
-      dateStart: undefined,
-      dateEnd: undefined,
+      paymentPlan: PaymentPlan.SINGLE,
+      dateQuotation: undefined,
     },
     mode: "onChange",
   });
@@ -107,9 +122,8 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
       amount: parseFloat(data.amount),
       numberOfWorkers: parseInt(data.numberOfWorkers),
       quotationGroupId: quotationGroup,
-      typePayment: data.typePayment as TypePayment,
-      dateStart: data.dateStart?.toISOString(),
-      dateEnd: data.dateEnd?.toISOString(),
+      paymentPlan: data.paymentPlan as PaymentPlan,
+      dateQuotation: data.dateQuotation?.from.toISOString(),
     };
 
     if (isUpdate) {
@@ -150,21 +164,16 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: currentRow.phone,
         email: currentRow.email,
         quotationGroup: currentRow.quotationGroup?.id,
-        typePayment: currentRow.typePayment as TypePayment,
-        dateStart: currentRow.dateStart
+        paymentPlan: currentRow.paymentPlan as PaymentPlan,
+        dateQuotation: currentRow.dateQuotation
           ? (() => {
               // Extraer directamente año, mes y día de la cadena ISO
-              const [year, month, day] = currentRow.dateStart.split("T")[0].split("-").map(Number);
+              const [year, month, day] = currentRow.dateQuotation.split("T")[0].split("-").map(Number);
               // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
-              return new Date(year, month - 1, day, 12, 0, 0);
-            })()
-          : undefined,
-        dateEnd: currentRow.dateEnd
-          ? (() => {
-              // Extraer directamente año, mes y día de la cadena ISO
-              const [year, month, day] = currentRow.dateEnd.split("T")[0].split("-").map(Number);
-              // Crear una nueva fecha local con estos valores exactos (mes - 1 porque en JS los meses van de 0-11)
-              return new Date(year, month - 1, day, 12, 0, 0);
+              return {
+                from: new Date(year, month - 1, day, 12, 0, 0),
+                to: new Date(year, month - 1, day, 12, 0, 0),
+              };
             })()
           : undefined,
       });
@@ -185,9 +194,8 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: "",
         email: "",
         quotationGroup: "",
-        typePayment: TypePayment.MONTHLY,
-        dateStart: undefined,
-        dateEnd: undefined,
+        paymentPlan: PaymentPlan.SINGLE,
+        dateQuotation: undefined,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -211,16 +219,14 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
         phone: "",
         email: "",
         quotationGroup: "",
-        dateStart: undefined,
-        dateEnd: undefined,
-        typePayment: TypePayment.MONTHLY,
+        dateQuotation: undefined,
+        paymentPlan: PaymentPlan.SINGLE,
       });
     } else {
       if (!isUpdate) {
         form.reset({
           ...form.getValues(),
-          dateStart: undefined,
-          dateEnd: undefined,
+          dateQuotation: undefined,
         });
       }
     }
@@ -331,27 +337,37 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                         <FormItem>
                           <FormLabel>Grupo de Cotización</FormLabel>
                           <FormControl>
-                            <SelectCombobox
-                              value={field.value}
-                              onChange={field.onChange}
-                              width="w-full"
-                              options={
-                                quotationGroups?.map((group) => ({
-                                  label: (
-                                    <div
-                                      className={cn(
-                                        "inline-flex items-center gap-2",
-                                        group.isActive ? "" : "text-rose-600 dark:text-rose-800 line-through opacity-50"
-                                      )}
-                                    >
-                                      <span className="text-xs text-muted-foreground">({group.code})</span>
-                                      <span className="text-sm font-semibold">{group.name}</span>
-                                    </div>
-                                  ),
-                                  value: group.id,
-                                })) || []
-                              }
-                            />
+                            {quotationGroups && quotationGroups?.length > 0 ? (
+                              <SelectCombobox
+                                value={field.value}
+                                onChange={field.onChange}
+                                width="w-full"
+                                options={
+                                  quotationGroups?.map((group) => ({
+                                    label: (
+                                      <div
+                                        className={cn(
+                                          "inline-flex items-center gap-2",
+                                          group.isActive
+                                            ? ""
+                                            : "text-rose-600 dark:text-rose-800 line-through opacity-50"
+                                        )}
+                                      >
+                                        <span className="text-xs text-muted-foreground">({group.code})</span>
+                                        <span className="text-sm font-semibold">{group.name}</span>
+                                      </div>
+                                    ),
+                                    value: group.id,
+                                  })) || []
+                                }
+                              />
+                            ) : (
+                              <Redirect
+                                text="No hay grupos de cotización"
+                                to="/quotation-groups"
+                                linkText="Ir a crear grupo de cotización"
+                              />
+                            )}
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -387,76 +403,90 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                   />
                   <FormField
                     control={form.control}
-                    name="typePayment"
+                    name="paymentPlan"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tipo de Pago</FormLabel>
+                        <FormLabel>Forma de Pago</FormLabel>
                         <FormControl>
-                          <div className="flex items-center justify-center space-x-2">
-                            <span
-                              className={`text-sm font-medium ${field.value === TypePayment.MONTHLY ? "text-primary" : "text-muted-foreground"}`}
-                            >
-                              Pago Mensual
-                            </span>
-
-                            <Switch
-                              checked={field.value === TypePayment.PUNCTUAL}
-                              onCheckedChange={() =>
-                                field.onChange(
-                                  field.value === TypePayment.PUNCTUAL ? TypePayment.MONTHLY : TypePayment.PUNCTUAL
-                                )
-                              }
-                              aria-label="Cambiar entre pago mensual y pago único"
-                              className="data-[state=checked]:bg-primary"
-                            />
-
-                            <span
-                              className={`text-sm font-medium ${field.value === TypePayment.PUNCTUAL ? "text-primary" : "text-muted-foreground"}`}
-                            >
-                              Pago Único
-                            </span>
-                          </div>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col gap-2 my-2"
+                          >
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem
+                                className="data-[state=checked]:fill-emerald-500 data-[state=checked]:text-emerald-600 data-[state=checked]:border-emerald-600"
+                                value={PaymentPlan.INSTALLMENTS}
+                                id="payment-plan-installments"
+                              />
+                              <Label
+                                htmlFor="payment-plan-installments"
+                                className={cn(
+                                  "text-sm",
+                                  field.value === PaymentPlan.INSTALLMENTS
+                                    ? "text-emerald-500"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                Pago Fraccionado
+                                {field.value === PaymentPlan.INSTALLMENTS && <Check className="w-4 h-4" />}
+                              </Label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <RadioGroupItem
+                                className="data-[state=checked]:fill-emerald-500 data-[state=checked]:text-emerald-600 data-[state=checked]:border-emerald-600"
+                                value={PaymentPlan.SINGLE}
+                                id="payment-plan-single"
+                              />
+                              <Label
+                                htmlFor="payment-plan-single"
+                                className={cn(
+                                  "text-sm",
+                                  field.value === PaymentPlan.SINGLE ? "text-emerald-500" : "text-muted-foreground"
+                                )}
+                              >
+                                Pago Único
+                                {field.value === PaymentPlan.SINGLE && <Check className="w-4 h-4" />}
+                              </Label>
+                            </div>
+                          </RadioGroup>
                         </FormControl>
                         <FormMessage />
+                        <FormDescription>
+                          {field.value === PaymentPlan.INSTALLMENTS
+                            ? "El pago se realizará en varias  cuotas fraccionadas."
+                            : "El pago se realizará una sola vez."}
+                        </FormDescription>
                       </FormItem>
                     )}
                   />
 
                   <FormField
                     control={form.control}
-                    name="dateStart"
+                    name="dateQuotation"
                     render={({ field }) => {
                       return (
                         <FormItem>
-                          <FormLabel>Fecha de Inicio</FormLabel>
+                          <FormLabel>Fecha de Cotización</FormLabel>
                           <FormControl>
-                            <DatePicker
-                              selected={field.value}
-                              onSelect={(date) => field.onChange(date)}
-                              placeholder="Selecciona la fecha de inicio"
+                            <CalendarDatePicker
+                              variant="outline"
+                              date={field.value || { from: undefined, to: undefined }}
+                              onDateSelect={({ from, to }) => {
+                                form.setValue("dateQuotation", {
+                                  from: from || new Date(),
+                                  to: to || new Date(),
+                                });
+                              }}
+                              numberOfMonths={1}
+                              disabled={isPending}
+                              closeOnSelect={true}
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       );
                     }}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="dateEnd"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Fecha concluida</FormLabel>
-                        <FormControl>
-                          <DatePicker
-                            selected={field.value}
-                            onSelect={(date) => field.onChange(date)}
-                            placeholder="Selecciona la fecha de fin"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
                   />
 
                   <FormField
@@ -510,9 +540,9 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                       name="position"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Cargo</FormLabel>
+                          <FormLabel>Cargo de Contacto</FormLabel>
                           <FormControl>
-                            <Input placeholder="Introduce el cargo" {...field} />
+                            <Input placeholder="Introduce el cargo de contacto" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -524,9 +554,13 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                       name="phone"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Teléfono</FormLabel>
+                          <FormLabel>Teléfono de Contacto</FormLabel>
                           <FormControl>
-                            <PhoneInput defaultCountry="PE" placeholder="Introduce el teléfono" {...field} />
+                            <PhoneInput
+                              defaultCountry="PE"
+                              placeholder="Introduce el teléfono de contacto"
+                              {...field}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -538,9 +572,9 @@ export function QuotationMutateDrawer({ open, onOpenChange, currentRow }: Props)
                       name="email"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email</FormLabel>
+                          <FormLabel>Email de Contacto</FormLabel>
                           <FormControl>
-                            <Input type="email" placeholder="Introduce el email" {...field} />
+                            <Input type="email" placeholder="Introduce el email de contacto" {...field} />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

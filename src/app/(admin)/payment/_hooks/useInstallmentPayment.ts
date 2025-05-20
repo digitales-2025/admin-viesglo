@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import {
+  concretizeInstallmentPayment,
   createInstallmentPayment,
   deleteInstallmentPayment,
   getInstallmentPayments,
@@ -11,6 +12,7 @@ import {
   updateInstallmentPayment,
 } from "../_actions/installment-payment.action";
 import { InstallmentPaymentCreate, InstallmentPaymentUpdate } from "../_types/installment-payment.types";
+import { MarkPaymentStatus } from "../_types/payment.types";
 import { PAYMENTS_KEYS } from "./usePayments";
 
 export const INSTALLMENT_PAYMENT_KEYS = {
@@ -128,6 +130,27 @@ export function useToggleInstallmentPayment() {
     },
     onError: (error) => {
       toast.error(error.message || "Error al reactivar o desactivar pago de cuota");
+    },
+  });
+}
+
+export function useConcretizeInstallmentPayment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, installmentPayment }: { id: string; installmentPayment: MarkPaymentStatus }) => {
+      const response = await concretizeInstallmentPayment(id, installmentPayment);
+      if (!response.success) {
+        throw new Error(response.error || "Error al concretar pago de cuota");
+      }
+      return response;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: INSTALLMENT_PAYMENT_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: PAYMENTS_KEYS.stats() });
+      toast.success("Pago de cuota concretado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Error al concretar pago de cuota");
     },
   });
 }

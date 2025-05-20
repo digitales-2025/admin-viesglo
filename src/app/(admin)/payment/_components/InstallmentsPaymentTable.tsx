@@ -4,30 +4,22 @@ import { useMemo, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { Check, DollarSign, IterationCcw, Pencil, Trash2, X } from "lucide-react";
+import { Check, FileText, IterationCcw, Pencil, Trash2, X } from "lucide-react";
+import { DateRange } from "react-day-picker";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { useAuthPermissions } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { AdminComponent } from "@/auth/presentation/components/AdminComponent";
 import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { cn } from "@/lib/utils";
 import AlertMessage from "@/shared/components/alerts/Alert";
+import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
 import { Loading } from "@/shared/components/loading";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Input } from "@/shared/components/ui/input";
 import { Progress } from "@/shared/components/ui/progress";
+import { Switch } from "@/shared/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -37,9 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/shared/components/ui/table";
+import { Textarea } from "@/shared/components/ui/textarea";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import {
+  useConcretizeInstallmentPayment,
   useCreateInstallmentPayment,
-  useDeleteInstallmentPayment,
   useInstallmentPayments,
   useToggleInstallmentPayment,
   useUpdateInstallmentPayment,
@@ -47,26 +41,27 @@ import {
 import { InstallmentPaymentCreate } from "../_types/installment-payment.types";
 import { PaymentResponse } from "../_types/payment.types";
 import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
+import { MODULE_INSTALLMENT_PAYMENTS } from "./InstallmentsDialogs";
 
 interface PaymentItem {
   id: string;
   amount: number;
-  paymentDate?: Date;
+  paymentDate?: DateRange;
   billingCode?: string;
-  billingDate?: Date;
+  billingDate?: DateRange;
   email?: string;
 }
 
-interface PaymentMonthlyTableProps {
+interface InstallmentsPaymentTableProps {
   payment: PaymentResponse;
 }
 
-export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProps) {
+export default function InstallmentsPaymentTable({ payment }: InstallmentsPaymentTableProps) {
   const { data: paymentItems, isLoading, error } = useInstallmentPayments(payment.id);
   const { mutate: createInstallmentPayment, isPending: isCreating } = useCreateInstallmentPayment();
   const { mutate: updateInstallmentPayment, isPending: isUpdating } = useUpdateInstallmentPayment();
-  const { mutate: deleteInstallmentPayment, isPending: isDeleting } = useDeleteInstallmentPayment();
   const { mutate: toggleInstallmentPayment, isPending: isToggling } = useToggleInstallmentPayment();
+  const { mutate: concretizeInstallmentPayment, isPending: isConcretizing } = useConcretizeInstallmentPayment();
 
   // Verificar permisos
   const { data: permissions } = useAuthPermissions();
@@ -75,17 +70,21 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
     return permissions.some((p) => p.resource === EnumResource.payments && p.action === EnumAction.create);
   }, [permissions]);
 
-  // Estado para controlar el diálogo de confirmación de eliminación
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [paymentToDelete, setPaymentToDelete] = useState<string | null>(null);
-
   const [newPayment, setNewPayment] = useState<Partial<PaymentItem>>({
     amount: 0,
+    paymentDate: undefined,
+    billingDate: undefined,
   });
 
   // Estado para controlar qué fila se está editando
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editingPayment, setEditingPayment] = useState<Partial<PaymentItem>>({});
+  const [editingPayment, setEditingPayment] = useState<Partial<PaymentItem>>({
+    paymentDate: undefined,
+    billingDate: undefined,
+  });
+
+  // Utilizar el store de diálogos
+  const { open } = useDialogStore();
 
   // Calcular el total de los pagos
   const totalAmountPaid = paymentItems?.reduce((sum, item) => sum + (item.isActive ? item.amount : 0), 0) || 0;
@@ -122,43 +121,16 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
     return new TZDate(year, month, day, "America/Lima").toISOString();
   };
 
+  // Funciones de manejo de pagos
   const handleAddPayment = () => {
-    if (!newPayment.amount) {
-      toast.error("Ingrese un monto de pago.");
-      return;
-    }
-
-    if (newPayment.amount <= 0 || newPayment.amount > payment.amount) {
-      toast.error("El monto de pago debe ser mayor que 0 y menor que el monto de la cotización.");
-      return;
-    }
-
-    if (!newPayment.paymentDate) {
-      toast.error("Ingrese una fecha de pago");
-      return;
-    }
-
-    if (!newPayment.billingCode || newPayment.billingCode.trim() === "") {
-      toast.error("Ingrese un código de factura");
-      return;
-    }
-
-    if (!z.string().email().safeParse(newPayment.email).success && newPayment.email) {
-      toast.error("Ingrese un email válido");
-      return;
-    }
-
     const paymentItem: InstallmentPaymentCreate = {
       amount: Number(newPayment.amount),
-      paymentDate:
-        createTZDatePreserveDay(newPayment.paymentDate) ||
-        new TZDate(new Date().getFullYear(), new Date().getMonth(), new Date().getDate(), "America/Lima").toISOString(),
+      paymentDate: createTZDatePreserveDay(newPayment.paymentDate?.from),
       billingCode: newPayment.billingCode || "",
-      billingDate: createTZDatePreserveDay(newPayment.billingDate),
+      billingDate: createTZDatePreserveDay(newPayment.billingDate?.from),
       emailBilling: newPayment.email || "",
-      isPaid: true,
+      isPaid: false,
     };
-
     createInstallmentPayment(
       {
         paymentId: payment.id,
@@ -167,7 +139,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
       {
         onSuccess: () => {
           setNewPayment({ amount: 0 });
-          toast.success("Pago mensual creado correctamente");
+          toast.success("Pago facturado correctamente");
         },
       }
     );
@@ -180,8 +152,8 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
 
       // Para las fechas, extraemos el año, mes y día directamente de la cadena ISO
       // y creamos una nueva fecha a mediodía para evitar problemas de zona horaria
-      let paymentDate: Date | undefined = undefined;
-      let billingDate: Date | undefined = undefined;
+      let paymentDate: DateRange | undefined = undefined;
+      let billingDate: DateRange | undefined = undefined;
 
       if (paymentToEdit.paymentDate) {
         const [datePart] = paymentToEdit.paymentDate.split("T");
@@ -189,7 +161,10 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
           const [year, month, day] = datePart.split("-").map(Number);
           if (year && month && day) {
             // Crear fecha a mediodía para evitar problemas de zona horaria
-            paymentDate = new Date(year, month - 1, day, 12, 0, 0);
+            paymentDate = {
+              from: new Date(year, month - 1, day, 12, 0, 0),
+              to: new Date(year, month - 1, day, 12, 0, 0),
+            };
           }
         }
       }
@@ -200,7 +175,10 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
           const [year, month, day] = datePart.split("-").map(Number);
           if (year && month && day) {
             // Crear fecha a mediodía para evitar problemas de zona horaria
-            billingDate = new Date(year, month - 1, day, 12, 0, 0);
+            billingDate = {
+              from: new Date(year, month - 1, day, 12, 0, 0),
+              to: new Date(year, month - 1, day, 12, 0, 0),
+            };
           }
         }
       }
@@ -216,38 +194,14 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
   };
 
   const handleSaveEdit = (id: string) => {
-    if (!editingPayment.amount) {
-      toast.error("Ingrese un monto de pago.");
-      return;
-    }
-
-    if (editingPayment.amount <= 0 || editingPayment.amount > payment.amount) {
-      toast.error("El monto de pago debe ser mayor que 0 y menor que el monto de la cotización.");
-      return;
-    }
-
-    if (!editingPayment.paymentDate) {
-      toast.error("Ingrese una fecha de pago");
-      return;
-    }
-
-    if (!editingPayment.billingCode || editingPayment.billingCode.trim() === "") {
-      toast.error("Ingrese un código de factura");
-      return;
-    }
-
-    if (!z.string().email().safeParse(editingPayment.email).success && editingPayment.email) {
-      toast.error("Ingrese un email válido");
-      return;
-    }
     updateInstallmentPayment(
       {
         id,
         data: {
           amount: editingPayment.amount,
-          paymentDate: createTZDatePreserveDay(editingPayment.paymentDate),
+          paymentDate: createTZDatePreserveDay(editingPayment.paymentDate?.from),
           billingCode: editingPayment.billingCode,
-          billingDate: createTZDatePreserveDay(editingPayment.billingDate),
+          billingDate: createTZDatePreserveDay(editingPayment.billingDate?.from),
           emailBilling: editingPayment.email || "",
         },
       },
@@ -266,71 +220,44 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
     setEditingPayment({});
   };
 
-  const disabledAddPayment = !newPayment.amount || !newPayment.paymentDate || !newPayment.billingCode;
+  const handleConcretizePayment = (id: string) => {
+    const paymentItem = paymentItems?.find((item) => item.id === id);
+    const paymentDate = paymentItem?.paymentDate;
+    const billingCode = paymentItem?.billingCode;
 
-  // Funciones para eliminar un pago
-  const handleConfirmDelete = () => {
-    if (paymentToDelete) {
-      deleteInstallmentPayment(paymentToDelete, {
-        onSuccess: () => {
-          toast.success("Pago eliminado correctamente");
-          setPaymentToDelete(null);
-          setIsDeleteDialogOpen(false);
-        },
-        onError: () => {
-          toast.error("Error al eliminar el pago");
-          setPaymentToDelete(null);
-          setIsDeleteDialogOpen(false);
-        },
-      });
+    if (!paymentDate) {
+      toast.error("Tienes que seleccionar una fecha de pago para concretizar el pago");
+      return;
     }
+
+    if (!billingCode) {
+      toast.error("Tienes que seleccionar un código de factura para concretizar el pago");
+      return;
+    }
+
+    concretizeInstallmentPayment({
+      id,
+      installmentPayment: {
+        isPaid: !paymentItem?.isPaid,
+        paymentDate,
+        billingCode,
+      },
+    });
   };
 
-  const handleDeleteClick = (id: string) => {
-    setPaymentToDelete(id);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const handleCancelDelete = () => {
-    setPaymentToDelete(null);
-    setIsDeleteDialogOpen(false);
-  };
+  const disabledAddPayment =
+    !!newPayment.amount ||
+    !!newPayment.paymentDate?.from ||
+    !!newPayment.billingCode ||
+    !!newPayment.billingDate?.from ||
+    !!newPayment.email;
 
   const handleTogglePayment = (id: string) => {
     toggleInstallmentPayment(id);
   };
 
   return (
-    <div className="p-4 bg-muted/30 rounded-md">
-      <div className="flex gap-4 items-center mb-4 justify-center">
-        <h3 className="text-lg font-semibold">Detalles de Pago Mensual</h3>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="dark:bg-emerald-700/30 bg-emerald-100 font-semibold border-none text-lg">
-            <DollarSign className="h-4 w-4 mr-1 text-primary shrink-0" />
-            Monto Total:{" "}
-            {new Intl.NumberFormat("es-PE", {
-              style: "currency",
-              currency: "PEN",
-            }).format(payment.amount)}
-          </Badge>
-        </div>
-      </div>
-
-      <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Cotización:</span>
-          <Badge variant="outline" className="w-fit">
-            {payment.code}
-          </Badge>
-        </div>
-        <div className="flex flex-col gap-2">
-          <span className="text-sm font-medium">Cliente:</span>
-          <Badge variant="outline" className="w-fit">
-            {payment.businessName}
-          </Badge>
-        </div>
-      </div>
-
+    <div>
       {/* Tabla de pagos */}
       {error && <AlertMessage variant="destructive" title="Error" description="Error al obtener los pagos mensuales" />}
       <div className="border rounded-md mb-4">
@@ -338,18 +265,21 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
           <TableHeader className="bg-muted/50">
             <TableRow>
               <TableHead className="p-2 text-left w-56">Monto</TableHead>
-              <TableHead className="p-2 text-left w-56">Fecha de Pago</TableHead>
-              <TableHead className="p-2 text-left w-56">Código Factura</TableHead>
-              <TableHead className="p-2 text-left w-56">Fecha Factura</TableHead>
+              <TableHead className="p-2 text-left w-56">Código factura</TableHead>
+              <TableHead className="p-2 text-left w-56">Fecha facturación</TableHead>
               <TableHead className="p-2 text-left w-56">Email destinatario</TableHead>
-              <TableHead className="p-2 text-left w-56">Estado</TableHead>
+              <TableHead className="p-2 text-left w-56">Fecha de pago</TableHead>
+              <TableHead className="p-2 text-left w-56">
+                <AdminComponent>Estado</AdminComponent>
+              </TableHead>
+              <TableHead className="p-2 text-left w-56">Estado de pago</TableHead>
               <TableHead className="p-2 text-center w-56">Acciones</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={6} className="p-4 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="p-4 text-center text-muted-foreground">
                   <Loading text="Cargando pagos mensuales..." />
                 </TableCell>
               </TableRow>
@@ -368,24 +298,16 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                        <span
+                          className={cn(
+                            !item.isActive && "text-destructive line-through",
+                            item.isPaid && "text-emerald-500 font-semibold"
+                          )}
+                        >
                           {new Intl.NumberFormat("es-PE", {
                             style: "currency",
                             currency: "PEN",
                           }).format(item.amount)}
-                        </span>
-                      )}
-                    </TableCell>
-                    <TableCell className="p-2">
-                      {editingId === item.id ? (
-                        <DatePicker
-                          selected={editingPayment.paymentDate}
-                          onSelect={(date) => setEditingPayment({ ...editingPayment, paymentDate: date })}
-                          className="h-8 w-56"
-                        />
-                      ) : (
-                        <span className={cn(!item.isActive && "text-destructive line-through")}>
-                          {formatDatePreserveDay(item.paymentDate as string)}
                         </span>
                       )}
                     </TableCell>
@@ -397,44 +319,102 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                           className="h-8 w-56"
                         />
                       ) : (
-                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                        <span
+                          className={cn(
+                            !item.isActive && "text-destructive line-through",
+                            item.isPaid && "text-emerald-500 font-semibold"
+                          )}
+                        >
                           {item.billingCode || "-"}
                         </span>
                       )}
                     </TableCell>
+
                     <TableCell className="p-2">
                       {editingId === item.id ? (
-                        <DatePicker
-                          selected={editingPayment.billingDate}
-                          onSelect={(date) => setEditingPayment({ ...editingPayment, billingDate: date })}
-                          className="h-8 w-56"
+                        <CalendarDatePicker
+                          variant="outline"
+                          numberOfMonths={1}
+                          date={editingPayment.billingDate || { from: undefined, to: undefined }}
+                          onDateSelect={(date) => setEditingPayment({ ...editingPayment, billingDate: date })}
+                          onClear={() => setEditingPayment({ ...editingPayment, billingDate: undefined })}
+                          closeOnSelect={true}
                         />
                       ) : (
-                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                        <span
+                          className={cn(
+                            !item.isActive && "text-destructive line-through",
+                            item.isPaid && "text-emerald-500 font-semibold"
+                          )}
+                        >
                           {formatDatePreserveDay(item.billingDate as string)}
                         </span>
                       )}
                     </TableCell>
                     <TableCell className="p-2">
                       {editingId === item.id ? (
-                        <Input
-                          type="email"
+                        <Textarea
                           value={editingPayment.email || ""}
                           onChange={(e) => setEditingPayment({ ...editingPayment, email: e.target.value })}
-                          className="h-8 w-56"
+                          className="min-h-7 w-56"
                         />
                       ) : (
-                        <span className={cn(!item.isActive && "text-destructive line-through")}>
+                        <span
+                          className={cn(
+                            "text-wrap",
+                            !item.isActive && "text-destructive line-through",
+                            item.isPaid && "text-emerald-500 font-semibold"
+                          )}
+                        >
                           {item.emailBilling || "-"}
                         </span>
                       )}
                     </TableCell>
-                    <TableCell className="p-2 text-center">
-                      {item.isActive ? (
-                        <Badge variant="success">Activo</Badge>
+
+                    <TableCell className="p-2">
+                      {editingId === item.id ? (
+                        <CalendarDatePicker
+                          variant="outline"
+                          numberOfMonths={1}
+                          date={editingPayment.paymentDate || { from: undefined, to: undefined }}
+                          onDateSelect={(date) => setEditingPayment({ ...editingPayment, paymentDate: date })}
+                          onClear={() => setEditingPayment({ ...editingPayment, paymentDate: undefined })}
+                          closeOnSelect={true}
+                        />
                       ) : (
-                        <Badge variant="error">Inactivo</Badge>
+                        <span
+                          className={cn(
+                            !item.isActive && "text-destructive line-through",
+                            item.isPaid && "text-emerald-500 font-semibold"
+                          )}
+                        >
+                          {formatDatePreserveDay(item.paymentDate as string)}
+                        </span>
                       )}
+                    </TableCell>
+                    <TableCell className="p-2 text-center">
+                      <AdminComponent>
+                        {item.isActive ? (
+                          <Badge variant="success">Activo</Badge>
+                        ) : (
+                          <Badge variant="error">Inactivo</Badge>
+                        )}
+                      </AdminComponent>
+                    </TableCell>
+                    <TableCell className="p-2 text-center">
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={item.isPaid}
+                          onCheckedChange={() => handleConcretizePayment(item.id)}
+                          disabled={isConcretizing || payment.isPaid}
+                          className="data-[state=checked]:bg-emerald-500 data-[state=unchecked]:bg-rose-500 dark:data-[state=checked]:bg-emerald-500 dark:data-[state=unchecked]:bg-rose-500"
+                        />
+                        {item.isPaid ? (
+                          <Badge variant="success">Pagado</Badge>
+                        ) : (
+                          <Badge variant="error">Pendiente</Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="p-2 text-center">
                       <ProtectedComponent
@@ -474,10 +454,11 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                 variant="ghost"
                                 size="icon"
                                 onClick={() => handleEditPayment(item.id)}
-                                disabled={isUpdating || payment.isPaid}
+                                disabled={isUpdating || payment.isPaid || item.isPaid}
                                 title="Editar pago"
+                                className="hover:text-sky-600"
                               >
-                                <Pencil className="h-4 w-4 text-sky-600" />
+                                <Pencil className="h-4 w-4 " />
                               </Button>
                             </ProtectedComponent>
                             {item.isActive ? (
@@ -487,11 +468,17 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  onClick={() => handleDeleteClick(item.id)}
-                                  disabled={isDeleting || !item.isActive || payment.isPaid}
+                                  onClick={() => {
+                                    open(MODULE_INSTALLMENT_PAYMENTS, "delete", {
+                                      paymentId: payment.id,
+                                      installmentId: item.id,
+                                    });
+                                  }}
+                                  disabled={!item.isActive || payment.isPaid || item.isPaid}
                                   title="Eliminar pago"
+                                  className="hover:text-destructive"
                                 >
-                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                  <Trash2 className="h-4 w-4 " />
                                 </Button>
                               </ProtectedComponent>
                             ) : (
@@ -518,7 +505,7 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
               })
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="p-4 text-center text-muted-foreground">
+                <TableCell colSpan={7} className="p-4 text-center text-muted-foreground">
                   No hay pagos registrados
                 </TableCell>
               </TableRow>
@@ -534,16 +521,6 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                     value={newPayment.amount || ""}
                     onChange={(e) => setNewPayment({ ...newPayment, amount: parseFloat(e.target.value) })}
                     placeholder="Ingrese el monto a pagar"
-                    className="h-8 w-56"
-                    disabled={payment.isPaid}
-                  />
-                </TableCell>
-                <TableCell className="p-2">
-                  <DatePicker
-                    selected={newPayment.paymentDate}
-                    onSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
-                    placeholder="Seleccionar fecha"
-                    className="h-8 w-56"
                     disabled={payment.isPaid}
                   />
                 </TableCell>
@@ -557,34 +534,46 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   />
                 </TableCell>
                 <TableCell className="p-2">
-                  <DatePicker
-                    selected={newPayment.billingDate}
-                    onSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
-                    placeholder="Seleccionar fecha"
-                    className="h-8 w-56"
+                  <CalendarDatePicker
+                    variant="outline"
+                    numberOfMonths={1}
+                    date={newPayment.billingDate || { from: undefined, to: undefined }}
+                    onDateSelect={(date) => setNewPayment({ ...newPayment, billingDate: date })}
+                    onClear={() => setNewPayment({ ...newPayment, billingDate: undefined })}
                     disabled={payment.isPaid}
+                    closeOnSelect={true}
                   />
                 </TableCell>
                 <TableCell className="p-2">
-                  <Input
-                    type="email"
+                  <Textarea
                     value={newPayment.email || ""}
                     onChange={(e) => setNewPayment({ ...newPayment, email: e.target.value })}
-                    placeholder="Ingrese el email destinatario"
-                    className="h-8 w-56"
+                    placeholder="Ingrese los emails destinatarios"
                     disabled={payment.isPaid}
+                    className="w-56 min-h-7"
                   />
                 </TableCell>
-                <TableCell className="p-2 text-center" colSpan={2}>
+                <TableCell className="p-2">
+                  <CalendarDatePicker
+                    variant="outline"
+                    numberOfMonths={1}
+                    date={newPayment.paymentDate || { from: undefined, to: undefined }}
+                    onDateSelect={(date) => setNewPayment({ ...newPayment, paymentDate: date })}
+                    onClear={() => setNewPayment({ ...newPayment, paymentDate: undefined })}
+                    disabled={payment.isPaid}
+                    closeOnSelect={true}
+                  />
+                </TableCell>
+                <TableCell className="p-2 text-center" colSpan={3}>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={handleAddPayment}
-                    disabled={disabledAddPayment || isCreating || payment.isPaid}
+                    disabled={!disabledAddPayment || isCreating || payment.isPaid}
                     className="ml-2 border-emerald-500 text-emerald-500"
                   >
-                    <Check className="h-4 w-4 mr-1" />
-                    Realizar el pago
+                    <FileText className="h-4 w-4 mr-1" />
+                    Realizar facturación
                   </Button>
                 </TableCell>
               </TableRow>
@@ -604,42 +593,20 @@ export default function PaymentMonthlyTable({ payment }: PaymentMonthlyTableProp
                   currency: "PEN",
                 }).format(totalAmountPaid)}
               </td>
-              <td colSpan={6} className="p-2 text-right">
+              <td colSpan={7} className="p-2 text-right">
                 <div className="flex items-center justify-end gap-2">
                   <div className="h-2 w-24 bg-muted rounded-full overflow-hidden">
-                    <Progress value={Math.min(percentagePaid, 100)} />
+                    <Progress value={Math.min(percentagePaid, 100)} color="bg-yellow-500" />
                   </div>
-                  <span className="text-xs text-muted-foreground">{percentagePaid.toFixed(0)}% del total</span>
+                  <span className="text-xs text-muted-foreground">
+                    {percentagePaid.toFixed(0)}% facturado del total
+                  </span>
                 </div>
               </td>
             </tr>
           </TableFooter>
         </Table>
       </div>
-
-      {/* Diálogo de confirmación para eliminar pagos */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Está seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción eliminará permanentemente el pago seleccionado y no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelDelete} disabled={isDeleting}>
-              Cancelar
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }

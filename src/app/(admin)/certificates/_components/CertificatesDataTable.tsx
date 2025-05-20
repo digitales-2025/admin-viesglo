@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/DataTable";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
@@ -12,6 +13,7 @@ import { useCertificatesPaginated } from "../_hooks/useCertificates";
 import { columnsCertificates } from "./certificates.column";
 
 export default function CertificatesDataTable() {
+  const isAdmin = useIsAdmin();
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -174,6 +176,9 @@ export default function CertificatesDataTable() {
         serverFilters={serverFilters}
         onClickRow={(row) => {
           open("certificates", "view", row);
+        }}
+        initialColumnVisibility={{
+          estado: isAdmin,
         }}
       />
     </div>

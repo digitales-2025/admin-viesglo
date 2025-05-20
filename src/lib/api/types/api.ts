@@ -1680,6 +1680,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/payments/stats": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Estadísticas de pagos */
+    get: operations["PaymentController_findAllForStats_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/v1/payments/paginated": {
     parameters: {
       query?: never;
@@ -1706,6 +1723,23 @@ export interface paths {
     };
     /** Generar Excel de cotizaciones */
     get: operations["PaymentController_generateExcel_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payments/years-comparison": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Comparación de pagos por años y meses */
+    get: operations["PaymentController_compareYears_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1855,6 +1889,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/api/v1/installment-payments/{id}/mark-status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar el estado de un pago por cuota de cotización */
+    patch: operations["InstallmentPaymentController_updateStatus_v1"];
+    trace?: never;
+  };
   "/api/v1/installment-payments/{id}/toggle-active": {
     parameters: {
       query?: never;
@@ -1879,11 +1930,47 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Find audit by entity id */
+    /** Find audit by entity id with pagination */
     get: operations["AuditController_findAudit_v1"];
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-installment-config": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener una configuración de pago por cuotas por ID de pago */
+    get: operations["PaymentInstallmentConfigController_findByPaymentId_v1"];
+    put?: never;
+    /** Crear una configuración de pago por cuotas */
+    post: operations["PaymentInstallmentConfigController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/v1/payment-installment-config/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar una configuración de pago por cuotas */
+    put: operations["PaymentInstallmentConfigController_update_v1"];
+    post?: never;
+    /** Eliminar una configuración de pago por cuotas */
+    delete: operations["PaymentInstallmentConfigController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -3554,20 +3641,15 @@ export interface components {
       isConcrete: boolean;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart: string;
-      /**
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd: string;
+      dateQuotation: string;
       /** @description Grupo de cotización */
       quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
     };
@@ -3638,17 +3720,17 @@ export interface components {
        * @description Departamento
        * @example Lima
        */
-      department: string;
+      department?: string;
       /**
        * @description Provincia
        * @example Lima
        */
-      province: string;
+      province?: string;
       /**
        * @description Distrito
        * @example San Isidro
        */
-      district: string;
+      district?: string;
       /**
        * @description Nombre del contacto principal
        * @example Juan Pérez
@@ -3658,7 +3740,7 @@ export interface components {
        * @description Cargo del contacto principal
        * @example Gerente
        */
-      position: string;
+      position?: string;
       /**
        * @description Teléfono del contacto principal
        * @example +51987654321
@@ -3677,22 +3759,16 @@ export interface components {
       quotationGroupId: string;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
        * Format: date-time
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd?: string;
+      dateQuotation: string;
     };
     UpdateQuotationDto: {
       /**
@@ -3783,22 +3859,16 @@ export interface components {
       quotationGroupId?: string;
       /**
        * @description Tipo de pago
-       * @example MONTHLY
+       * @example INSTALLMENTS
        * @enum {string}
        */
-      typePayment?: "MONTHLY" | "PUNCTUAL";
+      paymentPlan?: "INSTALLMENTS" | "SINGLE";
       /**
        * Format: date-time
-       * @description Fecha de inicio
+       * @description Fecha de cotización
        * @example 2024-01-01
        */
-      dateStart?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin
-       * @example 2024-01-01
-       */
-      dateEnd?: string;
+      dateQuotation?: string;
     };
     ConcreteQuotationDto: {
       /**
@@ -4693,10 +4763,10 @@ export interface components {
       amount: number;
       /**
        * @description Tipo de pago
-       * @example PUNCTUAL
+       * @example SINGLE
        * @enum {string}
        */
-      typePayment: "MONTHLY" | "PUNCTUAL";
+      paymentPlan: "INSTALLMENTS" | "SINGLE";
       /**
        * @description Correo del cliente
        * @example juan.perez@empresa.com
@@ -4761,6 +4831,114 @@ export interface components {
          */
         totalPages?: number;
       };
+    };
+    MonthlyComparisonDto: {
+      /**
+       * @description Número del mes (1-12)
+       * @example 1
+       */
+      month: number;
+      /**
+       * @description Cantidad total de transacciones en el mes
+       * @example 25
+       */
+      totalCount: number;
+      /**
+       * @description Cantidad de facturas emitidas en el mes
+       * @example 20
+       */
+      billingsCount: number;
+      /**
+       * @description Cantidad de pagos recibidos en el mes
+       * @example 18
+       */
+      paymentsCount: number;
+      /**
+       * @description Monto total de transacciones en el mes
+       * @example 15000
+       */
+      totalAmount: number;
+      /**
+       * @description Monto facturado en el mes
+       * @example 12000
+       */
+      billedAmount: number;
+      /**
+       * @description Monto pagado en el mes
+       * @example 10000
+       */
+      paidAmount: number;
+    };
+    YearlyComparisonDto: {
+      /**
+       * @description Año
+       * @example 2023
+       */
+      year: number;
+      /** @description Datos mensuales */
+      months: components["schemas"]["MonthlyComparisonDto"][];
+      /**
+       * @description Monto total del año
+       * @example 180000
+       */
+      totalAmount: number;
+      /**
+       * @description Monto facturado del año
+       * @example 150000
+       */
+      billedAmount: number;
+      /**
+       * @description Monto pagado del año
+       * @example 120000
+       */
+      paidAmount: number;
+    };
+    ComparisonDetailsDto: {
+      /**
+       * @description Cambio porcentual total entre años
+       * @example {
+       *       "2023-2022": 15.5,
+       *       "2022-2021": 8.7
+       *     }
+       */
+      percentageChangeByYear: Record<string, never>;
+      /**
+       * @description Cambio porcentual de facturación entre años
+       * @example {
+       *       "2023-2022": 12.3,
+       *       "2022-2021": 7.5
+       *     }
+       */
+      percentageBilledChangeByYear: Record<string, never>;
+      /**
+       * @description Cambio porcentual de pagos entre años
+       * @example {
+       *       "2023-2022": 18.2,
+       *       "2022-2021": 9.1
+       *     }
+       */
+      percentagePaidChangeByYear: Record<string, never>;
+      /**
+       * @description Promedio de crecimiento total
+       * @example 12.1
+       */
+      averageGrowth: number;
+      /**
+       * @description Promedio de crecimiento de facturación
+       * @example 9.9
+       */
+      averageBilledGrowth: number;
+      /**
+       * @description Promedio de crecimiento de pagos
+       * @example 13.6
+       */
+      averagePaidGrowth: number;
+    };
+    PaymentsComparisonResponseDto: {
+      /** @description Datos por año */
+      years: components["schemas"]["YearlyComparisonDto"][];
+      /** @description Detalles de la comparación */
+      comparison: components["schemas"]["ComparisonDetailsDto"];
     };
     UpdatePaymentStatusDto: {
       /**
@@ -4842,10 +5020,11 @@ export interface components {
        */
       amount: number;
       /**
+       * Format: date-time
        * @description Fecha de pago
        * @example 2021-01-01
        */
-      paymentDate: string;
+      paymentDate?: string;
       /**
        * @description Confirmación de pago
        * @example true
@@ -4857,6 +5036,7 @@ export interface components {
        */
       billingCode: string;
       /**
+       * Format: date-time
        * @description Fecha de facturación
        * @example 2021-01-01
        */
@@ -4921,6 +5101,7 @@ export interface components {
        */
       amount?: number;
       /**
+       * Format: date-time
        * @description Fecha de pago
        * @example 2021-01-01
        */
@@ -4936,6 +5117,7 @@ export interface components {
        */
       billingCode?: string;
       /**
+       * Format: date-time
        * @description Fecha de facturación
        * @example 2021-01-01
        */
@@ -4997,6 +5179,115 @@ export interface components {
         email: string;
         fullName: string;
       };
+    };
+    CreatePaymentInstallmentConfigDto: {
+      /**
+       * @description Cantidad de cuotas
+       * @example Este pago se paga en 1 cuota
+       */
+      installmentsQuantity: string;
+      /**
+       * @description Monto de cada cuota
+       * @example Las cuotas son de 1000 soles cada una
+       */
+      installmentsAmount: string;
+      /**
+       * @description Emails de cada cuota
+       * @example El email de cada cuota es para juan@gmail.com
+       */
+      installmentsEmails: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example Las fechas de cada cuota son el 1 de cada mes
+       */
+      installmentsDates: string;
+      /**
+       * Format: date
+       * @description Fecha de inicio del servicio
+       * @example 2024-03-20
+       */
+      startDateService: string;
+      /**
+       * Format: date
+       * @description Fecha de fin del servicio
+       * @example 10-05-2025
+       */
+      endDateService: string;
+    };
+    PaymentInstallmentConfigResponseDto: {
+      /**
+       * @description ID de la configuración de pago
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /** @description Pago */
+      payment: components["schemas"]["PaymentResponseDto"];
+      /**
+       * @description Cantidad de cuotas
+       * @example 1
+       */
+      installmentsQuantity: string;
+      /**
+       * @description Monto de cada cuota
+       * @example 1000
+       */
+      installmentsAmount: string;
+      /**
+       * @description Emails de cada cuota
+       * @example juan@gmail.com
+       */
+      installmentsEmails: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example 2021-01-01
+       */
+      installmentsDates: string;
+      /**
+       * Format: date-time
+       * @description Fecha de inicio del servicio
+       * @example 2021-01-01
+       */
+      startDateService: string;
+      /**
+       * Format: date-time
+       * @description Fecha de fin del servicio
+       * @example 2021-01-01
+       */
+      endDateService: string;
+    };
+    UpdatePaymentInstallmentConfigDto: {
+      /**
+       * @description Cantidad de cuotas
+       * @example Este pago se paga en 1 cuota
+       */
+      installmentsQuantity?: string;
+      /**
+       * @description Monto de cada cuota
+       * @example Las cuotas son de 1000 soles cada una
+       */
+      installmentsAmount?: string;
+      /**
+       * @description Emails de cada cuota
+       * @example El email de cada cuota es para juan@gmail.com
+       */
+      installmentsEmails?: string;
+      /**
+       * @description Fechas de cada cuota
+       * @example Las fechas de cada cuota son el 1 de cada mes
+       */
+      installmentsDates?: string;
+      /**
+       * Format: date
+       * @description Fecha de inicio del servicio
+       * @example 2024-03-20
+       */
+      startDateService?: string;
+      /**
+       * Format: date
+       * @description Fecha de fin del servicio
+       * @example 10-05-2025
+       */
+      endDateService?: string;
     };
   };
   responses: never;
@@ -6454,7 +6745,7 @@ export interface operations {
         /** @description Filtrar por fecha de finalización (hasta) */
         endDateTo?: string;
         /** @description Filtrar por estado del proyecto */
-        status?: string;
+        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
         /** @description Filtrar por búsqueda en nombre o descripción */
         search?: string;
         /** @description Filtrar por ID de cliente */
@@ -7300,8 +7591,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -7374,8 +7663,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -7417,8 +7704,6 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo cotizaciones concretadas */
@@ -8716,14 +9001,12 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -8752,6 +9035,47 @@ export interface operations {
       };
     };
   };
+  PaymentController_findAllForStats_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
+        code?: string[];
+        /** @description Filtrar por RUC */
+        ruc?: string;
+        /** @description Filtrar por nombre o razón social */
+        businessName?: string;
+        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
+        department?: string[];
+        /** @description Filtrar solo pagos pagados */
+        isPaid?: string;
+        /** @description Filtrar por tipo de pago */
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
+        /** @description Filtrar por búsqueda general */
+        search?: string;
+        /** @description From para filtrar por rango de fechas */
+        from?: string;
+        /** @description To para filtrar por rango de fechas */
+        to?: string;
+        /** @description Número de página */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estadísticas de pagos encontradas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   PaymentController_findAllPaginated_v1: {
     parameters: {
       query?: {
@@ -8761,14 +9085,12 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -8806,14 +9128,12 @@ export interface operations {
         ruc?: string;
         /** @description Filtrar por nombre o razón social */
         businessName?: string;
-        /** @description Filtrar por servicio (puede ser un solo valor o un array) */
-        service?: string[];
         /** @description Filtrar por departamento (puede ser un solo valor o un array) */
         department?: string[];
         /** @description Filtrar solo pagos pagados */
         isPaid?: string;
         /** @description Filtrar por tipo de pago */
-        typePayment?: "MONTHLY" | "PUNCTUAL";
+        paymentPlan?: "INSTALLMENTS" | "SINGLE";
         /** @description Filtrar por búsqueda general */
         search?: string;
         /** @description From para filtrar por rango de fechas */
@@ -8837,6 +9157,29 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  PaymentController_compareYears_v1: {
+    parameters: {
+      query?: {
+        /** @description Años para comparar (ej: 2023,2022,2021) */
+        years?: number[];
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Comparación de pagos generada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentsComparisonResponseDto"];
+        };
       };
     };
   };
@@ -9202,6 +9545,40 @@ export interface operations {
       };
     };
   };
+  InstallmentPaymentController_updateStatus_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del pago por cuota de cotización */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["MarkPaymentStatusDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
+        };
+      };
+    };
+  };
   InstallmentPaymentController_toggleActive_v1: {
     parameters: {
       query?: never;
@@ -9236,6 +9613,10 @@ export interface operations {
     parameters: {
       query: {
         entityId: string;
+        /** @description Page number (default: 1) */
+        page?: number;
+        /** @description Items per page (default: 10, max: 100) */
+        limit?: number;
       };
       header?: never;
       path?: never;
@@ -9250,6 +9631,100 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["AuditResponseDto"][];
         };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_findByPaymentId_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Configuración de pago por cuotas encontrada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_create_v1: {
+    parameters: {
+      query: {
+        paymentId: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePaymentInstallmentConfigDto"];
+      };
+    };
+    responses: {
+      /** @description Configuración de pago por cuotas creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_update_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePaymentInstallmentConfigDto"];
+      };
+    };
+    responses: {
+      /** @description Configuración de pago por cuotas actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
+        };
+      };
+    };
+  };
+  PaymentInstallmentConfigController_delete_v1: {
+    parameters: {
+      query: {
+        id: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Configuración de pago por cuotas eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };

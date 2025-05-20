@@ -16,7 +16,10 @@ interface PaymentsState {
 }
 
 // Valores por defecto para los filtros (vacíos)
-const DEFAULT_FILTERS: PaymentFilterData = {};
+const DEFAULT_FILTERS: PaymentFilterData = {
+  from: undefined,
+  to: undefined,
+};
 
 export const usePaymentsStore = create<PaymentsState>()((set) => ({
   // Estado inicial de filtros (vacío)

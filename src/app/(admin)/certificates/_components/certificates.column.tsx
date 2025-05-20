@@ -116,8 +116,8 @@ export const columnsCertificates = (): ColumnDef<CertificateResponse>[] => [
   },
   {
     id: "estado",
+    accessorKey: "isActive",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-    accessorKey: "status",
     cell: ({ row }) => (
       <div className="min-w-[150px] max-w-[150px]">
         {row.original.isActive ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}

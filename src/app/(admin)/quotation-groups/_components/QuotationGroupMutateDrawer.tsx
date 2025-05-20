@@ -29,7 +29,10 @@ interface Props {
 }
 
 const createSchema = z.object({
-  code: z.string().min(1, "El código es requerido."),
+  code: z
+    .string()
+    .min(1, "El código es requerido.")
+    .transform((val) => val.toUpperCase()),
   name: z.string().min(1, "El nombre es requerido."),
   description: z.string().optional(),
 });
@@ -125,7 +128,11 @@ export default function QuotationGroupMutateDrawer({ open, onOpenChange, current
                   <FormItem>
                     <FormLabel>Código</FormLabel>
                     <FormControl>
-                      <Input {...field} disabled={isPending} />
+                      <Input
+                        value={field.value.toUpperCase()}
+                        onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                        disabled={isPending}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
