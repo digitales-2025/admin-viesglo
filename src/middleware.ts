@@ -127,6 +127,6 @@ export const config = {
      * 4. /_vercel (archivos internos de Vercel)
      * 5. /favicon.ico, /sitemap.xml, etc.
      */
-    "/((?!api|_next|_static|_vercel|favicon.ico|sitemap.xml).*)",
+    "/((?!api|_next|_static|_vercel|favicon\\.ico|sitemap\\.xml|.*\\.(?:png|jpe?g|gif|svg|webp|bmp|ico|otf|ttf|tiff?)(?:$|\\?)).*)",
   ],
 };
