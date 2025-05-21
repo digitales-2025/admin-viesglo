@@ -125,8 +125,9 @@ export const config = {
      * 2. /_next (archivos estáticos de Next.js)
      * 3. /_static (si tienes una carpeta static)
      * 4. /_vercel (archivos internos de Vercel)
-     * 5. /favicon.ico, /sitemap.xml, etc.
+     * 5. /assets (carpeta de recursos estáticos)
+     * 6. /favicon.ico, /sitemap.xml, etc.
      */
-    "/((?!api|_next|_static|_vercel|favicon\\.ico|sitemap\\.xml|.*\\.(?:png|jpe?g|gif|svg|webp|bmp|ico|otf|ttf|tiff?)(?:$|\\?)).*)",
+    "/((?!api|_next|_static|_vercel|assets|favicon\\.ico|sitemap\\.xml|.*\\.(?:png|jpe?g|gif|svg|webp|bmp|ico|otf|ttf|tiff?)(?:$|\\?)).*)",
   ],
 };
