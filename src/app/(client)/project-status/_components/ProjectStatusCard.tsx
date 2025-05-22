@@ -3,10 +3,15 @@
 import { memo } from "react";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
-import { ClockArrowUp, User } from "lucide-react";
+import { ClockArrowUp, User, UserCog } from "lucide-react";
 
 import { useProjectStore } from "@/app/(admin)/tracking/_hooks/useProjectStore";
-import { ProjectResponse } from "@/app/(admin)/tracking/_types/tracking.types";
+import {
+  ProjectResponse,
+  ProjectStatus,
+  ProjectStatusColors,
+  ProjectStatusLabels,
+} from "@/app/(admin)/tracking/_types/tracking.types";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Progress } from "@/shared/components/ui/progress";
@@ -44,6 +49,12 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
       onClick={handleClick}
     >
       <CardHeader className="px-3 pt-3 pb-2 sm:px-6 sm:py-4">
+        <Badge
+          variant="outline"
+          className={cn("text-xs sm:text-sm border-none", ProjectStatusColors[project.status as ProjectStatus])}
+        >
+          {ProjectStatusLabels[project.status as ProjectStatus]}
+        </Badge>
         <CardTitle className="text-sm sm:text-base first-letter:uppercase line-clamp-2">
           {project.typeContract}
         </CardTitle>
@@ -65,14 +76,29 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <span className={cn("text-muted-foreground", isMobile ? "sr-only" : "text-xs")}>Completado</span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 py-2 sm:px-6 sm:py-4">
+      <CardFooter className="flex flex-wrap items-center gap-2 sm:gap-4 px-3 sm:px-6 py-0">
         <Badge
           variant="outline"
           className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
         >
           <User className="size-3 sm:size-4" />
-          <strong className="first-letter:uppercase line-clamp-1">{project.client.name}</strong>
+          Cliente:
+          <strong className="first-letter:uppercase line-clamp-1 text-wrap" title={project.client.name}>
+            {project.client.name}
+          </strong>
         </Badge>
+
+        {project.responsibleUserId && (
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1 sm:gap-2 text-muted-foreground text-xs sm:text-sm h-6 sm:h-7"
+          >
+            <UserCog className="size-3 sm:size-4 shrink-0" />
+            Responsable:
+            <strong className="first-letter:uppercase line-clamp-1">{project.responsibleUser?.fullName}</strong>
+          </Badge>
+        )}
+
         {formattedDate && (
           <Badge
             variant="outline"

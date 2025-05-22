@@ -69,7 +69,7 @@ export function DynamicListForm({ label, name, control, isEditing, hideLabel = f
                 value={item}
                 onChange={(e) => handleUpdate(index, e.target.value)}
                 placeholder="Ingrese valor"
-                className="flex-1"
+                className="flex-1 outline-2 outline-emerald-600/50"
               />
             ) : (
               <div className="flex-1 py-2 px-3 border rounded-md bg-muted/20">{item || "No registrado"}</div>
@@ -82,7 +82,7 @@ export function DynamicListForm({ label, name, control, isEditing, hideLabel = f
                 onClick={() => handleRemove(index)}
                 className="h-9 w-9 text-muted-foreground hover:text-destructive"
               >
-                <Trash className="h-4 w-4" />
+                <Trash className="h-4 w-4 text-rose-600" />
               </Button>
             )}
           </div>

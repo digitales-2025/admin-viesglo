@@ -3,7 +3,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
 
-import { ProjectFilterValues, ProjectsAdvancedSearch } from "@/app/(admin)/tracking/_components/ProjectsAdvancedSearch";
+import { ProjectFilterValues } from "@/app/(admin)/tracking/_components/ProjectsAdvancedSearch";
 import { useProjectsPaginated } from "@/app/(admin)/tracking/_hooks/useProject";
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import AlertError from "@/shared/components/alerts/AlertError";
@@ -70,17 +70,8 @@ const ProjectStatusList = memo(function ProjectList() {
     }
   }, [isNearBottom, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const handleSearch = (newFilters: ProjectFilterValues) => {
-    setFilters({
-      ...newFilters,
-      clientId: user?.id, //
-    });
-  };
-
   return (
     <div className="flex flex-col gap-2 sm:gap-4 h-full p-2">
-      <ProjectsAdvancedSearch onSearch={handleSearch} defaultValues={filters} className="flex-shrink-0" />
-
       {isLoading && !isFetchingNextPage && (
         <div className="flex justify-center items-center my-2 sm:my-4 flex-shrink-0">
           <Loader2 className="size-5 sm:size-6 animate-spin text-primary" />

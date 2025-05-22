@@ -1,9 +1,9 @@
-import { Shell, ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
+import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import ClientMedicalRecordTable from "./_components/ClientMedicalRecordTable";
 
 export default function PageMedicalRecords() {
   return (
-    <Shell>
+    <>
       <ShellHeader>
         <ShellTitle
           title="Registros Médicos"
@@ -11,6 +11,6 @@ export default function PageMedicalRecords() {
         />
       </ShellHeader>
       <ClientMedicalRecordTable />
-    </Shell>
+    </>
   );
 }
