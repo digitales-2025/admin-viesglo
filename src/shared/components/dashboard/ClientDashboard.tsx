@@ -7,6 +7,7 @@ import { ActivitySquare, Building2, ClipboardList, Mail, MapPin, Phone, User } f
 import { useClient } from "@/app/(admin)/clients/_hooks/useClients";
 import { useMedicalRecords } from "@/app/(admin)/medical-records/_hooks/useMedicalRecords";
 import { useProjectsPaginated } from "@/app/(admin)/tracking/_hooks/useProject";
+import { ProjectStatus, ProjectStatusColors, ProjectStatusLabels } from "@/app/(admin)/tracking/_types/tracking.types";
 import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
 import ClientDashboardLayout from "@/app/(client)/layout";
 import { cn } from "@/lib/utils";
@@ -102,21 +103,13 @@ export default function ClientDashboard() {
                               </p>
                             </div>
                             <Badge
-                              variant={
-                                project.status === "ACTIVE"
-                                  ? "success"
-                                  : project.status === "COMPLETED"
-                                    ? "default"
-                                    : "outline"
-                              }
+                              variant="outline"
+                              className={cn(
+                                ProjectStatusColors[project.status as unknown as ProjectStatus],
+                                "border-transparent"
+                              )}
                             >
-                              {project.status === "ACTIVE"
-                                ? "Activo"
-                                : project.status === "COMPLETED"
-                                  ? "Completado"
-                                  : project.status === "INACTIVE"
-                                    ? "Inactivo"
-                                    : project.status}
+                              {ProjectStatusLabels[project.status as unknown as ProjectStatus]}
                             </Badge>
                           </div>
                         </div>

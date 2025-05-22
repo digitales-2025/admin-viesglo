@@ -173,6 +173,7 @@ export default function CertificatesDataTable() {
         serverFilters={serverFilters}
         initialColumnVisibility={{
           estado: isAdmin,
+          "fecha de caducidad": false,
         }}
       />
     </div>
