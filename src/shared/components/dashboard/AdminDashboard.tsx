@@ -37,6 +37,7 @@ import { usePaymentsForStats } from "@/app/(admin)/payment/_hooks/usePayments";
 import { useQuotationsForStats } from "@/app/(admin)/quotation/_hooks/useQuotations";
 import { LabelPaymentPlan, PaymentPlan } from "@/app/(admin)/quotation/_types/quotation.types";
 import { useProjects } from "@/app/(admin)/tracking/_hooks/useProject";
+import { ProjectStatus, ProjectStatusLabels } from "@/app/(admin)/tracking/_types/tracking.types";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "../ui/chart";
@@ -130,7 +131,7 @@ export default function AdminDashboard() {
           label = "Pendientes";
           break;
         default:
-          label = name;
+          label = ProjectStatusLabels[name as ProjectStatus];
       }
       return { name: label, value };
     });
