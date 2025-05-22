@@ -36,7 +36,7 @@ function isAuthRelatedRequest(request: NextRequest): boolean {
 function isStaticResource(pathname: string): boolean {
   return (
     pathname.includes("/_next/") ||
-    pathname.includes("/assets/") ||
+    pathname.startsWith("/assets/") ||
     pathname.endsWith(".ico") ||
     pathname.endsWith(".svg") ||
     pathname.endsWith(".png") ||
