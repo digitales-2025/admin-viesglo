@@ -473,7 +473,7 @@ export default function QuotationGraph() {
         />
 
         <MetricCard
-          title={`Monto total a pagar`}
+          title={`Monto total no concretado`}
           value={`S/. ${totalUnpaidAmount.toLocaleString("es-PE")}`}
           description={
             <div className="text-xs text-muted-foreground flex gap-1 flex-col">
@@ -660,6 +660,7 @@ export default function QuotationGraph() {
                     activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                       <Sector {...props} outerRadius={outerRadius + 10} />
                     )}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
                     {paymentStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -710,7 +711,7 @@ export default function QuotationGraph() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieChart className="h-5 w-5 text-primary" />
-              Distribución por tipo de pago
+              Distribución por forma de pago
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
