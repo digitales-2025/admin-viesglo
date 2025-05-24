@@ -280,9 +280,32 @@ export default function QuotationGraph() {
       departmentCount[department] += 1;
     });
 
-    return Object.entries(departmentCount)
+    const sortedDepartments = Object.entries(departmentCount)
       .map(([name, value]) => ({ name, cantidad: value }))
       .sort((a, b) => b.cantidad - a.cantidad);
+
+    // Si hay más de 5 departamentos, mostrar solo los primeros 5 y agrupar el resto en "Otros"
+    if (sortedDepartments.length > 5) {
+      const top5 = sortedDepartments.slice(0, 5);
+      const others = sortedDepartments.slice(5);
+      const othersTotal = others.reduce((sum, dept) => sum + dept.cantidad, 0);
+      const othersNames = others.map((dept) => dept.name);
+
+      return [
+        ...top5,
+        {
+          name: "Otros",
+          cantidad: othersTotal,
+          isOthers: true,
+          otherDepartments: othersNames.map((name, index) => ({
+            name,
+            cantidad: others[index].cantidad,
+          })),
+        },
+      ];
+    }
+
+    return sortedDepartments;
   };
 
   // Procesar datos para el gráfico de tipo de pago
@@ -473,7 +496,7 @@ export default function QuotationGraph() {
         />
 
         <MetricCard
-          title={`Monto total a pagar`}
+          title={`Monto total no concretado`}
           value={`S/. ${totalUnpaidAmount.toLocaleString("es-PE")}`}
           description={
             <div className="text-xs text-muted-foreground flex gap-1 flex-col">
@@ -660,6 +683,7 @@ export default function QuotationGraph() {
                     activeShape={({ outerRadius = 0, ...props }: PieSectorDataItem) => (
                       <Sector {...props} outerRadius={outerRadius + 10} />
                     )}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
                     {paymentStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
@@ -710,7 +734,7 @@ export default function QuotationGraph() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <PieChart className="h-5 w-5 text-primary" />
-              Distribución por tipo de pago
+              Distribución por forma de pago
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -809,12 +833,12 @@ export default function QuotationGraph() {
             </div>
 
             <div className="md:col-span-2 h-64">
-              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
+              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0 py-4">
                 <BarChart
                   accessibilityLayer
                   data={quotationGroupData}
                   margin={{
-                    top: 20,
+                    top: 30,
                   }}
                 >
                   <CartesianGrid vertical={false} />
@@ -855,23 +879,20 @@ export default function QuotationGraph() {
               <div className="text-sm text-muted-foreground">Departamentos</div>
 
               <div className="mt-6 space-y-2 max-h-48 overflow-y-auto pr-2">
-                {departmentData.slice(0, 5).map((dept, index) => (
+                {departmentData.map((dept, index) => (
                   <div key={index} className="flex items-center gap-2 text-sm">
                     <div
                       className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                     ></div>
                     <div className="flex justify-between w-full">
-                      <span className="truncate max-w-24">{dept.name}</span>
+                      <span className="truncate max-w-24" title={dept.name}>
+                        {dept.name}
+                      </span>
                       <span className="font-medium">{dept.cantidad}</span>
                     </div>
                   </div>
                 ))}
-                {departmentData.length > 5 && (
-                  <div className="text-xs text-muted-foreground mt-1">
-                    Y {departmentData.length - 5} departamentos más...
-                  </div>
-                )}
               </div>
             </div>
 
@@ -907,10 +928,26 @@ export default function QuotationGraph() {
                     cursor={false}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
+                        const data = payload[0].payload;
                         return (
-                          <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs">
-                            <p className="font-medium mb-1">{payload[0].payload.name}</p>
-                            <p className="text-chart-2">{`Cotizaciones: ${payload[0].value}`}</p>
+                          <div className="bg-card border border-border p-2 rounded-md shadow-md text-xs max-w-xs">
+                            <p className="font-medium mb-1">{data.name}</p>
+                            <p className="text-chart-2 mb-2">{`Cotizaciones: ${payload[0].value}`}</p>
+                            {data.isOthers && data.otherDepartments && (
+                              <div>
+                                <p className="font-medium text-xs text-muted-foreground mb-1">
+                                  Departamentos incluidos:
+                                </p>
+                                <div className="space-y-1 max-h-32 overflow-y-auto">
+                                  {data.otherDepartments.map((dept: any, index: number) => (
+                                    <div key={index} className="flex justify-between text-xs">
+                                      <span className="truncate mr-2">{dept.name}</span>
+                                      <span className="font-medium text-chart-2">{dept.cantidad}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         );
                       }

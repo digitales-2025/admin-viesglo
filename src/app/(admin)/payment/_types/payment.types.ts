@@ -30,6 +30,7 @@ export type PaymentFilters = {
   limit?: number;
   from?: Date;
   to?: Date;
+  years?: number[];
 };
 
 export type PaymentsComparisonResponse = components["schemas"]["PaymentsComparisonResponseDto"];
