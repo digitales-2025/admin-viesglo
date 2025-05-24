@@ -833,12 +833,12 @@ export default function QuotationGraph() {
             </div>
 
             <div className="md:col-span-2 h-64">
-              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0">
+              <ChartContainer config={chartConfig} className="mx-auto max-h-[250px] px-0 py-4">
                 <BarChart
                   accessibilityLayer
                   data={quotationGroupData}
                   margin={{
-                    top: 20,
+                    top: 30,
                   }}
                 >
                   <CartesianGrid vertical={false} />
