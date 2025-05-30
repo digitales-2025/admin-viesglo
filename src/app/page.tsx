@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import AlertMessage from "@/shared/components/alerts/Alert";
@@ -10,44 +9,41 @@ import ClientDashboard from "@/shared/components/dashboard/ClientDashboard";
 import ClinicDashboard from "@/shared/components/dashboard/ClinicDashboard";
 import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
+const DASHBOARD_COMPONENTS = {
+  admin: AdminDashboard,
+  client: ClientDashboard,
+  clinic: ClinicDashboard,
+} as const;
+
 export default function HomePage() {
   const { user, isLoading, isAuthenticated } = useAuth();
-  const router = useRouter();
 
-  useEffect(() => {
-    // Solo redirigir si hemos terminado de cargar y no hay usuario autenticado
+  // Manejar todos los estados de carga/autenticación de una vez
+  if (isLoading || !isAuthenticated || !user) {
+    const message = isLoading ? "Verificando autenticación..." : "Redirigiendo...";
+
+    // Si no está autenticado y no está cargando, redirigir
     if (!isLoading && !isAuthenticated) {
-      router.replace("/sign-in");
+      redirect("/sign-in");
     }
-  }, [isLoading, isAuthenticated, router]);
 
-  // Mostrar loading mientras se determina el estado de autenticación
-  if (isLoading) {
-    return <LoadingTransition show={true} message="Verificando autenticación..." />;
+    return <LoadingTransition show={true} message={message} />;
   }
 
-  // Si no está autenticado, mostrar loading mientras se redirige
-  if (!isAuthenticated || !user) {
-    return <LoadingTransition show={true} message="Redirigiendo..." />;
+  // Obtener el componente del dashboard según el tipo de usuario
+  const DashboardComponent = DASHBOARD_COMPONENTS[user.type];
+
+  // Si no existe un dashboard para el tipo de usuario, mostrar error
+  if (!DashboardComponent) {
+    return (
+      <AlertMessage
+        variant="destructive"
+        title="Tipo de usuario no reconocido"
+        description="Por favor, contacta al administrador o intenta iniciar sesión nuevamente."
+      />
+    );
   }
 
-  // Renderizar el dashboard según el tipo de usuario
-  // Los layouts específicos ya tienen su propia protección con useUserTypeGuard
-  switch (user.type) {
-    case "admin":
-      return <AdminDashboard />;
-    case "client":
-      return <ClientDashboard />;
-    case "clinic":
-      return <ClinicDashboard />;
-    default:
-      // Mostrar error para tipos de usuario no reconocidos
-      return (
-        <AlertMessage
-          variant="destructive"
-          title="Tipo de usuario no reconocido"
-          description="Por favor, contacta al administrador o intenta iniciar sesión nuevamente."
-        />
-      );
-  }
+  // Renderizar el dashboard correspondiente
+  return <DashboardComponent />;
 }

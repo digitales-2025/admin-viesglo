@@ -42,10 +42,10 @@ const aptitudeColors = {
 
 export default function MedicalRecordDetailsPage() {
   // Get ID from params
-  const { id } = useParams();
+  const { recordId } = useParams();
 
   // Use hooks for data fetching - solo necesitamos el registro médico
-  const { data: record, isLoading: isRecordLoading } = useMedicalRecord(id as string);
+  const { data: record, isLoading: isRecordLoading } = useMedicalRecord(recordId as string);
 
   // Display loading state when fetching record data
   if (isRecordLoading) {
@@ -274,7 +274,7 @@ export default function MedicalRecordDetailsPage() {
         {/* Columna derecha con diagnósticos y otros detalles */}
         <div className="md:col-span-2">
           <Suspense fallback={<FormSkeleton />}>
-            <MedicalRecordDetails recordId={id as string} mode="view" />
+            <MedicalRecordDetails recordId={recordId as string} mode="view" />
           </Suspense>
         </div>
       </div>

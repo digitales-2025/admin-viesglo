@@ -5,17 +5,16 @@ import { useParams, usePathname, useRouter } from "next/navigation";
 
 export default function AdminMedicalRecordPage() {
   const router = useRouter();
-  const params = useParams();
+  const { recordId } = useParams();
   const pathname = usePathname();
-  const id = params.id;
 
   useEffect(() => {
     // Solo redirigir si estamos exactamente en /medical-records/[id]
     // y no en una subruta como /medical-records/[id]/edit
-    if (pathname === `/medical-records/${id}`) {
-      router.push(`/medical-records/${id}/details`);
+    if (pathname === `/medical-records/${recordId}`) {
+      router.push(`/medical-records/${recordId}/details`);
     }
-  }, [router, id, pathname]);
+  }, [router, recordId, pathname]);
 
   return null;
 }

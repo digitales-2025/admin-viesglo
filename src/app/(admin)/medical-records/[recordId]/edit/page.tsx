@@ -39,10 +39,10 @@ const examTypeLabels = {
 
 export default function MedicalRecordEditPage() {
   // Get ID from params
-  const { id } = useParams();
+  const { recordId } = useParams();
 
   // Obtener datos para tener información previa
-  const { data: record, isLoading } = useMedicalRecord(id as string);
+  const { data: record, isLoading } = useMedicalRecord(recordId as string);
 
   // Display loading state when fetching record data
   if (isLoading) {
@@ -88,10 +88,10 @@ export default function MedicalRecordEditPage() {
     <div className="container py-6 pb-24">
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <BackButton href={`/medical-records/${id}/details`} />
+          <BackButton href={`/medical-records/${recordId}/details`} />
           <h1 className="text-2xl font-bold">Editar Detalle del Registro Médico</h1>
         </div>
-        <Link href={`/medical-records/${id}/details`} prefetch={true} passHref>
+        <Link href={`/medical-records/${recordId}/details`} prefetch={true} passHref>
           <Button variant="outline" size="sm">
             <Eye className="mr-2 h-4 w-4" />
             Ver detalle completo
@@ -178,7 +178,7 @@ export default function MedicalRecordEditPage() {
         </CardHeader>
         <CardContent>
           <Suspense fallback={<FormSkeleton />}>
-            <MedicalRecordDetails recordId={id as string} mode="edit" />
+            <MedicalRecordDetails recordId={recordId as string} mode="edit" />
           </Suspense>
         </CardContent>
       </Card>
