@@ -1,6 +1,7 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import AlertMessage from "@/shared/components/alerts/Alert";
@@ -17,17 +18,36 @@ const DASHBOARD_COMPONENTS = {
 
 export default function HomePage() {
   const { user, isLoading, isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Manejar todos los estados de carga/autenticación de una vez
-  if (isLoading || !isAuthenticated || !user) {
-    const message = isLoading ? "Verificando autenticación..." : "Redirigiendo...";
-
-    // Si no está autenticado y no está cargando, redirigir
-    if (!isLoading && !isAuthenticated) {
-      redirect("/sign-in");
+  // Manejar la redirección de forma controlada
+  const handleRedirect = useCallback(() => {
+    if (!isNavigating && !isLoading && !isAuthenticated) {
+      setIsNavigating(true);
+      // Usar push en lugar de redirect para evitar problemas de revalidación
+      router.push("/sign-in");
     }
+  }, [isNavigating, isLoading, isAuthenticated, router]);
 
-    return <LoadingTransition show={true} message={message} />;
+  useEffect(() => {
+    handleRedirect();
+  }, [handleRedirect]);
+
+  // Si estamos en proceso de navegación o cargando, mostrar el estado de carga
+  if (isNavigating || isLoading || !user) {
+    return <LoadingTransition show={true} message={isLoading ? "Verificando autenticación..." : "Redirigiendo..."} />;
+  }
+
+  // Verificar autenticación después de cargar
+  if (!isAuthenticated) {
+    return (
+      <AlertMessage
+        variant="destructive"
+        title="Sesión no válida"
+        description="Tu sesión ha expirado o no es válida. Serás redirigido..."
+      />
+    );
   }
 
   // Obtener el componente del dashboard según el tipo de usuario
