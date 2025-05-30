@@ -11,7 +11,7 @@ import { SearchProvider } from "@/shared/context/search-context";
 import { ThemeProvider } from "@/shared/context/theme-provider";
 import { cn } from "@/shared/lib/utils";
 
-export default function ClinicDashboardLayout({ children }: { children: React.ReactNode }) {
+export default function ClientRootLayout({ children }: { children: React.ReactNode }) {
   const defaultOpen = Cookies.get("sidebar:state") !== "false";
   const { user, isLoading, isAuthorized } = useUserTypeGuard(["client"]);
 

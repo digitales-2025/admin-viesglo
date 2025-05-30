@@ -6,7 +6,7 @@ import AdminLayout from "@/shared/components/layout/AdminLayout";
 import { Shell } from "@/shared/components/layout/Shell";
 import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 
-export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminRootLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthorized } = useUserTypeGuard(["admin"]);
 
   if (isLoading || !user || isAuthorized === null) {
