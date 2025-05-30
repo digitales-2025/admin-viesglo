@@ -23,7 +23,7 @@ import { ListObjectives } from "./_components/ListObjectives";
 import ProjectObjectivesDialogs from "./_components/ProjectObjectivesDialogs";
 import ProjectObjectivesPrimaryButtons from "./_components/ProjectObjectivesPrimaryButtons";
 
-export default function ServiceDetailPage() {
+export default function AdminServiceDetailPage() {
   const { serviceId } = useParams();
   const router = useRouter();
   const { isLoading, error } = useServiceById(serviceId as string);

@@ -22,7 +22,7 @@ import {
 import { ListObjectives } from "./_components/ListObjectives";
 import ProjectObjectivesDialogs from "./_components/ProjectObjectivesDialogs";
 
-export default function ServiceDetailPage() {
+export default function ClientServiceDetailPage() {
   const { serviceId } = useParams();
   const router = useRouter();
   const { isLoading, error } = useServiceById(serviceId as string);

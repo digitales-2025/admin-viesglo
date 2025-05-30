@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useParams, usePathname, useRouter } from "next/navigation";
 
-export default function MedicalRecordPage() {
+export default function AdminMedicalRecordPage() {
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();

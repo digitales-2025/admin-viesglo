@@ -5,7 +5,7 @@ import { Main } from "@/shared/components/layout/Main";
 import { Separator } from "@/shared/components/ui/separator";
 import SidebarNav from "./_components/SidebarNav";
 
-export default function layout({ children }: { children: ReactNode }) {
+export default function AdminSettingsLayout({ children }: { children: ReactNode }) {
   return (
     <Main fixed>
       <div className="space-y-0.5">
