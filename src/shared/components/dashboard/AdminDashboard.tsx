@@ -2,57 +2,24 @@
 
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Briefcase,
-  Calendar,
-  ChevronRight,
-  CircleDollarSign,
-  ClipboardCheck,
-  FileText,
-  LineChart as LineChartIcon,
-  PieChart,
-  TrendingUp,
-} from "lucide-react";
-import {
-  Area,
-  AreaChart,
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  LabelList,
-  Line,
-  LineChart,
-  Pie,
-  PieChart as ReChartPie,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Briefcase, ChevronRight, ClipboardCheck, FileText, TrendingUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 import { useCertificates } from "@/app/(admin)/certificates/_hooks/useCertificates";
 import AdminDashboardLayout from "@/app/(admin)/layout";
-import { usePaymentsForStats } from "@/app/(admin)/payment/_hooks/usePayments";
-import { useQuotationsForStats } from "@/app/(admin)/quotation/_hooks/useQuotations";
-import { LabelPaymentPlan, PaymentPlan } from "@/app/(admin)/quotation/_types/quotation.types";
-import { useProjects } from "@/app/(admin)/tracking/_hooks/useProject";
-import { ProjectStatus, ProjectStatusLabels } from "@/app/(admin)/tracking/_types/tracking.types";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
-import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "../ui/chart";
 import MetricCard from "./MetricCard";
-
-const CHART_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
 
 export default function AdminDashboard() {
   const router = useRouter();
-  const { data: projects, isLoading: isProjectsLoading } = useProjects();
-  const { data: quotations, isLoading: isQuotationsLoading } = useQuotationsForStats();
-  const { data: payments, isLoading: isPaymentsLoading } = usePaymentsForStats();
+  //const { data: projects, isLoading: isProjectsLoading } = useProjects();
+  //const { data: quotations, isLoading: isQuotationsLoading } = useQuotationsForStats();
+  //const { data: payments, isLoading: isPaymentsLoading } = usePaymentsForStats();
   const { data: certifications, isLoading: isCertificationsLoading } = useCertificates();
 
   // Configuración de temas para gráficos
+  /*
   const chartConfig = {
     monto: {
       theme: {
@@ -90,9 +57,10 @@ export default function AdminDashboard() {
       label: "Proyección",
     },
   };
+  */
 
   // Estadísticas de proyectos
-  const projectStats = useMemo(() => {
+  /*const projectStats = useMemo(() => {
     if (!projects) return { active: 0, completed: 0, delayed: 0, total: 0, byStatus: [] };
 
     const active = projects.filter((p) => p.status === "ACTIVE").length;
@@ -256,7 +224,7 @@ export default function AdminDashboard() {
       concrete,
       total: quotations.length,
     };
-  }, [quotations]);
+  }, [quotations]);*/
 
   // Procesar certificados por mes para mostrar tendencia
   const certificatesTrend = useMemo(() => {
@@ -296,6 +264,7 @@ export default function AdminDashboard() {
 
         <div className="space-y-6">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {/*
             <MetricCard
               title="Proyectos Activos"
               value={projectStats.active.toString()}
@@ -316,7 +285,7 @@ export default function AdminDashboard() {
               description={`S/. ${financialStats.pending.toLocaleString("es-PE")} pendientes de cobro`}
               icon={<CircleDollarSign className="size-8 shrink-0 text-orange-400 bg-orange-500/20 p-2 rounded-md" />}
               isLoading={isPaymentsLoading}
-            />
+            />*/}
             <MetricCard
               title="Certificados Emitidos"
               value={certifications?.length?.toString() || "0"}
@@ -331,7 +300,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            {/* Progreso de proyectos por tipo de contrato */}
+            {/*
             <Card className="lg:col-span-4">
               <CardHeader className="flex flex-row items-center justify-between">
                 <div className="grid gap-1">
@@ -404,8 +373,6 @@ export default function AdminDashboard() {
                 </Button>
               </CardFooter>
             </Card>
-
-            {/* Distribución de proyectos por estado */}
             <Card className="lg:col-span-3">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -477,7 +444,6 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-8">
-            {/* Tendencia de Ingresos */}
             <Card className="lg:col-span-5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -571,9 +537,7 @@ export default function AdminDashboard() {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </CardFooter>
-            </Card>
-
-            {/* Tendencia de certificaciones */}
+            </Card>*/}
             <Card className="lg:col-span-3">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -636,9 +600,8 @@ export default function AdminDashboard() {
               </CardFooter>
             </Card>
           </div>
-
+          {/* 
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {/* Cotizaciones por Tipo de Pago */}
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -712,7 +675,6 @@ export default function AdminDashboard() {
               </CardFooter>
             </Card>
 
-            {/* Indicadores financieros clave */}
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -779,7 +741,7 @@ export default function AdminDashboard() {
                 </Button>
               </CardFooter>
             </Card>
-          </div>
+          </div>*/}
 
           <div className="flex justify-end mt-8">
             <div className="flex gap-4">
