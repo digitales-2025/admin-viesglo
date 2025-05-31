@@ -1,6 +1,6 @@
 import { LinkProps } from "next/link";
 
-import { EnumAction, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
 import { components } from "@/lib/api/types/api";
 
 export type User = components["schemas"]["UserResponseDto"];

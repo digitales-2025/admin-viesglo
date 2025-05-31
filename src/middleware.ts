@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Rutas públicas que no requieren autenticación
-const PUBLIC_ROUTES = ["/sign-in", "/forbidden"];
+const PUBLIC_ROUTES = ["/auth/sign-in", "/forbidden"];
 
 const PUBLIC_ROUTES_WITHOUT_AUTH = ["/buscar-certificado"];
 
@@ -9,7 +9,7 @@ const PUBLIC_ROUTES_WITHOUT_AUTH = ["/buscar-certificado"];
 const API_ROUTES = ["/api/auth", "/api/v1/auth"];
 
 // Rutas que no deben guardarse para redirección después del login
-const EXCLUDED_REDIRECT_ROUTES = ["/forbidden", "/sign-in"];
+const EXCLUDED_REDIRECT_ROUTES = ["/forbidden", "/auth/sign-in"];
 
 /**
  * Verifica si la solicitud es una petición de login o está relacionada con la autenticación
@@ -19,7 +19,7 @@ function isAuthRelatedRequest(request: NextRequest): boolean {
   const method = request.method;
 
   // Verificaciones rápidas primero
-  if (pathname === "/sign-in" && method === "POST") return true;
+  if (pathname === "/auth/sign-in" && method === "POST") return true;
 
   // Verificar si es una petición a la API de autenticación
   for (const route of API_ROUTES) {
@@ -77,7 +77,7 @@ export async function middleware(request: NextRequest) {
   // CASO 1: Ruta pública, usuario aparentemente autenticado -> redirigir a la página principal
   if (PUBLIC_ROUTES.includes(pathname) && hasRefreshToken) {
     devlog("Ruta pública, token presente, redirigiendo a dashboard");
-    const response = NextResponse.redirect(new URL("/", request.url));
+    const response = NextResponse.redirect(new URL("/dashboard", request.url));
     response.cookies.delete("lastUrl");
     return response;
   }
@@ -85,7 +85,7 @@ export async function middleware(request: NextRequest) {
   // CASO 2: Ruta privada, usuario sin token -> redirigir a login
   if (!PUBLIC_ROUTES.includes(pathname) && !hasRefreshToken) {
     devlog("Ruta privada, token ausente, redirigiendo a login");
-    const response = NextResponse.redirect(new URL("/sign-in", request.url));
+    const response = NextResponse.redirect(new URL("/auth/sign-in", request.url));
 
     // Guardar URL para redirección posterior
     if (!EXCLUDED_REDIRECT_ROUTES.includes(pathname)) {

@@ -17,7 +17,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
 import { type SidebarData } from "./types";
 
 export const sidebarData: SidebarData = {
@@ -27,7 +27,7 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: "Dashboard",
-          url: "/",
+          url: "/dashboard",
           icon: LayoutDashboard,
         },
       ],
@@ -38,13 +38,13 @@ export const sidebarData: SidebarData = {
         {
           title: "Seguimiento",
           icon: Layers,
-          url: "/tracking",
+          url: "/dashboard/admin/tracking",
           permissions: [{ resource: EnumResource.projects, action: EnumAction.read }],
         },
         {
           title: "Salud Ocupacional",
           icon: SquareActivity,
-          url: "/medical-records",
+          url: "/dashboard/admin/medical-records",
           permissions: [{ resource: EnumResource.occupationalHealth, action: EnumAction.read }],
         },
       ],
@@ -55,31 +55,31 @@ export const sidebarData: SidebarData = {
         {
           title: "Clínicas",
           icon: Hospital,
-          url: "/clinics",
+          url: "/dashboard/admin/clinics",
           permissions: [{ resource: EnumResource.clinics, action: EnumAction.read }],
         },
         {
           title: "Clientes",
           icon: Building,
-          url: "/clients",
+          url: "/dashboard/admin/clients",
           permissions: [{ resource: EnumResource.clients, action: EnumAction.read }],
         },
         {
           title: "Servicios",
           icon: BriefcaseBusiness,
-          url: "/services",
+          url: "/dashboard/admin/services",
           permissions: [{ resource: EnumResource.services, action: EnumAction.read }],
         },
         {
           title: "Grupos de cotizaciones",
           icon: Group,
-          url: "/quotation-groups",
+          url: "/dashboard/admin/quotation-groups",
           permissions: [{ resource: EnumResource.quotations, action: EnumAction.read }],
         },
         {
           title: "Diagnosticos",
           icon: FileText,
-          url: "/diagnostics",
+          url: "/dashboard/admin/diagnostics",
           permissions: [{ resource: EnumResource.diagnostic, action: EnumAction.read }],
         },
       ],
@@ -90,13 +90,13 @@ export const sidebarData: SidebarData = {
         {
           title: "Cotizaciones",
           icon: Files,
-          url: "/quotation",
+          url: "/dashboard/admin/quotation",
           permissions: [{ resource: EnumResource.quotations, action: EnumAction.read }],
         },
         {
           title: "Pagos",
           icon: Banknote,
-          url: "/payment",
+          url: "/dashboard/admin/payments",
           permissions: [{ resource: EnumResource.payments, action: EnumAction.read }],
         },
       ],
@@ -107,7 +107,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Certificados",
           icon: GraduationCap,
-          url: "/certificates",
+          url: "/dashboard/admin/certificates",
           permissions: [{ resource: EnumResource.certificate, action: EnumAction.read }],
         },
       ],
@@ -122,13 +122,13 @@ export const sidebarData: SidebarData = {
             {
               title: "Usuarios",
               icon: UsersRound,
-              url: "/users",
+              url: "/dashboard/admin/users",
               permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
             },
             {
               title: "Roles y permisos",
               icon: KeyRound,
-              url: "/roles",
+              url: "/dashboard/admin/roles",
               permissions: [{ resource: EnumResource.roles, action: EnumAction.read }],
             },
           ],
@@ -144,12 +144,12 @@ export const sidebarData: SidebarData = {
             {
               title: "Perfil",
               icon: UserRound,
-              url: "/settings",
+              url: "/dashboard/admin/settings",
             },
             {
               title: "Seguridad",
               icon: Lock,
-              url: "/settings/security",
+              url: "/dashboard/admin/security",
             },
           ],
         },

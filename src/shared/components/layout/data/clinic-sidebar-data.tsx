@@ -9,7 +9,7 @@ export const clinicSidebarData: SidebarData = {
       items: [
         {
           title: "Registros",
-          url: "/registers",
+          url: "/dashboard/clinic/registers",
           icon: Files,
         },
       ],

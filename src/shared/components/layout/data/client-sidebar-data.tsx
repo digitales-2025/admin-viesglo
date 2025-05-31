@@ -9,12 +9,12 @@ export const clientSidebarData: SidebarData = {
       items: [
         {
           title: "Estado del proyecto",
-          url: "/project-status",
+          url: "/dashboard/client/project-status",
           icon: UsersRound,
         },
         {
           title: "Registros médicos",
-          url: "/client-medical-records",
+          url: "/dashboard/client/client-medical-records",
           icon: Files,
         },
       ],

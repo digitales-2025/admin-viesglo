@@ -1,6 +1,6 @@
 "use server";
 
-import { PaginationMeta } from "@/app/(admin)/medical-records/_types/medical-record.types";
+import { PaginationMeta } from "@/app/dashboard/admin/medical-records/_types/medical-record.types";
 import { http } from "@/lib/http/serverFetch";
 import { AuditResponse } from "./audit.types";
 

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import { Skeleton } from "../ui/skeleton";
 
 interface AuthGuardProps {

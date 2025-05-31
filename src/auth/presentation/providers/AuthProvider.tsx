@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
-import { useAuthPermissions, useCurrentUser, useLogout } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { useAuthPermissions, useCurrentUser, useLogout } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import { AuthUseCase } from "../../application/usecases/AuthUseCase";
 import { getUserDashboardPath, User } from "../../domain/entities/User";
 import { ForbiddenError, UnauthorizedError } from "../../domain/errors/AuthErrors";
@@ -129,7 +129,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return user;
     } catch (error) {
       if (error instanceof UnauthorizedError) {
-        router.replace("/sign-in");
+        router.replace("/auth/sign-in");
       } else if (error instanceof ForbiddenError) {
         router.replace("/forbidden");
       }

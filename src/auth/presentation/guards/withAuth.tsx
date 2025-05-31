@@ -23,7 +23,7 @@ interface AuthOptions {
  * y redirecciona si es necesario.
  */
 export async function withAuth(options: AuthOptions = {}) {
-  const { allowedUserTypes = [], allowedRoles = [], redirectTo = "/sign-in" } = options;
+  const { allowedUserTypes = [], allowedRoles = [], redirectTo = "/auth/sign-in" } = options;
 
   // Obtener cookies
   const cookieStore = await cookies();
@@ -38,14 +38,14 @@ export async function withAuth(options: AuthOptions = {}) {
   try {
     // Decodificar el token
     if (!accessToken) {
-      redirect("/sign-in");
+      redirect("/auth/sign-in");
     }
 
     const decodedToken = jwtDecode<JWTPayload>(accessToken);
 
     // Verificar si el token ha expirado
     if (isTokenExpired(decodedToken.exp)) {
-      redirect("/sign-in");
+      redirect("/auth/sign-in");
     }
 
     // Verificar tipo de usuario
@@ -68,7 +68,7 @@ export async function withAuth(options: AuthOptions = {}) {
     };
   } catch (error) {
     console.error("Auth error:", error);
-    redirect("/sign-in");
+    redirect("/auth/sign-in");
   }
 }
 

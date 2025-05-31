@@ -11,7 +11,7 @@ const api: AxiosInstance = axios.create({
   withCredentials: true,
   validateStatus: (status) => {
     // Consideramos 404 como válido durante el logout
-    if (status === 404 && typeof window !== "undefined" && window.location.pathname === "/sign-in") {
+    if (status === 404 && typeof window !== "undefined" && window.location.pathname === "/auth/sign-in") {
       return true;
     }
     return status >= 200 && status < 300;

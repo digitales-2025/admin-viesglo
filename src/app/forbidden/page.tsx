@@ -28,7 +28,7 @@ export default function ForbiddenPage() {
           </Link>
 
           <Link
-            href="/sign-in"
+            href="/auth/sign-in"
             className="block w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded transition-colors"
           >
             Iniciar Sesión con otra Cuenta
