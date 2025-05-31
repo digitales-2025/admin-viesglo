@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { CornerDownRight, Laptop, Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
-import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import {
   CommandDialog,

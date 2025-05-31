@@ -45,7 +45,7 @@ export const useAuthRedirect = ({
 
       // Caso 2: Redireccionar si se requiere autenticación y el usuario no está autenticado
       if (requireAuth && !isAuthenticated) {
-        router.replace("/sign-in");
+        router.replace("/auth/sign-in");
         return;
       }
 

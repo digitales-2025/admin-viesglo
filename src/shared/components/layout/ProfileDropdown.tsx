@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
-import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { logout } from "@/app/(public)/auth/sign-in/_actions/auth.actions";
+import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -34,7 +34,7 @@ export function ProfileDropdown() {
       await logout();
       setIsRedirecting(true);
       setTimeout(() => {
-        router.push("/sign-in");
+        router.push("/auth/sign-in");
       }, 1500);
     } catch (error) {
       console.error("Error durante el logout:", error);
@@ -84,7 +84,7 @@ export function ProfileDropdown() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link href="/client-settings">
+                    <Link href="/dashboard/client/settings">
                       Mi cuenta
                       <DropdownMenuShortcut>
                         <BadgeCheck />
@@ -99,7 +99,7 @@ export function ProfileDropdown() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link href="/clinic-settings">
+                    <Link href="/dashboard/clinic/settings">
                       Mi cuenta
                       <DropdownMenuShortcut>
                         <BadgeCheck />

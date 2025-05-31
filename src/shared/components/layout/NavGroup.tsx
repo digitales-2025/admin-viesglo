@@ -40,6 +40,12 @@ function checkIsActive(href: string, item: NavItem, mainNav = false) {
 
   if (item?.items?.some((i) => i.url === href)) return true;
 
+  // Caso especial para /dashboard
+  if (item.url === "/dashboard") {
+    const dashboardRoutes = ["/dashboard/admin", "/dashboard/clinic", "/dashboard/client"];
+    return dashboardRoutes.includes(href);
+  }
+
   if (item.url && item.url !== "/" && href.startsWith(item.url + "/")) return true;
 
   if (mainNav && href.split("/")[1] !== "" && String(item?.url)?.split("/")[1] === href.split("/")[1]) {

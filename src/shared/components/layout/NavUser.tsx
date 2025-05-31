@@ -3,8 +3,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { BadgeCheckIcon, ChevronsUpDown, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(auth)/sign-in/_actions/auth.actions";
-import { useCurrentUser } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { logout } from "@/app/(public)/auth/sign-in/_actions/auth.actions";
+import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
@@ -34,7 +34,7 @@ export function NavUser() {
       await logout();
       setIsRedirecting(true);
       setTimeout(() => {
-        router.push("/sign-in");
+        router.push("/auth/sign-in");
       }, 1500);
     } catch (error) {
       console.error("Error durante el logout:", error);

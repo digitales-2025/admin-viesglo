@@ -2,8 +2,8 @@
 
 import { ReactNode, useEffect, useMemo, useState } from "react";
 
-import { EnumAction, EnumResource } from "@/app/(admin)/roles/_utils/groupedPermission";
-import { useAuthPermissions } from "@/app/(auth)/sign-in/_hooks/useAuth";
+import { useAuthPermissions } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
 import { LoadingOverlay } from "@/shared/components/loading-overlay";
 import { UserType } from "../../domain/entities/User";
 import { useAuth } from "../providers/AuthProvider";
