@@ -10,7 +10,7 @@ export default function MedicalRecordPrimaryButtons() {
 
   return (
     <div className="flex items-center space-x-2">
-      <Button onClick={() => router.push("/medical-records/new")}>
+      <Button onClick={() => router.push("/dashboard/client/medical-records/new")}>
         <Plus className="mr-2 h-4 w-4" />
         Nuevo Registro Médico
       </Button>

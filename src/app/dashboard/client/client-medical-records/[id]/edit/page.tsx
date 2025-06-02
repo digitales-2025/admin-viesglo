@@ -49,7 +49,7 @@ export default function MedicalRecordEditPage() {
     return (
       <div className="container py-6 pb-24">
         <div className="mb-6 flex items-center">
-          <BackButton href="/medical-records" />
+          <BackButton href="/dashboard/client/client-medical-records" />
           <h1 className="text-2xl font-bold">Cargando registro médico...</h1>
         </div>
         <FormSkeleton />
@@ -62,7 +62,7 @@ export default function MedicalRecordEditPage() {
     return (
       <div className="container py-6">
         <div className="mb-6 flex items-center">
-          <BackButton href="/medical-records" />
+          <BackButton href="/dashboard/client/client-medical-records" />
           <h1 className="text-2xl font-bold">Registro médico no encontrado</h1>
         </div>
         <Card>
@@ -71,7 +71,7 @@ export default function MedicalRecordEditPage() {
               El registro médico solicitado no existe o ha sido eliminado.
             </p>
             <div className="flex justify-center mt-4">
-              <Link href="/medical-records">
+              <Link href="/dashboard/client/client-medical-records">
                 <Button>Volver a registros médicos</Button>
               </Link>
             </div>
@@ -89,10 +89,10 @@ export default function MedicalRecordEditPage() {
       <div className="container py-6 pb-24">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <BackButton href={`/medical-records/${id}/details`} />
+            <BackButton href={`/dashboard/client/client-medical-records/${id}/details`} />
             <h1 className="text-2xl font-bold">Editar Detalle del Registro Médico</h1>
           </div>
-          <Link href={`/medical-records/${id}/details`} prefetch={true} passHref>
+          <Link href={`/dashboard/client/client-medical-records/${id}/details`} prefetch={true} passHref>
             <Button variant="outline" size="sm">
               <Eye className="mr-2 h-4 w-4" />
               Ver detalle completo

@@ -17,7 +17,7 @@ export default function ProjectStatusServiceCard({ service }: ProjectStatusServi
     <div className="max-h-[500px] overflow-auto scrollbar-none">
       <Card
         className="shadow-none border-transparent p-2 px-1 cursor-pointer hover:bg-accent/70 transition-all duration-300 hover:border-dashed hover:border-sky-500/50 "
-        onClick={() => router.push(`/project-status/${service.id}`)}
+        onClick={() => router.push(`/dashboard/client/project-status/${service.id}`)}
       >
         <CardHeader>
           <CardTitle className="grid grid-cols-[1fr_auto] justify-between items-center gap-4">

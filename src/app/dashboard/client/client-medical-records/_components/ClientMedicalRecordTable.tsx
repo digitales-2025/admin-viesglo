@@ -31,7 +31,7 @@ export default function ClientMedicalRecordTable() {
   const router = useRouter();
 
   const handleRowClick = (row: MedicalRecordResponse) => {
-    router.push(`/client-medical-records/${row.id}/details`);
+    router.push(`/dashboard/client/medical-records/${row.id}/details`);
   };
 
   const {

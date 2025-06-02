@@ -38,7 +38,10 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
   return (
     <Card
       className="shadow-none border-transparent p-2 px-1 cursor-pointer hover:bg-accent/70 transition-all duration-300 hover:border-dashed hover:border-sky-500/50 "
-      onClick={() => router.push(`/tracking/${service.id}`)}
+      onClick={(e) => {
+        e.stopPropagation();
+        router.push(`/dashboard/admin/tracking/${service.id}`);
+      }}
     >
       <CardHeader>
         <CardTitle className="grid grid-cols-[1fr_auto] justify-between items-center gap-4">
@@ -70,7 +73,12 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
                 <ProtectedComponent
                   requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.edit }]}
                 >
-                  <DropdownMenuItem onClick={handleEditService}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditService();
+                    }}
+                  >
                     Editar
                     <DropdownMenuShortcut>
                       <Edit />
@@ -80,7 +88,12 @@ export default function ProjectServiceCard({ service }: ProjectServiceCardProps)
                 <ProtectedComponent
                   requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
                 >
-                  <DropdownMenuItem onClick={handleDeleteService}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteService();
+                    }}
+                  >
                     Eliminar
                     <DropdownMenuShortcut>
                       <Trash />

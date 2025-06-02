@@ -32,7 +32,7 @@ export default function AdminServiceDetailPage() {
     if (error) {
       toast.error(error.message);
       setTimeout(() => {
-        router.push("/tracking");
+        router.push("/dashboard/admin/tracking");
       }, 2000);
     }
   }, [error]);
@@ -55,7 +55,7 @@ export default function AdminServiceDetailPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/tracking">Proyectos</Link>
+              <Link href="/dashboard/admin/tracking">Proyectos</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

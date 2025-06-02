@@ -29,7 +29,7 @@ export default function MedicalRecordTable() {
   const router = useRouter();
 
   const handleRowClick = (row: MedicalRecordResponse) => {
-    router.push(`/medical-records/${row.id}/details`);
+    router.push(`/dashboard/admin/medical-records/${row.id}/details`);
   };
 
   const {

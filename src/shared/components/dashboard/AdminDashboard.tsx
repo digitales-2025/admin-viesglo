@@ -390,7 +390,7 @@ export default function AdminDashboard() {
             </ChartContainer>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/tracking")}>
+            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/dashboard/admin/tracking")}>
               Ver todos los proyectos
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -460,7 +460,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/tracking")}>
+            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/dashboard/admin/tracking")}>
               Gestionar proyectos
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -558,7 +558,7 @@ export default function AdminDashboard() {
                 <span className="text-xs">Cobrado</span>
               </div>
             </div>
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/payment")}>
+            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/dashboard/admin/payment")}>
               Ver detalles financieros
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -621,7 +621,11 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/certificates")}>
+            <Button
+              variant="link"
+              className="gap-1 text-sm"
+              onClick={() => router.push("/dashboard/admin/certificates")}
+            >
               Ver todos los certificados
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -697,7 +701,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/quotation")}>
+            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/dashboard/admin/quotation")}>
               Gestionar cotizaciones
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -765,7 +769,7 @@ export default function AdminDashboard() {
             </div>
           </CardContent>
           <CardFooter className="flex justify-end">
-            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/payment")}>
+            <Button variant="link" className="gap-1 text-sm" onClick={() => router.push("/dashboard/admin/payment")}>
               Ver estados de pago
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -775,11 +779,11 @@ export default function AdminDashboard() {
 
       <div className="flex justify-end mt-8">
         <div className="flex gap-4">
-          <Button variant="outline" onClick={() => router.push("/tracking")} className="gap-2">
+          <Button variant="outline" onClick={() => router.push("/dashboard/admin/tracking")} className="gap-2">
             <Briefcase className="h-4 w-4" />
             Proyectos
           </Button>
-          <Button variant="outline" onClick={() => router.push("/quotation")} className="gap-2">
+          <Button variant="outline" onClick={() => router.push("/dashboard/admin/quotation")} className="gap-2">
             <ClipboardCheck className="h-4 w-4" />
             Cotizaciones
           </Button>

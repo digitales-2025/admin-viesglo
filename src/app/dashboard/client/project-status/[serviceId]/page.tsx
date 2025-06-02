@@ -31,7 +31,7 @@ export default function ClientServiceDetailPage() {
     if (error) {
       toast.error(error.message);
       setTimeout(() => {
-        router.push("/clinic");
+        router.push("/dashboard/client/clinic");
       }, 2000);
     }
   }, [error]);
@@ -54,7 +54,7 @@ export default function ClientServiceDetailPage() {
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
-              <Link href="/project-status">Proyectos</Link>
+              <Link href="/dashboard/client/project-status">Proyectos</Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />

@@ -11,8 +11,8 @@ export default function AdminMedicalRecordPage() {
   useEffect(() => {
     // Solo redirigir si estamos exactamente en /medical-records/[id]
     // y no en una subruta como /medical-records/[id]/edit
-    if (pathname === `/medical-records/${recordId}`) {
-      router.push(`/medical-records/${recordId}/details`);
+    if (pathname === `/dashboard/admin/medical-records/${recordId}`) {
+      router.push(`/dashboard/admin/medical-records/${recordId}/details`);
     }
   }, [router, recordId, pathname]);
 

@@ -21,7 +21,7 @@ export default function SidebarNav({ className, items, ...props }: SidebarNavPro
   const pathname = usePathname();
   const router = useRouter();
 
-  const [val, setVal] = useState(pathname ?? "/settings");
+  const [val, setVal] = useState(pathname ?? "/dashboard/admin/settings");
 
   const handleSelect = (href: string) => {
     setVal(href);

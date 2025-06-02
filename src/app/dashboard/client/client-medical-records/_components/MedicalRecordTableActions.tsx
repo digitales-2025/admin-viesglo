@@ -21,7 +21,7 @@ export default function MedicalRecordTableActions({ record }: MedicalRecordTable
   const router = useRouter();
 
   const handleViewDetails = () => {
-    router.push(`/medical-records/${record.id}/details`);
+    router.push(`/dashboard/client/medical-records/${record.id}/details`);
   };
 
   return (

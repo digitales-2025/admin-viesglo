@@ -238,7 +238,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           <p className="text-lg font-medium">No se pudo cargar la información médica</p>
           <p className="text-sm">Intente nuevamente más tarde</p>
         </div>
-        <Button variant="outline" onClick={() => router.push("/medical-records")} className="mt-4">
+        <Button variant="outline" onClick={() => router.push("/dashboard/admin/medical-records")} className="mt-4">
           Volver a registros médicos
         </Button>
       </div>
@@ -253,7 +253,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
           <p className="text-lg font-medium">No hay información médica detallada</p>
           <p className="text-sm">Este registro aún no tiene detalles médicos</p>
         </div>
-        <Button onClick={() => router.push(`/medical-records/${recordId}/edit`)} className="mt-4">
+        <Button onClick={() => router.push(`/dashboard/admin/medical-records/${recordId}/edit`)} className="mt-4">
           <Pencil className="mr-2 h-4 w-4" /> Editar Detalles Médicos
         </Button>
       </div>
@@ -410,7 +410,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
       // Redirección después de guardar
       setTimeout(() => {
-        window.location.href = `/medical-records/${recordId}/details`;
+        window.location.href = `/dashboard/admin/medical-records/${recordId}/details`;
       }, 1000);
 
       // Recargar los datos del registro médico
@@ -510,7 +510,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
 
         {!isEditing && (
           <div className="mt-6 flex justify-end">
-            <Button onClick={() => (window.location.href = `/medical-records/${recordId}/edit`)}>
+            <Button onClick={() => (window.location.href = `/dashboard/admin/medical-records/${recordId}/edit`)}>
               <Pencil className="mr-2 h-4 w-4" /> Editar
             </Button>
           </div>

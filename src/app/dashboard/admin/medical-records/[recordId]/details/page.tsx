@@ -52,7 +52,7 @@ export default function MedicalRecordDetailsPage() {
     return (
       <div className="container py-6 pb-24">
         <div className="mb-6 flex items-center gap-4">
-          <BackButton href="/medical-records" />
+          <BackButton href="/dashboard/admin/medical-records" />
           <h1 className="text-2xl font-bold">Cargando registro médico...</h1>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -68,7 +68,7 @@ export default function MedicalRecordDetailsPage() {
     return (
       <div className="container py-6 pb-24">
         <div className="mb-6 flex items-center gap-4">
-          <BackButton href="/medical-records" />
+          <BackButton href="/dashboard/admin/medical-records" />
           <h1 className="text-2xl font-bold">Registro médico no encontrado</h1>
         </div>
         <Card>
@@ -89,7 +89,7 @@ export default function MedicalRecordDetailsPage() {
   return (
     <div className="container py-6 pb-24">
       <div className="mb-6 flex items-center gap-4">
-        <BackButton href="/medical-records" />
+        <BackButton href="/dashboard/admin/medical-records" />
         <h1 className="text-2xl font-bold">Detalle del registro médico</h1>
       </div>
 
