@@ -96,7 +96,7 @@ export const sidebarData: SidebarData = {
         {
           title: "Pagos",
           icon: Banknote,
-          url: "/dashboard/admin/payments",
+          url: "/dashboard/admin/payment",
           permissions: [{ resource: EnumResource.payments, action: EnumAction.read }],
         },
       ],
