@@ -23,7 +23,7 @@ export default function SignInPage() {
 
         {/* Bottom decoration */}
         <div className="relative z-10 mt-auto flex items-end justify-between w-full">
-          <div className="text-xs text-white/60">© 2025 Viesglo</div>
+          <div className="text-sm font-normal text-white/60">© 2025 Viesglo</div>
           <div className="flex gap-2">
             <div className="w-8 h-1 bg-white/30 rounded-full" />
             <div className="w-4 h-1 bg-white/50 rounded-full" />
