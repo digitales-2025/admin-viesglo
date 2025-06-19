@@ -24,10 +24,8 @@ export function LoadingTransition({
   useEffect(() => {
     if (show) {
       setMounted(true);
-      // Simulate progress
       const interval = setInterval(() => {}, 200);
       return () => clearInterval(interval);
-    } else {
     }
   }, [show]);
 
@@ -53,12 +51,49 @@ export function LoadingTransition({
         ))}
       </div>
 
-      {/* Rotating pieces around */}
-      <div className="absolute inset-0 animate-spin" style={{ animationDuration: "8s" }}>
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-lg opacity-70">♛</div>
-        <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 text-lg opacity-70">♜</div>
-        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-lg opacity-70">♝</div>
-        <div className="absolute top-1/2 -left-3 transform -translate-y-1/2 text-lg opacity-70">♞</div>
+      {/* Chess pieces positioned in specific squares to avoid overlap */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Knight moving between specific squares */}
+        <div
+          className="absolute text-sm opacity-80 transition-all duration-2000 ease-in-out z-10"
+          style={{
+            animation: "knightMoveGrid 4s infinite ease-in-out",
+          }}
+        >
+          ♞
+        </div>
+
+        {/* Rook STATIC in top-left corner */}
+        <div
+          className="absolute text-sm opacity-70 z-10"
+          style={{
+            top: "2px",
+            left: "2px",
+          }}
+        >
+          ♜
+        </div>
+
+        {/* Bishop moving diagonally in different squares */}
+        <div
+          className="absolute text-sm opacity-80 transition-all duration-3000 ease-in-out z-10"
+          style={{
+            animation: "bishopMoveGrid 5s infinite ease-in-out",
+          }}
+        >
+          ♝
+        </div>
+
+        {/* Queen STATIC in center */}
+        <div
+          className="absolute text-base opacity-90 z-10"
+          style={{
+            top: "32px",
+            left: "32px",
+          }}
+        >
+          ♛
+        </div>
       </div>
     </div>
   );
@@ -145,6 +180,40 @@ export function LoadingTransition({
       </div>
 
       <style jsx>{`
+        @keyframes knightMoveGrid {
+          0% {
+            top: 16px;
+            left: 48px;
+          }
+          33% {
+            top: 48px;
+            left: 64px;
+          }
+          66% {
+            top: 64px;
+            left: 16px;
+          }
+          100% {
+            top: 16px;
+            left: 48px;
+          }
+        }
+
+        @keyframes bishopMoveGrid {
+          0% {
+            top: 48px;
+            left: 16px;
+          }
+          50% {
+            top: 16px;
+            left: 64px;
+          }
+          100% {
+            top: 48px;
+            left: 16px;
+          }
+        }
+
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);

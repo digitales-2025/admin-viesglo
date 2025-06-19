@@ -33,10 +33,10 @@ export default function NotFound() {
             </div>
 
             <div className="space-y-2">
-              <p className="text-muted-foreground font-medium">Esta página está siendo construida con mucho cariño</p>
+              <p className="text-muted-foreground font-medium">Esta página está siendo construida</p>
               <p className="text-sm text-muted-foreground">
-                Nuestro equipo de desarrolladores está trabajando duro para traerte algo increíble. ¡Vuelve pronto para
-                ver las novedades!
+                Nuestro equipo de desarrolladores está trabajando para completar la página. ¡Vuelve pronto para ver las
+                novedades!
               </p>
             </div>
 
