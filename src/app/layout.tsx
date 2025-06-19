@@ -20,10 +20,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "MS & M Consulting",
-    template: "%s | MS & M Consulting",
+    default: "Viesglo",
+    template: "%s | Viesglo",
   },
-  description: "Panel de administración de MS & M Consulting",
+  description: "Panel de administración de Viesglo",
 };
 
 export default function RootLayout({

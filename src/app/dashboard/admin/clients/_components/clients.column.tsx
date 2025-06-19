@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, MapPin, Minus, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
-import AvatarStack from "@/shared/components/ui/avatar-stack";
 import { Badge } from "@/shared/components/ui/badge";
 import { ClientWithClinicResponse } from "../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
@@ -105,7 +104,7 @@ export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
       </div>
     ),
   },
-  {
+  /*   {
     id: "clinicas",
     accessorKey: "clinics",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Clínicas" />,
@@ -119,7 +118,7 @@ export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
       </div>
     ),
     enableSorting: false,
-  },
+  }, */
   {
     id: "estado",
     accessorKey: "isActive",

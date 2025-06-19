@@ -2,38 +2,161 @@
 
 import { useEffect, useState } from "react";
 
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface LoadingTransitionProps {
   show: boolean;
   message?: string;
+  submessage?: string;
   className?: string;
+  variant?: "chess" | "geometric" | "minimal";
 }
 
-export function LoadingTransition({ show, message = "Redirigiendo...", className }: LoadingTransitionProps) {
+export function LoadingTransition({
+  show,
+  message = "Cargando...",
+  submessage = "Por favor espera",
+  className,
+  variant = "chess",
+}: LoadingTransitionProps) {
   const [mounted, setMounted] = useState(false);
 
-  // Efecto para manejar la animación de entrada
   useEffect(() => {
     if (show) {
       setMounted(true);
+      // Simulate progress
+      const interval = setInterval(() => {}, 200);
+      return () => clearInterval(interval);
+    } else {
     }
   }, [show]);
 
   if (!mounted) return null;
 
+  const ChessLoader = () => (
+    <div className="relative">
+      {/* Animated chessboard */}
+      <div className="grid grid-cols-6 gap-0.5 w-20 h-20 rounded-xl overflow-hidden shadow-2xl border-2 border-primary/20">
+        {Array.from({ length: 36 }).map((_, i) => (
+          <div
+            key={i}
+            className={cn(
+              "aspect-square transition-all duration-700 ease-in-out",
+              (Math.floor(i / 6) + i) % 2 === 0 ? "bg-primary" : "bg-primary/10"
+            )}
+            style={{
+              animationDelay: `${i * 50}ms`,
+              transform: `scale(${0.8 + Math.sin(Date.now() / 1000 + i) * 0.2})`,
+              animation: `pulse 2s infinite ${i * 50}ms`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Rotating pieces around */}
+      <div className="absolute inset-0 animate-spin" style={{ animationDuration: "8s" }}>
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 text-lg opacity-70">♛</div>
+        <div className="absolute top-1/2 -right-3 transform -translate-y-1/2 text-lg opacity-70">♜</div>
+        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 text-lg opacity-70">♝</div>
+        <div className="absolute top-1/2 -left-3 transform -translate-y-1/2 text-lg opacity-70">♞</div>
+      </div>
+    </div>
+  );
+
+  const GeometricLoader = () => (
+    <div className="relative w-20 h-20">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="absolute inset-0 border-4 border-primary rounded-full animate-spin"
+          style={{
+            animationDuration: `${2 + i}s`,
+            animationDirection: i % 2 === 0 ? "normal" : "reverse",
+            borderTopColor: "transparent",
+            borderRightColor: i === 1 ? "transparent" : undefined,
+            transform: `scale(${1 - i * 0.2})`,
+          }}
+        />
+      ))}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-4 h-4 bg-primary rounded-full animate-pulse" />
+      </div>
+    </div>
+  );
+
+  const MinimalLoader = () => (
+    <div className="flex gap-2">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="w-3 h-12 bg-primary rounded-full animate-pulse"
+          style={{
+            animationDelay: `${i * 0.1}s`,
+            animationDuration: "1s",
+            transform: `scaleY(${0.4 + Math.sin(Date.now() / 200 + i) * 0.6})`,
+          }}
+        />
+      ))}
+    </div>
+  );
+
+  const renderLoader = () => {
+    switch (variant) {
+      case "geometric":
+        return <GeometricLoader />;
+      case "minimal":
+        return <MinimalLoader />;
+      default:
+        return <ChessLoader />;
+    }
+  };
+
   return (
     <div
       className={cn(
-        "fixed inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm z-50 transition-opacity duration-300",
-        show ? "opacity-100" : "opacity-0 pointer-events-none",
+        "fixed inset-0 flex flex-col items-center justify-center bg-background/95 backdrop-blur-lg z-50 transition-all duration-700",
+        show ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none",
         className
       )}
     >
-      <div className="flex flex-col items-center gap-4">
-        <div className="animate-spin h-10 w-10 rounded-full border-4 border-primary border-t-transparent"></div>
-        <p className="text-lg font-medium">{message}</p>
+      <div className="flex flex-col items-center gap-8 p-8 rounded-2xl bg-card/50 backdrop-blur-sm border shadow-2xl">
+        {/* Main loader */}
+        {renderLoader()}
+
+        {/* Animated dots */}
+        <div className="flex gap-2">
+          {[0, 1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="w-2 h-2 bg-primary rounded-full animate-bounce"
+              style={{
+                animationDelay: `${i * 0.15}s`,
+                animationDuration: "1.2s",
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Messages */}
+        <div className="text-center space-y-3">
+          <h3 className="text-xl font-bold text-foreground animate-pulse">{message}</h3>
+          <p className="text-sm text-muted-foreground">{submessage}</p>
+        </div>
       </div>
+
+      <style jsx>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
     </div>
   );
 }

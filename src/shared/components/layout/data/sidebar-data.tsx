@@ -1,19 +1,17 @@
 import {
-  Banknote,
-  BriefcaseBusiness,
-  Building,
-  Files,
-  FileText,
+  Briefcase,
+  Building2,
+  ClipboardCheck,
+  FolderKanban,
   GraduationCap,
-  Group,
-  Hospital,
+  Hash,
   KeyRound,
-  Layers,
-  LayoutDashboard,
   Lock,
+  ScrollText,
   Settings,
-  SquareActivity,
+  Target,
   UserRound,
+  Users2,
   UsersRound,
 } from "lucide-react";
 
@@ -28,79 +26,71 @@ export const sidebarData: SidebarData = {
         {
           title: "Dashboard",
           url: "/dashboard",
-          icon: LayoutDashboard,
+          icon: Hash,
         },
       ],
     },
     {
-      title: "Gestión Operativa",
+      title: "Gestión de Administrativa",
       items: [
         {
-          title: "Seguimiento",
-          icon: Layers,
-          url: "/dashboard/admin/tracking",
-          permissions: [{ resource: EnumResource.projects, action: EnumAction.read }],
+          title: "Proyectos",
+          icon: FolderKanban,
+          items: [
+            {
+              title: "Seguimiento",
+              icon: Target,
+              url: "/dashboard/admin/tracking",
+              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+            },
+            {
+              title: "Plantillas",
+              icon: ScrollText,
+              url: "/dashboard/templates",
+              permissions: [{ resource: EnumResource.roles, action: EnumAction.read }],
+            },
+          ],
+          permissions: [
+            { resource: EnumResource.users, action: EnumAction.read },
+            { resource: EnumResource.roles, action: EnumAction.read },
+          ],
         },
         {
-          title: "Salud Ocupacional",
-          icon: SquareActivity,
-          url: "/dashboard/admin/medical-records",
-          permissions: [{ resource: EnumResource.occupationalHealth, action: EnumAction.read }],
+          title: "Recursos",
+          icon: Briefcase,
+          items: [
+            {
+              title: "Gestión de Recursos",
+              icon: ClipboardCheck,
+              url: "/dashboard/resources",
+              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+            },
+          ],
+          permissions: [
+            { resource: EnumResource.users, action: EnumAction.read },
+            { resource: EnumResource.roles, action: EnumAction.read },
+          ],
         },
-      ],
-    },
-    {
-      title: "Gestión Administrativa",
-      items: [
-        {
-          title: "Clínicas",
-          icon: Hospital,
-          url: "/dashboard/admin/clinics",
-          permissions: [{ resource: EnumResource.clinics, action: EnumAction.read }],
-        },
+
         {
           title: "Clientes",
-          icon: Building,
-          url: "/dashboard/admin/clients",
-          permissions: [{ resource: EnumResource.clients, action: EnumAction.read }],
-        },
-        {
-          title: "Servicios",
-          icon: BriefcaseBusiness,
-          url: "/dashboard/admin/services",
-          permissions: [{ resource: EnumResource.services, action: EnumAction.read }],
-        },
-        {
-          title: "Grupos de cotizaciones",
-          icon: Group,
-          url: "/dashboard/admin/quotation-groups",
-          permissions: [{ resource: EnumResource.quotations, action: EnumAction.read }],
-        },
-        {
-          title: "Diagnosticos",
-          icon: FileText,
-          url: "/dashboard/admin/diagnostics",
-          permissions: [{ resource: EnumResource.diagnostic, action: EnumAction.read }],
+          icon: Building2,
+          items: [
+            {
+              title: "Gestión de Clientes",
+              icon: Users2,
+              url: "/dashboard/admin/clients",
+              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+            },
+          ],
+          permissions: [
+            { resource: EnumResource.users, action: EnumAction.read },
+            { resource: EnumResource.roles, action: EnumAction.read },
+          ],
         },
       ],
     },
-    {
-      title: "Gestión Comercial",
-      items: [
-        {
-          title: "Cotizaciones",
-          icon: Files,
-          url: "/dashboard/admin/quotation",
-          permissions: [{ resource: EnumResource.quotations, action: EnumAction.read }],
-        },
-        {
-          title: "Pagos",
-          icon: Banknote,
-          url: "/dashboard/admin/payment",
-          permissions: [{ resource: EnumResource.payments, action: EnumAction.read }],
-        },
-      ],
-    },
+
     {
       title: "Gestión de Capacitaciones",
       items: [
@@ -116,7 +106,7 @@ export const sidebarData: SidebarData = {
       title: "Gestión de Usuarios",
       items: [
         {
-          title: "Usuarios y permisos",
+          title: "Usuarios",
           icon: UsersRound,
           items: [
             {
