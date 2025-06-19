@@ -53,11 +53,11 @@ export default function Dashboard() {
   const [selectedStatus, setSelectedStatus] = useState("Estado");
 
   return (
-    <div className=" bg-gray-50">
+    <div>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <div className="flex items-center gap-4">
             <Select value={selectedArea} onValueChange={setSelectedArea}>
               <SelectTrigger className="w-32">

@@ -10,7 +10,7 @@ export default function NotFound() {
   const router = useRouter();
 
   return (
-    <div className="h-svh bg-primary/80  dark:bg-primary ">
+    <div className="h-svh bg-primary/80  dark:bg-primary/80 ">
       <div className="m-auto flex h-full w-full flex-col items-center justify-center gap-6 p-4">
         {/* Construction Icons Animation */}
         <div className="relative mb-4">
