@@ -17,13 +17,13 @@ export default function SignInPage() {
       <div className="relative hidden h-full flex-col bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-10 text-white dark:border-r lg:flex overflow-hidden">
         {/* Background image with overlay */}
         <div className="absolute inset-0">
-          <img src="/assets/bgmsm.webp" alt="MS & M Consulting" className="w-full h-full object-cover" />
+          <img src="/assets/bgmsm.webp" alt="Viesglo" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-secondary/10 backdrop-blur-[1px]" />
         </div>
 
         {/* Bottom decoration */}
         <div className="relative z-10 mt-auto flex items-end justify-between w-full">
-          <div className="text-sm font-normal text-white/60">© 2025 Viesglo</div>
+          <div className="text-sm font-normal text-white/60">© {new Date().getFullYear()} Viesglo</div>
           <div className="flex gap-2">
             <div className="w-8 h-1 bg-white/30 rounded-full" />
             <div className="w-4 h-1 bg-white/50 rounded-full" />
