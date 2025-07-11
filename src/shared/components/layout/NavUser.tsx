@@ -1,10 +1,7 @@
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { BadgeCheckIcon, ChevronsUpDown, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(public)/auth/sign-in/_actions/auth.actions";
-import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
+import { useLogout, useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import {
   DropdownMenu,
@@ -17,29 +14,12 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/shared/components/ui/sidebar";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
-import { LoadingTransition } from "../ui/loading-transition";
 import { Skeleton } from "../ui/skeleton";
 
 export function NavUser() {
-  const { data: user, isLoading } = useCurrentUser();
+  const { data: user, isLoading } = useProfile();
   const { isMobile } = useSidebar();
-
-  const router = useRouter();
-
-  // Añadimos estado para la redirección
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setIsRedirecting(true);
-      setTimeout(() => {
-        router.push("/auth/sign-in");
-      }, 1500);
-    } catch (error) {
-      console.error("Error durante el logout:", error);
-    }
-  };
+  const { onLogout } = useLogout();
 
   if (!user) {
     return null;
@@ -49,7 +29,6 @@ export function NavUser() {
 
   return (
     <>
-      <LoadingTransition show={isRedirecting} message="Cerrando sesión, por favor espere..." />
       <SidebarMenu>
         <SidebarMenuItem>
           <DropdownMenu>
@@ -90,21 +69,20 @@ export function NavUser() {
                 </div>
               </DropdownMenuLabel>
 
-              {user.type === "admin" && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link href="/settings/account">
-                        <BadgeCheckIcon />
-                        Account
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-                </>
-              )}
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/settings/account">
+                      <BadgeCheckIcon />
+                      Account
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
+              <DropdownMenuItem onClick={onLogout}>
                 <LogOut />
                 Cerrar sesión
               </DropdownMenuItem>

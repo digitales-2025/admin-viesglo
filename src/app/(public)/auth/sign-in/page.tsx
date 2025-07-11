@@ -3,6 +3,7 @@ import type { Metadata } from "next/types";
 
 import LogoLarge from "@/shared/components/icons/LogoLarge";
 import { ThemeSwitch } from "@/shared/components/layout/ThemeSwitch";
+import viesgloImage from "../sign-in/_assets/viesglo.webp";
 import { LoginForm } from "./_components/LoginForm";
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function SignInPage() {
       <div className="relative hidden h-full flex-col bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-10 text-white dark:border-r lg:flex overflow-hidden">
         {/* Background image with overlay */}
         <div className="absolute inset-0">
-          <img src="/assets/bgmsm.webp" alt="Viesglo" className="w-full h-full object-cover" />
+          <img src={viesgloImage.src} alt="Viesglo" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-primary/10 to-secondary/10 backdrop-blur-[1px]" />
         </div>
 

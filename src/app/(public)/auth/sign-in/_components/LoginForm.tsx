@@ -1,57 +1,27 @@
 "use client";
 
 import { useState, type HTMLAttributes } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Lock, Mail } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { LoadingTransition } from "@/shared/components/ui/loading-transition";
 import { PasswordInput } from "@/shared/components/ui/password-input";
-import { useSignIn } from "../_hooks/useAuth";
+import { useLogin } from "../_hooks/use-auth";
 
 type UserAuthFormProps = HTMLAttributes<HTMLDivElement>;
 
-const formSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(1, "Contraseña requerida"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
-
 export function LoginForm({ className, ...props }: UserAuthFormProps) {
-  const { mutate: login, isPending: isLoading } = useSignIn();
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { form, mutation, onLogin } = useLogin();
+  const { isPending } = mutation;
+
   const [focusedField, setFocusedField] = useState<string | null>(null);
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  async function onSubmit(data: FormValues) {
-    setIsRedirecting(true);
-
-    login(data, {
-      onError: () => {
-        setIsRedirecting(false);
-      },
-    });
-  }
 
   return (
     <div className={cn("space-y-6", className)} {...props}>
-      <LoadingTransition show={isRedirecting} message="Iniciando sesión, por favor espere..." />
-
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onLogin)} className="space-y-6">
           <div className="space-y-4">
             {/* Email field with enhanced styling */}
             <FormField
@@ -66,9 +36,9 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
                   <FormControl>
                     <div className="relative group">
                       <Input
-                        placeholder="tu@empresa.com"
+                        placeholder="ejemplo@viesglo.com"
                         autoComplete="email"
-                        disabled={isLoading || isRedirecting}
+                        disabled={isPending}
                         className={cn(
                           "pl-4 pr-4 py-3 text-base transition-all duration-200",
                           "border-2",
@@ -102,7 +72,7 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
                       <PasswordInput
                         placeholder="••••••••"
                         autoComplete="current-password"
-                        disabled={isLoading || isRedirecting}
+                        disabled={isPending}
                         className={cn(
                           focusedField === "password" && "border-primary border-2 shadow-lg shadow-primary/10"
                         )}
@@ -120,7 +90,7 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
           {/* Enhanced submit button */}
           <Button
             type="submit"
-            disabled={isLoading || isRedirecting}
+            disabled={isPending}
             className={cn(
               "w-full py-3 text-base font-medium rounded-xl transition-all duration-200",
               "bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90",
@@ -130,12 +100,7 @@ export function LoginForm({ className, ...props }: UserAuthFormProps) {
             )}
           >
             <div className="flex items-center justify-center gap-2">
-              {isRedirecting ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  Redirigiendo...
-                </>
-              ) : isLoading ? (
+              {isPending ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   Iniciando sesión...

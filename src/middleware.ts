@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = ["/auth/sign-in", "/forbidden"];
 
-const PUBLIC_ROUTES_WITHOUT_AUTH = ["/buscar-certificado"];
+//const PUBLIC_ROUTES_WITHOUT_AUTH = ['/'];
 
 // Rutas de API que no deberían pasar por el middleware de autenticación
 const API_ROUTES = ["/api/auth", "/api/v1/auth"];
@@ -19,7 +19,7 @@ function isAuthRelatedRequest(request: NextRequest): boolean {
   const method = request.method;
 
   // Verificaciones rápidas primero
-  if (pathname === "/auth/sign-in" && method === "POST") return true;
+  if (pathname === "/log-in" && method === "POST") return true;
 
   // Verificar si es una petición a la API de autenticación
   for (const route of API_ROUTES) {
@@ -48,6 +48,12 @@ function isStaticResource(pathname: string): boolean {
   );
 }
 
+function devlog(message: string) {
+  if (process.env.NODE_ENV === "development") {
+    console.log("\tDEBUG: " + message);
+  }
+}
+
 export async function middleware(request: NextRequest) {
   const startTime = process.env.NODE_ENV === "development" ? Date.now() : 0;
   const { pathname } = request.nextUrl;
@@ -60,10 +66,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // Si es una ruta pública sin autenticación, permitir acceso
-  if (PUBLIC_ROUTES_WITHOUT_AUTH.includes(pathname)) {
-    devlog("Ruta pública sin autenticación, permitiendo acceso");
-    return NextResponse.next();
-  }
+  // if (PUBLIC_ROUTES_WITHOUT_AUTH.includes(pathname)) {
+  //     devlog('Ruta pública sin autenticación, permitiendo acceso');
+  //     return NextResponse.next();
+  // }
 
   // Si es una petición relacionada con autenticación, permitir sin interferir
   if (isAuthRelatedRequest(request)) {
@@ -72,18 +78,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // Verificar presencia de cookie de autenticación (sin validar su contenido)
-  const hasRefreshToken = !!request.cookies.get("refresh_token")?.value;
+  const session_token = !!request.cookies.get("better-auth.session_token")?.value;
 
   // CASO 1: Ruta pública, usuario aparentemente autenticado -> redirigir a la página principal
-  if (PUBLIC_ROUTES.includes(pathname) && hasRefreshToken) {
+  if (PUBLIC_ROUTES.includes(pathname) && session_token) {
     devlog("Ruta pública, token presente, redirigiendo a dashboard");
-    const response = NextResponse.redirect(new URL("/dashboard", request.url));
+    const response = NextResponse.redirect(new URL("/", request.url));
     response.cookies.delete("lastUrl");
     return response;
   }
 
   // CASO 2: Ruta privada, usuario sin token -> redirigir a login
-  if (!PUBLIC_ROUTES.includes(pathname) && !hasRefreshToken) {
+  if (!PUBLIC_ROUTES.includes(pathname) && !session_token) {
     devlog("Ruta privada, token ausente, redirigiendo a login");
     const response = NextResponse.redirect(new URL("/auth/sign-in", request.url));
 
@@ -109,12 +115,6 @@ export async function middleware(request: NextRequest) {
   }
 
   return NextResponse.next();
-}
-
-function devlog(message: string) {
-  if (process.env.NODE_ENV === "development") {
-    console.log("\tDEBUG: " + message);
-  }
 }
 
 export const config = {
