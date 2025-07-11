@@ -1,12 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { BadgeCheck, LogOut } from "lucide-react";
 
-import { logout } from "@/app/(public)/auth/sign-in/_actions/auth.actions";
-import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
+import { useLogout, useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -20,30 +17,14 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
-import { LoadingTransition } from "../ui/loading-transition";
 import { Skeleton } from "../ui/skeleton";
 
 export function ProfileDropdown() {
-  const router = useRouter();
-  const { data: user, isLoading } = useCurrentUser();
-  // Añadimos estado para la redirección
-  const [isRedirecting, setIsRedirecting] = useState(false);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      setIsRedirecting(true);
-      setTimeout(() => {
-        router.push("/auth/sign-in");
-      }, 1500);
-    } catch (error) {
-      console.error("Error durante el logout:", error);
-    }
-  };
+  const { data: user, isLoading } = useProfile();
+  const { onLogout } = useLogout();
 
   return (
     <>
-      <LoadingTransition show={isRedirecting} message="Cerrando sesión, por favor espere..." />
       {isLoading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
@@ -64,53 +45,21 @@ export function ProfileDropdown() {
                 <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
               </div>
             </DropdownMenuLabel>
-            {user?.type === "admin" && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/settings">
-                      Mi cuenta
-                      <DropdownMenuShortcut>
-                        <BadgeCheck />
-                      </DropdownMenuShortcut>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </>
-            )}
-            {user?.type === "client" && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/client/settings">
-                      Mi cuenta
-                      <DropdownMenuShortcut>
-                        <BadgeCheck />
-                      </DropdownMenuShortcut>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </>
-            )}
-            {user?.type === "clinic" && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard/clinic/settings">
-                      Mi cuenta
-                      <DropdownMenuShortcut>
-                        <BadgeCheck />
-                      </DropdownMenuShortcut>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </>
-            )}
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">
+                    Mi cuenta
+                    <DropdownMenuShortcut>
+                      <BadgeCheck />
+                    </DropdownMenuShortcut>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+            </>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout} disabled={isLoading}>
+            <DropdownMenuItem onClick={onLogout} disabled={isLoading}>
               Cerrar sesión
               <DropdownMenuShortcut>
                 <LogOut />

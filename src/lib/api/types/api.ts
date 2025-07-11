@@ -4,7 +4,141 @@
  */
 
 export interface paths {
-  "/api/v1/auth/login": {
+  "/": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AppController_getHello"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["AppController_getHealthCheck"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/users/me": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener perfil del usuario actual */
+    get: operations["UsersController_getMyProfile_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/users/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener usuarios con paginación
+     * @description Obtiene una lista paginada de usuarios. Los administradores (rol GERENCIA) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos.
+     */
+    get: operations["UsersController_getUsersPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener todos los usuarios activos
+     * @description Obtiene una lista de todos los usuarios activos del sistema. Se recomienda usar el endpoint paginado para mejor rendimiento.
+     */
+    get: operations["UsersController_getAllUsers_v1"];
+    put?: never;
+    /**
+     * Crear nuevo usuario
+     * @description Crea un nuevo usuario con Better Auth y asigna roles y permisos automáticamente.
+     */
+    post: operations["UsersController_createUser_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/users/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener usuario por ID */
+    get: operations["UsersController_getUserById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Actualización parcial de usuario
+     * @description Actualiza parcialmente los datos de un usuario existente.
+     */
+    patch: operations["UsersController_updateUser_v1"];
+    trace?: never;
+  };
+  "/v1/users/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Alternar estado activo del usuario
+     * @description Alterna automáticamente el estado activo/inactivo del usuario. Si está activo, se desactiva. Si está inactivo, se activa.
+     */
+    patch: operations["UsersController_toggleActiveUser_v1"];
+    trace?: never;
+  };
+  "/v1/auth/signin": {
     parameters: {
       query?: never;
       header?: never;
@@ -14,31 +148,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Iniciar sesión */
-    post: operations["AuthController_login_v1"];
+    post: operations["AuthController_signIn_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/auth/refresh": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Renovar token de acceso usando token de actualización */
-    post: operations["AuthController_refreshToken_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/auth/logout": {
+  "/v1/auth/signout": {
     parameters: {
       query?: never;
       header?: never;
@@ -48,22 +165,22 @@ export interface paths {
     get?: never;
     put?: never;
     /** Cerrar sesión */
-    post: operations["AuthController_logout_v1"];
+    post: operations["AuthController_signOut_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/auth/me": {
+  "/v1/auth/me": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener información del usuario autenticado */
-    get: operations["AuthController_me_v1"];
+    /** Obtener usuario actual */
+    get: operations["AuthController_getMe_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -72,131 +189,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/api/v1/auth/update-password": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar la contraseña de un usuario */
-    put: operations["AuthController_updatePassword_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/auth/verify-token": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Verificar la validez de un token de refresco */
-    post: operations["AuthController_verifyToken_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/auth/permissions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener permisos del usuario autenticado */
-    get: operations["AuthController_getPermissions_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los usuarios */
-    get: operations["UsersController_findAll_v1"];
-    put?: never;
-    /** Crear un nuevo usuario */
-    post: operations["UsersController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/users-project": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get: operations["UsersController_getProjectTrackers_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un usuario por su ID */
-    get: operations["UsersController_findById_v1"];
-    /** Actualizar un usuario existente */
-    put: operations["UsersController_update_v1"];
-    post?: never;
-    /** Eliminar un usuario */
-    delete: operations["UsersController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/{id}/permissions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /**
-     * Obtener permisos de un usuario
-     * @description Obtiene todos los permisos asignados a un usuario a través de sus roles
-     */
-    get: operations["UsersController_getUserPermissions_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/users/{id}/toggle-active": {
+  "/v1/auth/update-password": {
     parameters: {
       query?: never;
       header?: never;
@@ -209,1768 +202,56 @@ export interface paths {
     delete?: never;
     options?: never;
     head?: never;
-    /** Reactivar un usuario */
-    patch: operations["UsersController_reactivate_v1"];
+    /** Actualizar contraseña del usuario */
+    patch: operations["AuthController_updatePassword_v1"];
     trace?: never;
   };
-  "/api/v1/roles": {
+  "/v1/auth/permissions": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Obtener todos los roles */
-    get: operations["RolesController_getRoles_v1"];
+    /** Obtener permisos del usuario */
+    get: operations["AuthController_getUserPermissions_v1"];
     put?: never;
-    /** Crear un nuevo rol */
-    post: operations["RolesController_createRole_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/roles/{roleId}/permissions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener permisos de un rol */
-    get: operations["RolesController_getPermissions_v1"];
-    put?: never;
-    /** Asignar un permiso a un rol */
-    post: operations["RolesController_assignPermission_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/roles/{roleId}/users": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Asignar un rol a un usuario */
-    post: operations["RolesController_assignRoleToUser_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/roles/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar un rol */
-    put: operations["RolesController_updateRole_v1"];
-    post?: never;
-    /** Eliminar un rol (desactivación lógica) */
-    delete: operations["RolesController_deleteRole_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/roles/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Reactivar un rol */
-    patch: operations["RolesController_reactivate_v1"];
-    trace?: never;
-  };
-  "/api/v1/permissions": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los permisos */
-    get: operations["PermissionsController_getPermissions_v1"];
-    put?: never;
-    /** Crear un nuevo permiso */
-    post: operations["PermissionsController_createPermission_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/services": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los servicios */
-    get: operations["ServicesController_getServices_v1"];
-    put?: never;
-    /** Crear un nuevo servicio */
-    post: operations["ServicesController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/services/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar un servicio existente */
-    put: operations["ServicesController_update_v1"];
-    post?: never;
-    /** Eliminar un servicio existente */
-    delete: operations["ServicesController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/objectives": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Crear una nueva objetivo */
-    post: operations["ObjectivesController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/objectives/{serviceId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todas las objetivos de un servicio */
-    get: operations["ObjectivesController_getObjectivesByServiceId_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/objectives/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar un objetivo existente */
-    put: operations["ObjectivesController_update_v1"];
-    post?: never;
-    /** Eliminar una objetivo existente */
-    delete: operations["ObjectivesController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/activities": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener actividades por objetivo */
-    get: operations["ActivitiesController_getActivitiesByObjectiveId_v1"];
-    put?: never;
-    /** Crear una nueva actividad */
-    post: operations["ActivitiesController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/activities/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar una actividad existente */
-    put: operations["ActivitiesController_update_v1"];
-    post?: never;
-    /** Eliminar una actividad existente */
-    delete: operations["ActivitiesController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clinics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todas las clínicas */
-    get: operations["ClinicsController_getClinics_v1"];
-    put?: never;
-    /** Crear una clínica */
-    post: operations["ClinicsController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clinics/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener una clínica por ID */
-    get: operations["ClinicsController_getClinicById_v1"];
-    /** Actualizar una clínica */
-    put: operations["ClinicsController_update_v1"];
-    post?: never;
-    /** Eliminar una clínica */
-    delete: operations["ClinicsController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clinics/{id}/profile": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar el perfil de la clínica */
-    patch: operations["ClinicsController_updateProfile_v1"];
-    trace?: never;
-  };
-  "/api/v1/clinics/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado de una clínica */
-    patch: operations["ClinicsController_toggleActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/clients": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los clientes */
-    get: operations["ClientsController_getClients_v1"];
-    put?: never;
-    /** Crear un cliente */
-    post: operations["ClientsController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clients/search": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar un cliente por RUC, email o nombre */
-    get: operations["ClientsController_findByFilters_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clients/search/paginated": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar un cliente por RUC, email o nombre con paginación */
-    get: operations["ClientsController_findByFiltersPaginated_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clients/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un cliente por ID */
-    get: operations["ClientsController_getClientById_v1"];
-    /** Actualizar un cliente */
-    put: operations["ClientsController_update_v1"];
-    post?: never;
-    /** Eliminar un cliente */
-    delete: operations["ClientsController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clients/{id}/clinics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener las clínicas asignadas a un cliente */
-    get: operations["ClientsController_getClinicsByClient_v1"];
-    put?: never;
-    /** Asignar clínicas a un cliente */
-    post: operations["ClientsController_assignClinics_v1"];
-    /** Desasignar clínicas de un cliente */
-    delete: operations["ClientsController_unassignClinics_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/clients/{id}/profile": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar el perfil de un cliente */
-    patch: operations["ClientsController_updateProfile_v1"];
-    trace?: never;
-  };
-  "/api/v1/clients/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado de un cliente */
-    patch: operations["ClientsController_toggleActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/clients/by-clinic/{clinicId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener clientes asociados a una clínica */
-    get: operations["ClientsController_getClientsByClinic_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los proyectos */
-    get: operations["ProjectsController_getProjects_v1"];
-    put?: never;
-    /** Crear un nuevo proyecto */
-    post: operations["ProjectsController_createProject_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/search": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Búsqueda avanzada de proyectos */
-    get: operations["ProjectsController_searchProjects_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/search/paginated": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar proyectos con paginación */
-    get: operations["ProjectsController_searchProjectsPaginated_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/generate-excel": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Generar Excel de cotizaciones */
-    get: operations["ProjectsController_generateExcel_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/generate-excel-project-detail": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Generar Excel de detalle de proyecto */
-    get: operations["ProjectsController_generateExcelProjectDetail_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un proyecto por su ID */
-    get: operations["ProjectsController_getProjectById_v1"];
-    /** Actualizar un proyecto */
-    put: operations["ProjectsController_updateProject_v1"];
-    post?: never;
-    /** Eliminar un proyecto */
-    delete: operations["ProjectsController_deleteProject_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/projects/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado activo de un proyecto */
-    patch: operations["ProjectsController_toggleActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/project-services/{projectId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Agregar un servicio a un proyecto */
-    post: operations["ProjectServicesController_addServiceToProject_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-services/template/{projectId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Agregar servicios a un proyecto desde plantillas */
-    post: operations["ProjectServicesController_addServiceToProjectFromTemplate_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-services": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los servicios de un proyecto */
-    get: operations["ProjectServicesController_getProjectServices_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-services/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un servicio de proyecto por ID */
-    get: operations["ProjectServicesController_getProjectServiceById_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-services/{serviceId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar un servicio de proyecto */
-    put: operations["ProjectServicesController_updateProjectService_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-services/{serviceId}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Activar o desactivar un servicio de proyecto */
-    patch: operations["ProjectServicesController_toggleProjectServiceActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/project-objectives": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los objetivos de un servicio de proyecto */
-    get: operations["ProjectObjectivesController_getProjectObjectives_v1"];
-    put?: never;
-    /** Agregar un objetivo a un servicio de proyecto */
-    post: operations["ProjectObjectivesController_addObjectiveToProjectService_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-objectives/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un objetivo de proyecto por ID */
-    get: operations["ProjectObjectivesController_getProjectObjectiveById_v1"];
-    /** Actualizar un objetivo de proyecto */
-    put: operations["ProjectObjectivesController_updateProjectObjective_v1"];
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-objectives/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Activar o desactivar un objetivo de proyecto */
-    patch: operations["ProjectObjectivesController_toggleProjectObjectiveActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/project-activities": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todas las actividades de un objetivo de proyecto */
-    get: operations["ProjectActivitiesController_getProjectActivities_v1"];
-    put?: never;
-    /** Agregar una actividad a un objetivo de proyecto */
-    post: operations["ProjectActivitiesController_addActivityToProjectObjective_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener una actividad por su ID */
-    get: operations["ProjectActivitiesController_getProjectActivityById_v1"];
-    /** Actualizar una actividad de un objetivo de proyecto */
-    put: operations["ProjectActivitiesController_updateActivityToProjectObjective_v1"];
-    post?: never;
-    /** Eliminar una actividad de un objetivo de proyecto */
-    delete: operations["ProjectActivitiesController_deleteActivityToProjectObjective_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/tracking": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar el seguimiento de una tarea */
-    patch: operations["ProjectActivitiesController_updateTrackingActivity_v1"];
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/upload-evidence": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Subir evidencia de una actividad */
-    post: operations["ProjectActivitiesController_uploadEvidence_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/evidence": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Eliminar evidencia de una actividad */
-    delete: operations["ProjectActivitiesController_deleteEvidence_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/project-activities/{id}/download-evidence": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Descargar evidencia de una actividad */
-    get: operations["ProjectActivitiesController_downloadEvidence_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotations": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todas las cotizaciones */
-    get: operations["QuotationController_findAll_v1"];
-    put?: never;
-    /** Crear nueva cotización */
-    post: operations["QuotationController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotations/paginated": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar cotizaciones con paginación */
-    get: operations["QuotationController_searchQuotationsPaginated_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotations/generate-excel": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Generar Excel de cotizaciones */
-    get: operations["QuotationController_generateExcel_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotations/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener cotización por ID */
-    get: operations["QuotationController_findById_v1"];
-    /** Actualizar cotización */
-    put: operations["QuotationController_update_v1"];
-    post?: never;
-    /** Eliminar cotización */
-    delete: operations["QuotationController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotations/{id}/concrete": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar estado de concreción de la cotización */
-    patch: operations["QuotationController_concrete_v1"];
-    trace?: never;
-  };
-  "/api/v1/certificate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los certificados */
-    get: operations["CertificateController_findAll_v1"];
-    put?: never;
-    /** Crear un nuevo certificado */
-    post: operations["CertificateController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/paginated": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar certificados con paginación */
-    get: operations["CertificateController_findAllPaginated_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/{id}/download-certificate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Descargar certificado por id */
-    get: operations["CertificateController_downloadCertificate_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un certificado por id */
-    get: operations["CertificateController_findById_v1"];
-    /** Actualizar un certificado por id */
-    put: operations["CertificateController_update_v1"];
-    post?: never;
-    /** Eliminar un certificado por id */
-    delete: operations["CertificateController_delete_v1"];
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado de un certificado por id */
-    patch: operations["CertificateController_toggleActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/certificate/code/{code}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un certificado por codigo */
-    get: operations["CertificateController_findByCode_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificate/{id}/regenerate-url": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Regenerar la URL de acceso al certificado */
-    get: operations["CertificateController_regenerateFileUrl_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificates-public/code/{code}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un certificado por codigo */
-    get: operations["CertificatesPublicController_findByCode_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificates-public/{id}/regenerate-url": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Regenerar la URL de acceso al certificado */
-    get: operations["CertificatesPublicController_regenerateFileUrl_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/certificates-public/{id}/download-certificate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Descargar certificado por id */
-    get: operations["CertificatesPublicController_downloadCertificate_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener registros médicos con filtros opcionales y paginación */
-    get: operations["MedicalRecordsController_getMedicalRecords_v1"];
-    put?: never;
-    /** Crear un registro médico */
-    post: operations["MedicalRecordsController_create_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/generate-excel": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Generar Excel de cotizaciones */
-    get: operations["MedicalRecordsController_generateExcel_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/by-diagnostic": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar registros médicos por nombre de diagnóstico */
-    get: operations["MedicalRecordsController_getMedicalRecordsByDiagnostic_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener registro médico por ID */
-    get: operations["MedicalRecordsController_getMedicalRecordById_v1"];
-    put?: never;
-    post?: never;
-    /** Eliminar registro médico */
-    delete: operations["MedicalRecordsController_deleteMedicalRecord_v1"];
-    options?: never;
-    head?: never;
-    /** Actualizar registro médico */
-    patch: operations["MedicalRecordsController_updateMedicalRecord_v1"];
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/aptitude-certificate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Descargar certificado de aptitud médica */
-    get: operations["MedicalRecordsController_downloadAptitudeCertificate_v1"];
-    put?: never;
-    /** Subir o reemplazar certificado de aptitud médica */
-    post: operations["MedicalRecordsController_uploadAptitudeCertificate_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/medical-report": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Descargar informe médico */
-    get: operations["MedicalRecordsController_downloadMedicalReport_v1"];
-    put?: never;
-    /** Subir o reemplazar informe médico */
-    post: operations["MedicalRecordsController_uploadMedicalReport_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/aptitude-certificate/info": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener información sobre el certificado de aptitud médica */
-    get: operations["MedicalRecordsController_getAptitudeCertificateInfo_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/medical-report/info": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener información sobre el informe médico */
-    get: operations["MedicalRecordsController_getMedicalReportInfo_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/details": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar detalles de un registro médico */
-    patch: operations["MedicalRecordsController_updateMedicalRecordDetails_v1"];
-    trace?: never;
-  };
-  "/api/v1/medical-records/{id}/custom-sections": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar secciones personalizadas de un registro médico */
-    patch: operations["MedicalRecordsController_updateCustomSections_v1"];
-    trace?: never;
-  };
-  "/api/v1/diagnostics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los diagnósticos disponibles en el sistema */
-    get: operations["DiagnosticsController_getAllDiagnostics_v1"];
-    put?: never;
-    /** Crear un nuevo diagnóstico */
-    post: operations["DiagnosticsController_createDiagnostic_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los diagnósticos activos */
-    get: operations["DiagnosticsController_getActiveDiagnostics_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/{diagnosticId}/deactivate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Desactivar un diagnóstico (eliminación lógica) */
-    patch: operations["DiagnosticsController_deactivateDiagnostic_v1"];
-    trace?: never;
-  };
-  "/api/v1/diagnostics/{diagnosticId}/toggle-include-reports": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado de inclusión en informes de un diagnóstico */
-    patch: operations["DiagnosticsController_toggleIncludeReportsDiagnostic_v1"];
-    trace?: never;
-  };
-  "/api/v1/diagnostics/{diagnosticId}/activate": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Reactivar un diagnóstico (activación lógica) */
-    patch: operations["DiagnosticsController_activateDiagnostic_v1"];
-    trace?: never;
-  };
-  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener diagnósticos de un registro médico */
-    get: operations["DiagnosticsController_getDiagnosticsForMedicalRecord_v1"];
-    put?: never;
-    /** Añadir un diagnóstico a un registro médico */
-    post: operations["DiagnosticsController_addDiagnosticToMedicalRecord_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/medical-records/{medicalRecordId}/bulk-diagnostics": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Añadir múltiples diagnósticos a un registro médico */
-    post: operations["DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-value": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    /** Crear un nuevo valor de diagnóstico para un registro médico */
-    post: operations["DiagnosticsController_addDiagnosticValue_v1"];
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/medical-records/{medicalRecordId}/diagnostic-values": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los valores de diagnóstico de un registro médico con la información del diagnóstico */
-    get: operations["DiagnosticsController_getDiagnosticValuesWithDetails_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/diagnostics/diagnostic-values/{diagnosticValueId}/name": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar el nombre de un valor de diagnóstico personalizado */
-    patch: operations["DiagnosticsController_updateDiagnosticValueName_v1"];
-    trace?: never;
-  };
-  "/api/v1/diagnostics/{diagnosticId}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    /** Eliminar un diagnóstico */
-    delete: operations["DiagnosticsController_deleteDiagnostic_v1"];
-    options?: never;
-    head?: never;
-    /** Actualizar un diagnóstico existente */
-    patch: operations["DiagnosticsController_updateDiagnostic_v1"];
-    trace?: never;
-  };
-  "/api/v1/payments": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Todos los pagos de cotizaciones */
-    get: operations["PaymentController_findAll_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/stats": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Estadísticas de pagos */
-    get: operations["PaymentController_findAllForStats_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/paginated": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Buscar pagos con paginación */
-    get: operations["PaymentController_findAllPaginated_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/generate-excel": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Generar Excel de cotizaciones */
-    get: operations["PaymentController_generateExcel_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/years-comparison": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Comparación de pagos por años y meses */
-    get: operations["PaymentController_compareYears_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Get payment by ID */
-    get: operations["PaymentController_findById_v1"];
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payments/{id}/status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Update payment status */
-    patch: operations["PaymentController_updateStatus_v1"];
-    trace?: never;
-  };
-  "/api/v1/payments/{id}/mark-status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Mark payment as paid or unpaid */
-    patch: operations["PaymentController_markStatus_v1"];
-    trace?: never;
-  };
-  "/api/v1/quotation-groups": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener todos los grupos de cotizaciones */
-    get: operations["QuotationGroupsController_getAll_v1"];
-    put?: never;
-    /** Crear un grupo de cotizaciones */
-    post: operations["QuotationGroupsController_create_v1"];
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/quotation-groups/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un grupo de cotizaciones por ID */
-    get: operations["QuotationGroupsController_getById_v1"];
-    /** Actualizar un grupo de cotizaciones por ID */
-    put: operations["QuotationGroupsController_update_v1"];
-    post?: never;
-    /** Eliminar un grupo de cotizaciones por ID */
-    delete: operations["QuotationGroupsController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/api/v1/quotation-groups/{id}/togle-active": {
+  "/v1/auth/token-info": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get?: never;
+    /** Información del token actual */
+    get: operations["AuthController_getTokenInfo_v1"];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Activar/Desactivar grupo de cotización */
-    patch: operations["QuotationGroupsController_togleActive_v1"];
-    trace?: never;
-  };
-  "/api/v1/installment-payments": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener un pago por cuota de cotización */
-    get: operations["InstallmentPaymentController_findByPaymentId_v1"];
-    put?: never;
-    /** Crear un pago por cuota de cotización */
-    post: operations["InstallmentPaymentController_create_v1"];
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/installment-payments/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar un pago por cuota de cotización */
-    put: operations["InstallmentPaymentController_update_v1"];
-    post?: never;
-    /** Eliminar un pago por cuota de cotización */
-    delete: operations["InstallmentPaymentController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
-    trace?: never;
-  };
-  "/api/v1/installment-payments/{id}/mark-status": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Actualizar el estado de un pago por cuota de cotización */
-    patch: operations["InstallmentPaymentController_updateStatus_v1"];
-    trace?: never;
-  };
-  "/api/v1/installment-payments/{id}/toggle-active": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    put?: never;
-    post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    /** Cambiar el estado activo de un pago por cuota de cotización */
-    patch: operations["InstallmentPaymentController_toggleActive_v1"];
     trace?: never;
   };
-  "/api/v1/audit": {
+  "/v1/auth/session": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    /** Find audit by entity id with pagination */
-    get: operations["AuditController_findAudit_v1"];
+    /** Verificar estado de sesión */
+    get: operations["AuthController_checkSession_v1"];
     put?: never;
     post?: never;
-    delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payment-installment-config": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** Obtener una configuración de pago por cuotas por ID de pago */
-    get: operations["PaymentInstallmentConfigController_findByPaymentId_v1"];
-    put?: never;
-    /** Crear una configuración de pago por cuotas */
-    post: operations["PaymentInstallmentConfigController_create_v1"];
     delete?: never;
-    options?: never;
-    head?: never;
-    patch?: never;
-    trace?: never;
-  };
-  "/api/v1/payment-installment-config/{id}": {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    get?: never;
-    /** Actualizar una configuración de pago por cuotas */
-    put: operations["PaymentInstallmentConfigController_update_v1"];
-    post?: never;
-    /** Eliminar una configuración de pago por cuotas */
-    delete: operations["PaymentInstallmentConfigController_delete_v1"];
     options?: never;
     head?: never;
     patch?: never;
@@ -1980,3347 +261,262 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    SignInDto: {
-      /**
-       * Format: email
-       * @description El email del usuario.
-       * @example admin@admin.com
-       */
-      email: string;
-      /**
-       * @description La contraseña del usuario
-       * @example password
-       */
-      password: string;
-    };
-    AuthResponseDto: {
-      /**
-       * @description Estado HTTP de la respuesta
-       * @example 200
-       */
-      statusCode: number;
-      /**
-       * @description Mensaje informativo sobre la operación
-       * @example Operación realizada con éxito
-       */
-      message?: string;
-      /**
-       * @description ID único del usuario
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id?: string;
-      /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email?: string;
-      /**
-       * @description Nombre (para clínicas y clientes)
-       * @example Clínica ABC
-       */
-      name?: string;
-      /**
-       * @description Tipo de usuario
-       * @example admin
-       * @enum {string}
-       */
-      type?: "admin" | "clinic" | "client";
-      roles: string[][];
-    };
-    UpdatePasswordDto: {
-      /** @description Contraseña actual */
-      password: string;
-      /** @description Nueva contraseña */
-      newPassword: string;
-      /** @description Confirmar contraseña */
-      confirmPassword: string;
-    };
-    VerifyTokenDto: {
-      /**
-       * @description Token de refresco que desea verificar
-       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-       */
-      refreshToken: string;
-    };
-    TokenVerificationResponse: Record<string, never>;
     RoleResponseDto: {
       /**
-       * @description ID único del rol
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       * @description ID del rol
+       * @example role123
        */
       id: string;
       /**
        * @description Nombre del rol
-       * @example admin
+       * @example Administrador
        */
       name: string;
       /**
        * @description Descripción del rol
-       * @example Administrador del sistema con acceso completo
+       * @example Acceso completo al sistema
        */
-      description?: string | null;
+      description?: string;
       /**
-       * @description IDs de permisos asignados al rol
-       * @example [
-       *       "5f9d5e7b8e7a6c1d4c8e7a6c",
-       *       "5f9d5e7b8e7a6c1d4c8e7a6d"
-       *     ]
+       * @description Si el rol es del sistema
+       * @example true
        */
-      permissionIds?: string[];
+      isSystem: boolean;
       /**
-       * @description Estado del rol (activo/inactivo)
+       * @description Si el rol está activo
        * @example true
        */
       isActive: boolean;
       /**
        * Format: date-time
-       * @description Fecha de creación del rol
-       * @example 2023-01-15T14:30:00Z
+       * @description Fecha de creación
+       * @example 2023-01-01T00:00:00.000Z
        */
       createdAt: string;
       /**
        * Format: date-time
-       * @description Fecha de última actualización del rol
-       * @example 2023-01-20T10:15:00Z
+       * @description Fecha de actualización
+       * @example 2023-01-01T00:00:00.000Z
        */
       updatedAt: string;
     };
     UserResponseDto: {
       /**
-       * @description ID único del usuario
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
+       * @description ID del usuario
+       * @example user123
        */
       id: string;
       /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      /**
-       * @description Cargo del usuario
-       * @example Administrador
-       */
-      post?: string;
-      /**
-       * @description Teléfono del usuario
-       * @example 999 999 999
-       */
-      phone?: string;
-      /** @description Roles del usuario */
-      roles: components["schemas"]["RoleResponseDto"][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * @description Es super administrador
-       * @example false
-       */
-      isSuperAdmin: boolean;
-    };
-    CreateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      /**
-       * @description Número del usuario
-       * @example 999 999 999
-       */
-      phone?: string;
-      /**
-       * @description Cargo del usuario
-       * @example Administrador
-       */
-      post?: string;
-      /**
-       * @description IDs de roles a asignar al usuario
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000"
-       *     ]
-       */
-      roleIds?: string[];
-    };
-    UpdateUserDto: {
-      /**
-       * Format: email
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
-       */
-      email?: string;
-      /**
-       * @description Contraseña del usuario
-       * @example password123
-       */
-      password?: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName?: string;
-      /**
-       * @description Número del usuario
-       * @example 999 999 999
-       */
-      phone?: string;
-      /**
-       * @description Cargo del usuario
-       * @example Administrador
-       */
-      post?: string;
-      roleIds: string[][];
-      /**
-       * @description Estado del usuario (activo/inactivo)
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    PermissionResponseDto: {
-      /**
-       * @description ID único del permiso
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Nombre del permiso
-       * @example users:create
-       */
-      name: string;
-      /**
-       * @description Descripción del permiso
-       * @example Permite crear usuarios en el sistema
-       */
-      description?: string | null;
-      /**
-       * @description Recurso al que aplica el permiso
-       * @example users
-       */
-      resource: string;
-      /**
-       * @description Acción que permite el permiso
-       * @example create
-       */
-      action: string;
-    };
-    CreateRoleDto: {
-      /**
-       * @description Nombre del rol
-       * @example admin
-       */
-      name: string;
-      /**
-       * @description Descripción del rol
-       * @example Rol de administrador con acceso completo
-       */
-      description?: string;
-      permissionIds: string[][];
-    };
-    AssignPermissionDto: {
-      /**
-       * @description The ID of the permission to assign
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      permissionId: string;
-    };
-    AssignRoleToUserDto: {
-      /**
-       * @description The ID of the user to assign the role to
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      userId: string;
-    };
-    UpdateRoleDto: {
-      /**
-       * @description Nombre del rol
-       * @example super-admin
-       */
-      name?: string;
-      /**
-       * @description Descripción del rol
-       * @example Rol con acceso ampliado a todas las funciones
-       */
-      description?: string;
-      permissionIds: string[][];
-    };
-    CreatePermissionDto: {
-      /**
-       * @description The name of the permission
-       * @example users:create
-       */
-      name: string;
-      /**
-       * @description The description of the permission
-       * @example Create a new user
-       */
-      description?: string;
-      /**
-       * @description The resource of the permission
-       * @example users
-       */
-      resource: string;
-      /**
-       * @description The action of the permission
-       * @example create
-       */
-      action: string;
-    };
-    CreateServiceDto: {
-      /**
-       * @description El nombre del servicio
-       * @example Servicio de ejemplo
-       */
-      name: string;
-      /**
-       * @description La descripción del servicio
-       * @example Descripción del servicio de ejemplo
-       */
-      description?: string;
-      /**
-       * @description Los objetivos del servicio
-       * @example [
-       *       "Objetivo 1",
-       *       "Objetivo 2"
-       *     ]
-       */
-      objectives?: string[];
-    };
-    ActivityResponseDto: {
-      /**
-       * @description El ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description El nombre de la actividad
-       * @example Activity 1
-       */
-      name: string;
-      /**
-       * @description La descripción de la actividad
-       * @example Descripción de la actividad
-       */
-      description: string;
-      /**
-       * @description Si la actividad requiere evidencia
-       * @example true
-       */
-      evidenceRequired: boolean;
-      /**
-       * @description El ID del objetivo al que pertenece la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId: string;
-    };
-    ObjectiveResponseDto: {
-      /**
-       * @description ID del objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del objetivo
-       * @example Objetivo de ejemplo
-       */
-      name: string;
-      /**
-       * @description Descripción del objetivo
-       * @example Descripción del objetivo
-       */
-      description?: string;
-      /**
-       * @description ID del servicio al que pertenece el objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-      /** @description Actividades del objetivo */
-      activities?: components["schemas"]["ActivityResponseDto"][];
-    };
-    ServiceResponseDto: {
-      /**
-       * @description El ID del servicio
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description El nombre del servicio
-       * @example Servicio de ejemplo
-       */
-      name: string;
-      /**
-       * @description La descripción del servicio
-       * @example Descripción del servicio de ejemplo
-       */
-      description?: string;
-      /** @description Los objetivos completos del servicio */
-      objectives?: components["schemas"]["ObjectiveResponseDto"][];
-      /**
-       * @description El estado del servicio
-       * @example true
-       */
-      isActive: boolean;
-    };
-    UpdateServiceDto: {
-      /**
-       * @description El nombre del servicio
-       * @example Servicio 1
-       */
-      name?: string;
-      /**
-       * @description La descripción del servicio
-       * @example Descripción del servicio
-       */
-      description?: string;
-      /**
-       * @description Los objetivos del servicio
-       * @example [
-       *       "Objetivo 1",
-       *       "Objetivo 2"
-       *     ]
-       */
-      objectives?: string[];
-    };
-    CreateObjectiveDto: {
-      /**
-       * @description Nombre de la objetivo
-       * @example Objetivo de ejemplo
-       */
-      name: string;
-      /**
-       * @description Descripción de la objetivo
-       * @example Descripción de la objetivo
-       */
-      description?: string;
-      /**
-       * @description ID del servicio al que pertenece la objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-      /**
-       * @description Actividades de la objetivo
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000"
-       *     ]
-       */
-      activities?: string[];
-    };
-    UpdateObjectiveDto: {
-      /**
-       * @description El nombre del objetivo
-       * @example Objetivo 1
-       */
-      name?: string;
-      /**
-       * @description La descripción del objetivo
-       * @example Descripción del objetivo 1
-       */
-      description?: string;
-      /**
-       * @description El ID del servicio al que pertenece el objetivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId?: string;
-    };
-    CreateActivityDto: {
-      /**
-       * @description El nombre de la actividad
-       * @example Activity 1
-       */
-      name: string;
-      /**
-       * @description La descripción de la actividad
-       * @example Descripción de la actividad
-       */
-      description?: string;
-      /**
-       * @description Si necesita evidencia de la actividad
-       * @example true
-       */
-      evidenceRequired?: boolean;
-      /**
-       * @description El ID del objetivo al que pertenece la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-    };
-    UpdateActivityDto: {
-      /**
-       * @description El nombre de la actividad
-       * @example Activity 1
-       */
-      name?: string;
-      /**
-       * @description La descripción de la actividad
-       * @example Descripción de la actividad
-       */
-      description?: string;
-      /**
-       * @description Si la actividad requiere evidencia
-       * @example true
-       */
-      evidenceRequired?: boolean;
-      /**
-       * @description ID del objetivo al que pertenece la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-    };
-    CreateClinicDto: {
-      /**
-       * @description RUC de la clínica
-       * @example 12345678901
-       */
-      ruc: string;
-      /**
-       * @description Nombre de la clínica
-       * @example Clínica de Salud
-       */
-      name: string;
-      /**
-       * @description Dirección de la clínica
-       * @example Calle Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono de la clínica
-       * @example 1234567890
-       */
-      phone: string;
-      /**
-       * Format: email
-       * @description Correo electrónico de la clínica
-       * @example clinica@gmail.com
-       */
-      email: string;
-      /**
-       * @description Contraseña de la clínica
-       * @example 1234567890
-       */
-      password: string;
-      /**
-       * @description Departamento de la clínica
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia de la clínica
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito de la clínica
-       * @example Miraflores
-       */
-      district?: string;
-    };
-    ClinicResponseDto: {
-      /**
-       * @description ID de la clínica
-       * @example 12345678901
-       */
-      id: string;
-      /**
-       * @description RUC de la clínica
-       * @example 12345678901
-       */
-      ruc: string;
-      /**
-       * @description Nombre de la clínica
-       * @example Clínica de Salud
-       */
-      name: string;
-      /**
-       * @description Dirección de la clínica
-       * @example Calle Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono de la clínica
-       * @example 1234567890
-       */
-      phone: string;
-      /**
-       * @description Correo electrónico de la clínica
-       * @example clinica@gmail.com
-       */
-      email: string;
-      /**
-       * @description Departamento de la clínica
-       * @example Lima
-       */
-      department: string;
-      /**
-       * @description Provincia de la clínica
-       * @example Lima
-       */
-      province: string;
-      /**
-       * @description Distrito de la clínica
-       * @example Lima
-       */
-      district: string;
-      /**
-       * @description Estado de la clínica
-       * @example true
-       */
-      isActive: boolean;
-    };
-    UpdateClinicDto: {
-      /**
-       * @description RUC de la clínica
-       * @example 1234567890
-       */
-      ruc?: string;
-      /**
-       * @description Nombre de la clínica
-       * @example Clínica de Salud
-       */
-      name?: string;
-      /**
-       * @description Dirección de la clínica
-       * @example Calle Principal 123
-       */
-      address?: string;
-      /**
-       * @description Teléfono de la clínica
-       * @example 1234567890
-       */
-      phone?: string;
-      /**
-       * @description Correo electrónico de la clínica
-       * @example clinica@gmail.com
-       */
-      email?: string;
-      /**
-       * @description Contraseña de la clínica
-       * @example 1234567890
-       */
-      password?: string;
-      /**
-       * @description Departamento de la clínica
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia de la clínica
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito de la clínica
-       * @example Lima
-       */
-      district?: string;
-      /**
-       * @description Estado de la clínica
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    CreateClientDto: {
-      /**
-       * @description RUC del cliente
-       * @example 12345678901
-       */
-      ruc: string;
-      /**
-       * @description Nombre del cliente
-       * @example Cliente Empresa
-       */
-      name: string;
-      /**
-       * @description Dirección del cliente
-       * @example Calle Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono del cliente
-       * @example 1234567890
-       */
-      phone: string;
-      /**
-       * Format: email
-       * @description Correo electrónico del cliente
-       * @example cliente@gmail.com
-       */
-      email: string;
-      /**
-       * @description Contraseña del cliente
-       * @example 1234567890
-       */
-      password: string;
-      /**
-       * @description Departamento del cliente
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia del cliente
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito del cliente
-       * @example Miraflores
-       */
-      district?: string;
-      /**
-       * @description IDs de las clínicas a asignar al cliente
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "123e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      clinicIds?: string[];
-    };
-    ClientResponseDto: {
-      /**
-       * @description ID único del cliente
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description RUC del cliente
-       * @example 12345678901
-       */
-      ruc: string;
-      /**
-       * @description Nombre del cliente
-       * @example Cliente Empresa
-       */
-      name: string;
-      /**
-       * @description Dirección del cliente
-       * @example Calle Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono del cliente
-       * @example 1234567890
-       */
-      phone: string;
-      /**
-       * @description Correo electrónico del cliente
-       * @example cliente@gmail.com
-       */
-      email: string;
-      /**
-       * @description Departamento del cliente
-       * @example Lima
-       */
-      department: string;
-      /**
-       * @description Provincia del cliente
-       * @example Lima
-       */
-      province: string;
-      /**
-       * @description Distrito del cliente
-       * @example Miraflores
-       */
-      district: string;
-      /**
-       * @description Indica si el cliente está activo
-       * @example true
-       */
-      isActive: boolean;
-      /** @description Clínicas asignadas al cliente */
-      clinics?: string[];
-    };
-    ClientWithClinicResponseDto: {
-      /**
-       * @description ID único del cliente
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description RUC del cliente
-       * @example 12345678901
-       */
-      ruc: string;
-      /**
-       * @description Nombre del cliente
-       * @example Cliente Empresa
-       */
-      name: string;
-      /**
-       * @description Dirección del cliente
-       * @example Calle Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono del cliente
-       * @example 1234567890
-       */
-      phone: string;
-      /**
-       * @description Correo electrónico del cliente
-       * @example cliente@gmail.com
-       */
-      email: string;
-      /**
-       * @description Departamento del cliente
-       * @example Lima
-       */
-      department: string;
-      /**
-       * @description Provincia del cliente
-       * @example Lima
-       */
-      province: string;
-      /**
-       * @description Distrito del cliente
-       * @example Miraflores
-       */
-      district: string;
-      /**
-       * @description Indica si el cliente está activo
-       * @example true
-       */
-      isActive: boolean;
-      /** @description Clínicas asignadas al cliente */
-      clinics: components["schemas"]["ClinicResponseDto"][];
-    };
-    AssignClinicsDto: {
-      /**
-       * @description IDs de las clínicas a asignar al cliente
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "123e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      clinicIds: string[];
-    };
-    UpdateClientDto: {
-      /**
-       * @description RUC del cliente
-       * @example 12345678901
-       */
-      ruc?: string;
-      /**
-       * @description Nombre del cliente
-       * @example Cliente Empresa
-       */
-      name?: string;
-      /**
-       * @description Dirección del cliente
-       * @example Calle Principal 123
-       */
-      address?: string;
-      /**
-       * @description Teléfono del cliente
-       * @example 1234567890
-       */
-      phone?: string;
-      /**
-       * Format: email
-       * @description Correo electrónico del cliente
-       * @example cliente@gmail.com
-       */
-      email?: string;
-      /**
-       * @description Contraseña del cliente
-       * @example 1234567890
-       */
-      password?: string;
-      /**
-       * @description Departamento del cliente
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia del cliente
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito del cliente
-       * @example Lima
-       */
-      district?: string;
-      /**
-       * @description Estado del cliente
-       * @example true
-       */
-      isActive?: boolean;
-      /**
-       * @description IDs de las clínicas a asignar al cliente
-       * @example [
-       *       "123e4567-e89b-12d3-a456-426614174000",
-       *       "123e4567-e89b-12d3-a456-426614174001"
-       *     ]
-       */
-      clinicIds?: string[];
-    };
-    CreateProjectActivityDto: {
-      /**
-       * @description Nombre de la actividad (requerido si no se proporciona activityId)
-       * @example Documentar procesos internos
-       */
-      name?: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Crear documentación detallada de los procesos operativos
-       */
-      description?: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string;
-      /**
-       * @description Fecha programada
-       * @example 2023-12-31
-       */
-      scheduledDate?: string;
-      /**
-       * @description Requiere evidencia
-       * @default false
-       * @example true
-       */
-      evidenceRequired: boolean;
-    };
-    CreateProjectObjectiveDto: {
-      /**
-       * @description Nombre del objetivo (requerido si no se proporciona objectiveId)
-       * @example Mejorar procesos internos
-       */
-      name: string;
-      /**
-       * @description Descripción del objetivo
-       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
-       */
-      description?: string;
-    };
-    CreateProjectServiceDto: {
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Servicio de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de marketing para el proyecto de marketing
-       */
-      description?: string;
-    };
-    CreateProjectDto: {
-      /**
-       * @description Tipo de contrato del proyecto
-       * @example Servicio
-       */
-      typeContract: string;
-      /**
-       * @description Tipo de proyecto
-       * @example Implementación
-       */
-      typeProject?: string;
-      /**
-       * @description Fecha de inicio del proyecto
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      startDate?: string;
-      /**
-       * @description Fecha de fin del proyecto
-       * @example 2023-12-31T23:59:59.999Z
-       */
-      endDate?: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string;
-      /**
-       * @description Estado del proyecto
-       * @example En progreso
-       * @enum {string}
-       */
-      status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-      /**
-       * @description Descripción del proyecto
-       * @example Implementación de sistema de gestión
-       */
-      description?: string;
-      /**
-       * @description ID del cliente asociado al proyecto
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      clientId: string;
-      /** @description Servicios del proyecto */
-      services?: components["schemas"]["CreateProjectServiceDto"][];
-    };
-    FileMetadataResponseDto: {
-      /**
-       * @description ID del archivo
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del archivo
-       * @example archivo.pdf
-       */
-      filename: string;
-      /**
-       * @description Nombre original del archivo
-       * @example archivo.pdf
-       */
-      originalName: string;
-      /**
-       * @description Tipo de archivo
-       * @example application/pdf
-       */
-      mimeType: string;
-      /**
-       * Format: date-time
-       * @description Fecha de subida
-       * @example 2021-01-01T00:00:00.000Z
-       */
-      uploadedAt: string;
-      /**
-       * @description Indica si el archivo es público
-       * @example true
-       */
-      isPublic: boolean;
-      /**
-       * @description Tipo de archivo
-       * @example PDF
-       * @enum {string}
-       */
-      fileType: "PDF" | "IMAGE" | "DOCUMENT" | "OTHER";
-      /**
-       * @description Tamaño del archivo
-       * @example 1024
-       */
-      size: number;
-      /**
-       * @description Ruta del archivo
-       * @example /uploads/archivo.pdf
-       */
-      path: string;
-      /**
-       * @description URL del archivo
-       * @example https://example.com/uploads/archivo.pdf
-       */
-      url: string;
-      /**
-       * @description customMetadata
-       * @example {
-       *       "uploadedBy": "123e4567-e89b-12d3-a456-426614174000",
-       *       "uploadedByName": "Juan Pérez"
-       *     }
-       */
-      customMetadata: Record<string, never>;
-      /**
-       * @description Tipo de entidad
-       * @example ProjectActivity
-       */
-      entityType: string;
-      /**
-       * @description ID de la entidad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      entityId: string;
-    };
-    ResponsibleUserResponseDto: {
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id?: string;
-      /**
-       * @description Correo electrónico del usuario responsable
-       * @example usuario@ejemplo.com
-       */
-      email?: string;
-      /**
-       * @description Nombre completo del usuario responsable
-       * @example Juan Pérez
-       */
-      fullName?: string;
-      /**
-       * @description Cargo del usuario responsable
-       * @example Administrador
-       */
-      post?: string;
-      /**
-       * @description Teléfono del usuario responsable
-       * @example 999 999 999
-       */
-      phone?: string;
-      /**
-       * @description Indica si el usuario responsable está activo
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    ProjectActivityResponseDto: {
-      /**
-       * @description ID de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre de la actividad
-       * @example Actividad de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Descripción de la actividad de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectObjectiveId: string;
-      /**
-       * @description ID de la actividad plantilla (si aplica)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-      /**
-       * Format: date-time
-       * @description Fecha programada
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      scheduledDate?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de ejecución
-       * @example 2023-01-15T00:00:00.000Z
-       */
-      executionDate?: string;
-      /**
-       * @description Requiere evidencia
-       * @example true
-       */
-      evidenceRequired: boolean;
-      /** @description Evidencia */
-      evidence?: components["schemas"]["FileMetadataResponseDto"];
-      /**
-       * @description Indica si la actividad está activa
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * @description Estado de la actividad
-       * @example PENDING
-       * @enum {string}
-       */
-      status: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-      /** @description Usuario responsable */
-      responsibleUser?: components["schemas"]["ResponsibleUserResponseDto"];
-    };
-    ProjectObjectiveResponseDto: {
-      /**
-       * @description ID del objetivo de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del objetivo de proyecto
-       * @example Objetivo de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del objetivo de proyecto
-       * @example Objetivo de marketing para el proyecto de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectServiceId: string;
-      /**
-       * @description ID del objetivo plantilla (si aplica)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-      /**
-       * @description Indica si el objetivo está activo
-       * @example true
-       */
-      isActive: boolean;
-      /** @description Actividades asociadas al objetivo */
-      activities?: components["schemas"]["ProjectActivityResponseDto"][];
-    };
-    ProjectServiceResponseDto: {
-      /**
-       * @description ID del servicio de proyecto
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Servicio de marketing
-       */
-      name: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de marketing para el proyecto de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del proyecto al que pertenece el servicio
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      projectId: string;
-      /**
-       * @description ID del servicio plantilla (si aplica)
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId?: string;
-      /**
-       * @description Indica si el servicio está activo
-       * @example true
-       */
-      isActive: boolean;
-      /** @description Objetivos asociados al servicio */
-      objectives?: components["schemas"]["ProjectObjectiveResponseDto"][];
-      /**
-       * @description Progreso del servicio
-       * @example 50
-       */
-      progress?: number;
-      /**
-       * @description Actividades asociadas al servicio
-       * @example 10
-       */
-      activities?: number;
-      /**
-       * @description Actividades completadas asociadas al servicio
-       * @example 5
-       */
-      completedActivities?: number;
-    };
-    ResponsibleUserDto: {
-      /**
-       * @description ID del usuario responsable
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id?: string;
-      /**
-       * @description Nombre del usuario responsable
-       * @example Juan Pérez
-       */
-      fullName?: string;
-      /**
-       * @description Email del usuario responsable
-       * @example abc@gmail.com
-       */
-      email?: string;
-      /**
-       * @description Teléfono del usuario responsable
-       * @example 123456789
-       */
-      phone?: string | null;
-      /**
-       * @description Puesto del usuario responsable
-       * @example Gerente de Proyecto
-       */
-      post?: string | null;
-      /**
-       * @description Indica si el usuario responsable está activo
-       * @example true
-       */
-      isActive?: boolean;
-    };
-    ProjectResponseDto: {
-      /**
-       * @description ID único del proyecto
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      id: string;
-      /**
-       * @description Tipo de contrato del proyecto
-       * @example Servicio
-       */
-      typeContract: string;
-      /**
-       * @description Tipo de proyecto
-       * @example Implementación
-       */
-      typeProject?: string;
-      /**
-       * @description ID del usuario responsable del proyecto
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      responsibleUserId?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de inicio del proyecto
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      startDate?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin del proyecto
-       * @example 2023-12-31T23:59:59.999Z
-       */
-      endDate?: string;
-      /**
-       * @description Estado del proyecto
-       * @example En progreso
-       */
-      status?: string;
-      /**
-       * @description Descripción del proyecto
-       * @example Implementación de sistema de gestión
-       */
-      description?: string;
-      /** @description Información completa del cliente */
-      client: components["schemas"]["ClientResponseDto"];
-      /**
-       * @description Indica si el proyecto está activo
-       * @example true
-       */
-      isActive: boolean;
-      /** @description Servicios asociados al proyecto */
-      services?: components["schemas"]["ProjectServiceResponseDto"][];
-      /**
-       * @description Progreso del proyecto
-       * @example 50
-       */
-      progress?: number;
-      /** @description Usuario responsable del proyecto */
-      responsibleUser?: components["schemas"]["ResponsibleUserDto"];
-    };
-    PaginatedProjectResponseDto: {
-      /** @description Lista de proyectos paginados */
-      data: components["schemas"]["ProjectResponseDto"][];
-      /** @description Metadatos de paginación */
-      meta: {
-        /**
-         * @description Página actual
-         * @example 1
-         */
-        currentPage?: number;
-        /**
-         * @description Elementos por página
-         * @example 10
-         */
-        itemsPerPage?: number;
-        /**
-         * @description Total de elementos
-         * @example 100
-         */
-        totalItems?: number;
-        /**
-         * @description Total de páginas
-         * @example 10
-         */
-        totalPages?: number;
-      };
-    };
-    ProjectDetailResponseDto: {
-      /** @description ID del proyecto */
-      id: string;
-      /** @description Tipo de contrato */
-      typeContract: string;
-      /** @description Tipo de proyecto */
-      typeProject: string;
-      /**
-       * Format: date-time
-       * @description Fecha de inicio
-       */
-      startDate: string;
-      /**
-       * Format: date-time
-       * @description Fecha de finalización
-       */
-      endDate: string;
-      /** @description Estado del proyecto */
-      status: string;
-      /** @description Descripción del proyecto */
-      description: string;
-      /** @description Indica si el proyecto está activo */
-      isActive: boolean;
-      /** @description Progreso general del proyecto */
-      progress: number;
-      /** @description Cliente asociado al proyecto */
-      client: components["schemas"]["ClientResponseDto"];
-      /** @description Servicios del proyecto */
-      services: components["schemas"]["ProjectServiceResponseDto"][];
-      /** @description Usuario responsable del proyecto */
-      responsibleUser?: components["schemas"]["UserResponseDto"];
-    };
-    UpdateProjectActivityDto: {
-      /**
-       * @description Nombre de la actividad
-       * @example Actividad de marketing
-       */
-      name?: string;
-      /**
-       * @description Descripción de la actividad
-       * @example Descripción de la actividad de marketing
-       */
-      description?: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string;
-      /**
-       * @description Fecha programada
-       * @example 2023-01-01
-       */
-      scheduledDate?: string;
-      /**
-       * @description Requiere evidencia
-       * @example true
-       */
-      evidenceRequired?: boolean;
-    };
-    UpdateProjectObjectiveDto: {
-      /**
-       * @description Nombre del objetivo
-       * @example Mejorar procesos internos
-       */
-      name?: string;
-      /**
-       * @description Descripción del objetivo
-       * @example Optimizar los flujos de trabajo para aumentar la eficiencia
-       */
-      description?: string;
-    };
-    UpdateProjectServiceDto: {
-      /**
-       * @description Nombre del servicio de proyecto
-       * @example Consultoría estratégica
-       */
-      name?: string;
-      /**
-       * @description Descripción del servicio de proyecto
-       * @example Servicio de consultoría para definir estrategias de negocio
-       */
-      description?: string;
-    };
-    UpdateProjectDto: {
-      /**
-       * @description Tipo de contrato del proyecto
-       * @example Servicio
-       */
-      typeContract?: string;
-      /**
-       * @description Tipo de proyecto
-       * @example Implementación
-       */
-      typeProject?: string;
-      /**
-       * @description ID del usuario responsable
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string;
-      /**
-       * @description Fecha de inicio del proyecto
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      startDate?: string;
-      /**
-       * @description Fecha de fin del proyecto
-       * @example 2023-12-31T23:59:59.999Z
-       */
-      endDate?: string;
-      /**
-       * @description Estado del proyecto
-       * @example En progreso
-       * @enum {string}
-       */
-      status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-      /**
-       * @description Descripción del proyecto
-       * @example Implementación de sistema de gestión
-       */
-      description?: string;
-      /**
-       * @description ID del cliente asociado al proyecto
-       * @example 5f9d5e7b8e7a6c1d4c8e7a6c
-       */
-      clientId?: string;
-      /**
-       * @description Indica si el proyecto está activo
-       * @example true
-       */
-      isActive?: boolean;
-      /** @description Servicios del proyecto */
-      services?: components["schemas"]["UpdateProjectServiceDto"][];
-    };
-    CreateServiceActivityFromTemplateDto: {
-      /**
-       * Format: uuid
-       * @description ID de la actividad de la plantilla
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      activityId?: string;
-    };
-    CreateServiceObjectiveFromTemplateDto: {
-      /**
-       * Format: uuid
-       * @description ID del objetivo de la plantilla
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      objectiveId?: string;
-      /** @description Actividades específicas a incluir del objetivo (opcional) */
-      activities?: components["schemas"]["CreateServiceActivityFromTemplateDto"][];
-    };
-    ProjectServiceTemplateItemDto: {
-      /**
-       * Format: uuid
-       * @description ID del servicio de la plantilla
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      serviceId: string;
-      /** @description Objetivos específicos a incluir del servicio (opcional) */
-      objectives?: components["schemas"]["CreateServiceObjectiveFromTemplateDto"][];
-    };
-    CreateProjectServiceTemplateDto: {
-      /** @description Lista de servicios desde plantillas para agregar */
-      services: components["schemas"]["ProjectServiceTemplateItemDto"][];
-    };
-    TrackingActivityDto: {
-      /**
-       * @description El estado de la actividad
-       * @example PENDING
-       * @enum {string}
-       */
-      status?: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED";
-      /**
-       * @description La evidencia de la actividad
-       * @example https://www.google.com
-       */
-      evidence?: string;
-      /**
-       * Format: date-time
-       * @description La fecha programada de la actividad
-       * @example 2021-01-01
-       */
-      scheduledDate?: string | null;
-      /**
-       * Format: date-time
-       * @description La fecha de ejecución de la actividad
-       * @example 2021-01-01
-       */
-      executionDate?: string | null;
-      /**
-       * @description El ID del usuario responsable de la actividad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      responsibleUserId?: string | null;
-    };
-    QuotationGroupResponseDto: {
-      /**
-       * @description ID del grupo de cotizaciones
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Nombre del grupo de cotizaciones
-       * @example Grupo de cotizaciones 1
-       */
-      name: string;
-      /**
-       * @description Código del grupo de cotizaciones
-       * @example COT
-       */
-      code: string;
-      /**
-       * @description Descripción del grupo de cotizaciones
-       * @example Grupo de cotizaciones para la empresa 1
-       */
-      description: string;
-      /**
-       * @description Estado del grupo de cotizaciones
-       * @example true
-       */
-      isActive: boolean;
-    };
-    QuotationResponseDto: {
-      /**
-       * @description ID único de la cotización
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Código único de la cotización
-       * @example COT-202401-001
-       */
-      code: string;
-      /**
-       * @description RUC del cliente
-       * @example 20123456789
-       */
-      ruc: string;
-      /**
-       * @description Razón social del cliente
-       * @example Empresa SAC
-       */
-      businessName: string;
-      /**
-       * @description Actividad económica del cliente
-       * @example Servicios de consultoría médica
-       */
-      economicActivity: string;
-      /**
-       * @description Número de trabajadores
-       * @example 50
-       */
-      numberOfWorkers: number;
-      /**
-       * @description Servicio cotizado
-       * @example Consultoría médica
-       */
-      service: string;
-      /**
-       * @description Monto de la cotización
-       * @example 1500
-       */
-      amount: number;
-      /**
-       * @description Dirección del cliente
-       * @example Av. Principal 123
-       */
-      address: string;
-      /**
-       * @description Departamento
-       * @example Lima
-       */
-      department: string;
-      /**
-       * @description Provincia
-       * @example Lima
-       */
-      province: string;
-      /**
-       * @description Distrito
-       * @example San Isidro
-       */
-      district: string;
-      /**
-       * @description Nombre del contacto principal
-       * @example Juan Pérez
-       */
-      mainContact: string;
-      /**
-       * @description Cargo del contacto principal
-       * @example Gerente
-       */
-      position: string;
-      /**
-       * @description Teléfono del contacto principal
-       * @example +51987654321
-       */
-      phone: string;
-      /**
-       * @description Email del contacto principal
-       * @example juan.perez@empresa.com
-       */
-      email: string;
-      /**
-       * @description Indica si la cotización es concreta
-       * @example false
-       */
-      isConcrete: boolean;
-      /**
-       * @description Tipo de pago
-       * @example INSTALLMENTS
-       * @enum {string}
-       */
-      paymentPlan: "INSTALLMENTS" | "SINGLE";
-      /**
-       * @description Fecha de cotización
-       * @example 2024-01-01
-       */
-      dateQuotation: string;
-      /** @description Grupo de cotización */
-      quotationGroup: components["schemas"]["QuotationGroupResponseDto"];
-    };
-    PaginatedQuotationResponseDto: {
-      /** @description Lista de cotizaciones paginadas */
-      data: components["schemas"]["QuotationResponseDto"][];
-      /** @description Metadatos de paginación */
-      meta: {
-        /**
-         * @description Página actual
-         * @example 1
-         */
-        currentPage?: number;
-        /**
-         * @description Elementos por página
-         * @example 10
-         */
-        itemsPerPage?: number;
-        /**
-         * @description Total de elementos
-         * @example 100
-         */
-        totalItems?: number;
-        /**
-         * @description Total de páginas
-         * @example 10
-         */
-        totalPages?: number;
-      };
-    };
-    CreateQuotationDto: {
-      /**
-       * @description RUC del cliente
-       * @example 20123456789
-       */
-      ruc: string;
-      /**
-       * @description Razón social del cliente
-       * @example Empresa SAC
-       */
-      businessName: string;
-      /**
-       * @description Actividad económica del cliente
-       * @example Servicios de consultoría médica
-       */
-      economicActivity: string;
-      /**
-       * @description Número de trabajadores
-       * @example 50
-       */
-      numberOfWorkers: number;
-      /**
-       * @description Servicio cotizado
-       * @example Consultoría médica
-       */
-      service: string;
-      /**
-       * @description Monto de la cotización
-       * @example 1500
-       */
-      amount: number;
-      /**
-       * @description Dirección del cliente
-       * @example Av. Principal 123
-       */
-      address: string;
-      /**
-       * @description Departamento
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito
-       * @example San Isidro
-       */
-      district?: string;
-      /**
-       * @description Nombre del contacto principal
-       * @example Juan Pérez
-       */
-      mainContact: string;
-      /**
-       * @description Cargo del contacto principal
-       * @example Gerente
-       */
-      position?: string;
-      /**
-       * @description Teléfono del contacto principal
-       * @example +51987654321
-       */
-      phone: string;
-      /**
-       * Format: email
-       * @description Email del contacto principal
-       * @example juan.perez@empresa.com
-       */
-      email: string;
-      /**
-       * @description Id del grupo de cotizaciones
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      quotationGroupId: string;
-      /**
-       * @description Tipo de pago
-       * @example INSTALLMENTS
-       * @enum {string}
-       */
-      paymentPlan: "INSTALLMENTS" | "SINGLE";
-      /**
-       * Format: date-time
-       * @description Fecha de cotización
-       * @example 2024-01-01
-       */
-      dateQuotation: string;
-    };
-    UpdateQuotationDto: {
-      /**
-       * @description RUC del cliente
-       * @example 20123456789
-       */
-      ruc?: string;
-      /**
-       * @description Razón social del cliente
-       * @example Empresa SAC
-       */
-      businessName?: string;
-      /**
-       * @description Actividad económica del cliente
-       * @example Servicios de consultoría médica
-       */
-      economicActivity?: string;
-      /**
-       * @description Número de trabajadores
-       * @example 50
-       */
-      numberOfWorkers?: number;
-      /**
-       * @description Servicio cotizado
-       * @example Consultoría médica
-       */
-      service?: string;
-      /**
-       * @description Monto de la cotización
-       * @example 1500
-       */
-      amount?: number;
-      /**
-       * @description Dirección del cliente
-       * @example Av. Principal 123
-       */
-      address?: string;
-      /**
-       * @description Departamento
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito
-       * @example San Isidro
-       */
-      district?: string;
-      /**
-       * @description Nombre del contacto principal
-       * @example Juan Pérez
-       */
-      mainContact?: string;
-      /**
-       * @description Cargo del contacto principal
-       * @example Gerente
-       */
-      position?: string;
-      /**
-       * @description Teléfono del contacto principal
-       * @example +51987654321
-       */
-      phone?: string;
-      /**
-       * Format: email
-       * @description Email del contacto principal
-       * @example juan.perez@empresa.com
-       */
-      email?: string;
-      /**
-       * @description Indica si la cotización está activa
-       * @example true
-       */
-      isActive?: boolean;
-      /**
-       * @description Indica si la cotización es concreta
-       * @example true
-       */
-      isConcrete?: boolean;
-      /**
-       * @description Id del grupo de cotizaciones
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      quotationGroupId?: string;
-      /**
-       * @description Tipo de pago
-       * @example INSTALLMENTS
-       * @enum {string}
-       */
-      paymentPlan?: "INSTALLMENTS" | "SINGLE";
-      /**
-       * Format: date-time
-       * @description Fecha de cotización
-       * @example 2024-01-01
-       */
-      dateQuotation?: string;
-    };
-    ConcreteQuotationDto: {
-      /**
-       * @description Indica si la cotización es concreta
-       * @example true
-       */
-      isConcrete: boolean;
-    };
-    CreateCertificateDto: {
-      /**
-       * @description El RUC de la empresa certificada
-       * @example 12345678901
-       */
-      ruc?: string;
-      /**
-       * @description El nombre de la empresa certificada
-       * @example Empresa de prueba
-       */
-      businessName?: string;
-      /**
-       * @description El nombre de la capacitación
-       * @example Curso de capacitación
-       */
-      nameCapacitation?: string;
-      /**
-       * Format: date
-       * @description La fecha de emisión del certificado
-       * @example 2024-03-20
-       */
-      dateEmision?: string;
-      /**
-       * Format: date
-       * @description La fecha de expiración del certificado
-       * @example 2024-03-20
-       */
-      dateExpiration?: string;
-      /**
-       * @description Nombre de la persona certificada
+       * @description Nombre del usuario
        * @example Juan
        */
-      nameUser: string;
+      name: string;
       /**
-       * @description Apellido de la persona certificada
-       * @example Perez
-       */
-      lastNameUser: string;
-      /**
-       * @description El email de la persona certificada
-       * @example juan.perez@gmail.com
-       */
-      emailUser?: string;
-      /**
-       * Format: binary
-       * @description Certificado (PDF, máximo 5MB)
-       */
-      fileCertificate?: string;
-      /**
-       * @description El tipo de documento de la persona certificada
-       * @example DNI
-       * @enum {string}
-       */
-      documentType?: "DNI" | "PASSPORT";
-      /**
-       * @description El número de documento de la persona certificada
-       * @example 12345678901
-       */
-      documentNumber?: string;
-    };
-    CertificateResponseDto: {
-      /**
-       * @description El id del certificado
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description El codigo del certificado
-       * @example 12345678901
-       */
-      code: string;
-      /**
-       * @description El RUC de la empresa certificada
-       * @example 12345678901
-       */
-      ruc?: string;
-      /**
-       * @description El nombre de la empresa certificada
-       * @example Empresa de prueba
-       */
-      businessName?: string;
-      /**
-       * @description El nombre de la capacitación
-       * @example Curso de capacitación
-       */
-      nameCapacitation?: string;
-      /**
-       * @description La fecha de emisión del certificado
-       * @example 2025-01-01
-       */
-      dateEmision?: string;
-      /**
-       * @description La fecha de expiración del certificado
-       * @example 2025-01-01
-       */
-      dateExpiration?: string;
-      /**
-       * @description Nombre de la persona certificada
-       * @example Juan
-       */
-      nameUser?: string;
-      /**
-       * @description Apellido de la persona certificada
-       * @example Perez
-       */
-      lastNameUser?: string;
-      /**
-       * @description El email de la persona certificada
-       * @example juan.perez@gmail.com
-       */
-      emailUser?: string;
-      /** @description Archivo del certificado */
-      fileCertificate?: components["schemas"]["FileMetadataResponseDto"];
-      /**
-       * @description El estado del certificado
-       * @example Activo
-       */
-      status?: string;
-      /**
-       * @description El tipo de certificado
-       * @example Certificado
-       */
-      type?: string;
-      /**
-       * @description El tipo de certificado
-       * @example Certificado
-       */
-      modality?: string;
-      /**
-       * @description La url del certificado
-       * @example https://www.google.com
-       */
-      urlCertificate?: string;
-      /** @description El estado del certificado */
-      isActive?: boolean;
-      /**
-       * @description El tipo de documento de la persona certificada
-       * @example DNI
-       * @enum {string}
-       */
-      documentType?: "DNI" | "PASSPORT";
-      /**
-       * @description El número de documento de la persona certificada
-       * @example 12345678901
-       */
-      documentNumber?: string;
-    };
-    PaginatedCertificateResponseDto: {
-      /** @description Lista de certificados */
-      data: components["schemas"]["CertificateResponseDto"][];
-      /** @description Metadatos de paginación */
-      meta: {
-        /**
-         * @description Página actual
-         * @example 1
-         */
-        currentPage?: number;
-        /**
-         * @description Elementos por página
-         * @example 10
-         */
-        itemsPerPage?: number;
-        /**
-         * @description Total de elementos
-         * @example 100
-         */
-        totalItems?: number;
-        /**
-         * @description Total de páginas
-         * @example 10
-         */
-        totalPages?: number;
-      };
-    };
-    UpdateCertificateDto: {
-      /**
-       * @description El RUC de la empresa certificada
-       * @example 12345678901
-       */
-      ruc?: string;
-      /**
-       * @description El nombre de la empresa certificada
-       * @example Empresa de prueba
-       */
-      businessName?: string;
-      /**
-       * @description El nombre de la capacitación
-       * @example Curso de capacitación
-       */
-      nameCapacitation?: string;
-      /**
-       * Format: date
-       * @description La fecha de emisión del certificado
-       * @example 2025-01-01
-       */
-      dateEmision?: string;
-      /**
-       * Format: date
-       * @description La fecha de expiración del certificado
-       * @example 2025-01-01
-       */
-      dateExpiration?: string;
-      /**
-       * @description Nombre de la persona certificada
-       * @example Juan
-       */
-      nameUser?: string;
-      /**
-       * @description Apellido de la persona certificada
-       * @example Perez
-       */
-      lastNameUser?: string;
-      /**
-       * @description El email de la persona certificada
-       * @example juan.perez@gmail.com
-       */
-      emailUser?: string;
-      /**
-       * Format: binary
-       * @description Certificado (PDF, máximo 5MB)
-       */
-      fileCertificate?: string;
-      /**
-       * @description El tipo de documento de la persona certificada
-       * @example DNI
-       * @enum {string}
-       */
-      documentType?: "DNI" | "PASSPORT";
-      /**
-       * @description El número de documento de la persona certificada
-       * @example 12345678901
-       */
-      documentNumber?: string;
-    };
-    CreateMedicalRecordDto: {
-      /**
-       * @description RUC del cliente
-       * @example 20603465157
-       */
-      ruc: string;
-      /**
-       * @description DNI del paciente
-       * @example 12345678
-       */
-      dni?: string;
-      /**
-       * @description Primer nombre del paciente
-       * @example Juan
-       */
-      firstName: string;
-      /**
-       * @description Segundo nombre del paciente
-       * @example Carlos
-       */
-      secondName?: string;
-      /**
-       * @description Primer apellido del paciente
+       * @description Apellido del usuario
        * @example Pérez
        */
-      firstLastName: string;
+      lastName: string;
       /**
-       * @description Segundo apellido del paciente
-       * @example Gómez
-       */
-      secondLastName?: string;
-      /**
-       * @description Fecha de nacimiento
-       * @example 1990-01-01T00:00:00Z
-       */
-      birthDate?: string;
-      /**
-       * @description Género del paciente
-       * @example MALE
-       * @enum {string}
-       */
-      gender: "MALE" | "FEMALE" | "OTHER";
-      /**
-       * @description Fecha de ingreso
-       * @example 2023-01-01T00:00:00Z
-       */
-      entryDate: string;
-      /**
-       * @description Fecha del último examen médico ocupacional
-       * @example 2023-01-01T00:00:00Z
-       */
-      lastEmoDate?: string;
-      /**
-       * @description Tipo de examen
-       * @example PRE_OCCUPATIONAL
-       * @enum {string}
-       */
-      examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
-      /**
-       * @description Tipo de aptitud
-       * @example APT
-       * @enum {string}
-       */
-      aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
-      /**
-       * @description Restricciones (opcional)
-       * @example No levantar objetos pesados
-       */
-      restrictions?: string;
-      /**
-       * Format: binary
-       * @description Certificado de aptitud médica (PDF, máximo 5MB)
-       */
-      aptitudeCertificate?: string;
-      /**
-       * Format: binary
-       * @description Informe médico (PDF, máximo 5MB)
-       */
-      medicalReport?: string;
-    };
-    ClientDetailsDto: {
-      /**
-       * @description RUC del cliente
-       * @example 20603465157
-       */
-      ruc: string;
-      /**
-       * @description Nombre del cliente
-       * @example Empresa ABC S.A.C.
-       */
-      name: string;
-      /**
-       * @description Dirección del cliente
-       * @example Av. Principal 123
-       */
-      address: string;
-      /**
-       * @description Teléfono del cliente
-       * @example 999888777
-       */
-      phone: string;
-      /**
-       * @description Email del cliente
-       * @example contacto@empresa.com
+       * @description Email del usuario
+       * @example juan@ejemplo.com
        */
       email: string;
+      /** @description Rol asignado al usuario */
+      role?: components["schemas"]["RoleResponseDto"];
       /**
-       * @description Departamento del cliente
-       * @example Lima
+       * @description Si el usuario está activo
+       * @example true
        */
-      department?: string;
-      /**
-       * @description Provincia del cliente
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito del cliente
-       * @example San Isidro
-       */
-      district?: string;
-    };
-    ClinicDetailsDto: {
-      /**
-       * @description RUC de la clínica
-       * @example 20603465158
-       */
-      ruc: string;
-      /**
-       * @description Nombre de la clínica
-       * @example Clínica Médica XYZ
-       */
-      name: string;
-      /**
-       * @description Dirección de la clínica
-       * @example Av. Central 456
-       */
-      address: string;
-      /**
-       * @description Teléfono de la clínica
-       * @example 999000111
-       */
-      phone: string;
-      /**
-       * @description Email de la clínica
-       * @example contacto@clinica.com
-       */
-      email: string;
-      /**
-       * @description Departamento de la clínica
-       * @example Lima
-       */
-      department?: string;
-      /**
-       * @description Provincia de la clínica
-       * @example Lima
-       */
-      province?: string;
-      /**
-       * @description Distrito de la clínica
-       * @example Miraflores
-       */
-      district?: string;
-    };
-    DiagnosticValueResponseDto: {
-      /**
-       * @description ID del valor de diagnóstico
-       * @example 123e4567-e89b-12d3-a456-426614174003
-       */
-      id: string;
-      /**
-       * @description ID del registro médico asociado
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      medicalRecordId: string;
-      /**
-       * @description ID del diagnóstico asociado
-       * @example 123e4567-e89b-12d3-a456-426614174004
-       */
-      diagnosticId: string;
-      /**
-       * @description Valor del diagnóstico
-       * @example {
-       *       "values": [
-       *         "Valor 1",
-       *         "Valor 2",
-       *         "Observación adicional"
-       *       ]
-       *     }
-       */
-      value: Record<string, never>;
-      /**
-       * @description Nombre del diagnóstico asociado
-       * @example Diagnóstico Oftalmológico
-       */
-      diagnosticName?: string;
+      isActive: boolean;
       /**
        * Format: date-time
        * @description Fecha de creación
-       * @example 2023-04-01T12:00:00Z
+       * @example 2023-01-01T00:00:00.000Z
        */
       createdAt: string;
       /**
        * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2023-04-01T12:00:00Z
+       * @description Fecha de actualización
+       * @example 2023-01-01T00:00:00.000Z
        */
       updatedAt: string;
-    };
-    MedicalRecordResponseDto: {
       /**
-       * @description ID único del registro médico
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * Format: date-time
+       * @description Fecha de eliminación
+       * @example null
+       */
+      deletedAt?: string;
+    };
+    ErrorResponse: {
+      /**
+       * @description Unique identifier for the error instance
+       * @example ERR_001_20231201_143022
        */
       id: string;
       /**
-       * @description RUC del paciente
-       * @example 20603465157
+       * @description User-friendly error message
+       * @example El recurso solicitado no fue encontrado
        */
-      ruc: string;
+      message: string;
       /**
-       * @description DNI del paciente
-       * @example 12345678
+       * @description Detailed error description for developers
+       * @example Usuario con ID 123 no existe en la base de datos
        */
-      dni?: string;
+      userMessage?: string;
       /**
-       * @description Primer nombre del paciente
-       * @example Juan
+       * @description Error category classification
+       * @example VALIDATION_ERROR
        */
-      firstName: string;
+      category: string;
       /**
-       * @description Segundo nombre del paciente
-       * @example Carlos
-       */
-      secondName?: string;
-      /**
-       * @description Primer apellido del paciente
-       * @example Pérez
-       */
-      firstLastName: string;
-      /**
-       * @description Segundo apellido del paciente
-       * @example Gómez
-       */
-      secondLastName?: string;
-      /**
-       * @description Fecha de nacimiento
-       * @example 1990-01-01
-       */
-      birthDate?: string;
-      /**
-       * @description Género del paciente
-       * @example MALE
+       * @description Error severity level
+       * @example MEDIUM
        * @enum {string}
        */
-      gender: "MALE" | "FEMALE" | "OTHER";
+      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
       /**
-       * @description Fecha de ingreso
-       * @example 2023-01-01
+       * @description HTTP status code
+       * @example 404
        */
-      entryDate: string;
+      statusCode: number;
       /**
-       * @description Fecha del último examen médico ocupacional
-       * @example 2023-01-01
+       * @description ISO 8601 timestamp when the error occurred
+       * @example 2023-12-01T14:30:22.123Z
        */
-      lastEmoDate?: string;
+      timestamp: string;
       /**
-       * @description Tipo de examen médico
-       * @example PRE_OCCUPATIONAL
+       * @description Request path where the error occurred
+       * @example /api/v1/users/123
+       */
+      path: string;
+      /**
+       * @description HTTP method used in the request
+       * @example GET
        * @enum {string}
        */
-      examType: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
+      method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
       /**
-       * @description Tipo de aptitud médica
-       * @example APT
-       * @enum {string}
+       * @description Technical error details (only available in development environment)
+       * @example Database connection timeout after 5000ms
        */
-      aptitude: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
+      technicalDetails?: Record<string, never>;
       /**
-       * @description Restricciones médicas (si aplica)
-       * @example No levantar objetos pesados
+       * @description Error stack trace (only available in development environment)
+       * @example Error: Connection timeout
+       *         at Database.connect (/app/db.js:42:15)
        */
-      restrictions?: string;
-      /**
-       * @description Antecedentes personales del paciente
-       * @example Hipertensión controlada, diabetes tipo 2
-       */
-      personalHistory?: string;
-      /**
-       * @description ID del cliente al que pertenece el registro
-       * @example 123e4567-e89b-12d3-a456-426614174001
-       */
-      clientId: string;
-      /**
-       * @description ID de la clínica que realizó el examen
-       * @example 123e4567-e89b-12d3-a456-426614174002
-       */
-      clinicId: string;
-      /** @description Detalles del cliente asociado */
-      client?: components["schemas"]["ClientDetailsDto"];
-      /** @description Detalles de la clínica asociada */
-      clinic?: components["schemas"]["ClinicDetailsDto"];
-      /**
-       * Format: date-time
-       * @description Fecha de creación del registro
-       * @example 2023-04-01T12:00:00Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización del registro
-       * @example 2023-04-01T12:00:00Z
-       */
-      updatedAt: string;
-      /** @description Archivos asociados al registro médico */
-      files?: components["schemas"]["FileMetadataResponseDto"][];
-      /** @description Valores de diagnósticos asociados al registro */
-      diagnosticValues?: components["schemas"]["DiagnosticValueResponseDto"][];
-      /**
-       * @description Detalles médicos del registro
-       * @example {
-       *       "datosFiliacion": {
-       *         "dni": "12345678",
-       *         "apellidoPaterno": "Pérez",
-       *         "apellidoMaterno": "Gómez",
-       *         "edad": "35",
-       *         "genero": "Masculino",
-       *         "customFields": []
-       *       },
-       *       "aptitud": {
-       *         "aptitud": "APT",
-       *         "restricciones": "Ninguna",
-       *         "antecedentesPersonales": "Hipertensión controlada",
-       *         "customFields": []
-       *       },
-       *       "diagnosticos": {
-       *         "hallazgosLaboratorio": [
-       *           "Glucosa elevada"
-       *         ],
-       *         "diagnosticoOftalmologia": "Normal",
-       *         "diagnosticoMusculoesqueletico": "Normal",
-       *         "alteracionDiagnosticoPsicologia": "No",
-       *         "diagnosticoAudiometria": "Normal",
-       *         "diagnosticoEspirometria": "Normal",
-       *         "diagnosticoEkg": "Normal",
-       *         "resultadoTestSomnolencia": "Negativo",
-       *         "customFields": []
-       *       },
-       *       "customSections": []
-       *     }
-       */
-      details?: Record<string, never>;
+      stack?: Record<string, never>;
     };
-    PaginationMetaDto: {
+    BaseErrorResponse: {
       /**
-       * @description Página actual
-       * @example 1
-       */
-      currentPage: number;
-      /**
-       * @description Número de elementos por página
-       * @example 10
-       */
-      itemsPerPage: number;
-      /**
-       * @description Total de elementos
-       * @example 100
-       */
-      totalItems: number;
-      /**
-       * @description Total de páginas
-       * @example 10
-       */
-      totalPages: number;
-    };
-    PaginatedMedicalRecordsResponseDto: {
-      /** @description Lista de registros médicos */
-      data: components["schemas"]["MedicalRecordResponseDto"][];
-      /** @description Metadatos de paginación */
-      meta: components["schemas"]["PaginationMetaDto"];
-    };
-    CustomSectionFieldDto: {
-      /** @example resultado */
-      name: string;
-      /** @example Normal */
-      value: string;
-    };
-    CustomSectionDto: {
-      /** @example Examen adicional */
-      name: string;
-      /** @example [
-       *       {
-       *         "name": "resultado",
-       *         "value": "Normal"
-       *       },
-       *       {
-       *         "name": "observaciones",
-       *         "value": "Ninguna"
-       *       }
-       *     ] */
-      fields: components["schemas"]["CustomSectionFieldDto"][];
-    };
-    UpdateMedicalRecordDetailsDto: {
-      /**
-       * @description Datos de filiación del paciente
-       * @example {
-       *       "dni": "12345678",
-       *       "nombres": "Juan",
-       *       "segundoNombre": "Carlos",
-       *       "apellidoPaterno": "Pérez",
-       *       "apellidoMaterno": "Gómez",
-       *       "edad": "35",
-       *       "genero": "Masculino",
-       *       "customFields": []
-       *     }
-       */
-      datosFiliacion?: Record<string, never>;
-      /**
-       * @description Datos de aptitud médica
-       * @example {
-       *       "aptitud": "APT",
-       *       "restricciones": "Ninguna",
-       *       "antecedentesPersonales": "Hipertensión controlada",
-       *       "customFields": []
-       *     }
-       */
-      aptitud?: Record<string, never>;
-      /**
-       * @description Datos de diagnósticos médicos
-       * @example {
-       *       "hallazgosLaboratorio": [
-       *         "Glucosa elevada"
-       *       ],
-       *       "diagnosticoOftalmologia": "Normal",
-       *       "diagnosticoMusculoesqueletico": "Normal",
-       *       "alteracionDiagnosticoPsicologia": "No",
-       *       "diagnosticoAudiometria": "Normal",
-       *       "diagnosticoEspirometria": "Normal",
-       *       "diagnosticoEkg": "Normal",
-       *       "resultadoTestSomnolencia": "Negativo",
-       *       "customFields": []
-       *     }
-       */
-      diagnosticos?: Record<string, never>;
-      /**
-       * @description Secciones personalizadas adicionales
-       * @example [
-       *       {
-       *         "name": "Examen adicional",
-       *         "fields": [
-       *           {
-       *             "name": "resultado",
-       *             "value": "Normal"
-       *           },
-       *           {
-       *             "name": "observaciones",
-       *             "value": "Ninguna"
-       *           }
-       *         ]
-       *       }
-       *     ]
-       */
-      customSections?: components["schemas"]["CustomSectionDto"][];
-    };
-    UpdateMedicalRecordDto: {
-      /**
-       * @description RUC de la empresa
-       * @example 20603465157
-       */
-      ruc?: string;
-      /**
-       * @description DNI del paciente
-       * @example 12345678
-       */
-      dni?: string;
-      /**
-       * @description Primer nombre del paciente
-       * @example Juan
-       */
-      firstName?: string;
-      /**
-       * @description Segundo nombre del paciente
-       * @example Carlos
-       */
-      secondName?: string;
-      /**
-       * @description Primer apellido del paciente
-       * @example Pérez
-       */
-      firstLastName?: string;
-      /**
-       * @description Segundo apellido del paciente
-       * @example Gómez
-       */
-      secondLastName?: string;
-      /**
-       * @description Fecha de nacimiento
-       * @example 1990-01-01
-       */
-      birthDate?: string;
-      /**
-       * @description Género del paciente
-       * @example MALE
-       * @enum {string}
-       */
-      gender?: "MALE" | "FEMALE" | "OTHER";
-      /**
-       * @description Fecha de ingreso
-       * @example 2023-01-01
-       */
-      entryDate?: string;
-      /**
-       * @description Fecha del último examen médico ocupacional
-       * @example 2023-01-01
-       */
-      lastEmoDate?: string;
-      /**
-       * @description Tipo de examen
-       * @example PRE_OCCUPATIONAL
-       * @enum {string}
-       */
-      examType?: "PRE_OCCUPATIONAL" | "PERIODIC" | "RETIREMENT" | "OTHER";
-      /**
-       * @description Aptitud médica
-       * @example APT
-       * @enum {string}
-       */
-      aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
-      /**
-       * @description Restricciones médicas
-       * @example No levantar objetos pesados
-       */
-      restrictions?: string | null;
-      /**
-       * Format: uuid
-       * @description ID del cliente
-       * @example 550e8400-e29b-41d4-a716-446655440000
-       */
-      clientId?: string;
-      /**
-       * Format: uuid
-       * @description ID de la clínica
-       * @example 550e8400-e29b-41d4-a716-446655440000
-       */
-      clinicId?: string;
-      /**
-       * @description Antecedentes personales del paciente
-       * @example Hipertensión controlada, diabetes tipo 2
-       */
-      personalHistory?: string | null;
-    };
-    CreateDiagnosticDto: {
-      /**
-       * Format: uuid
-       * @description ID del diagnóstico (requerido si no se proporciona diagnosticValueId)
-       * @example 550e8400-e29b-41d4-a716-446655440000
-       */
-      diagnosticId?: string;
-      /**
-       * Format: uuid
-       * @description ID del valor de diagnóstico (para actualizar valores sin diagnosticId)
-       * @example 550e8400-e29b-41d4-a716-446655440001
-       */
-      diagnosticValueId?: string;
-      /**
-       * @description Nombre personalizado para el diagnóstico (útil cuando no hay diagnosticId)
-       * @example Diagnóstico personalizado
-       */
-      name?: string;
-      values: string[][];
-      /**
-       * @description Indica si este diagnóstico debe incluirse en los reportes
+       * @description Indicates whether the request was successful or not
        * @example false
        */
-      isReportIncluded?: boolean;
+      success: boolean;
+      /** @description Error details */
+      error: components["schemas"]["ErrorResponse"];
     };
-    CreateMultipleDiagnosticsDto: {
-      /** @description Array de diagnósticos a crear o actualizar */
-      diagnostics: unknown[][];
+    UsersPaginatedResponseDto: {
+      /** @description Lista de usuarios */
+      data: Record<string, never>[];
+      /** @description Metadatos de paginación */
+      meta: {
+        /** @description Total de registros */
+        total?: number;
+        /** @description Página actual */
+        page?: number;
+        /** @description Tamaño de página */
+        pageSize?: number;
+        /** @description Total de páginas */
+        totalPages?: number;
+        /** @description Si existe página siguiente */
+        hasNext?: boolean;
+        /** @description Si existe página anterior */
+        hasPrevious?: boolean;
+      };
     };
-    AddDiagnosticValueDto: {
+    CreateUserDto: {
       /**
-       * @description ID del diagnóstico (opcional si se proporciona name)
-       * @example 550e8400-e29b-41d4-a716-446655440000
-       */
-      diagnosticId?: string;
-      /**
-       * @description Nombre del valor de diagnóstico (requerido si no se proporciona diagnosticId)
-       * @example Diagnóstico personalizado
-       */
-      name?: string;
-      /**
-       * @description Valores del diagnóstico (array de strings)
-       * @example [
-       *       "Valor 1",
-       *       "Valor 2",
-       *       "Observación adicional"
-       *     ]
-       */
-      value: string[];
-    };
-    UpdateDiagnosticValueNameDto: {
-      /**
-       * @description Nuevo nombre para el valor de diagnóstico personalizado
-       * @example Diagnóstico personalizado actualizado
-       */
-      name: string;
-    };
-    CreateNewDiagnosticDto: {
-      /**
-       * @description Nombre del diagnóstico
-       * @example Hallazgos de Laboratorio
+       * @description Nombre del usuario
+       * @example Juan
        */
       name: string;
       /**
-       * @description Descripción del diagnóstico
-       * @example Resultados de análisis de laboratorio
+       * @description Apellido del usuario
+       * @example Pérez
        */
-      description?: string;
+      lastName: string;
       /**
-       * @description Tipo de dato del diagnóstico
-       * @default JSON
-       * @example JSON
-       */
-      dataType: string;
-      /**
-       * @description Indica si el diagnóstico está activo
-       * @default true
-       */
-      isActive: boolean;
-      /**
-       * @description Indica si el diagnóstico debe incluirse en la creación de medical record
-       * @default true
-       */
-      isDefaultIncluded: boolean;
-    };
-    UpdateDiagnosticDto: {
-      /**
-       * @description Nombre del diagnóstico
-       * @example Hallazgos de Laboratorio Actualizado
-       */
-      name?: string;
-      /**
-       * @description Descripción del diagnóstico
-       * @example Resultados actualizados de análisis de laboratorio
-       */
-      description?: string;
-      /** @description Indica si el diagnóstico está activo */
-      isActive?: boolean;
-      /** @description Indica si el diagnóstico debe incluirse por defecto en la creación de historias clínicas */
-      isDefaultIncluded?: boolean;
-    };
-    PaymentResponseDto: {
-      /**
-       * @description ID del pago
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Codigo de la cotizacion
-       * @example COT-202401-001
-       */
-      code: string;
-      /**
-       * @description RUC del cliente
-       * @example 20123456789
-       */
-      ruc: string;
-      /**
-       * @description Razon social del cliente
-       * @example Empresa SAC
-       */
-      businessName: string;
-      /**
-       * @description Nombre del servicio
-       * @example Consultoría médica
-       */
-      service: string;
-      /**
-       * @description Monto del pago
-       * @example 1500
-       */
-      amount: number;
-      /**
-       * @description Tipo de pago
-       * @example SINGLE
-       * @enum {string}
-       */
-      paymentPlan: "INSTALLMENTS" | "SINGLE";
-      /**
-       * @description Correo del cliente
-       * @example juan.perez@empresa.com
+       * @description Correo electrónico del usuario
+       * @example usuario@ejemplo.com
        */
       email: string;
       /**
-       * Format: date-time
-       * @description Fecha de pago
-       * @example 2024-01-15T10:00:00Z
+       * @description Contraseña del usuario
+       * @example MiContraseña123!
        */
-      paymentDate: string | null;
+      password?: string;
       /**
-       * @description Codigo de facturacion
-       * @example F001-000001
+       * @description ID del rol a asignar al usuario
+       * @example 60c72b2f9b1e8a5f68d6e8b1
        */
-      billingCode: string | null;
-      /**
-       * @description Estado del pago
-       * @example false
-       */
-      isPaid: boolean;
-      /**
-       * @description ID de la cotizacion asociada
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      quotationId: string;
-      /**
-       * Format: date-time
-       * @description Fecha de facturacion
-       * @example 2024-01-15T10:00:00Z
-       */
-      billingDate: string | null;
-      /**
-       * @description Correo de destinatario
-       * @example juan.perez@empresa.com
-       */
-      emailBilling: string | null;
+      roleId: string;
     };
-    PaginatedPaymentResponseDto: {
-      /** @description Lista de pagos paginados */
-      data: components["schemas"]["PaymentResponseDto"][];
-      /** @description Metadatos de paginación */
-      meta: {
-        /**
-         * @description Página actual
-         * @example 1
-         */
-        currentPage?: number;
-        /**
-         * @description Elementos por página
-         * @example 10
-         */
-        itemsPerPage?: number;
-        /**
-         * @description Total de elementos
-         * @example 100
-         */
-        totalItems?: number;
-        /**
-         * @description Total de páginas
-         * @example 10
-         */
-        totalPages?: number;
-      };
-    };
-    MonthlyComparisonDto: {
+    UpdateUserDto: {
       /**
-       * @description Número del mes (1-12)
-       * @example 1
-       */
-      month: number;
-      /**
-       * @description Cantidad total de transacciones en el mes
-       * @example 25
-       */
-      totalCount: number;
-      /**
-       * @description Cantidad de facturas emitidas en el mes
-       * @example 20
-       */
-      billingsCount: number;
-      /**
-       * @description Cantidad de pagos recibidos en el mes
-       * @example 18
-       */
-      paymentsCount: number;
-      /**
-       * @description Monto total de transacciones en el mes
-       * @example 15000
-       */
-      totalAmount: number;
-      /**
-       * @description Monto facturado en el mes
-       * @example 12000
-       */
-      billedAmount: number;
-      /**
-       * @description Monto pagado en el mes
-       * @example 10000
-       */
-      paidAmount: number;
-    };
-    YearlyComparisonDto: {
-      /**
-       * @description Año
-       * @example 2023
-       */
-      year: number;
-      /** @description Datos mensuales */
-      months: components["schemas"]["MonthlyComparisonDto"][];
-      /**
-       * @description Monto total del año
-       * @example 180000
-       */
-      totalAmount: number;
-      /**
-       * @description Monto facturado del año
-       * @example 150000
-       */
-      billedAmount: number;
-      /**
-       * @description Monto pagado del año
-       * @example 120000
-       */
-      paidAmount: number;
-    };
-    ComparisonDetailsDto: {
-      /**
-       * @description Cambio porcentual total entre años
-       * @example {
-       *       "2023-2022": 15.5,
-       *       "2022-2021": 8.7
-       *     }
-       */
-      percentageChangeByYear: Record<string, never>;
-      /**
-       * @description Cambio porcentual de facturación entre años
-       * @example {
-       *       "2023-2022": 12.3,
-       *       "2022-2021": 7.5
-       *     }
-       */
-      percentageBilledChangeByYear: Record<string, never>;
-      /**
-       * @description Cambio porcentual de pagos entre años
-       * @example {
-       *       "2023-2022": 18.2,
-       *       "2022-2021": 9.1
-       *     }
-       */
-      percentagePaidChangeByYear: Record<string, never>;
-      /**
-       * @description Promedio de crecimiento total
-       * @example 12.1
-       */
-      averageGrowth: number;
-      /**
-       * @description Promedio de crecimiento de facturación
-       * @example 9.9
-       */
-      averageBilledGrowth: number;
-      /**
-       * @description Promedio de crecimiento de pagos
-       * @example 13.6
-       */
-      averagePaidGrowth: number;
-    };
-    PaymentsComparisonResponseDto: {
-      /** @description Datos por año */
-      years: components["schemas"]["YearlyComparisonDto"][];
-      /** @description Detalles de la comparación */
-      comparison: components["schemas"]["ComparisonDetailsDto"];
-    };
-    UpdatePaymentStatusDto: {
-      /**
-       * @description Payment date
-       * @example 2024-01-15T10:00:00Z
-       */
-      paymentDate?: string;
-      /**
-       * @description Billing code
-       * @example F001-000001
-       */
-      billingCode?: string;
-      /**
-       * @description Billing date
-       * @example 2024-01-15T10:00:00Z
-       */
-      billingDate?: string;
-      /**
-       * @description Email billing
-       * @example juan.perez@empresa.com
-       */
-      emailBilling?: string;
-    };
-    MarkPaymentStatusDto: {
-      /**
-       * @description Indica si el pago fue realizado
-       * @example true
-       */
-      isPaid: boolean;
-      /**
-       * @description Fecha del pago
-       * @example 2024-01-15T10:00:00Z
-       */
-      paymentDate: string;
-      /**
-       * @description Código de facturación
-       * @example F001-000001
-       */
-      billingCode: string;
-    };
-    CreateQuotationGroupDto: {
-      /**
-       * @description Nombre del grupo de cotizaciones
-       * @example Grupo de cotizaciones 1
-       */
-      name: string;
-      /**
-       * @description Código del grupo de cotizaciones
-       * @example COT
-       */
-      code: string;
-      /**
-       * @description Descripción del grupo de cotizaciones
-       * @example Grupo de cotizaciones para la empresa 1
-       */
-      description?: string;
-    };
-    UpdateQuotationGroupDto: {
-      /**
-       * @description Nombre del grupo de cotizaciones
-       * @example Grupo de cotizaciones 1
+       * @description Nombre del usuario
+       * @example Juan Carlos
        */
       name?: string;
       /**
-       * @description Código del grupo de cotizaciones
-       * @example COT
+       * @description Apellido del usuario
+       * @example Pérez García
        */
-      code?: string;
+      lastName?: string;
       /**
-       * @description Descripción del grupo de cotizaciones
-       * @example Grupo de cotizaciones para la empresa 1
+       * @description Correo electrónico del usuario
+       * @example nuevo.email@ejemplo.com
        */
-      description?: string;
+      email?: string;
+      /**
+       * @description ID del rol a asignar al usuario
+       * @example 60c72b2f9b1e8a5f68d6e8b1
+       */
+      roleId?: string;
+      /**
+       * @description Estado activo del usuario
+       * @example false
+       */
+      isActive?: boolean;
     };
-    CreateInstallmentPaymentDto: {
+    SignInDto: {
       /**
-       * @description Monto de la cuota
-       * @example 1000
+       * @description Email del usuario
+       * @example usuario@ejemplo.com
        */
-      amount: number;
+      email: string;
       /**
-       * Format: date-time
-       * @description Fecha de pago
-       * @example 2021-01-01
+       * @description Contraseña del usuario
+       * @example miContraseña123
        */
-      paymentDate?: string;
-      /**
-       * @description Confirmación de pago
-       * @example true
-       */
-      isPaid: boolean;
-      /**
-       * @description Código de facturación
-       * @example F001-000001
-       */
-      billingCode: string;
-      /**
-       * Format: date-time
-       * @description Fecha de facturación
-       * @example 2021-01-01
-       */
-      billingDate?: string;
-      /**
-       * @description Email de facturación
-       * @example juan.perez@empresa.com
-       */
-      emailBilling?: string;
+      password: string;
     };
-    InstallmentPaymentResponseDto: {
+    UpdatePasswordDto: {
       /**
-       * @description ID de la cuota de pago
-       * @example 123e4567-e89b-12d3-a456-426614174000
+       * @description Contraseña actual del usuario
+       * @example ContraseñaActual123!
        */
-      id: string;
+      currentPassword: string;
       /**
-       * @description Número de la cuota
-       * @example 1
+       * @description Nueva contraseña del usuario
+       * @example NuevaContraseña123!
        */
-      installmentNumber: number;
+      password: string;
       /**
-       * @description Monto de la cuota
-       * @example 1000
+       * @description Confirmación de la nueva contraseña
+       * @example NuevaContraseña123!
        */
-      amount: number;
-      /**
-       * @description Fecha de pago
-       * @example 2021-01-01
-       */
-      paymentDate?: string;
-      /**
-       * @description Código de facturación
-       * @example F001-000001
-       */
-      billingCode?: string;
-      /**
-       * @description Fecha de facturación
-       * @example 2021-01-01
-       */
-      billingDate?: string;
-      /**
-       * @description Email de facturación
-       * @example juan.perez@empresa.com
-       */
-      emailBilling?: string;
-      /**
-       * @description Confirmación de pago
-       * @example true
-       */
-      isPaid: boolean;
-      /**
-       * @description Estado de la cuota
-       * @example true
-       */
-      isActive: boolean;
-    };
-    UpdateInstallmentPaymentDto: {
-      /**
-       * @description Monto de la cuota
-       * @example 1000
-       */
-      amount?: number;
-      /**
-       * Format: date-time
-       * @description Fecha de pago
-       * @example 2021-01-01
-       */
-      paymentDate?: string;
-      /**
-       * @description Confirmación de pago
-       * @example true
-       */
-      isPaid?: boolean;
-      /**
-       * @description Código de facturación
-       * @example F001-000001
-       */
-      billingCode?: string;
-      /**
-       * Format: date-time
-       * @description Fecha de facturación
-       * @example 2021-01-01
-       */
-      billingDate?: string;
-      /**
-       * @description Email de facturación
-       * @example juan.perez@empresa.com
-       */
-      emailBilling?: string;
-    };
-    InstallmentPayment: {
-      id: string;
-      installmentNumber: number;
-      amount: number;
-      /** Format: date-time */
-      paymentDate?: string;
-      isPaid: boolean;
-      billingCode?: string;
-      /** Format: date-time */
-      billingDate?: string;
-      emailBilling?: string;
-      isActive: boolean;
-      paymentId: string;
-    };
-    AuditResponseDto: {
-      /**
-       * @description El id de la entidad
-       * @example 123
-       */
-      entityId: string;
-      /**
-       * @description El tipo de la entidad
-       * @example project
-       */
-      entityType: string;
-      /**
-       * @description La acción de la entidad
-       * @example create
-       */
-      action: string;
-      /**
-       * @description El id del usuario que realizó la acción
-       * @example 123
-       */
-      performedById: string;
-      /**
-       * @description El id de la entidad
-       * @example 123
-       */
-      id: string;
-      /**
-       * Format: date-time
-       * @description La fecha de la entidad
-       * @example 2021-01-01
-       */
-      createdAt: string;
-      performedBy: {
-        id: string;
-        email: string;
-        fullName: string;
-      };
-    };
-    CreatePaymentInstallmentConfigDto: {
-      /**
-       * @description Cantidad de cuotas
-       * @example Este pago se paga en 1 cuota
-       */
-      installmentsQuantity: string;
-      /**
-       * @description Monto de cada cuota
-       * @example Las cuotas son de 1000 soles cada una
-       */
-      installmentsAmount: string;
-      /**
-       * @description Emails de cada cuota
-       * @example El email de cada cuota es para juan@gmail.com
-       */
-      installmentsEmails: string;
-      /**
-       * @description Fechas de cada cuota
-       * @example Las fechas de cada cuota son el 1 de cada mes
-       */
-      installmentsDates: string;
-      /**
-       * Format: date
-       * @description Fecha de inicio del servicio
-       * @example 2024-03-20
-       */
-      startDateService: string;
-      /**
-       * Format: date
-       * @description Fecha de fin del servicio
-       * @example 10-05-2025
-       */
-      endDateService: string;
-    };
-    PaymentInstallmentConfigResponseDto: {
-      /**
-       * @description ID de la configuración de pago
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /** @description Pago */
-      payment: components["schemas"]["PaymentResponseDto"];
-      /**
-       * @description Cantidad de cuotas
-       * @example 1
-       */
-      installmentsQuantity: string;
-      /**
-       * @description Monto de cada cuota
-       * @example 1000
-       */
-      installmentsAmount: string;
-      /**
-       * @description Emails de cada cuota
-       * @example juan@gmail.com
-       */
-      installmentsEmails: string;
-      /**
-       * @description Fechas de cada cuota
-       * @example 2021-01-01
-       */
-      installmentsDates: string;
-      /**
-       * Format: date-time
-       * @description Fecha de inicio del servicio
-       * @example 2021-01-01
-       */
-      startDateService: string;
-      /**
-       * Format: date-time
-       * @description Fecha de fin del servicio
-       * @example 2021-01-01
-       */
-      endDateService: string;
-    };
-    UpdatePaymentInstallmentConfigDto: {
-      /**
-       * @description Cantidad de cuotas
-       * @example Este pago se paga en 1 cuota
-       */
-      installmentsQuantity?: string;
-      /**
-       * @description Monto de cada cuota
-       * @example Las cuotas son de 1000 soles cada una
-       */
-      installmentsAmount?: string;
-      /**
-       * @description Emails de cada cuota
-       * @example El email de cada cuota es para juan@gmail.com
-       */
-      installmentsEmails?: string;
-      /**
-       * @description Fechas de cada cuota
-       * @example Las fechas de cada cuota son el 1 de cada mes
-       */
-      installmentsDates?: string;
-      /**
-       * Format: date
-       * @description Fecha de inicio del servicio
-       * @example 2024-03-20
-       */
-      startDateService?: string;
-      /**
-       * Format: date
-       * @description Fecha de fin del servicio
-       * @example 10-05-2025
-       */
-      endDateService?: string;
+      confirmPassword: string;
     };
   };
   responses: never;
@@ -5331,31 +527,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-  AuthController_login_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["SignInDto"];
-      };
-    };
-    responses: {
-      /** @description Devuelve los datos del usuario autenticado y establece cookies para los tokens */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
-        };
-      };
-    };
-  };
-  AuthController_refreshToken_v1: {
+  AppController_getHello: {
     parameters: {
       query?: never;
       header?: never;
@@ -5364,71 +536,6 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Renueva el token de acceso y actualiza las cookies */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
-        };
-      };
-    };
-  };
-  AuthController_logout_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Sesión cerrada exitosamente y cookies eliminadas */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
-        };
-      };
-    };
-  };
-  AuthController_me_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Devuelve la información del usuario autenticado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AuthResponseDto"];
-        };
-      };
-    };
-  };
-  AuthController_updatePassword_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePasswordDto"];
-      };
-    };
-    responses: {
-      /** @description Contraseña actualizada con éxito */
       200: {
         headers: {
           [name: string]: unknown;
@@ -5437,31 +544,7 @@ export interface operations {
       };
     };
   };
-  AuthController_verifyToken_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["VerifyTokenDto"];
-      };
-    };
-    responses: {
-      /** @description Respuesta sobre la validez del token */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["TokenVerificationResponse"];
-        };
-      };
-    };
-  };
-  AuthController_getPermissions_v1: {
+  AppController_getHealthCheck: {
     parameters: {
       query?: never;
       header?: never;
@@ -5470,18 +553,104 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Devuelve los permisos del usuario autenticado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UsersController_getMyProfile_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Perfil del usuario actual */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["TokenVerificationResponse"];
+          "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
     };
   };
-  UsersController_findAll_v1: {
+  UsersController_getUsersPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+        /** @description Filtrar por ID de rol específico */
+        roleId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista paginada de usuarios con metadatos de paginación */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UsersPaginatedResponseDto"];
+        };
+      };
+      /** @description Parámetros de paginación inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  UsersController_getAllUsers_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5499,9 +668,27 @@ export interface operations {
           "application/json": components["schemas"]["UserResponseDto"][];
         };
       };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
     };
   };
-  UsersController_create_v1: {
+  UsersController_createUser_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5514,7 +701,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Usuario creado con éxito */
+      /** @description Usuario creado exitosamente con datos completos de rol y permisos */
       201: {
         headers: {
           [name: string]: unknown;
@@ -5523,35 +710,45 @@ export interface operations {
           "application/json": components["schemas"]["UserResponseDto"];
         };
       };
-      /** @description Datos inválidos o usuario ya existe */
+      /** @description Error al crear usuario */
       400: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
-    };
-  };
-  UsersController_getProjectTrackers_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
+      /** @description Email ya está en uso */
+      409: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UserResponseDto"][];
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Datos inválidos */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
     };
   };
-  UsersController_findById_v1: {
+  UsersController_getUserById_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5571,16 +768,36 @@ export interface operations {
           "application/json": components["schemas"]["UserResponseDto"];
         };
       };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
       /** @description Usuario no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
-  UsersController_update_v1: {
+  UsersController_updateUser_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5595,7 +812,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Usuario actualizado con éxito */
+      /** @description Usuario actualizado exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
@@ -5604,16 +821,36 @@ export interface operations {
           "application/json": components["schemas"]["UserResponseDto"];
         };
       };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
       /** @description Usuario no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
-  UsersController_delete_v1: {
+  UsersController_toggleActiveUser_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5624,22 +861,205 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Usuario eliminado con éxito */
+      /** @description Estado del usuario alternado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_signIn_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SignInDto"];
+      };
+    };
+    responses: {
+      /** @description Autenticación exitosa */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description Credenciales inválidas */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Demasiados intentos */
+      429: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_signOut_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Sesión cerrada exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
     };
   };
-  UsersController_getUserPermissions_v1: {
+  AuthController_getMe_v1: {
     parameters: {
       query?: never;
       header?: never;
-      path: {
-        id: string;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Usuario obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"];
+        };
       };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_updatePassword_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdatePasswordDto"];
+      };
+    };
+    responses: {
+      /** @description Contraseña actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Datos de entrada inválidos o contraseñas no coinciden */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado o contraseña actual incorrecta */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_getUserPermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
       cookie?: never;
     };
     requestBody?: never;
@@ -5649,8 +1069,15 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
         content: {
-          "application/json": components["schemas"]["PermissionResponseDto"][];
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
       /** @description Usuario no encontrado */
@@ -5658,38 +1085,13 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
-      };
-      /** @description Error interno del servidor */
-      500: {
-        headers: {
-          [name: string]: unknown;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
-        content?: never;
       };
     };
   };
-  UsersController_reactivate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Usuario reactivado con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RolesController_getRoles_v1: {
+  AuthController_getTokenInfo_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5698,192 +1100,34 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Lista de roles */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["RoleResponseDto"][];
-        };
-      };
-    };
-  };
-  RolesController_createRole_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateRoleDto"];
-      };
-    };
-    responses: {
-      /** @description Rol creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["RoleResponseDto"];
-        };
-      };
-    };
-  };
-  RolesController_getPermissions_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        roleId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de permisos del rol */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PermissionResponseDto"][];
-        };
-      };
-    };
-  };
-  RolesController_assignPermission_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        roleId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AssignPermissionDto"];
-      };
-    };
-    responses: {
-      /** @description Permiso asignado exitosamente */
+      /** @description Información del token */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content?: never;
       };
-    };
-  };
-  RolesController_assignRoleToUser_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        roleId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AssignRoleToUserDto"];
-      };
-    };
-    responses: {
-      /** @description Rol asignado exitosamente al usuario */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  RolesController_updateRole_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateRoleDto"];
-      };
-    };
-    responses: {
-      /** @description Rol actualizado exitosamente */
-      200: {
+      /** @description No autenticado */
+      401: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["RoleResponseDto"];
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
-    };
-  };
-  RolesController_deleteRole_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Rol eliminado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description No se puede eliminar el rol (ya está inactivo o está asignado a usuarios) */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Rol no encontrado */
+      /** @description Usuario no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
-      };
-    };
-  };
-  RolesController_reactivate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Rol reactivado con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
-        content?: never;
       };
     };
   };
-  PermissionsController_getPermissions_v1: {
+  AuthController_checkSession_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -5892,3867 +1136,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Lista de permisos */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PermissionsController_createPermission_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreatePermissionDto"];
-      };
-    };
-    responses: {
-      /** @description Permiso creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ServicesController_getServices_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de servicios */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ServiceResponseDto"][];
-        };
-      };
-    };
-  };
-  ServicesController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateServiceDto"];
-      };
-    };
-    responses: {
-      /** @description El servicio ha sido creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ServiceResponseDto"];
-        };
-      };
-    };
-  };
-  ServicesController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateServiceDto"];
-      };
-    };
-    responses: {
-      /** @description El servicio ha sido actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ServiceResponseDto"];
-        };
-      };
-    };
-  };
-  ServicesController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El servicio ha sido eliminado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ObjectivesController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateObjectiveDto"];
-      };
-    };
-    responses: {
-      /** @description Objetivo creado con éxito */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ObjectiveResponseDto"];
-        };
-      };
-    };
-  };
-  ObjectivesController_getObjectivesByServiceId_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        serviceId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de objetivos */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ObjectiveResponseDto"][];
-        };
-      };
-    };
-  };
-  ObjectivesController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateObjectiveDto"];
-      };
-    };
-    responses: {
-      /** @description Objetivo actualizado con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ObjectiveResponseDto"];
-        };
-      };
-    };
-  };
-  ObjectivesController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Objetivo eliminado con éxito */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ActivitiesController_getActivitiesByObjectiveId_v1: {
-    parameters: {
-      query: {
-        /** @description ID del objetivo para filtrar actividades */
-        objectiveId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Las actividades han sido obtenidas correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ActivityResponseDto"][];
-        };
-      };
-    };
-  };
-  ActivitiesController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateActivityDto"];
-      };
-    };
-    responses: {
-      /** @description La actividad ha sido creada correctamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ActivitiesController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateActivityDto"];
-      };
-    };
-    responses: {
-      /** @description La actividad ha sido actualizada correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ActivitiesController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description La actividad ha sido eliminada correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClinicsController_getClinics_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clínicas obtenidas exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"][];
-        };
-      };
-    };
-  };
-  ClinicsController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateClinicDto"];
-      };
-    };
-    responses: {
-      /** @description Clínica creada exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"];
-        };
-      };
-    };
-  };
-  ClinicsController_getClinicById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clínica obtenida exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"];
-        };
-      };
-    };
-  };
-  ClinicsController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateClinicDto"];
-      };
-    };
-    responses: {
-      /** @description Clínica actualizada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"];
-        };
-      };
-    };
-  };
-  ClinicsController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clínica eliminada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClinicsController_updateProfile_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateClinicDto"];
-      };
-    };
-    responses: {
-      /** @description Perfil actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClinicsController_toggleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado de la clínica actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClientsController_getClients_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clientes obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientWithClinicResponseDto"][];
-        };
-      };
-    };
-  };
-  ClientsController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateClientDto"];
-      };
-    };
-    responses: {
-      /** @description Cliente creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientResponseDto"];
-        };
-      };
-    };
-  };
-  ClientsController_findByFilters_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtros para buscar un cliente por RUC, email o nombre */
-        filter?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clientes encontrados exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientResponseDto"][];
-        };
-      };
-    };
-  };
-  ClientsController_findByFiltersPaginated_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtros para buscar un cliente por RUC, email o nombre */
-        filter?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clientes encontrados exitosamente (paginados) */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            data?: components["schemas"]["ClientResponseDto"][];
-            meta?: {
-              currentPage?: number;
-              itemsPerPage?: number;
-              totalItems?: number;
-              totalPages?: number;
-            };
-          };
-        };
-      };
-    };
-  };
-  ClientsController_getClientById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cliente obtenido exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientResponseDto"];
-        };
-      };
-    };
-  };
-  ClientsController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateClientDto"];
-      };
-    };
-    responses: {
-      /** @description Cliente actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientResponseDto"];
-        };
-      };
-    };
-  };
-  ClientsController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cliente eliminado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClientsController_getClinicsByClient_v1: {
-    parameters: {
-      query?: {
-        /** @description Si es true, solo devuelve las clínicas actualmente asignadas */
-        onlyActive?: boolean;
-      };
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clínicas obtenidas exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"][];
-        };
-      };
-    };
-  };
-  ClientsController_assignClinics_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AssignClinicsDto"];
-      };
-    };
-    responses: {
-      /** @description Clínicas asignadas exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"][];
-        };
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"][];
-        };
-      };
-    };
-  };
-  ClientsController_unassignClinics_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AssignClinicsDto"];
-      };
-    };
-    responses: {
-      /** @description Clínicas desasignadas exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClinicResponseDto"][];
-        };
-      };
-    };
-  };
-  ClientsController_updateProfile_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateClientDto"];
-      };
-    };
-    responses: {
-      /** @description Perfil actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClientsController_toggleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado cambiado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ClientsController_getClientsByClinic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        clinicId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Clientes asociados a la clínica obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ClientResponseDto"][];
-        };
-      };
-    };
-  };
-  ProjectsController_getProjects_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Proyectos obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectResponseDto"][];
-        };
-      };
-    };
-  };
-  ProjectsController_createProject_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateProjectDto"];
-      };
-    };
-    responses: {
-      /** @description Proyecto creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectsController_searchProjects_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por tipo de contrato */
-        typeContract?: string;
-        /** @description Filtrar por tipo de proyecto */
-        typeProject?: string;
-        /** @description Filtrar por fecha de inicio (desde) */
-        startDateFrom?: string;
-        /** @description Filtrar por fecha de inicio (hasta) */
-        startDateTo?: string;
-        /** @description Filtrar por fecha de finalización (desde) */
-        endDateFrom?: string;
-        /** @description Filtrar por fecha de finalización (hasta) */
-        endDateTo?: string;
-        /** @description Filtrar por estado del proyecto */
-        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-        /** @description Filtrar por usuario responsable */
-        responsibleUserId?: string;
-        /** @description Filtrar por búsqueda en nombre o descripción */
-        search?: string;
-        /** @description Filtrar por ID de cliente */
-        clientId?: string;
-        /** @description Filtrar solo proyectos activos */
-        isActive?: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Proyectos obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectResponseDto"][];
-        };
-      };
-    };
-  };
-  ProjectsController_searchProjectsPaginated_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por tipo de contrato */
-        typeContract?: string;
-        /** @description Filtrar por tipo de proyecto */
-        typeProject?: string;
-        /** @description Filtrar por fecha de inicio (desde) */
-        startDateFrom?: string;
-        /** @description Filtrar por fecha de inicio (hasta) */
-        startDateTo?: string;
-        /** @description Filtrar por fecha de finalización (desde) */
-        endDateFrom?: string;
-        /** @description Filtrar por fecha de finalización (hasta) */
-        endDateTo?: string;
-        /** @description Filtrar por estado del proyecto */
-        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-        /** @description Filtrar por búsqueda en nombre o descripción */
-        search?: string;
-        /** @description Filtrar por ID de cliente */
-        clientId?: string;
-        /** @description Filtrar solo proyectos activos */
-        isActive?: boolean;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Proyectos encontrados exitosamente (paginados) */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedProjectResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectsController_generateExcel_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por tipo de contrato */
-        typeContract?: string;
-        /** @description Filtrar por tipo de proyecto */
-        typeProject?: string;
-        /** @description Filtrar por fecha de inicio (desde) */
-        startDateFrom?: string;
-        /** @description Filtrar por fecha de inicio (hasta) */
-        startDateTo?: string;
-        /** @description Filtrar por fecha de finalización (desde) */
-        endDateFrom?: string;
-        /** @description Filtrar por fecha de finalización (hasta) */
-        endDateTo?: string;
-        /** @description Filtrar por estado del proyecto */
-        status?: "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-        /** @description Filtrar por usuario responsable */
-        responsibleUserId?: string;
-        /** @description Filtrar por búsqueda en nombre o descripción */
-        search?: string;
-        /** @description Filtrar por ID de cliente */
-        clientId?: string;
-        /** @description Filtrar solo proyectos activos */
-        isActive?: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Excel generado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectsController_generateExcelProjectDetail_v1: {
-    parameters: {
-      query: {
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Excel generado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectsController_getProjectById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Proyecto obtenido exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectDetailResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectsController_updateProject_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateProjectDto"];
-      };
-    };
-    responses: {
-      /** @description Proyecto actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectsController_deleteProject_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Proyecto eliminado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @example Proyecto eliminado exitosamente */
-            message?: string;
-          };
-        };
-      };
-    };
-  };
-  ProjectsController_toggleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado activo cambiado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_addServiceToProject_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        projectId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateProjectServiceDto"];
-      };
-    };
-    responses: {
-      /** @description El servicio ha sido agregado exitosamente al proyecto */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Proyecto o servicio no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_addServiceToProjectFromTemplate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        projectId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateProjectServiceTemplateDto"];
-      };
-    };
-    responses: {
-      /** @description Los servicios han sido agregados exitosamente al proyecto */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Proyecto o servicio no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_getProjectServices_v1: {
-    parameters: {
-      query: {
-        projectId: string;
-        includeInactive: boolean;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de servicios del proyecto */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"][];
-        };
-      };
-      /** @description Proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_getProjectServiceById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Servicio de proyecto encontrado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"];
-        };
-      };
-      /** @description Servicio de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_updateProjectService_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        serviceId: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateProjectServiceDto"];
-      };
-    };
-    responses: {
-      /** @description Servicio de proyecto actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Servicio de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectServicesController_toggleProjectServiceActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        serviceId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado del servicio de proyecto actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectServiceResponseDto"];
-        };
-      };
-      /** @description Servicio de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectObjectivesController_getProjectObjectives_v1: {
-    parameters: {
-      query: {
-        serviceId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de objetivos del servicio de proyecto */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
-        };
-      };
-      /** @description Servicio de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectObjectivesController_addObjectiveToProjectService_v1: {
-    parameters: {
-      query: {
-        serviceId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateProjectObjectiveDto"];
-      };
-    };
-    responses: {
-      /** @description El objetivo ha sido agregado exitosamente al servicio de proyecto */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Servicio de proyecto u Objetivo no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectObjectivesController_getProjectObjectiveById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Objetivo de proyecto encontrado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
-        };
-      };
-      /** @description Objetivo de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectObjectivesController_updateProjectObjective_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateProjectObjectiveDto"];
-      };
-    };
-    responses: {
-      /** @description Objetivo de proyecto actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Objetivo de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectObjectivesController_toggleProjectObjectiveActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado del objetivo de proyecto actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectObjectiveResponseDto"];
-        };
-      };
-      /** @description Objetivo de proyecto no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_getProjectActivities_v1: {
-    parameters: {
-      query: {
-        objectiveId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Se han obtenido todas las actividades de un objetivo de proyecto */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectActivitiesController_addActivityToProjectObjective_v1: {
-    parameters: {
-      query: {
-        objectiveId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateProjectActivityDto"];
-      };
-    };
-    responses: {
-      /** @description La actividad ha sido agregada exitosamente al objetivo de proyecto */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Objetivo de proyecto, plantilla de actividad o usuario no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_getProjectActivityById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Se ha obtenido la actividad exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-      /** @description Project activity not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_updateActivityToProjectObjective_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateProjectActivityDto"];
-      };
-    };
-    responses: {
-      /** @description La actividad ha sido actualizada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Actividad de proyecto no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_deleteActivityToProjectObjective_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description La actividad ha sido eliminada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectActivitiesController_updateTrackingActivity_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["TrackingActivityDto"];
-      };
-    };
-    responses: {
-      /** @description La actividad ha sido actualizada existosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Bad request */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Actividad de proyecto no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_uploadEvidence_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID de la actividad */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          /**
-           * Format: binary
-           * @description Evidencia (PDF, máximo 5MB)
-           */
-          file?: string;
-        };
-      };
-    };
-    responses: {
-      /** @description La evidencia ha sido subida exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["ProjectActivityResponseDto"];
-        };
-      };
-    };
-  };
-  ProjectActivitiesController_deleteEvidence_v1: {
-    parameters: {
-      query: {
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description La evidencia ha sido eliminada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Evidencia no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  ProjectActivitiesController_downloadEvidence_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description La evidencia ha sido descargada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_findAll_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo cotizaciones concretadas */
-        isConcrete?: string;
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cotizaciones encontradas */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationResponseDto"][];
-        };
-      };
-    };
-  };
-  QuotationController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateQuotationDto"];
-      };
-    };
-    responses: {
-      /** @description Cotización creada */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationResponseDto"];
-        };
-      };
-      /** @description Solicitud incorrecta */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_searchQuotationsPaginated_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo cotizaciones concretadas */
-        isConcrete?: string;
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cotizaciones encontradas exitosamente (paginadas) */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedQuotationResponseDto"];
-        };
-      };
-    };
-  };
-  QuotationController_generateExcel_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo cotizaciones concretadas */
-        isConcrete?: string;
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Excel generado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_findById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID de la cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cotización encontrada */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationResponseDto"];
-        };
-      };
-      /** @description Cotización no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID de la cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateQuotationDto"];
-      };
-    };
-    responses: {
-      /** @description Cotización actualizada */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationResponseDto"];
-        };
-      };
-      /** @description Solicitud incorrecta */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Cotización no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID de la cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Cotización eliminada */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Cotización no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationController_concrete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID de la cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["ConcreteQuotationDto"];
-      };
-    };
-    responses: {
-      /** @description Estado de concreción actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationResponseDto"];
-        };
-      };
-      /** @description Cotización no encontrada */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificateController_findAll_v1: {
-    parameters: {
-      query?: {
-        /** @description Buscar certificados */
-        search?: string;
-        /** @description Fecha de inicio para filtrar certificados */
-        from?: string;
-        /** @description Fecha de fin para filtrar certificados */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de certificados obtenida exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"][];
-        };
-      };
-    };
-  };
-  CertificateController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["CreateCertificateDto"];
-      };
-    };
-    responses: {
-      /** @description El certificado ha sido creado exitosamente. */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificateController_findAllPaginated_v1: {
-    parameters: {
-      query?: {
-        /** @description Buscar certificados */
-        search?: string;
-        /** @description Fecha de inicio para filtrar certificados */
-        from?: string;
-        /** @description Fecha de fin para filtrar certificados */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Certificados encontrados exitosamente (paginados) */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedCertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificateController_downloadCertificate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Certificado descargado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificateController_findById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El certificado ha sido recuperado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificateController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["UpdateCertificateDto"];
-      };
-    };
-    responses: {
-      /** @description El certificado ha sido actualizado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificateController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El certificado ha sido eliminado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificateController_toggleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El estado del certificado ha sido cambiado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificateController_findByCode_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        code: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El certificado ha sido recuperado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificateController_regenerateFileUrl_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description URL regenerada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificatesPublicController_findByCode_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        code: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description El certificado ha sido recuperado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  CertificatesPublicController_regenerateFileUrl_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description URL regenerada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["CertificateResponseDto"];
-        };
-      };
-    };
-  };
-  CertificatesPublicController_downloadCertificate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Certificado descargado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_getMedicalRecords_v1: {
-    parameters: {
-      query?: {
-        /** @description ID del cliente (Opcional) */
-        clientId?: string;
-        /** @description ID de la clínica (Opcional) */
-        clinicId?: string;
-        /** @description Búsqueda por nombre o documento del paciente */
-        search?: string;
-        /** @description Filtrar por diagnóstico */
-        diagnosticName?: string[];
-        /** @description Fecha desde (YYYY-MM-DD) */
-        from?: string;
-        /** @description Fecha hasta (YYYY-MM-DD) */
-        to?: string;
-        /** @description Filtrar por aptitud (APT, APT_WITH_RESTRICTIONS, NOT_APT) */
-        aptitude?: "APT" | "APT_WITH_RESTRICTIONS" | "NOT_APT";
-        /** @description Número de página */
-        page?: number;
-        /** @description Elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista paginada de registros médicos */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedMedicalRecordsResponseDto"];
-        };
-      };
-    };
-  };
-  MedicalRecordsController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Datos del registro médico a crear */
-    requestBody: {
-      content: {
-        "multipart/form-data": components["schemas"]["CreateMedicalRecordDto"];
-      };
-    };
-    responses: {
-      /** @description El registro médico ha sido creado exitosamente. */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-    };
-  };
-  MedicalRecordsController_generateExcel_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Excel generado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_getMedicalRecordsByDiagnostic_v1: {
-    parameters: {
-      query: {
-        /** @description Nombre del diagnóstico a buscar */
-        diagnosticName: string;
-        /** @description ID del cliente (opcional) */
-        clientId?: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de registros médicos que coinciden con el diagnóstico */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"][];
-        };
-      };
-    };
-  };
-  MedicalRecordsController_getMedicalRecordById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico obtenido exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_deleteMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Registro médico eliminado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_updateMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos para actualizar el registro médico */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMedicalRecordDto"];
-      };
-    };
-    responses: {
-      /** @description Registro médico actualizado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_downloadAptitudeCertificate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Certificado de aptitud médica descargado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Certificado de aptitud médica no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_uploadAptitudeCertificate_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          /**
-           * Format: binary
-           * @description Certificado de aptitud médica (PDF, máximo 5MB)
-           */
-          file: string;
-        };
-      };
-    };
-    responses: {
-      /** @description Certificado de aptitud médica subido exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_downloadMedicalReport_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Informe médico descargado exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Informe médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_uploadMedicalReport_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "multipart/form-data": {
-          /**
-           * Format: binary
-           * @description Informe médico (PDF, máximo 5MB)
-           */
-          file: string;
-        };
-      };
-    };
-    responses: {
-      /** @description Informe médico subido exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_getAptitudeCertificateInfo_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Información del certificado de aptitud médica */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @example success */
-            status?: string;
-            /** @example Certificado de aptitud médica encontrado */
-            message?: string;
-            fileInfo?: components["schemas"]["FileMetadataResponseDto"];
-          };
-        };
-      };
-      /** @description Certificado de aptitud médica no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_getMedicalReportInfo_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Información del informe médico */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": {
-            /** @example success */
-            status?: string;
-            /** @example Informe médico encontrado */
-            message?: string;
-            fileInfo?: components["schemas"]["FileMetadataResponseDto"];
-          };
-        };
-      };
-      /** @description Informe médico no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_updateMedicalRecordDetails_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateMedicalRecordDetailsDto"];
-      };
-    };
-    responses: {
-      /** @description Detalles actualizados exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  MedicalRecordsController_updateCustomSections_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": {
-          /** @example [
-           *       {
-           *         "name": "Examen adicional",
-           *         "fields": [
-           *           {
-           *             "name": "resultado",
-           *             "value": "Normal"
-           *           },
-           *           {
-           *             "name": "observaciones",
-           *             "value": "Ninguna"
-           *           }
-           *         ]
-           *       }
-           *     ] */
-          customSections?: {
-            /** @example Examen adicional */
-            name?: string;
-            fields?: {
-              /** @example resultado */
-              name?: string;
-              /** @example Normal */
-              value?: string;
-            }[];
-          }[];
-        };
-      };
-    };
-    responses: {
-      /** @description Secciones personalizadas actualizadas exitosamente. */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["MedicalRecordResponseDto"];
-        };
-      };
-      /** @description Registro médico no encontrado. */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_getAllDiagnostics_v1: {
-    parameters: {
-      query: {
-        includeInactive: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de diagnósticos disponibles */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_createDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    /** @description Datos del diagnóstico a crear */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateNewDiagnosticDto"];
-      };
-    };
-    responses: {
-      /** @description Diagnóstico creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_getActiveDiagnostics_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de diagnósticos activos */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_deactivateDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del diagnóstico a desactivar */
-        diagnosticId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Diagnóstico desactivado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_toggleIncludeReportsDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del diagnóstico a actualizar */
-        diagnosticId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Diagnóstico actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_activateDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del diagnóstico a reactivar */
-        diagnosticId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Diagnóstico reactivado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Prohibido si el usuario no es ADMIN */
-      403: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Diagnóstico no encontrado */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_getDiagnosticsForMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        medicalRecordId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Diagnósticos obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_addDiagnosticToMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        medicalRecordId: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos del diagnóstico a crear */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateDiagnosticDto"];
-      };
-    };
-    responses: {
-      /** @description Diagnóstico creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_addMultipleDiagnosticsToMedicalRecord_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        medicalRecordId: string;
-      };
-      cookie?: never;
-    };
-    /** @description Lista de diagnósticos a crear o actualizar */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateMultipleDiagnosticsDto"];
-      };
-    };
-    responses: {
-      /** @description Diagnósticos creados/actualizados exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_addDiagnosticValue_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        medicalRecordId: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos del valor de diagnóstico a crear */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["AddDiagnosticValueDto"];
-      };
-    };
-    responses: {
-      /** @description Valor de diagnóstico creado exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_getDiagnosticValuesWithDetails_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del registro médico */
-        medicalRecordId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Valores de diagnóstico obtenidos exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_updateDiagnosticValueName_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del valor de diagnóstico a actualizar */
-        diagnosticValueId: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos para actualizar el nombre del diagnóstico */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateDiagnosticValueNameDto"];
-      };
-    };
-    responses: {
-      /** @description Nombre del diagnóstico actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_deleteDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del diagnóstico a eliminar */
-        diagnosticId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Diagnóstico eliminado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  DiagnosticsController_updateDiagnostic_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del diagnóstico a actualizar */
-        diagnosticId: string;
-      };
-      cookie?: never;
-    };
-    /** @description Datos del diagnóstico a actualizar */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateDiagnosticDto"];
-      };
-    };
-    responses: {
-      /** @description Diagnóstico actualizado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PaymentController_findAll_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo pagos pagados */
-        isPaid?: string;
-        /** @description Filtrar por tipo de pago */
-        paymentPlan?: "INSTALLMENTS" | "SINGLE";
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Pagos encontrados */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentResponseDto"][];
-        };
-      };
-    };
-  };
-  PaymentController_findAllForStats_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo pagos pagados */
-        isPaid?: string;
-        /** @description Filtrar por tipo de pago */
-        paymentPlan?: "INSTALLMENTS" | "SINGLE";
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estadísticas de pagos encontradas exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PaymentController_findAllPaginated_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo pagos pagados */
-        isPaid?: string;
-        /** @description Filtrar por tipo de pago */
-        paymentPlan?: "INSTALLMENTS" | "SINGLE";
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Pagos encontrados exitosamente (paginados) */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaginatedPaymentResponseDto"];
-        };
-      };
-    };
-  };
-  PaymentController_generateExcel_v1: {
-    parameters: {
-      query?: {
-        /** @description Filtrar por código de cotización (uuid del grupo de cotizaciones) */
-        code?: string[];
-        /** @description Filtrar por RUC */
-        ruc?: string;
-        /** @description Filtrar por nombre o razón social */
-        businessName?: string;
-        /** @description Filtrar por departamento (puede ser un solo valor o un array) */
-        department?: string[];
-        /** @description Filtrar solo pagos pagados */
-        isPaid?: string;
-        /** @description Filtrar por tipo de pago */
-        paymentPlan?: "INSTALLMENTS" | "SINGLE";
-        /** @description Filtrar por búsqueda general */
-        search?: string;
-        /** @description From para filtrar por rango de fechas */
-        from?: string;
-        /** @description To para filtrar por rango de fechas */
-        to?: string;
-        /** @description Número de página */
-        page?: number;
-        /** @description Cantidad de elementos por página */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Excel generado exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PaymentController_compareYears_v1: {
-    parameters: {
-      query?: {
-        /** @description Años para comparar (ej: 2023,2022,2021) */
-        years?: number[];
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Comparación de pagos generada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentsComparisonResponseDto"];
-        };
-      };
-    };
-  };
-  PaymentController_findById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Payment ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Payment found */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentResponseDto"];
-        };
-      };
-      /** @description Payment not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PaymentController_updateStatus_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Payment ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePaymentStatusDto"];
-      };
-    };
-    responses: {
-      /** @description Payment status updated */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentResponseDto"];
-        };
-      };
-      /** @description Payment not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  PaymentController_markStatus_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description Payment ID */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MarkPaymentStatusDto"];
-      };
-    };
-    responses: {
-      /** @description Payment status marked */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentResponseDto"];
-        };
-      };
-      /** @description Cannot mark as paid without payment date and billing code */
-      400: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      /** @description Payment not found */
-      404: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationGroupsController_getAll_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Lista de grupos de cotizaciones */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationGroupResponseDto"][];
-        };
-      };
-    };
-  };
-  QuotationGroupsController_create_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateQuotationGroupDto"];
-      };
-    };
-    responses: {
-      /** @description Grupo de cotizaciones creado correctamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationGroupResponseDto"];
-        };
-      };
-    };
-  };
-  QuotationGroupsController_getById_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Grupo de cotizaciones encontrado correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationGroupResponseDto"];
-        };
-      };
-    };
-  };
-  QuotationGroupsController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateQuotationGroupDto"];
-      };
-    };
-    responses: {
-      /** @description Grupo de cotizaciones actualizado correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["QuotationGroupResponseDto"];
-        };
-      };
-    };
-  };
-  QuotationGroupsController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Grupo de cotizaciones eliminado correctamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  QuotationGroupsController_togleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del grupo de cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Estado de activación actualizado */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-  InstallmentPaymentController_findByPaymentId_v1: {
-    parameters: {
-      query: {
-        paymentId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"][];
-        };
-      };
-    };
-  };
-  InstallmentPaymentController_create_v1: {
-    parameters: {
-      query: {
-        paymentId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreateInstallmentPaymentDto"];
-      };
-    };
-    responses: {
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-    };
-  };
-  InstallmentPaymentController_update_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del pago por cuota de cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdateInstallmentPaymentDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-    };
-  };
-  InstallmentPaymentController_delete_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del pago por cuota de cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPayment"];
-        };
-      };
-    };
-  };
-  InstallmentPaymentController_updateStatus_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del pago por cuota de cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["MarkPaymentStatusDto"];
-      };
-    };
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-    };
-  };
-  InstallmentPaymentController_toggleActive_v1: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        /** @description ID del pago por cuota de cotización */
-        id: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-      default: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["InstallmentPaymentResponseDto"];
-        };
-      };
-    };
-  };
-  AuditController_findAudit_v1: {
-    parameters: {
-      query: {
-        entityId: string;
-        /** @description Page number (default: 1) */
-        page?: number;
-        /** @description Items per page (default: 10, max: 100) */
-        limit?: number;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["AuditResponseDto"][];
-        };
-      };
-    };
-  };
-  PaymentInstallmentConfigController_findByPaymentId_v1: {
-    parameters: {
-      query: {
-        paymentId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Configuración de pago por cuotas encontrada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
-        };
-      };
-    };
-  };
-  PaymentInstallmentConfigController_create_v1: {
-    parameters: {
-      query: {
-        paymentId: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["CreatePaymentInstallmentConfigDto"];
-      };
-    };
-    responses: {
-      /** @description Configuración de pago por cuotas creada exitosamente */
-      201: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
-        };
-      };
-    };
-  };
-  PaymentInstallmentConfigController_update_v1: {
-    parameters: {
-      query: {
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UpdatePaymentInstallmentConfigDto"];
-      };
-    };
-    responses: {
-      /** @description Configuración de pago por cuotas actualizada exitosamente */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content: {
-          "application/json": components["schemas"]["PaymentInstallmentConfigResponseDto"];
-        };
-      };
-    };
-  };
-  PaymentInstallmentConfigController_delete_v1: {
-    parameters: {
-      query: {
-        id: string;
-      };
-      header?: never;
-      path?: never;
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
-      /** @description Configuración de pago por cuotas eliminada exitosamente */
+      /** @description Estado de sesión verificado */
       200: {
         headers: {
           [name: string]: unknown;

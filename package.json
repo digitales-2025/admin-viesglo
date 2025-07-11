@@ -11,7 +11,7 @@
     "lint:fix": "eslint \"src/**/*.+(ts|tsx)\" --fix",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
-    "generate": "pnpx tsx  ./src/shared/utils/generateTypesBackend.ts"
+    "generate": "openapi-typescript http://localhost:5000/api-json -o ./src/lib/api/types/api.ts"
   },
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
