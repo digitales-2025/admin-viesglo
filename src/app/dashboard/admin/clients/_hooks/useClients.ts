@@ -1,233 +1,174 @@
-"use client";
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { AUTH_KEYS } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
-import {
-  createClient,
-  deleteClient,
-  getClient,
-  getClientByRuc,
-  getClients,
-  getClientsByClinic,
-  searchClients,
-  toggleClientActive,
-  updateClient,
-  updateClientProfile,
-} from "../_actions/clients.actions";
-import { ClientCreate, ClientUpdate } from "../_types/clients.types";
+import { backend } from "@/lib/api/types/backend";
+import { usePagination } from "@/shared/hooks/use-pagination";
 
-export const CLIENTS_KEYS = {
-  all: ["clients"] as const,
-  lists: () => [...CLIENTS_KEYS.all, "list"] as const,
-  list: (filters: string) => [...CLIENTS_KEYS.lists(), { filters }] as const,
-  detail: (id: string) => [...CLIENTS_KEYS.all, id] as const,
-  search: (filter: string) => [...CLIENTS_KEYS.all, "search", filter] as const,
-  byRuc: (ruc: string) => [...CLIENTS_KEYS.all, "ruc", ruc] as const,
+/**
+ * Hook para obtener clientes paginados
+ */
+export const useClients = () => {
+  const { page, size, setPagination, resetPagination } = usePagination();
+  const query = backend.useQuery("get", "/v1/clients/paginated", {
+    params: {
+      query: {
+        page,
+        pageSize: size,
+      },
+    },
+  });
+
+  return { query, setPagination, resetPagination };
 };
 
 /**
- * Hook para obtener todos los clientes
+ * Hook para obtener clientes activos
  */
-export function useClients() {
-  return useQuery({
-    queryKey: CLIENTS_KEYS.lists(),
-    queryFn: async () => {
-      const response = await getClients();
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener clientes");
-      }
-      return response.data;
-    },
-  });
-}
+export const useActiveClients = () => {
+  return backend.useQuery("get", "/v1/clients/active");
+};
 
 /**
- * Hook para obtener un cliente por ID
+ * Hook para obtener cliente por ID
  */
-export function useClient(id: string) {
-  return useQuery({
-    queryKey: CLIENTS_KEYS.detail(id),
-    queryFn: async () => {
-      const response = await getClient(id);
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener cliente");
-      }
-      return response.data;
+export const useClientById = (id: string) => {
+  return backend.useQuery("get", "/v1/clients/{id}", {
+    params: {
+      path: { id },
     },
-    enabled: !!id,
   });
-}
+};
 
 /**
- * Hook para buscar un cliente por RUC
+ * Hook para obtener cliente por RUC
  */
-export function useClientByRuc(ruc: string) {
-  return useQuery({
-    queryKey: CLIENTS_KEYS.byRuc(ruc),
-    queryFn: async () => {
-      const response = await getClientByRuc(ruc);
-      if (!response.success) {
-        throw new Error(response.error || "Error al buscar cliente por RUC");
-      }
-      return response.data;
+export const useClientByRuc = (ruc: string) => {
+  return backend.useQuery("get", "/v1/clients/ruc/{ruc}", {
+    params: {
+      path: { ruc },
     },
-    enabled: !!ruc,
   });
-}
+};
 
 /**
- * Hook para crear un cliente
+ * Hook para consultar info SUNAT por RUC
  */
-export function useCreateClient() {
+export const useSunatInfoByRuc = (ruc: string) => {
+  return backend.useQuery("get", "/v1/clients/sunat/{ruc}", {
+    params: {
+      path: { ruc },
+    },
+  });
+};
+
+/**
+ * Hook para crear cliente
+ */
+export const useCreateClient = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (client: ClientCreate) => {
-      const response = await createClient(client);
-      if (!response.success) {
-        throw new Error(response.error || "Error al crear cliente");
-      }
-      return response.data;
-    },
+  return backend.useMutation("post", "/v1/clients", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
-      toast.success("Cliente creado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Cliente creado correctamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al crear cliente");
-    },
-  });
-}
-/**
- * Hook para actualizar un cliente
- */
-export function useUpdateClient() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<ClientUpdate> }) => {
-      const updateData = { ...data };
-      if (updateData.password === "") {
-        const { password: _, ...rest } = updateData;
-        const updateClientResponse = await updateClient(id, rest);
-        if (!updateClientResponse.success) {
-          throw new Error(updateClientResponse.error || "Error al actualizar cliente");
-        }
-        return updateClientResponse.data;
-      }
-      const updateClientResponse = await updateClient(id, updateData);
-      if (!updateClientResponse.success) {
-        throw new Error(updateClientResponse.error || "Error al actualizar cliente");
-      }
-      return updateClientResponse.data;
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.detail(variables.id) });
-      toast.success("Cliente actualizado exitosamente");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al actualizar cliente");
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
 
 /**
- * Hook para actualizar el perfil del cliente
+ * Hook para actualizar cliente
  */
-export function useUpdateClientProfile() {
+export const useUpdateClient = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: string; data: Partial<ClientUpdate> }) => {
-      const response = await updateClientProfile(id, data);
-      if (!response.success) {
-        throw new Error(response.error || "Error al actualizar cliente");
-      }
-      return response.data;
-    },
+  return backend.useMutation("put", "/v1/clients/{id}", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
-      toast.success("Cliente actualizado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Cliente actualizado correctamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al actualizar cliente");
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
+
 /**
- * Hook para eliminar un cliente
+ * Hook para eliminar (borrado lógico) cliente
  */
-export function useDeleteClient() {
+export const useDeleteClient = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await deleteClient(id);
-      if (!response.success) {
-        throw new Error(response.error || "Error al eliminar cliente");
-      }
-    },
+  return backend.useMutation("patch", "/v1/clients/{id}/delete", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
-      toast.success("Cliente eliminado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Cliente eliminado correctamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al eliminar cliente");
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
 
 /**
- * Hook para toggle active el cliente
+ * Hook para reactivar cliente
  */
-export function useToggleActiveClients() {
+export const useReactivateClient = () => {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await toggleClientActive(id);
-      if (!response.success) {
-        throw new Error(response.error || "Error al activar/desactivar cliente");
-      }
-      return response;
-    },
+  return backend.useMutation("patch", "/v1/clients/{id}/reactivate", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CLIENTS_KEYS.lists() });
-      toast.success("Cliente activado/desactivado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Cliente reactivado correctamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al activar/desactivar cliente");
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
 
 /**
- * Hook para buscar clientes (nombre, email, ruc)
+ * Hook para agregar contacto a cliente
  */
-export function useSearchClients(filter: string) {
-  return useQuery({
-    queryKey: CLIENTS_KEYS.search(filter),
-    queryFn: async () => {
-      const response = await searchClients(filter);
-      if (!response.success) {
-        throw new Error(response.error || "Error al buscar clientes");
-      }
-      return response.data;
+export const useAddContactToClient = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("post", "/v1/clients/{id}/contacts", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Contacto agregado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
 
 /**
- * Hook para obtener clientes de una clinica *
+ * Hook para actualizar contacto de cliente
  */
-export function useClientsByClinic(clinicId: string) {
-  return useQuery({
-    queryKey: CLIENTS_KEYS.lists(),
-    queryFn: async () => {
-      const response = await getClientsByClinic(clinicId);
-      if (!response.success) {
-        throw new Error(response.error || "Error al buscar clientes");
-      }
-      return response.data;
+export const useUpdateContactOfClient = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("put", "/v1/clients/{id}/contacts/{email}", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Contacto actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
     },
   });
-}
+};
+
+/**
+ * Hook para activar/desactivar contacto de cliente
+ */
+export const useToggleActiveContactOfClient = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("patch", "/v1/clients/{id}/contacts/{email}/toggle-active", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Contacto actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+    },
+  });
+};

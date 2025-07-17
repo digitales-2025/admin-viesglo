@@ -1,27 +1,29 @@
 import { Column } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronsUpDown, EyeOff } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, EyeOff } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { cn } from "@/shared/lib/utils";
+} from "../ui/dropdown-menu";
 
 interface DataTableColumnHeaderProps<TData, TValue> extends React.HTMLAttributes<HTMLDivElement> {
   column: Column<TData, TValue>;
   title: string;
+  disableSorting?: boolean;
 }
 
 export function DataTableColumnHeader<TData, TValue>({
   column,
   title,
+  disableSorting = false,
   className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
-  if (!column.getCanSort()) {
+  if (!column.getCanSort() || disableSorting) {
     return <div className={cn(className)}>{title}</div>;
   }
 
@@ -36,7 +38,7 @@ export function DataTableColumnHeader<TData, TValue>({
             ) : column.getIsSorted() === "asc" ? (
               <ArrowUp className="ml-2 h-4 w-4" />
             ) : (
-              <ChevronsUpDown className="ml-2 h-4 w-4" />
+              <ArrowUpDown className="ml-2 h-4 w-4" />
             )}
           </Button>
         </DropdownMenuTrigger>
@@ -54,7 +56,7 @@ export function DataTableColumnHeader<TData, TValue>({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => column.toggleVisibility(false)}>
                 <EyeOff className="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-                Hide
+                Ocultar
               </DropdownMenuItem>
             </>
           )}

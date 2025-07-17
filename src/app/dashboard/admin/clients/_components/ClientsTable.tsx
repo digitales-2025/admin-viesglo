@@ -2,26 +2,48 @@
 
 import { useMemo } from "react";
 
-import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
+import { EmptyData } from "@/shared/components/data-table/empty-data";
+import { Loading } from "@/shared/components/loading";
 import { useClients } from "../_hooks/useClients";
+import { ClientProfileResponseDto } from "../_types/clients.types";
 import { columnsClients } from "./clients.column";
 
 export default function ClientsTable() {
-  const isAdmin = useIsAdmin();
-  const { data: clients, isLoading, error } = useClients();
-
+  const { query, setPagination } = useClients();
+  const { data, isLoading, error } = query;
   const columns = useMemo(() => columnsClients(), []);
+  const { isSuperAdmin } = useProfile();
 
-  if (error) return <AlertMessage variant="destructive" title="Error al cargar clientes" description={error.message} />;
+  console.log("data", JSON.stringify(data?.data, null, 2));
+
+  if (isLoading) return <Loading text="Cargando clientes..." variant="spinner" />;
+
+  if (error) {
+    return <AlertMessage variant="destructive" title="Error al cargar clientes" description={error.error?.message} />;
+  }
+
+  if (!data) return <EmptyData />;
 
   return (
     <DataTable
       columns={columns}
-      data={clients || []}
-      isLoading={isLoading}
-      initialColumnVisibility={{ estado: isAdmin, provincia: false, distrito: false }}
+      data={data.data as unknown as ClientProfileResponseDto[]}
+      filterPlaceholder="Buscar cliente ..."
+      serverPagination={{
+        pageIndex: data.meta.page - 1,
+        pageSize: data.meta.pageSize,
+        onPaginationChange: (pageIndex, pageSize) => {
+          setPagination({ newPage: pageIndex + 1, newSize: pageSize });
+        },
+        pageCount: data.meta.totalPages,
+        total: data.meta.total,
+      }}
+      initialColumnVisibility={{
+        isActive: isSuperAdmin,
+      }}
     />
   );
 }

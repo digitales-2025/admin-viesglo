@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { AUTH_KEYS } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import {
   createClinic,
   deleteClinic,
@@ -126,7 +125,6 @@ export function useUpdateClinicProfile() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CLINICS_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Clínica actualizada exitosamente");
     },
     onError: (error: Error) => {

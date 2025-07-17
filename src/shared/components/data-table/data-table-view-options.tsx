@@ -1,15 +1,15 @@
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Table } from "@tanstack/react-table";
-import { Settings2 } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "@/shared/components/ui/dropdown-menu";
+} from "../ui/dropdown-menu";
 
 interface DataTableViewOptionsProps<TData> {
   table: Table<TData>;
@@ -20,12 +20,11 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" className="ml-auto hidden h-8 lg:flex">
-          <Settings2 className="mr-2 h-4 w-4" />
-          Ver
+          <SlidersHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[150px]">
-        <DropdownMenuLabel>Columnas visibles</DropdownMenuLabel>
+        <DropdownMenuLabel>Columnas</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {table
           .getAllColumns()
@@ -38,7 +37,7 @@ export function DataTableViewOptions<TData>({ table }: DataTableViewOptionsProps
                 checked={column.getIsVisible()}
                 onCheckedChange={(value) => column.toggleVisibility(!!value)}
               >
-                {column.id}
+                <span className="truncate">{column.columnDef.meta?.title ?? column.id}</span>
               </DropdownMenuCheckboxItem>
             );
           })}

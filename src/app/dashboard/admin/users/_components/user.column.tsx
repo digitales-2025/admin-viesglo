@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { IdCard, Mail, Phone, Shield } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { Role, User } from "../_types/user.types";
 import { UsersTableActions } from "./UsersTablesActions";

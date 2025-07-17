@@ -56,7 +56,7 @@ export const useLogout = () => {
   const mutation = backend.useMutation("post", "/v1/auth/signout", {
     onSuccess: () => {
       showLogout();
-      router.replace("/log-in");
+      router.replace("/sign-in");
       toast.success("Sesión cerrada correctamente");
     },
   });

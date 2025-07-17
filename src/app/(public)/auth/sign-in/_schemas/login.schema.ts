@@ -1,6 +1,6 @@
 import z from "zod";
 
-import { Credentials } from "../../log-in/_types/login.types";
+import { Credentials } from "../_types/login.types";
 
 export const loginSchema = z.object({
   email: z
