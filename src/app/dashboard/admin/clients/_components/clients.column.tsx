@@ -11,9 +11,9 @@ import ClientsTableActions from "./ClientsTableActions";
 
 export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
   {
-    id: "ruc",
+    id: "RUC",
     accessorKey: "_ruc.value",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="RUC" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="RUC" />,
     cell: ({ row }) => (
       <div className="flex items-center gap-2 min-w-[120px]">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
@@ -24,9 +24,9 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
     ),
   },
   {
-    id: "company",
+    id: "empresa",
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Empresa" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Empresa" />,
     cell: ({ row }) => (
       <div className="min-w-[200px] max-w-[300px]">
         <div className="font-semibold text-sm truncate" title={row.original.name}>
@@ -40,9 +40,9 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
     ),
   },
   {
-    id: "location",
+    id: "Ubicación",
     accessorKey: "sunatInfo.department",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Ubicación" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Ubicación" />,
     cell: ({ row }) => (
       <div className="min-w-[180px]">
         <div className="flex items-center gap-2 mb-1">
@@ -56,9 +56,9 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
     ),
   },
   {
-    id: "contact",
+    id: "contacto",
     accessorKey: "_email.value",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Contacto" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Contacto" />,
     cell: ({ row }) => (
       <div className="min-w-[200px]">
         <Link
@@ -77,9 +77,9 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
     ),
   },
   {
-    id: "status",
+    id: "estado",
     accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Estado" />,
     cell: ({ row }) => {
       const isActive = row.original.isActive;
 
