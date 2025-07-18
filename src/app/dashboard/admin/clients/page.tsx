@@ -7,7 +7,10 @@ export default function PageClients() {
   return (
     <>
       <ShellHeader>
-        <ShellTitle title="Clientes" description="Gestione los clientes" />
+        <ShellTitle
+          title="Gestión de Clientes"
+          description="Administre, registre y consulte la información de sus clientes desde este panel."
+        />
         <ClientsPrimaryButtons />
       </ShellHeader>
       <ClientsTable />
