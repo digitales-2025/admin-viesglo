@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
-  FilterFn,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -27,19 +26,12 @@ import { EmptyData } from "./empty-data";
 import { FacetedFilter } from "./facetedFilters";
 import { ServerPaginationTanstackTableConfig } from "./types/CustomPagination";
 
-// Función de filtrado global correcta para TanStack Table v8
-const globalFilterFn: FilterFn<any> = (row, columnId, value) => {
-  const getValue = (row: Row<any>) => {
-    // Accede a los valores originales de la fila
-    const rowValue = columnId === "_all" ? Object.values(row.original).join(" ") : row.getValue(columnId);
-
-    // Convierte a string para la comparación
-    return typeof rowValue === "string" ? rowValue.toLowerCase() : String(rowValue).toLowerCase();
-  };
-
-  const searchValue = value.toLowerCase();
-  return getValue(row).includes(searchValue);
-};
+// Filtro global genérico TIPADO
+function globalFilterFn<TData>(row: Row<TData>, columnId: string, value: string): boolean {
+  // Convierte todo el objeto a string (incluye anidados)
+  const rowString = JSON.stringify(row.original).toLowerCase();
+  return rowString.includes(value.toLowerCase());
+}
 
 type ColumnVisility<T> = Partial<Record<keyof T, boolean>>;
 
@@ -157,7 +149,7 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
-    globalFilterFn: globalFilterFn,
+    globalFilterFn,
     // Aplicar el filtro global a todas las columnas
     filterFns: {
       global: globalFilterFn,
