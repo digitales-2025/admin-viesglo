@@ -3,7 +3,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { AUTH_KEYS } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
 import {
   createUser,
   deleteUser,
@@ -115,7 +114,6 @@ export function useUpdateUser() {
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.lists() });
       queryClient.invalidateQueries({ queryKey: USERS_KEYS.detail(variables.id) });
       queryClient.invalidateQueries({ queryKey: USERS_PROJECTS_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: AUTH_KEYS.user });
       toast.success("Usuario actualizado exitosamente");
     },
     onError: (error: Error) => {

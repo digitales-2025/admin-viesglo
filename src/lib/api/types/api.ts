@@ -62,7 +62,7 @@ export interface paths {
     };
     /**
      * Obtener usuarios con paginación
-     * @description Obtiene una lista paginada de usuarios. Los administradores (rol GERENCIA) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos.
+     * @description Obtiene una lista paginada de usuarios. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos.
      */
     get: operations["UsersController_getUsersPaginated_v1"];
     put?: never;
@@ -257,6 +257,194 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/clients": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear un nuevo cliente */
+    post: operations["ClientsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar cliente por ID */
+    get: operations["ClientsController_findById_v1"];
+    /** Actualizar un cliente existente */
+    put: operations["ClientsController_update_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/delete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Eliminar (borrado lógico) un cliente */
+    patch: operations["ClientsController_delete_v1"];
+    trace?: never;
+  };
+  "/v1/clients/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar un cliente */
+    patch: operations["ClientsController_reactivate_v1"];
+    trace?: never;
+  };
+  "/v1/clients/ruc/{ruc}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar cliente por RUC */
+    get: operations["ClientsController_findByRuc_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar clientes activos */
+    get: operations["ClientsController_findActive_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar clientes con filtros y paginación */
+    get: operations["ClientsController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/sunat/{ruc}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Consultar información SUNAT por RUC */
+    get: operations["ClientsController_fetchSunatInfo_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/contacts": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar contacto a cliente */
+    post: operations["ClientsController_addContact_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/contacts/{email}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar contacto de cliente */
+    put: operations["ClientsController_updateContact_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/contacts/{email}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activar/desactivar contacto de cliente */
+    patch: operations["ClientsController_toggleActiveContact_v1"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -264,22 +452,22 @@ export interface components {
     RoleResponseDto: {
       /**
        * @description ID del rol
-       * @example role123
+       * @example role-123
        */
       id: string;
       /**
        * @description Nombre del rol
-       * @example Administrador
+       * @example MANAGEMENT
        */
       name: string;
       /**
        * @description Descripción del rol
-       * @example Acceso completo al sistema
+       * @example Gestión - Acceso total al sistema
        */
       description?: string;
       /**
-       * @description Si el rol es del sistema
-       * @example true
+       * @description Si es un rol del sistema (no eliminable)
+       * @example false
        */
       isSystem: boolean;
       /**
@@ -288,24 +476,63 @@ export interface components {
        */
       isActive: boolean;
       /**
+       * @description Permisos del rol
+       * @example [
+       *       {
+       *         "resource": "users",
+       *         "action": "read"
+       *       },
+       *       {
+       *         "resource": "projects",
+       *         "action": "manage"
+       *       }
+       *     ]
+       */
+      permissions: {
+        resource?: string;
+        action?: string;
+      }[];
+      /**
        * Format: date-time
        * @description Fecha de creación
-       * @example 2023-01-01T00:00:00.000Z
+       * @example 2024-01-15T10:30:00.000Z
        */
       createdAt: string;
       /**
        * Format: date-time
        * @description Fecha de actualización
-       * @example 2023-01-01T00:00:00.000Z
+       * @example 2024-01-15T10:30:00.000Z
        */
       updatedAt: string;
     };
     UserResponseDto: {
       /**
-       * @description ID del usuario
-       * @example user123
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
        */
       id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
       /**
        * @description Nombre del usuario
        * @example Juan
@@ -324,28 +551,10 @@ export interface components {
       /** @description Rol asignado al usuario */
       role?: components["schemas"]["RoleResponseDto"];
       /**
-       * @description Si el usuario está activo
+       * @description Si el email está verificado
        * @example true
        */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de actualización
-       * @example 2023-01-01T00:00:00.000Z
-       */
-      updatedAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de eliminación
-       * @example null
-       */
-      deletedAt?: string;
+      emailVerified: boolean;
     };
     ErrorResponse: {
       /**
@@ -416,26 +625,34 @@ export interface components {
       /** @description Error details */
       error: components["schemas"]["ErrorResponse"];
     };
-    UsersPaginatedResponseDto: {
-      /** @description Lista de usuarios */
-      data: Record<string, never>[];
-      /** @description Metadatos de paginación */
-      meta: {
-        /** @description Total de registros */
-        total?: number;
-        /** @description Página actual */
-        page?: number;
-        /** @description Tamaño de página */
-        pageSize?: number;
-        /** @description Total de páginas */
-        totalPages?: number;
-        /** @description Si existe página siguiente */
-        hasNext?: boolean;
-        /** @description Si existe página anterior */
-        hasPrevious?: boolean;
-      };
-    };
-    CreateUserDto: {
+    UserListItemDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
       /**
        * @description Nombre del usuario
        * @example Juan
@@ -447,22 +664,98 @@ export interface components {
        */
       lastName: string;
       /**
-       * @description Correo electrónico del usuario
-       * @example usuario@ejemplo.com
+       * @description Nombre completo del usuario
+       * @example Juan Pérez
+       */
+      fullName: string;
+      /**
+       * @description Email del usuario
+       * @example juan@ejemplo.com
        */
       email: string;
       /**
-       * @description Contraseña del usuario
+       * @description Email enmascarado
+       * @example ju***@ejemplo.com
+       */
+      maskedEmail: string;
+      /**
+       * @description Solo el nombre del rol
+       * @example MANAGEMENT
+       */
+      roleName?: string;
+      /**
+       * @description Si el email está verificado
+       * @example true
+       */
+      emailVerified: boolean;
+    };
+    PaginationMetadataDto: {
+      /**
+       * @description Número total de elementos
+       * @example 150
+       */
+      total: number;
+      /**
+       * @description Página actual
+       * @example 1
+       */
+      page: number;
+      /**
+       * @description Elementos por página
+       * @example 10
+       */
+      pageSize: number;
+      /**
+       * @description Número total de páginas
+       * @example 15
+       */
+      totalPages: number;
+      /**
+       * @description Si hay página siguiente
+       * @example true
+       */
+      hasNext: boolean;
+      /**
+       * @description Si hay página anterior
+       * @example false
+       */
+      hasPrevious: boolean;
+    };
+    PaginatedUserResponseDto: {
+      /** @description Lista de usuarios paginados */
+      data: components["schemas"]["UserListItemDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    CreateUserRequestDto: {
+      /**
+       * @description Nombre del usuario
+       * @example Juan
+       */
+      name: string;
+      /**
+       * @description Apellido del usuario
+       * @example Pérez
+       */
+      lastName: string;
+      /**
+       * Format: email
+       * @description Email del usuario
+       * @example juan@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Contraseña del usuario (opcional, se genera automáticamente si no se proporciona)
        * @example MiContraseña123!
        */
       password?: string;
       /**
        * @description ID del rol a asignar al usuario
-       * @example 60c72b2f9b1e8a5f68d6e8b1
+       * @example role-123
        */
       roleId: string;
     };
-    UpdateUserDto: {
+    UpdateUserRequestDto: {
       /**
        * @description Nombre del usuario
        * @example Juan Carlos
@@ -474,13 +767,14 @@ export interface components {
        */
       lastName?: string;
       /**
-       * @description Correo electrónico del usuario
+       * Format: email
+       * @description Email del usuario
        * @example nuevo.email@ejemplo.com
        */
       email?: string;
       /**
        * @description ID del rol a asignar al usuario
-       * @example 60c72b2f9b1e8a5f68d6e8b1
+       * @example role-456
        */
       roleId?: string;
       /**
@@ -517,6 +811,415 @@ export interface components {
        * @example NuevaContraseña123!
        */
       confirmPassword: string;
+    };
+    ClientContactRequestDto: {
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Email del contacto
+       * @example maria@empresa.com
+       */
+      email: string;
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ClientSunatInfoRequestDto: {
+      /**
+       * @description Dirección fiscal
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Dirección completa
+       * @example Av. Principal 123, Lima, Lima
+       */
+      fullAddress: string;
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      businessName: string;
+      /**
+       * @description Estado SUNAT
+       * @example ACTIVO
+       */
+      state: string;
+      /**
+       * @description Condición SUNAT
+       * @example HABIDO
+       */
+      condition: string;
+      /**
+       * @description Departamento
+       * @example LIMA
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example LIMA
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example SAN ISIDRO
+       */
+      district: string;
+    };
+    CreateClientRequestDto: {
+      /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      name: string;
+      /**
+       * Format: email
+       * @description Email del cliente
+       * @example contacto@empresa.com
+       */
+      email: string;
+      /**
+       * @description Representante legal
+       * @example Juan Pérez
+       */
+      legalRepresentative: string;
+      /**
+       * @description Si el cliente está activo
+       * @example true
+       */
+      isActive?: boolean;
+      /** @description Contactos del cliente */
+      contacts?: components["schemas"]["ClientContactRequestDto"][];
+      /** @description Información SUNAT del cliente */
+      sunatInfo?: components["schemas"]["ClientSunatInfoRequestDto"];
+    };
+    RucVO: {
+      /** @example 20454777621 */
+      value: string;
+    };
+    EmailVO: {
+      /** @example contacto@empresa.com */
+      value: string;
+      /** @example empresa.com */
+      domain: string;
+      /** @example contacto */
+      localPart: string;
+    };
+    PhoneVO: {
+      /** @example +51987654321 */
+      value: string;
+    };
+    ClientContactResponseDto: {
+      /**
+       * @description ID del contacto
+       * @example contact-123
+       */
+      id: string;
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position: string;
+      _phone: components["schemas"]["PhoneVO"];
+      _email: components["schemas"]["EmailVO"];
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive: boolean;
+    };
+    ClientSunatInfoResponseDto: {
+      /**
+       * @description Dirección fiscal
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Dirección completa
+       * @example Av. Principal 123, Lima, Lima
+       */
+      fullAddress: string;
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      businessName: string;
+      /**
+       * @description Estado SUNAT
+       * @example ACTIVO
+       */
+      state: string;
+      /**
+       * @description Condición SUNAT
+       * @example HABIDO
+       */
+      condition: string;
+      /**
+       * @description Departamento
+       * @example LIMA
+       */
+      department: string;
+      /**
+       * @description Provincia
+       * @example LIMA
+       */
+      province: string;
+      /**
+       * @description Distrito
+       * @example SAN ISIDRO
+       */
+      district: string;
+    };
+    ClientOperationResponseDto: {
+      /**
+       * @description ID del cliente
+       * @example client-123
+       */
+      id: string;
+      _ruc: components["schemas"]["RucVO"];
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      name: string;
+      _email: components["schemas"]["EmailVO"];
+      /**
+       * @description Representante legal
+       * @example Juan Pérez
+       */
+      legalRepresentative: string;
+      /**
+       * @description Si el cliente está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /** @description Contactos del cliente */
+      contacts?: components["schemas"]["ClientContactResponseDto"][];
+      /** @description Información SUNAT del cliente */
+      sunatInfo?: components["schemas"]["ClientSunatInfoResponseDto"];
+    };
+    UpdateClientRequestDto: {
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      name?: string;
+      /**
+       * Format: email
+       * @description Email del cliente
+       * @example contacto@empresa.com
+       */
+      email?: string;
+      /**
+       * @description Representante legal
+       * @example Juan Pérez
+       */
+      legalRepresentative?: string;
+      /**
+       * @description Si el cliente está activo
+       * @example true
+       */
+      isActive?: boolean;
+      /** @description Contactos del cliente */
+      contacts?: components["schemas"]["ClientContactRequestDto"][];
+      /** @description Información SUNAT del cliente */
+      sunatInfo?: components["schemas"]["ClientSunatInfoRequestDto"];
+    };
+    ClientProfileResponseDto: {
+      /**
+       * @description ID del cliente
+       * @example client-123
+       */
+      id: string;
+      _ruc: components["schemas"]["RucVO"];
+      /**
+       * @description Razón social
+       * @example EMPRESA S.A.C.
+       */
+      name: string;
+      _email: components["schemas"]["EmailVO"];
+      /**
+       * @description Representante legal
+       * @example Juan Pérez
+       */
+      legalRepresentative: string;
+      /**
+       * @description Si el cliente está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /** @description Contactos del cliente */
+      contacts?: components["schemas"]["ClientContactResponseDto"][];
+      /** @description Información SUNAT del cliente */
+      sunatInfo?: components["schemas"]["ClientSunatInfoResponseDto"];
+    };
+    PaginatedClientResponseDto: {
+      /** @description Lista de clientes paginados */
+      data: components["schemas"]["ClientProfileResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    ClientSunatFullInfoResponseDto: {
+      /** @description Información SUNAT del cliente */
+      sunatInfo?: components["schemas"]["ClientSunatInfoResponseDto"];
+      /**
+       * @description Representante legal
+       * @example Juan Pérez
+       */
+      legalRepresentative?: string;
+    };
+    AddContactRequestDto: {
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position: string;
+      /**
+       * @description Teléfono del contacto
+       * @example +51987654321
+       */
+      phone: string;
+      /**
+       * Format: email
+       * @description Email del contacto
+       * @example maria@empresa.com
+       */
+      email: string;
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ClientContactOperationResponseDto: {
+      /**
+       * @description ID del contacto
+       * @example contact-123
+       */
+      id: string;
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position: string;
+      _phone: components["schemas"]["PhoneVO"];
+      _email: components["schemas"]["EmailVO"];
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateContactRequestDto: {
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name?: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position?: string;
+      /**
+       * @description Teléfono del contacto
+       * @example +51987654321
+       */
+      phone?: string;
+      /**
+       * @description Email del contacto
+       * @example maria@empresa.com
+       */
+      email?: string;
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ClientContactToggleActiveResponseDto: {
+      /**
+       * @description ID del contacto
+       * @example contact-123
+       */
+      id: string;
+      /**
+       * @description Nombre del contacto
+       * @example María López
+       */
+      name: string;
+      /**
+       * @description Cargo del contacto
+       * @example Gerente Comercial
+       */
+      position: string;
+      _phone: components["schemas"]["PhoneVO"];
+      _email: components["schemas"]["EmailVO"];
+      /**
+       * @description Si el contacto está activo
+       * @example true
+       */
+      isActive: boolean;
     };
   };
   responses: never;
@@ -593,18 +1296,18 @@ export interface operations {
   UsersController_getUsersPaginated_v1: {
     parameters: {
       query?: {
-        /** @description Número de página */
+        /** @description Número de página (comenzando desde 1) */
         page?: number;
-        /** @description Número de elementos por página */
-        pageSize?: number;
-        /** @description Término de búsqueda */
+        /** @description Cantidad de elementos por página */
+        size?: number;
+        /** @description Filtrar por ID de rol específico */
+        roleId?: string;
+        /** @description Término de búsqueda para nombre, apellido o email */
         search?: string;
         /** @description Campo para ordenamiento */
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
-        /** @description Filtrar por ID de rol específico */
-        roleId?: string;
       };
       header?: never;
       path?: never;
@@ -618,7 +1321,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UsersPaginatedResponseDto"];
+          "application/json": components["schemas"]["PaginatedUserResponseDto"];
         };
       };
       /** @description Parámetros de paginación inválidos */
@@ -697,7 +1400,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateUserDto"];
+        "application/json": components["schemas"]["CreateUserRequestDto"];
       };
     };
     responses: {
@@ -808,7 +1511,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["UpdateUserDto"];
+        "application/json": components["schemas"]["UpdateUserRequestDto"];
       };
     };
     responses: {
@@ -1142,6 +1845,617 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ClientsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateClientRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente ya existe */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientProfileResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateClientRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Cliente actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente reactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_findByRuc_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ruc: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Cliente encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientProfileResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_findActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes activos encontrados */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientProfileResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Clientes paginados encontrados */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedClientResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_fetchSunatInfo_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        ruc: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Información SUNAT encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientSunatFullInfoResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_addContact_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddContactRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Contacto agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientContactOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_updateContact_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateContactRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Contacto actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientContactOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente o contacto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_toggleActiveContact_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Contacto activado/desactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientContactToggleActiveResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente o contacto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };

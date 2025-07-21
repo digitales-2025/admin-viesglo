@@ -2,132 +2,105 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Mail, MapPin, Phone } from "lucide-react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { Building2, CheckCircle, Mail, MapPin, User, XCircle } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClientWithClinicResponse } from "../_types/clients.types";
+import { ClientProfileResponseDto } from "../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
 
-export const columnsClients = (): ColumnDef<ClientWithClinicResponse>[] => [
+export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
   {
-    id: "ruc",
-    accessorKey: "ruc",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="RUC" />,
-    cell: ({ row }) => <div className="font-semibold capitalize min-w-[150px]">{row.getValue("ruc")}</div>,
+    id: "RUC",
+    accessorKey: "_ruc.value",
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="RUC" />,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2 min-w-[120px]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
+          <Building2 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+        </div>
+        <span className="font-mono text-sm font-medium">{row.original._ruc.value}</span>
+      </div>
+    ),
   },
   {
-    id: "razon social",
+    id: "empresa",
     accessorKey: "name",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Razón Social" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Empresa" />,
     cell: ({ row }) => (
-      <div
-        className="font-semibold truncate capitalize min-w-[200px] max-w-[300px]"
-        title={row.getValue("razon social")}
-      >
-        {row.getValue("razon social")}
+      <div className="min-w-[200px] max-w-[300px]">
+        <div className="font-semibold text-sm truncate" title={row.original.name}>
+          {row.original.name}
+        </div>
+        <div className="flex items-center gap-1 mt-1">
+          <User className="h-3 w-3 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground truncate">{row.original.legalRepresentative}</span>
+        </div>
       </div>
     ),
   },
   {
-    id: "departamento",
-    accessorKey: "department",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Departamento" />,
+    id: "Ubicación",
+    accessorKey: "sunatInfo.department",
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Ubicación" />,
     cell: ({ row }) => (
-      <div className="capitalize min-w-[150px]">
-        <Badge variant="outline" className="flex items-center gap-2 capitalize">
-          <MapPin /> {row.getValue("departamento")}
-        </Badge>
+      <div className="min-w-[180px]">
+        <div className="flex items-center gap-2 mb-1">
+          <MapPin className="h-3 w-3 text-muted-foreground" />
+          <span className="text-sm font-medium">{row.original.sunatInfo?.department}</span>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {row.original.sunatInfo?.province} • {row.original.sunatInfo?.district}
+        </div>
       </div>
     ),
   },
   {
-    id: "provincia",
-    accessorKey: "province",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Provincia" />,
+    id: "contacto",
+    accessorKey: "_email.value",
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Contacto" />,
     cell: ({ row }) => (
-      <div className="capitalize min-w-[150px]">
-        <Badge variant="outline" className="flex items-center gap-2 capitalize">
-          <MapPin /> {row.getValue("provincia")}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    id: "distrito",
-    accessorKey: "district",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Distrito" />,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-[150px]">
-        <Badge variant="outline" className="flex items-center gap-2 capitalize">
-          <MapPin /> {row.getValue("distrito")}
-        </Badge>
-      </div>
-    ),
-  },
-  {
-    id: "direccion",
-    accessorKey: "address",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Dirección" />,
-    cell: ({ row }) => (
-      <div className="capitalize truncate min-w-[150px] max-w-[200px]" title={row.getValue("direccion")}>
-        {row.getValue("direccion")}
-      </div>
-    ),
-  },
-  {
-    id: "email",
-    accessorKey: "email",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Email" />,
-    cell: ({ row }) => (
-      <div className="min-w-[150px]">
-        <Link href={`mailto:${row.getValue("email")}`} className="flex items-center gap-2">
-          <Badge variant="outline" className="flex items-center gap-2">
-            <Mail className="size-3" /> {row.getValue("email")}
-          </Badge>
+      <div className="min-w-[200px]">
+        <Link
+          href={`mailto:${row.original._email.value}`}
+          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 transition-colors"
+        >
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-green-50 dark:bg-green-950">
+            <Mail className="h-3 w-3 text-green-600 dark:text-green-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-medium truncate">{row.original._email.localPart}</div>
+            <div className="text-xs text-muted-foreground truncate">@{row.original._email.domain}</div>
+          </div>
         </Link>
       </div>
     ),
   },
-  {
-    id: "telefono",
-    accessorKey: "phone",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
-    cell: ({ row }) => (
-      <div className="min-w-[150px]">
-        <Link href={`tel:${row.getValue("telefono")}`} className="flex items-center gap-2">
-          <Badge variant="outline">
-            <Phone className="size-3" /> {formatPhoneNumberIntl(row.getValue("telefono"))}
-          </Badge>
-        </Link>
-      </div>
-    ),
-  },
-  /*   {
-    id: "clinicas",
-    accessorKey: "clinics",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Clínicas" />,
-    cell: ({ row }) => (
-      <div className="min-w-[150px]">
-        {row.original.clinics.length > 0 ? (
-          <AvatarStack users={row.original.clinics} limit={3} size="sm" />
-        ) : (
-          <Minus className="text-muted-foreground" />
-        )}
-      </div>
-    ),
-    enableSorting: false,
-  }, */
   {
     id: "estado",
     accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-    cell: ({ row }) => (
-      <Badge variant={row.getValue("estado") ? "success" : "error"} className="flex items-center gap-2 capitalize">
-        {row.getValue("estado") ? "activo" : "inactivo"}
-      </Badge>
-    ),
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Estado" />,
+    cell: ({ row }) => {
+      const isActive = row.original.isActive;
+
+      return (
+        <div className="min-w-[120px] space-y-1">
+          <Badge variant={isActive ? "default" : "secondary"} className="flex items-center gap-1 w-fit">
+            {isActive ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+
+            {isActive ? "Activo" : "Inactivo"}
+          </Badge>
+        </div>
+      );
+    },
+    filterFn: (row, columnId, filterValue) => {
+      // Si filterValue es un array, revisa si el valor está incluido
+      if (Array.isArray(filterValue)) {
+        return filterValue.includes(row.getValue(columnId));
+      }
+      // Si es un valor único, compara directamente
+      return row.getValue(columnId) === filterValue;
+    },
   },
   {
     id: "actions",

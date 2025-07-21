@@ -1,21 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 
-import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
-import { DataTable } from "@/shared/components/data-table/DataTable";
-import { DataTableFacetedFilterOption } from "@/shared/components/data-table/DataTableFacetedFilter";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { groupFiltersByValue } from "@/shared/utils/filtersGroup";
 import { useUsers } from "../_hooks/useUsers";
 import { columnsUsers } from "./user.column";
 
 export default function UsersTable() {
   const { data: users, isLoading, error } = useUsers();
-  const isAdmin = useIsAdmin();
-
-  // Estado local para los filtros con tipos explícitos de DataTableFacetedFilterOption
-  const [filterActiveOptions, setFilterActiveOptions] = useState<DataTableFacetedFilterOption[]>([]);
-  const [filterRoleOptions, setFilterRoleOptions] = useState<DataTableFacetedFilterOption[]>([]);
+  const user = useProfile();
 
   // Actualizar filtros solo cuando los datos estén disponibles
   useEffect(() => {
@@ -54,7 +49,7 @@ export default function UsersTable() {
         { label: "Rol", value: "rol", options: filterRoleOptions },
       ]}
       initialColumnVisibility={{
-        estado: isAdmin,
+        estado: user.isSuperAdmin,
       }}
     />
   );

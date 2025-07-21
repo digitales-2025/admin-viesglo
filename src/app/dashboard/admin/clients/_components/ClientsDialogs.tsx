@@ -4,7 +4,7 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteClient } from "../_hooks/useClients";
+import { useDeleteClient } from "../_hooks/use-clients";
 import { ClientsMutateDrawer } from "./ClientsMutateDrawer";
 
 export default function ClientsDialogs() {
