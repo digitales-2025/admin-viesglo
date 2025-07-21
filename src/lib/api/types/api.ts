@@ -377,7 +377,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/v1/clients/sunat/{ruc}": {
+  "/v1/clients/perudev/sunat/{ruc}": {
     parameters: {
       query?: never;
       header?: never;
