@@ -26,7 +26,10 @@ export default function LookupRuc({ form }: LookupRucProps) {
     isFetching: isLoadingSunat,
     error: errorSunat,
     isSuccess: isSuccessSunat,
-  } = useSunatInfoByRuc(rucToSearch, !!rucToSearch && rucToSearch.length === 11);
+    refetch: refetchSunat,
+  } = useSunatInfoByRuc(rucToSearch, {
+    enabled: rucToSearch.length === 11 && /^\d{11}$/.test(rucToSearch),
+  });
 
   console.log("LookupRuc - sunatData:", JSON.stringify(sunatData, null, 2));
 
@@ -42,6 +45,11 @@ export default function LookupRuc({ form }: LookupRucProps) {
     setHasSearched(true);
     setLastSearchedRuc(rucInput);
     setRucToSearch(rucInput);
+
+    // Solo consulta si el RUC es válido
+    if (isRucValid) {
+      await refetchSunat();
+    }
   };
 
   // Auto-llenar el formulario cuando se encuentren datos
@@ -183,7 +191,7 @@ export default function LookupRuc({ form }: LookupRucProps) {
       </div>
 
       {/* Loading State */}
-      {isLoadingSunat && (
+      {isLoadingSunat && isRucValid && hasSearched && (
         <div className="flex items-center gap-3 p-3 rounded-lg border bg-card">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
           <div className="text-sm">
