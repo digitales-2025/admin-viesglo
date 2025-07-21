@@ -66,8 +66,6 @@ export function useUbigeo({
 
   // Cargar provincias cuando cambia el departamento
   const loadProvinces = useCallback((departmentName: string) => {
-    console.log("Cargando provincias para:", departmentName);
-
     if (!departmentName) {
       setFilteredProvinces([]);
       return;
@@ -87,7 +85,6 @@ export function useUbigeo({
 
       // Acceder a las provincias usando el ID del departamento como clave
       const provinces = (provincesData as ProvincesData)[department.id_ubigeo] || [];
-      console.log(`Provincias encontradas para ${departmentName}:`, provinces.length);
 
       setFilteredProvinces(provinces);
     } catch (error) {
@@ -99,8 +96,6 @@ export function useUbigeo({
   // Cargar distritos cuando cambia la provincia
   const loadDistricts = useCallback(
     (provinceName: string) => {
-      console.log("Cargando distritos para:", provinceName);
-
       if (!provinceName) {
         setFilteredDistricts([]);
         return;
@@ -118,7 +113,6 @@ export function useUbigeo({
 
         // Acceder a los distritos usando el ID de la provincia como clave
         const districts = (districtsData as DistrictsData)[province.id_ubigeo] || [];
-        console.log(`Distritos encontrados para ${provinceName}:`, districts.length);
 
         setFilteredDistricts(districts);
       } catch (error) {
@@ -132,8 +126,6 @@ export function useUbigeo({
   // Manejador para el cambio de departamento
   const handleDepartmentChange = useCallback(
     (value: string) => {
-      console.log("handleDepartmentChange:", value);
-
       // Cargar nuevas provincias
       loadProvinces(value);
 
@@ -155,8 +147,6 @@ export function useUbigeo({
   // Manejador para el cambio de provincia
   const handleProvinceChange = useCallback(
     (value: string) => {
-      console.log("handleProvinceChange:", value);
-
       // Cargar nuevos distritos
       loadDistricts(value);
 
@@ -174,8 +164,6 @@ export function useUbigeo({
   // Manejador para el cambio de distrito
   const handleDistrictChange = useCallback(
     (value: string) => {
-      console.log("handleDistrictChange:", value);
-
       if (onDistrictChange) {
         onDistrictChange(value);
       }
@@ -186,7 +174,6 @@ export function useUbigeo({
   // Efecto para cargar provincias cuando hay un departamento inicial
   useEffect(() => {
     if (initialDepartment) {
-      console.log("Efecto: Cargando provincias para departamento inicial:", initialDepartment);
       loadProvinces(initialDepartment);
     }
   }, [initialDepartment, loadProvinces]);
@@ -194,7 +181,6 @@ export function useUbigeo({
   // Efecto para cargar distritos cuando hay una provincia inicial
   useEffect(() => {
     if (initialProvince && filteredProvinces.length > 0) {
-      console.log("Efecto: Cargando distritos para provincia inicial:", initialProvince);
       loadDistricts(initialProvince);
     }
   }, [initialProvince, filteredProvinces, loadDistricts]);
