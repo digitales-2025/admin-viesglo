@@ -9,8 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteClient, useReactivateClient } from "../_hooks/use-clients";
-import { ClientProfileResponseDto } from "../_types/clients.types";
+import { useDeleteClient, useReactivateClient } from "../../_hooks/use-clients";
+import { ClientProfileResponseDto } from "../../_types/clients.types";
 
 interface ClientsTableActionsProps {
   client: ClientProfileResponseDto;
@@ -29,11 +29,11 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
   };
 
   const handleDelete = () => {
-    deleteClient({ id: client.id });
+    deleteClient({ params: { path: { id: client.id } } });
   };
 
   const handleReactivate = () => {
-    reactivateClient({ id: client.id });
+    reactivateClient({ params: { path: { id: client.id } } });
   };
 
   return (
