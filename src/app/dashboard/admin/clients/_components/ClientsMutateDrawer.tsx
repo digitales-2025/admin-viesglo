@@ -1,153 +1,73 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Bot, Send } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { isValidPhoneNumber } from "react-phone-number-input";
-import { z } from "zod";
-
-import AlertMessage from "@/shared/components/alerts/Alert";
-import { MultiSelectAutocomplete } from "@/shared/components/multi-select";
-import UbigeoSelect from "@/shared/components/UbigeoSelect";
-import { Button } from "@/shared/components/ui/button";
+import { useState } from "react";
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shared/components/ui/form";
+  Building2,
+  ChevronDown,
+  FileText,
+  Mail,
+  MapPin,
+  Plus,
+  Send,
+  Trash2,
+  User,
+  UserCheck,
+  Users,
+} from "lucide-react";
+
+import UbigeoSelect from "@/shared/components/UbigeoSelect";
+import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
+import { GenericSheet } from "@/shared/components/ui/generic-responsive-sheet";
 import { Input } from "@/shared/components/ui/input";
 import { PhoneInput } from "@/shared/components/ui/phone-input";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/shared/components/ui/sheet-responsive";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { useCreateClient, useUpdateClient } from "../_hooks/useClients";
-import { ClientCreate, ClientResponse } from "../_types/clients.types";
-import { useClinics } from "../../clinics/_hooks/useClinics";
-import { generateRandomPass } from "../../users/_utils/generateRandomPass";
+import { SheetClose, SheetFooter } from "@/shared/components/ui/sheet";
+import { useClientForm, type CreateClientFormData } from "../_hooks/use-client-form";
+import { useCreateClient, useUpdateClient } from "../_hooks/use-clients";
+import { ClientOperationResponseDto } from "../_types/clients.types";
+import LookupRuc from "./search-ruc/LookupRuc";
 
-interface Props {
+interface ClientsMutateDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  currentRow?: ClientResponse;
+  currentRow?: ClientOperationResponseDto;
 }
 
-const baseSchema = {
-  name: z.string().min(1, "El nombre es requerido."),
-  ruc: z
-    .string()
-    .min(1, "El RUC es requerido.")
-    .regex(/^[0-9]+$/, "El RUC debe contener solo números.")
-    .regex(/^\d{11}$/, "El RUC debe tener 11 dígitos."),
-  address: z.string().min(1, "La dirección es requerida."),
-  phone: z.string().refine(isValidPhoneNumber, "El teléfono debe ser un número válido."),
-  email: z.string().email("El email no es válido."),
-  department: z.string().optional(),
-  province: z.string().optional(),
-  district: z.string().optional(),
-  clinicIds: z.array(z.string()).optional(),
-};
+export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: ClientsMutateDrawerProps) {
+  const [contactsExpanded, setContactsExpanded] = useState(true);
+  const [sunatExpanded, setSunatExpanded] = useState(true);
 
-const createSchema = z.object({
-  ...baseSchema,
-  password: z
-    .string()
-    .min(8, "La contraseña debe tener al menos 8 caracteres.")
-    .regex(
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/,
-      "La contraseña debe tener al menos una letra mayúscula, una letra minúscula y un número."
-    ),
-});
-
-const updateSchema = z.object({
-  ...baseSchema,
-  password: z
-    .string()
-    .optional()
-    .refine(
-      (val) => {
-        if (!val) return true; // Si no hay valor, es válido (opcional)
-        return val.length >= 8 && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(val);
-      },
-      {
-        message:
-          "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número.",
-      }
-    ),
-});
-
-type FormValues = z.infer<typeof createSchema> & {
-  password?: string;
-};
-
-export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
-  const { data: clinics, isLoading: isLoadingClinics } = useClinics();
   const { mutate: createClient, isPending: isCreating } = useCreateClient();
   const { mutate: updateClient, isPending: isUpdating } = useUpdateClient();
 
-  const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(isUpdate ? updateSchema : createSchema) as any,
-    defaultValues: {
-      name: "",
-      ruc: "",
-      address: "",
-      phone: "",
-      email: "",
-      password: "",
-      department: "",
-      province: "",
-      district: "",
-      clinicIds: [],
-    },
-    mode: "onChange",
-  });
-  const watchedUbigeoValues = form.watch(["department", "province", "district"]);
-  const [watchedDepartment, watchedProvince, watchedDistrict] = watchedUbigeoValues;
+  const isUpdate = !!currentRow;
 
-  const onSubmit = (data: FormValues) => {
-    if (isUpdate) {
-      // Si la contraseña está vacía y estamos actualizando, la omitimos para mantener la actual
-      const updateData = { ...data };
-      if (updateData.password === "") {
-        const { password: _, ...rest } = updateData;
-        updateClient(
-          { id: currentRow.id, data: rest },
-          {
-            onSuccess: () => {
-              onOpenChange(false);
-              form.reset();
-            },
-          }
-        );
-      } else {
-        updateClient(
-          { id: currentRow.id, data: updateData },
-          {
-            onSuccess: () => {
-              onOpenChange(false);
-              form.reset();
-            },
-          }
-        );
-      }
+  const { form, addContact, removeContact, getSubmitData } = useClientForm({
+    isUpdate: isUpdate,
+    initialData: currentRow,
+    onSuccess: () => {
+      onOpenChange(false);
+    },
+  });
+
+  const onSubmit = (data: CreateClientFormData) => {
+    const submitData = getSubmitData(data);
+
+    if (isUpdate && currentRow) {
+      updateClient(
+        { id: currentRow.id, data: submitData },
+        {
+          onSuccess: () => {
+            onOpenChange(false);
+            form.reset();
+          },
+        }
+      );
     } else {
-      createClient(data as ClientCreate, {
+      createClient(submitData, {
         onSuccess: () => {
           onOpenChange(false);
           form.reset();
@@ -156,134 +76,10 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
     }
   };
 
-  useEffect(() => {
-    if (isUpdate && currentRow?.id) {
-      form.reset({
-        name: currentRow.name,
-        ruc: currentRow.ruc,
-        address: currentRow.address,
-        phone: currentRow.phone,
-        email: currentRow.email,
-        password: "",
-        department: currentRow.department,
-        province: currentRow.province,
-        district: currentRow.district,
-        clinicIds: Array.isArray(currentRow?.clinics) ? currentRow.clinics.map((clinic: any) => clinic.id) : [],
-      });
-    } else {
-      form.reset({
-        name: "",
-        ruc: "",
-        address: "",
-        phone: "",
-        email: "",
-        password: "",
-        department: "",
-        province: "",
-        district: "",
-        clinicIds: [],
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isUpdate, currentRow?.id, form]);
-
-  useEffect(() => {
-    if (!open) {
-      form.reset({
-        name: "",
-        ruc: "",
-        address: "",
-        phone: "",
-        email: "",
-        password: "",
-        department: "",
-        province: "",
-        district: "",
-        clinicIds: [],
-      });
-    }
-  }, [open, form]);
-
-  // Actualiza el formulario cuando cambia el modo entre crear y actualizar
-  useEffect(() => {
-    // Limpiar errores previos
-    form.clearErrors();
-
-    // Al cambiar entre crear y actualizar, reiniciar el formulario para aplicar
-    // las nuevas reglas de validación, ya que no podemos cambiar el resolver directamente
-    if (isUpdate) {
-      form.reset(form.getValues());
-    } else {
-      // Si cambia a modo creación, asegurarnos que el campo password esté vacío
-      const values = form.getValues();
-      form.reset({
-        ...values,
-        password: "",
-      });
-    }
-  }, [isUpdate, form]);
-
-  // Generar una clave única para UbigeoSelect basada en el formulario y estado de edición
-  const ubigeoSelectKey = `ubigeo-${isUpdate ? "edit" : "create"}-${currentRow?.id || "new"}`;
-
-  const isChangePassword = isUpdate && form.watch("password") !== "";
-
-  const [clinicsOptions, setClinicsOptions] = useState<{ label: string; value: string }[]>([]);
-  useEffect(() => {
-    // Crear array para almacenar todas las opciones
-    let allOptions: { label: string; value: string }[] = [];
-
-    // 1. Añadir todas las clínicas activas del hook
-    if (clinics) {
-      const activeClinicOptions = clinics
-        .filter((clinic) => clinic.isActive)
-        .map((clinic) => ({ label: clinic.name, value: clinic.id }));
-
-      allOptions = [...activeClinicOptions];
-    }
-
-    // 2. Si estamos en modo edición, procesar las clínicas del cliente
-    if (isUpdate && currentRow?.clinics && Array.isArray(currentRow.clinics)) {
-      // Obtener las clínicas asignadas al cliente
-      const clientClinics = currentRow.clinics.map((clinic: any) => ({
-        label: clinic.name,
-        value: clinic.id,
-      }));
-
-      // Para cada clínica del cliente
-      clientClinics.forEach((clientClinic) => {
-        // Verificar si ya existe en las opciones
-        const exists = allOptions.some((option) => option.value === clientClinic.value);
-
-        if (!exists) {
-          // Si no existe, añadirla (puede ser inactiva o eliminada)
-          allOptions.push(clientClinic);
-        }
-      });
-
-      // 3. Si hay clínicas inactivas en el hook que están asignadas al cliente, asegurarnos de incluirlas
-      if (clinics) {
-        const clientClinicIds = clientClinics.map((c) => c.value);
-
-        const inactiveAssignedOptions = clinics
-          .filter((clinic) => !clinic.isActive && clientClinicIds.includes(clinic.id))
-          .map((clinic) => ({ label: clinic.name, value: clinic.id }));
-
-        // Añadir solo las que no estén ya en la lista
-        inactiveAssignedOptions.forEach((option) => {
-          if (!allOptions.some((item) => item.value === option.value)) {
-            allOptions.push(option);
-          }
-        });
-      }
-    }
-
-    // Establecer las opciones
-    setClinicsOptions(allOptions);
-  }, [clinics, isUpdate, currentRow]);
+  const contacts = form.watch("contacts") || [];
 
   return (
-    <Sheet
+    <GenericSheet
       open={open}
       onOpenChange={(v) => {
         if (!isPending) {
@@ -291,27 +87,59 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
           if (!v) form.reset();
         }
       }}
+      title={`${isUpdate ? "Actualizar" : "Crear"} cliente`}
+      description={isUpdate ? "Actualiza los datos del cliente" : "Crea un nuevo cliente con su información completa"}
+      maxWidth="xl"
+      titleClassName="text-2xl font-bold capitalize"
+      showDefaultFooter={false}
+      footer={
+        <SheetFooter className="gap-2">
+          <Button form="client-form" type="submit" disabled={isPending}>
+            {isPending ? (
+              "Guardando..."
+            ) : isUpdate ? (
+              <>
+                Actualizar cliente
+                <Send className="w-4 h-4 ml-2" />
+              </>
+            ) : (
+              <>
+                Crear cliente
+                <Send className="w-4 h-4 ml-2" />
+              </>
+            )}
+          </Button>
+          <SheetClose asChild>
+            <Button variant="outline" disabled={isPending}>
+              Cancelar
+            </Button>
+          </SheetClose>
+        </SheetFooter>
+      }
     >
-      <SheetContent className="flex flex-col">
-        <SheetHeader className="text-left">
-          <SheetTitle className="text-2xl font-bold capitalize">
-            {isUpdate ? "Actualizar" : "Crear"} usuario tipo cliente
-          </SheetTitle>
-          <SheetDescription>
-            {isUpdate ? "Actualiza los datos del usuario tipo cliente" : "Crea un nuevo usuario tipo cliente"}
-          </SheetDescription>
-        </SheetHeader>
-        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
-          <Form {...form}>
-            <form id="clients-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
+      <Form {...form}>
+        <form id="client-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
+          {/* Información Básica */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3 pb-2 border-b">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                <Building2 className="h-4 w-4" />
+              </div>
+              <h3>Información Básica</h3>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="ruc"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>RUC</FormLabel>
+                render={() => (
+                  <FormItem className="sm:col-span-2">
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                      RUC
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce el RUC de la empresa cliente" {...field} />
+                      <LookupRuc form={form} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -322,9 +150,31 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Razón Social</FormLabel>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                      Razón Social
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la razón social de la empresa cliente" {...field} />
+                      <Input placeholder="EMPRESA S.A.C." {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                      Email
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="contacto@empresa.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -332,172 +182,257 @@ export function ClientsMutateDrawer({ open, onOpenChange, currentRow }: Props) {
               />
               <FormField
                 control={form.control}
-                name="address"
+                name="legalRepresentative"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dirección</FormLabel>
+                    <FormLabel className="text-sm font-medium flex items-center gap-2">
+                      <UserCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+                      Representante Legal
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Introduce la dirección de la empresa cliente" {...field} />
+                      <Input placeholder="Juan Pérez" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="phone"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Teléfono</FormLabel>
-                    <FormControl>
-                      <PhoneInput
-                        defaultCountry="PE"
-                        placeholder="Introduce el teléfono de la empresa cliente"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+            </div>
+          </section>
+
+          {/* Contactos */}
+          <section className="space-y-4">
+            <button
+              type="button"
+              onClick={() => setContactsExpanded(!contactsExpanded)}
+              className="w-full flex items-center justify-between pb-2 border-b hover:border-foreground/50 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                  <Users className="h-4 w-4" />
+                </div>
+                <h3>Contactos</h3>
+                {contacts.length > 0 && (
+                  <Badge variant="outline" className="rounded-full">
+                    {contacts.length}
+                  </Badge>
                 )}
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${contactsExpanded ? "rotate-180" : ""}`}
               />
-              <UbigeoSelect
-                key={ubigeoSelectKey}
-                control={form.control}
-                initialValues={{
-                  department: watchedDepartment,
-                  province: watchedProvince,
-                  district: watchedDistrict,
-                }}
-                onChange={{
-                  department: (value) => form.setValue("department", value, { shouldValidate: true }),
-                  province: (value) => form.setValue("province", value, { shouldValidate: true }),
-                  district: (value) => form.setValue("district", value, { shouldValidate: true }),
-                }}
+            </button>
+
+            {contactsExpanded && (
+              <div className="space-y-4">
+                {contacts.map((_, index) => (
+                  <div key={index} className="relative">
+                    <div className="absolute -left-6 top-0 w-px h-full bg-border" />
+                    <div className="space-y-4 p-4 border border-dashed rounded-lg bg-muted/20">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">Contacto {index + 1}</span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeContact(index)}
+                          className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`contacts.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-medium text-muted-foreground">Nombre</FormLabel>
+                              <FormControl>
+                                <Input placeholder="María López" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`contacts.${index}.position`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-medium text-muted-foreground">Cargo</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Gerente Comercial" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`contacts.${index}.phone`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-medium text-muted-foreground">Teléfono</FormLabel>
+                              <FormControl>
+                                <PhoneInput defaultCountry="PE" placeholder="+51987654321" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name={`contacts.${index}.email`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
+                              <FormControl>
+                                <Input type="email" placeholder="maria@empresa.com" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addContact}
+                  className="w-full border-dashed hover:bg-muted/50 bg-transparent"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Agregar Contacto
+                </Button>
+              </div>
+            )}
+          </section>
+
+          {/* Información SUNAT */}
+          <section className="space-y-4">
+            <button
+              type="button"
+              onClick={() => setSunatExpanded(!sunatExpanded)}
+              className="w-full flex items-center justify-between pb-2 border-b hover:border-foreground/50 transition-colors group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                  <MapPin className="h-4 w-4" />
+                </div>
+                <h3>Información SUNAT</h3>
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${sunatExpanded ? "rotate-180" : ""}`}
               />
-              <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
-                <legend className="text-xs font-semibold text-muted-foreground">Clínicas</legend>
-                <div className="flex flex-col gap-2">
+            </button>
+
+            {sunatExpanded && (
+              <div className="space-y-4">
+                <div className="absolute -left-6 top-0 w-px h-full bg-border" />
+                <div className="grid grid-cols-1 gap-4">
                   <FormField
                     control={form.control}
-                    name="clinicIds"
+                    name="sunatInfo.businessName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Clínicas asociadas a la empresa cliente</FormLabel>
+                        <FormLabel>Razón Social SUNAT</FormLabel>
                         <FormControl>
-                          {isLoadingClinics ? (
-                            <Skeleton className="h-10 w-full" />
-                          ) : (
-                            <MultiSelectAutocomplete
-                              options={clinicsOptions}
-                              selected={field.value || []}
-                              onChange={field.onChange}
-                              id="client-clinics-select"
-                              searchPlaceholder="Buscar por nombre de clínica..."
-                              placeholder="Seleccionar clínicas asociadas a la empresa cliente..."
-                              emptyMessage="No se encontraron clínicas con ese nombre."
-                            />
-                          )}
+                          <Input placeholder="EMPRESA S.A.C." {...field} />
                         </FormControl>
-                        <FormDescription>Selecciona las clínicas a las que el cliente pertenece.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sunatInfo.state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Estado</FormLabel>
+                        <FormControl>
+                          <Input placeholder="ACTIVO" {...field} />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
-              </fieldset>
-              <fieldset className="flex flex-col gap-2 border rounded-md p-4 border-muted">
-                <legend className="text-xs font-semibold text-muted-foreground">Credenciales</legend>
+
                 <FormField
                   control={form.control}
-                  name="email"
+                  name="sunatInfo.condition"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Usuario (Correo electrónico)</FormLabel>
+                      <FormLabel>Condición</FormLabel>
                       <FormControl>
-                        <Input placeholder="Introduce el email del usuario tipo cliente" {...field} />
+                        <Input placeholder="HABIDO" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contraseña {!isUpdate && <span className="text-red-500">*</span>}</FormLabel>
-                      <FormControl>
-                        <div className="inline-flex gap-1">
-                          <Input
-                            placeholder={
-                              isUpdate
-                                ? "Dejar en blanco para mantener la contraseña actual"
-                                : "Introduce la contraseña del usuario tipo cliente"
-                            }
-                            {...field}
-                          />
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() => field.onChange(generateRandomPass())}
-                                >
-                                  <Bot />
-                                </Button>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Generar contraseña aleatoria</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                      {isUpdate && (
-                        <AlertMessage
-                          title="Cambiar la contraseña del usuario tipo cliente."
-                          description="Si desea cambiar la contraseña del usuario tipo cliente, genere una nueva contraseña y se enviará al correo electrónico del usuario tipo cliente."
-                          variant="info"
-                        />
-                      )}
-                    </FormItem>
-                  )}
-                />
-              </fieldset>
-            </form>
-          </Form>
-        </ScrollArea>
-        <SheetFooter className="gap-2">
-          <Button form="clients-form" type="submit" disabled={isPending || isLoadingClinics}>
-            {isPending ? (
-              "Guardando..."
-            ) : isUpdate ? (
-              <>
-                Actualizar
-                {isChangePassword && (
-                  <>
-                    {" "}
-                    y enviar credenciales
-                    <Send className="w-4 h-4" />
-                  </>
-                )}
-              </>
-            ) : (
-              <>
-                Crear y enviar credenciales
-                <Send className="w-4 h-4" />
-              </>
+
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="sunatInfo.address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dirección Fiscal</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Av. Principal 123" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="sunatInfo.fullAddress"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dirección Completa</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Av. Principal 123, Lima, Lima" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 gap-4">
+                  <UbigeoSelect
+                    control={form.control}
+                    initialValues={{
+                      department: form.getValues("sunatInfo.department"),
+                      province: form.getValues("sunatInfo.province"),
+                      district: form.getValues("sunatInfo.district"),
+                    }}
+                    required={true}
+                    // Mapea los nombres del formulario a los de sunatInfo
+                    onChange={{
+                      department: (value) => form.setValue("sunatInfo.department", value),
+                      province: (value) => form.setValue("sunatInfo.province", value),
+                      district: (value) => form.setValue("sunatInfo.district", value),
+                    }}
+                  />
+                </div>
+              </div>
             )}
-          </Button>
-          <SheetClose asChild>
-            <Button variant="outline" disabled={isPending}>
-              Cancelar
-            </Button>
-          </SheetClose>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+          </section>
+        </form>
+      </Form>
+    </GenericSheet>
   );
 }

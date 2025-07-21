@@ -20,6 +20,7 @@ interface GenericSheetProps extends Omit<React.ComponentPropsWithRef<typeof Shee
   children: React.ReactNode;
   footer?: React.ReactNode;
   maxWidth?: "sm" | "md" | "lg" | "xl" | "2xl";
+  rounded?: "none" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl";
   showDefaultFooter?: boolean;
   onCancel?: () => void;
   onConfirm?: () => void;
@@ -28,6 +29,9 @@ interface GenericSheetProps extends Omit<React.ComponentPropsWithRef<typeof Shee
   isLoading?: boolean;
   loadingIcon?: React.ReactNode;
   confirmDisabled?: boolean;
+  titleClassName?: string;
+  descriptionClassName?: string;
+  badgeClassName?: string;
 }
 
 const maxWidthClasses = {
@@ -36,6 +40,16 @@ const maxWidthClasses = {
   lg: "sm:max-w-lg",
   xl: "sm:max-w-xl",
   "2xl": "sm:max-w-2xl",
+};
+
+const roundedClasses = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  "2xl": "rounded-2xl",
+  "3xl": "rounded-3xl",
 };
 
 export function GenericSheet({
@@ -47,6 +61,7 @@ export function GenericSheet({
   children,
   footer,
   maxWidth = "md",
+  rounded = "lg",
   showDefaultFooter = true,
   onCancel,
   onConfirm,
@@ -55,6 +70,9 @@ export function GenericSheet({
   isLoading = false,
   loadingIcon,
   confirmDisabled = false,
+  titleClassName,
+  descriptionClassName,
+  badgeClassName,
   ...props
 }: GenericSheetProps) {
   const handleCancel = () => {
@@ -74,15 +92,16 @@ export function GenericSheet({
   return (
     <Sheet open={open} onOpenChange={onOpenChange} {...props}>
       <SheetContent
-        className={`flex flex-col gap-6 ${maxWidthClasses[maxWidth]} h-full overflow-hidden`}
+        className={`flex flex-col gap-6 ${maxWidthClasses[maxWidth]} ${roundedClasses[rounded]} h-full overflow-hidden`}
         tabIndex={undefined}
       >
         <SheetHeader className="text-left pb-0">
-          <SheetTitle className="flex flex-col items-start">
+          <SheetTitle className={`flex flex-col items-start ${titleClassName || ""}`}>
             {title}
             {badge && (
               <Badge
                 className={
+                  badgeClassName ||
                   badge.className ||
                   "bg-emerald-100 capitalize text-emerald-700 border-emerald-200 hover:bg-emerald-200"
                 }
@@ -92,7 +111,7 @@ export function GenericSheet({
               </Badge>
             )}
           </SheetTitle>
-          {description && <SheetDescription>{description}</SheetDescription>}
+          {description && <SheetDescription className={descriptionClassName}>{description}</SheetDescription>}
         </SheetHeader>
 
         <ScrollArea className="w-full h-[calc(100vh-250px)] p-0">{children}</ScrollArea>

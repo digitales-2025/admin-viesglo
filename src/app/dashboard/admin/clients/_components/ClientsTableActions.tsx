@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteClient, useReactivateClient } from "../_hooks/useClients";
+import { useDeleteClient, useReactivateClient } from "../_hooks/use-clients";
 import { ClientProfileResponseDto } from "../_types/clients.types";
 
 interface ClientsTableActionsProps {

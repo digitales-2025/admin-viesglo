@@ -7,8 +7,9 @@ import AlertMessage from "@/shared/components/alerts/Alert";
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { EmptyData } from "@/shared/components/data-table/empty-data";
 import { Loading } from "@/shared/components/loading";
-import { useClients } from "../_hooks/useClients";
+import { useClients } from "../_hooks/use-clients";
 import { ClientProfileResponseDto } from "../_types/clients.types";
+import { facetedFilters } from "../_utils/clients.filter.utils";
 import { columnsClients } from "./clients.column";
 
 export default function ClientsTable() {
@@ -16,8 +17,6 @@ export default function ClientsTable() {
   const { data, isLoading, error } = query;
   const columns = useMemo(() => columnsClients(), []);
   const { isSuperAdmin } = useProfile();
-
-  console.log("data", JSON.stringify(data?.data, null, 2));
 
   if (isLoading) return <Loading text="Cargando clientes..." variant="spinner" />;
 
@@ -44,6 +43,7 @@ export default function ClientsTable() {
       initialColumnVisibility={{
         isActive: isSuperAdmin,
       }}
+      facetedFilters={facetedFilters}
     />
   );
 }

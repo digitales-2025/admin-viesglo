@@ -166,7 +166,7 @@ export function MultiSelectAutocomplete({
                   </Badge>
                 ))
               ) : (
-                <span className="text-muted-foreground">{placeholder}</span>
+                <span className="text-muted-foreground truncate max-w-[300px]">{placeholder}</span>
               )}
             </div>
             <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />

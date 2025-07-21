@@ -93,6 +93,14 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
         </div>
       );
     },
+    filterFn: (row, columnId, filterValue) => {
+      // Si filterValue es un array, revisa si el valor está incluido
+      if (Array.isArray(filterValue)) {
+        return filterValue.includes(row.getValue(columnId));
+      }
+      // Si es un valor único, compara directamente
+      return row.getValue(columnId) === filterValue;
+    },
   },
   {
     id: "actions",
