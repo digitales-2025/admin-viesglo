@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { User as UserResponse } from "@/app/dashboard/admin/users/_types/user.types";
 import { AuditResponse, AuditType } from "@/shared/actions/audit/audit.types";
 import { useAudit } from "@/shared/actions/audit/useAudit";
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { FileUpload } from "@/shared/components/file-upload";
 import { FileUploadAlert } from "@/shared/components/file-upload-alert";
 import { Doc, File, Pdf } from "@/shared/components/icons/Files";
@@ -63,10 +63,10 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
       };
 
       return (
-        <div className="flex items-center w-[220px] gap-2" title={responsibleUser?.fullName}>
+        <div className="flex items-center w-[220px] gap-2" title={responsibleUser?.name}>
           <AutocompleteSelect
             label="Responsable"
-            options={users.map((user) => ({ value: user.id, label: user.fullName }))}
+            options={users.map((user) => ({ value: user.id, label: user.name }))}
             value={responsibleUser?.id || ""}
             onChange={onUpdateResponsibleUserId}
             isLoading={isPending}
