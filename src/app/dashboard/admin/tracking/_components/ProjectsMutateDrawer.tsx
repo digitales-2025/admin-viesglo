@@ -1,11 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { cn } from "@/lib/utils";
-import Autocomplete, { AutocompleteItem } from "@/shared/components/ui/autocomplete";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import {
@@ -39,7 +38,6 @@ import {
   ProjectStatusLabels,
   UpdateProjectWithoutServices,
 } from "../_types/tracking.types";
-import { searchClients } from "../../clients/_actions/clients.actions";
 import { useServices } from "../../services/_hooks/useServices";
 import TreeServices from "./TreeServices";
 
@@ -81,8 +79,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { data: services, isLoading, error } = useServices();
-  const { data: users, isPending: isLoadingUsers } = useUsersProject();
-  const [selectedClient, setSelectedClient] = useState<AutocompleteItem | null>(null);
+  const { isPending: isLoadingUsers } = useUsersProject();
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
@@ -101,40 +98,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
       responsibleUserId: "",
     },
   });
-  // Función para buscar clientes optimizada con debounce incorporado en el Autocomplete
-  const fetchClients = useCallback(async (query: string): Promise<AutocompleteItem[]> => {
-    if (!query || query.length < 2) return [];
-
-    try {
-      const response = await searchClients(query);
-      if (!response.success) {
-        throw new Error(response.error || "Error al buscar clientes");
-      }
-
-      return response.data.map((client) => ({
-        id: client.id,
-        name: client.name,
-        ruc: client.ruc,
-        email: client.email,
-      }));
-    } catch (error) {
-      console.error("Error al buscar clientes:", error);
-      return [];
-    }
-  }, []);
-
-  // Efecto para establecer el cliente seleccionado cuando se edita
-  useEffect(() => {
-    if (isUpdate && currentRow?.id && currentRow.client) {
-      const client: AutocompleteItem = {
-        id: currentRow.client.id,
-        name: currentRow.client.name,
-      };
-      setSelectedClient(client);
-    } else {
-      setSelectedClient(null);
-    }
-  }, [isUpdate, currentRow]);
 
   const onSubmit = (data: ProjectsForm) => {
     if (isUpdate && currentRow?.id) {
@@ -217,7 +180,7 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
         }
       }}
     >
-      <SheetContent className="flex flex-col" width="sm:max-w-2xl">
+      <SheetContent className="flex flex-col">
         <SheetHeader className="text-left">
           <SheetTitle className="text-2xl font-bold capitalize">
             {isUpdate ? "Actualizar" : "Crear"} proyecto
@@ -265,33 +228,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="clientId"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel>Buscar cliente</FormLabel>
-                        <FormControl>
-                          <Autocomplete
-                            value={selectedClient}
-                            onChange={(client) => {
-                              setSelectedClient(client);
-                              field.onChange(client ? client.id : "");
-                            }}
-                            onSearch={fetchClients}
-                            placeholder="Buscar cliente por nombre, RUC o email"
-                            minChars={2}
-                            debounceTime={300}
-                            noResultsText="No se encontraron clientes"
-                            loadingText="Buscando clientes..."
-                            disabled={isPending}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="typeContract"
@@ -302,47 +238,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
                           <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
                         </FormControl>
                         <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="responsibleUserId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Responsable</FormLabel>
-                        <FormControl>
-                          <Autocomplete
-                            value={
-                              field.value
-                                ? {
-                                    id: field.value,
-                                    label: users?.find((user) => user.id === field.value)?.fullName || "",
-                                    value: field.value,
-                                    name: users?.find((user) => user.id === field.value)?.fullName || "",
-                                  }
-                                : null
-                            }
-                            onChange={(value) => field.onChange(value?.id)}
-                            placeholder="Buscar responsable por nombre, email o teléfono"
-                            minChars={2}
-                            onSearch={(query) => {
-                              return Promise.resolve(
-                                users
-                                  ?.filter((user) => user.fullName.toLowerCase().includes(query.toLowerCase()))
-                                  .map((user) => ({
-                                    id: user.id,
-                                    label: user.fullName,
-                                    value: user.id,
-                                    name: user.fullName,
-                                  })) || []
-                              );
-                            }}
-                            disabled={isPending}
-                          />
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
