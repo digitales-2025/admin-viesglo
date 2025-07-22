@@ -1,14 +1,10 @@
-import { components } from "@/lib/api/types/api";
+export type CertificateResponse = any;
 
-export type CertificateResponse = components["schemas"]["CertificateResponseDto"];
+export type CreateCertificate = any;
 
-export type CreateCertificate = components["schemas"]["CreateCertificateDto"];
+export type UpdateCertificate = any;
 
-export type UpdateCertificate = components["schemas"]["UpdateCertificateDto"];
-
-export type PaginatedCertificatesResponse = Omit<components["schemas"]["PaginatedCertificateResponseDto"], "data"> & {
-  data: CertificateResponse[];
-};
+export type PaginatedCertificatesResponse = any;
 
 export type CertificatesFilters = {
   search?: string;
