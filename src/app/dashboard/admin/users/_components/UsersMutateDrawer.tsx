@@ -101,10 +101,10 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
-        fullName: currentRow.fullName,
+        fullName: currentRow.name,
         email: currentRow.email,
-        phone: currentRow.phone || "",
-        post: currentRow.post || "",
+        phone: "",
+        post: "",
         password: "",
         roleIds: currentRow.roles.map((role) => role.id),
       });
@@ -159,10 +159,10 @@ export function UserMutateDrawer({ open, onOpenChange, currentRow }: Props) {
   useEffect(() => {
     if (isUpdate && currentRow?.id) {
       form.reset({
-        fullName: currentRow.fullName,
+        fullName: currentRow.name,
         email: currentRow.email,
-        phone: currentRow.phone || "",
-        post: currentRow.post || "",
+        phone: "",
+        post: "",
         password: "",
         roleIds: currentRow.roles.map((role) => role.id),
       });

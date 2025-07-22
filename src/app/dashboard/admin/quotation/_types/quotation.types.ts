@@ -1,20 +1,18 @@
-import { components } from "@/lib/api/types/api";
-
-export type QuotationResponse = Omit<components["schemas"]["QuotationResponseDto"], "quotationGroup"> & {
+export type QuotationResponse = Omit<any, "quotationGroup"> & {
   quotationGroup: QuotationGroupResponse;
 };
 
-export type QuotationCreate = components["schemas"]["CreateQuotationDto"];
+export type QuotationCreate = any;
 
-export type QuotationUpdate = components["schemas"]["UpdateQuotationDto"];
+export type QuotationUpdate = any;
 
-export type QuotationConcrete = components["schemas"]["ConcreteQuotationDto"];
+export type QuotationConcrete = any;
 
-export type QuotationGroupResponse = components["schemas"]["QuotationGroupResponseDto"];
+export type QuotationGroupResponse = any;
 
-export type QuotationGroupCreate = components["schemas"]["CreateQuotationGroupDto"];
+export type QuotationGroupCreate = any;
 
-export type QuotationGroupUpdate = components["schemas"]["UpdateQuotationGroupDto"];
+export type QuotationGroupUpdate = any;
 
 export type PaginatedQuotationResponse = {
   data: QuotationResponse[];

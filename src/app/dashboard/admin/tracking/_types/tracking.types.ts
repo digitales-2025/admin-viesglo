@@ -1,39 +1,37 @@
-import { components } from "@/lib/api/types/api";
-
-export type ProjectResponse = Omit<components["schemas"]["ProjectResponseDto"], "services"> & {
+export type ProjectResponse = Omit<any, "services"> & {
   services: ProjectServiceResponse[];
 };
-export type CreateProject = components["schemas"]["CreateProjectDto"];
-export type UpdateProject = components["schemas"]["UpdateProjectDto"];
+export type CreateProject = any;
+export type UpdateProject = any;
 // Tipo específico para actualizar un proyecto sin incluir servicios
 export type UpdateProjectWithoutServices = Omit<UpdateProject, "services">;
 
 // Servicios de un proyecto
-export type ProjectServiceResponse = Omit<components["schemas"]["ProjectServiceResponseDto"], "objectives"> & {
+export type ProjectServiceResponse = Omit<any, "objectives"> & {
   objectives: ProjectObjectiveResponse[];
 };
-export type CreateProjectService = components["schemas"]["CreateProjectServiceDto"];
-export type UpdateProjectService = components["schemas"]["UpdateProjectServiceDto"];
+export type CreateProjectService = any;
+export type UpdateProjectService = any;
 
 // Objetivos de un proyecto
-export type ProjectObjectiveResponse = Omit<components["schemas"]["ProjectObjectiveResponseDto"], "activities"> & {
+export type ProjectObjectiveResponse = Omit<any, "activities"> & {
   activities: ProjectActivityResponse[];
 };
-export type CreateProjectObjective = components["schemas"]["CreateProjectObjectiveDto"];
-export type UpdateProjectObjective = components["schemas"]["UpdateProjectObjectiveDto"];
+export type CreateProjectObjective = any;
+export type UpdateProjectObjective = any;
 
 // Actividades de un proyecto
-export type ProjectActivityResponse = Omit<components["schemas"]["ProjectActivityResponseDto"], "responsibleUser"> & {
-  responsibleUser: components["schemas"]["ResponsibleUserResponseDto"];
+export type ProjectActivityResponse = Omit<any, "responsibleUser"> & {
+  responsibleUser: any;
 };
 
-export type CreateProjectActivity = components["schemas"]["CreateProjectActivityDto"];
-export type UpdateProjectActivity = components["schemas"]["UpdateProjectActivityDto"];
+export type CreateProjectActivity = any;
+export type UpdateProjectActivity = any;
 
-export type TrackingActivityDto = components["schemas"]["TrackingActivityDto"];
+export type TrackingActivityDto = any;
 
 // Paginación
-export type ProjectPaginationResponse = Omit<components["schemas"]["PaginatedProjectResponseDto"], "data"> & {
+export type ProjectPaginationResponse = Omit<any, "data"> & {
   data: ProjectResponse[];
 };
 

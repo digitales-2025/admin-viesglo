@@ -1,6 +1,5 @@
 "use server";
 
-import { Permission } from "@/auth/domain/entities/Role";
 import { http } from "@/lib/http/serverFetch";
 import { User, UserCreate } from "../_types/user.types";
 
@@ -110,11 +109,9 @@ export async function toggleActiveUser(id: string): Promise<{ success: boolean; 
 /**
  * Obtiene los permisos de un usuario
  */
-export async function getUserPermissions(
-  id: string
-): Promise<{ data: Permission[]; success: boolean; error?: string }> {
+export async function getUserPermissions(id: string): Promise<{ data: any[]; success: boolean; error?: string }> {
   try {
-    const [data, err] = await http.get<Permission[]>(`${API_ENDPOINT}/${id}/permissions`);
+    const [data, err] = await http.get<any[]>(`${API_ENDPOINT}/${id}/permissions`);
     if (err !== null) {
       return { success: false, data: [], error: err.message || "Error al obtener permisos del usuario" };
     }

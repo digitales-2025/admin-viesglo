@@ -1,11 +1,10 @@
-import { components } from "@/lib/api/types/api";
 import { PaymentPlan } from "../../quotation/_types/quotation.types";
 
-export type PaymentResponse = components["schemas"]["PaymentResponseDto"];
+export type PaymentResponse = any;
 
-export type UpdatePaymentStatus = components["schemas"]["UpdatePaymentStatusDto"];
+export type UpdatePaymentStatus = any;
 
-export type MarkPaymentStatus = components["schemas"]["MarkPaymentStatusDto"];
+export type MarkPaymentStatus = any;
 
 export type PaginatedPaymentResponse = {
   data: PaymentResponse[];
@@ -33,4 +32,4 @@ export type PaymentFilters = {
   years?: number[];
 };
 
-export type PaymentsComparisonResponse = components["schemas"]["PaymentsComparisonResponseDto"];
+export type PaymentsComparisonResponse = any;

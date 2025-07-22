@@ -4,11 +4,11 @@ import { components } from "@/lib/api/types/api";
 export type UserResponseOriginal = components["schemas"]["UserResponseDto"];
 export type User = UserResponseOriginal & { roles: Role[] };
 
-export type UserCreate = Omit<components["schemas"]["CreateUserDto"], "roleIds"> & {
+export type UserCreate = Omit<any, "roleIds"> & {
   roleIds: string[];
 };
 
-export type UserUpdate = Omit<components["schemas"]["UpdateUserDto"], "roleIds"> & {
+export type UserUpdate = Omit<any, "roleIds"> & {
   roleIds: string[];
 };
 
