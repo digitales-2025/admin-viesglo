@@ -2,16 +2,16 @@
 
 import { useMemo } from "react";
 
-import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useRoles } from "../_hooks/useRoles";
 import { Role } from "../_types/roles";
 import { columnsRoles } from "./column";
 import { RolePermissionsView } from "./RolePermissionsView";
 
 export function RolesExpandableTable() {
-  const isAdmin = useIsAdmin();
+  const user = useProfile();
   const { data: roles, isLoading, isError } = useRoles();
 
   // Memorizamos las columnas para evitar re-renderizados innecesarios
@@ -34,7 +34,7 @@ export function RolesExpandableTable() {
       getSubRows={(row) => row.permissionIds as unknown as Role[]}
       renderExpandedRow={(row) => <RolePermissionsView role={row} />}
       initialColumnVisibility={{
-        estado: isAdmin,
+        isActive: user.isSuperAdmin,
       }}
     />
   );
