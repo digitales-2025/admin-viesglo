@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { Building2, CheckCircle, Mail, MapPin, User, XCircle } from "lucide-react";
+import { Building2, CheckCircle, ChevronDown, ChevronRight, Mail, User, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
+import LogoGoogleMaps from "@/shared/components/icons/LogoGoogleMaps";
 import { Badge } from "@/shared/components/ui/badge";
+import { Button } from "@/shared/components/ui/button";
 import { ClientProfileResponseDto } from "../../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
 
@@ -39,21 +41,34 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
       </div>
     ),
   },
+
   {
     id: "Ubicación",
     accessorKey: "sunatInfo.department",
     header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Ubicación" />,
-    cell: ({ row }) => (
-      <div className="min-w-[180px]">
-        <div className="flex items-center gap-2 mb-1">
-          <MapPin className="h-3 w-3 text-muted-foreground" />
-          <span className="text-sm font-medium">{row.original.sunatInfo?.department}</span>
-        </div>
-        <div className="text-xs text-muted-foreground">
-          {row.original.sunatInfo?.province} • {row.original.sunatInfo?.district}
-        </div>
-      </div>
-    ),
+    cell: ({ row }) => {
+      const { department, province, district, fullAddress } = row.original.sunatInfo || {};
+      // Construir la dirección para Google Maps
+      const addressParts = [fullAddress, department, province, district, "Perú"].filter(Boolean);
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addressParts.join(", "))}`;
+      return (
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block min-w-[180px] hover:bg-muted/50 rounded-md transition-colors p-2"
+          title={addressParts.join(", ")}
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <LogoGoogleMaps className="h-3 w-3" />
+            <span className="text-sm font-medium break-words whitespace-normal">{department}</span>
+          </div>
+          <div className="text-xs text-muted-foreground break-words whitespace-normal">
+            {[province, district].filter(Boolean).join(" • ")}
+          </div>
+        </a>
+      );
+    },
   },
   {
     id: "contacto",
@@ -85,7 +100,7 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
 
       return (
         <div className="min-w-[120px] space-y-1">
-          <Badge variant={isActive ? "default" : "secondary"} className="flex items-center gap-1 w-fit">
+          <Badge variant={isActive ? "default" : "destructive"} className="flex items-center gap-1 w-fit">
             {isActive ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
 
             {isActive ? "Activo" : "Inactivo"}
@@ -101,6 +116,27 @@ export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [
       // Si es un valor único, compara directamente
       return row.getValue(columnId) === filterValue;
     },
+  },
+  {
+    id: "expander",
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Descripción" />,
+    size: 40,
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <div className="flex items-center justify-center">
+          <Button
+            variant={"ghost"}
+            type="button"
+            size={"icon"}
+            className="flex items-center justify-center w-4 h-4"
+            onClick={row.getToggleExpandedHandler()}
+          >
+            {row.getIsExpanded() ? <ChevronDown /> : <ChevronRight />}
+          </Button>
+        </div>
+      ) : null,
+    enableSorting: false,
+    enableHiding: false,
   },
   {
     id: "actions",
