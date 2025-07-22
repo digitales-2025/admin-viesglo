@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useActivitiesProject } from "../../_hooks/useActivitiesProject";
 import { useUsersProject } from "../../_hooks/useProjectTraking";
 import { columnsActivities } from "./project-activities.column";
@@ -22,14 +22,5 @@ export default function TableProjectActivities({ objectiveId }: TableProjectActi
     );
   }
 
-  return (
-    <DataTable
-      columns={columns}
-      data={activities || []}
-      isLoading={isLoading || isLoadingUsers}
-      toolBar={false}
-      pagination={false}
-      className="rounded-t-none"
-    />
-  );
+  return <DataTable columns={columns} data={activities || []} isLoading={isLoading || isLoadingUsers} />;
 }
