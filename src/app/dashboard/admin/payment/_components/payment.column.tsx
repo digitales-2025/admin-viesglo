@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { useQueryClient } from "@tanstack/react-query";
 import { ColumnDef } from "@tanstack/react-table";
-import { Banknote, Calendar, ChevronDown, ChevronRight, Info, Loader2, Minus, Save, XCircle } from "lucide-react";
+import { Banknote, ChevronDown, ChevronRight, Loader2, Minus, Save } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { CalendarDatePicker } from "@/shared/components/calendar-date-picker";
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
@@ -18,7 +17,6 @@ import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useMarkPaymentStatus, usePayments, useUpdatePaymentStatus } from "../_hooks/usePayments";
 import { PaymentResponse } from "../_types/payment.types";
 import { LabelPaymentPlan, PaymentPlan } from "../../quotation/_types/quotation.types";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 // Almacenamiento global para los estados
 const paymentStates = new Map<string, { date?: Date; code: string; isPaid?: boolean }>();
@@ -114,14 +112,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
   // Durante la carga inicial, mostrar el botón desactivado para evitar parpadeos
   if (!isReady) {
     return (
-      <ProtectedComponent
-        requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-        fallback={
-          <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
-            <XCircle className="size-4 text-gray-500" />
-          </Badge>
-        }
-      >
+      <>
         <div className="flex items-center gap-2">
           <Switch
             checked={false}
@@ -131,19 +122,11 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
           />
           <Badge variant="error">Pendiente</Badge>
         </div>
-      </ProtectedComponent>
+      </>
     );
   }
   return (
-    <ProtectedComponent
-      requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-      fallback={
-        <Badge variant="outline" className="flex h-9 items-center gap-2 text-xs text-rose-400 italic">
-          <Info className="size-4" />
-          Sin permiso
-        </Badge>
-      }
-    >
+    <>
       <div className="flex items-center gap-2">
         <Switch
           checked={isPaid}
@@ -161,7 +144,7 @@ function PaidCell({ payment }: { payment: PaymentResponse }) {
           )}
         </span>
       </div>
-    </ProtectedComponent>
+    </>
   );
 }
 
@@ -290,10 +273,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
-        <ProtectedComponent
-          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-          fallback={<Input value={code} readOnly />}
-        >
+        <>
           <div className="relative inline-flex gap-1">
             {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
             <Input
@@ -309,7 +289,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
               </Button>
             )}
           </div>
-        </ProtectedComponent>
+        </>
       );
     },
   },
@@ -339,23 +319,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
-        <ProtectedComponent
-          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-          fallback={
-            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
-              {billingDateFormatted ? (
-                billingDateFormatted?.toLocaleDateString("es-PE", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-              ) : (
-                <span className="text-muted-foreground text-xs italic">Sin fecha de facturación</span>
-              )}
-              <Calendar className="text-muted-foreground" />
-            </Badge>
-          }
-        >
+        <>
           <div className="relative">
             {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
             <CalendarDatePicker
@@ -369,7 +333,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
               closeOnSelect={true}
             />
           </div>
-        </ProtectedComponent>
+        </>
       );
     },
   },
@@ -413,10 +377,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
         <div className="relative inline-flex gap-1">
           {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
 
-          <ProtectedComponent
-            requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-            fallback={<Input value={email || ""} readOnly />}
-          >
+          <>
             <Input
               value={email || ""}
               onChange={handleChange}
@@ -429,7 +390,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
                 <Save className="size-4 text-emerald-500" />
               </Button>
             )}
-          </ProtectedComponent>
+          </>
         </div>
       );
     },
@@ -460,23 +421,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
       return row.original.paymentPlan === PaymentPlan.INSTALLMENTS ? (
         <Minus className="text-muted/80" />
       ) : (
-        <ProtectedComponent
-          requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.update }]}
-          fallback={
-            <Badge variant="outline" className="flex h-9 items-center gap-2 text-sm">
-              {paymentDateFormatted ? (
-                paymentDateFormatted?.toLocaleDateString("es-PE", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
-              ) : (
-                <span className="text-muted-foreground text-xs italic">Sin fecha de pago</span>
-              )}
-              <Calendar className="text-muted-foreground" />
-            </Badge>
-          }
-        >
+        <>
           <div className="relative">
             {isPending && <Loader2 className="absolute -left-2 top-1/3 h-4 w-4  animate-spin text-emerald-500" />}
             <CalendarDatePicker
@@ -490,7 +435,7 @@ export const columnsPayment = (): ColumnDef<PaymentResponse>[] => [
               closeOnSelect={true}
             />
           </div>
-        </ProtectedComponent>
+        </>
       );
     },
   },

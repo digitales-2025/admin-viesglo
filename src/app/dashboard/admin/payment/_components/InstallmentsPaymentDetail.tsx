@@ -4,7 +4,6 @@ import { formatDate } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar, CalendarSync, CreditCard, Mail } from "lucide-react";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
@@ -16,7 +15,6 @@ import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useInstallmentPayments } from "../_hooks/useInstallmentPayment";
 import { usePaymentInstallmentConfig } from "../_hooks/usePaymentInstallmentConfig";
 import { PaymentResponse } from "../_types/payment.types";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import InstallmentsDialogs, { MODULE_INSTALLMENT_PAYMENTS } from "./InstallmentsDialogs";
 import InstallmentsPaymentTable from "./InstallmentsPaymentTable";
 
@@ -62,24 +60,22 @@ export default function InstallmentsPaymentDetail({ payment }: InstallmentsPayme
             <CardTitle className="text-lg font-bold">Pagos</CardTitle>
             <CardDescription>Detalles del cronograma de pagos</CardDescription>
           </div>
-          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.payments, action: EnumAction.execute }]}>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  open(
-                    MODULE_INSTALLMENT_PAYMENTS,
-                    "update",
-                    paymentInstallmentConfig ? paymentInstallmentConfig : { paymentId: payment.id }
-                  );
-                }}
-              >
-                <CalendarSync className="w-4 h-4 mr-2" />
-                Configurar cronograma de pagos
-              </Button>
-            </div>
-          </ProtectedComponent>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                open(
+                  MODULE_INSTALLMENT_PAYMENTS,
+                  "update",
+                  paymentInstallmentConfig ? paymentInstallmentConfig : { paymentId: payment.id }
+                );
+              }}
+            >
+              <CalendarSync className="w-4 h-4 mr-2" />
+              Configurar cronograma de pagos
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           {paymentInstallmentConfig ? (

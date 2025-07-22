@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import {
@@ -67,9 +65,7 @@ export default function CardProjectObjective({ objective }: Props) {
               <span className="text-sm text-nowrap">{progress} %</span>
             </div>
             <div className="inline-flex justify-end items-center gap-2 xl:order-5 order-3 lg:order-4">
-              <ProtectedComponent
-                requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}
-              >
+              <>
                 <Button
                   variant="outline"
                   onClick={(e) => {
@@ -85,13 +81,8 @@ export default function CardProjectObjective({ objective }: Props) {
                   <PlusCircle className="w-4 h-4 mr-1" />
                   Agregar actividad
                 </Button>
-              </ProtectedComponent>
-              <ProtectedComponent
-                requiredPermissions={[
-                  { resource: EnumResource.projects, action: EnumAction.edit },
-                  { resource: EnumResource.projects, action: EnumAction.delete },
-                ]}
-              >
+              </>
+              <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -99,9 +90,7 @@ export default function CardProjectObjective({ objective }: Props) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <ProtectedComponent
-                      requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.edit }]}
-                    >
+                    <>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
@@ -113,10 +102,8 @@ export default function CardProjectObjective({ objective }: Props) {
                           <Edit className="w-4 h-4" />
                         </DropdownMenuShortcut>
                       </DropdownMenuItem>
-                    </ProtectedComponent>
-                    <ProtectedComponent
-                      requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
-                    >
+                    </>
+                    <>
                       <DropdownMenuItem
                         onClick={(e) => {
                           e.stopPropagation();
@@ -128,10 +115,10 @@ export default function CardProjectObjective({ objective }: Props) {
                           <Trash className="w-4 h-4" />
                         </DropdownMenuShortcut>
                       </DropdownMenuItem>
-                    </ProtectedComponent>
+                    </>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </ProtectedComponent>
+              </>
             </div>
           </CardTitle>
         </CardHeader>
