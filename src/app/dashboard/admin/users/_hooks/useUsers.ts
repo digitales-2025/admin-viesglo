@@ -97,13 +97,29 @@ export function useUpdateUser() {
       const updateData = { ...data };
       if (updateData.password === "") {
         const { password: _, ...rest } = updateData;
-        const updateUserResponse = await updateUser(id, rest);
+        // Asegúrate de que rest solo contiene las propiedades válidas de UserUpdate
+        const filteredRest: Partial<Omit<UserUpdate, "id" | "createdAt" | "updatedAt">> = { ...rest };
+        const updateUserResponse = await updateUser(id, filteredRest);
         if (!updateUserResponse.success) {
           throw new Error(updateUserResponse.error || "Error al actualizar usuario");
         }
         return updateUserResponse.data;
       }
-      const updateUserResponse = await updateUser(id, updateData);
+      // Filtra solo las propiedades válidas de UserUpdate
+      const allowedKeys: (keyof Omit<UserUpdate, "id" | "createdAt" | "updatedAt">)[] = [
+        "name",
+        "email",
+        "password",
+        "roleIds",
+        // agrega aquí otras propiedades válidas de UserUpdate si existen
+      ];
+      const filteredUpdateData: Partial<Omit<UserUpdate, "id" | "createdAt" | "updatedAt">> = {};
+      for (const key of allowedKeys) {
+        if (key in updateData) {
+          filteredUpdateData[key] = updateData[key];
+        }
+      }
+      const updateUserResponse = await updateUser(id, filteredUpdateData);
       if (!updateUserResponse.success) {
         throw new Error(updateUserResponse.error || "Error al actualizar usuario");
       }

@@ -225,10 +225,7 @@ export default function ProjectServicesMutateDrawer({ open, onOpenChange, curren
         }
       }}
     >
-      <SheetContent
-        className="flex flex-col transition-all duration-300"
-        width={isSelectingExisting ? "sm:max-w-2xl" : ""}
-      >
+      <SheetContent className="flex flex-col transition-all duration-300">
         {isSelectingExisting ? renderServiceSelector() : renderManualForm()}
       </SheetContent>
     </Sheet>

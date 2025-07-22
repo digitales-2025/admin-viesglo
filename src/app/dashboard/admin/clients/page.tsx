@@ -1,7 +1,7 @@
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
-import ClientsDialogs from "./_components/ClientsDialogs";
-import ClientsPrimaryButtons from "./_components/ClientsPrimaryButtons";
-import ClientsTable from "./_components/ClientsTable";
+import ClientsOverlays from "./_components/clients-overlays/ClientsOverlays";
+import ClientsPrimaryButtons from "./_components/table/ClientsPrimaryButtons";
+import ClientsTable from "./_components/table/ClientsTable";
 
 export default function PageClients() {
   return (
@@ -14,7 +14,7 @@ export default function PageClients() {
         <ClientsPrimaryButtons />
       </ShellHeader>
       <ClientsTable />
-      <ClientsDialogs />
+      <ClientsOverlays />
     </>
   );
 }

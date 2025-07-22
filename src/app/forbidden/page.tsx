@@ -2,11 +2,7 @@
 
 import Link from "next/link";
 
-import { getUserDashboardPath } from "@/auth/domain/entities/User";
-
 export default function ForbiddenPage() {
-  const dashboardPath = getUserDashboardPath();
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
@@ -21,7 +17,7 @@ export default function ForbiddenPage() {
 
         <div className="space-y-2">
           <Link
-            href={dashboardPath}
+            href="/dashboard"
             className="block w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors"
           >
             Ir a mi Dashboard

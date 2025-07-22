@@ -1,34 +1,32 @@
-import { components } from "@/lib/api/types/api";
-
 // Servicios
-export type ServiceResponseOriginal = components["schemas"]["ServiceResponseDto"];
+export type ServiceResponseOriginal = any;
 export type ServiceResponse = Omit<ServiceResponseOriginal, "objectives"> & {
   objectives?: ObjectiveResponse[];
 };
-export type OriginalServiceCreate = components["schemas"]["CreateServiceDto"];
+export type OriginalServiceCreate = any;
 export type ServiceCreate = Omit<OriginalServiceCreate, "objectives"> & {
   objectives?: string[];
 };
-export type ServiceUpdate = components["schemas"]["UpdateServiceDto"];
+export type ServiceUpdate = any;
 export type OriginalServiceUpdate = Omit<ServiceUpdate, "objectives"> & {
   objectives?: string[];
 };
 
 // Objetivos
-export type ObjectiveResponseOriginal = components["schemas"]["ObjectiveResponseDto"];
+export type ObjectiveResponseOriginal = any;
 export type ObjectiveResponse = ObjectiveResponseOriginal & {
   activities: ActivityResponse[];
 };
-export type OriginalObjectiveCreate = components["schemas"]["CreateObjectiveDto"];
+export type OriginalObjectiveCreate = any;
 export type ObjectiveCreate = Omit<OriginalObjectiveCreate, "serviceId"> & {
   serviceId?: string;
 };
-export type ObjectiveUpdate = components["schemas"]["UpdateObjectiveDto"];
+export type ObjectiveUpdate = any;
 export type OriginalObjectiveUpdate = Omit<ObjectiveUpdate, "serviceId"> & {
   serviceId?: string;
 };
 
 // Actividades
-export type ActivityCreate = components["schemas"]["CreateActivityDto"];
-export type ActivityResponse = components["schemas"]["ActivityResponseDto"];
-export type ActivityUpdate = components["schemas"]["UpdateActivityDto"];
+export type ActivityCreate = any;
+export type ActivityResponse = any;
+export type ActivityUpdate = any;

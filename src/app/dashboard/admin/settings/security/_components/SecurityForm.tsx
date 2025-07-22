@@ -1,12 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useUpdatePassword } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
-import { UpdatePassword } from "@/app/(public)/auth/sign-in/_types/auth.types";
 import { Button } from "@/shared/components/ui/button";
 import {
   Form,
@@ -26,8 +23,6 @@ const formSchema = z.object({
 });
 
 export default function SecurityForm() {
-  const { mutate: updatePassword, isPending } = useUpdatePassword();
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -38,12 +33,9 @@ export default function SecurityForm() {
     mode: "onChange",
   });
 
-  const onSubmit = (data: UpdatePassword) => {
-    updatePassword(data, {
-      onSuccess: () => {
-        form.reset();
-      },
-    });
+  const onSubmit = (data: any) => {
+    // Aquí iría la lógica para actualizar la contraseña del usuario
+    console.log("Datos del formulario:", data);
   };
 
   return (
@@ -92,15 +84,7 @@ export default function SecurityForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isPending}>
-          {isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" /> Actualizando...
-            </>
-          ) : (
-            "Actualizar perfil"
-          )}
-        </Button>
+        <Button type="submit">"Actualizar perfil"</Button>
       </form>
     </Form>
   );

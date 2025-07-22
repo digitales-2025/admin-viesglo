@@ -4,10 +4,10 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteClient } from "../_hooks/use-clients";
-import { ClientsMutateDrawer } from "./ClientsMutateDrawer";
+import { useDeleteClient } from "../../_hooks/use-clients";
+import { ClientsEditorSheet } from "../editor/ClientsEditorSheet";
 
-export default function ClientsDialogs() {
+export default function ClientsOverlays() {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteClient } = useDeleteClient();
   // Constantes para módulo
@@ -15,7 +15,7 @@ export default function ClientsDialogs() {
 
   return (
     <>
-      <ClientsMutateDrawer
+      <ClientsEditorSheet
         key="client-mutate"
         open={isOpenForModule(MODULE, "create") || isOpenForModule(MODULE, "edit")}
         onOpenChange={(open) => {

@@ -2,14 +2,14 @@
 
 import { useMemo } from "react";
 
-import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useQuotationGroups } from "../_hooks/useQuotationGroup";
 import { columnsQuotationGroups } from "./quotation-group.column";
 
 export default function QuotationGroupTable() {
-  const isAdmin = useIsAdmin();
+  const user = useProfile();
   const { data: quotationGroups, isLoading, error } = useQuotationGroups();
 
   const columns = useMemo(() => columnsQuotationGroups(), []);
@@ -24,7 +24,7 @@ export default function QuotationGroupTable() {
       columns={columns}
       data={quotationGroups || []}
       isLoading={isLoading}
-      initialColumnVisibility={{ estado: isAdmin }}
+      initialColumnVisibility={{ estado: user?.isSuperAdmin }}
     />
   );
 }

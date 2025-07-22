@@ -5,7 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { ClinicResponse } from "../_types/clinics.types";
 import ClinicsTableActions from "./ClinicsTableActions";

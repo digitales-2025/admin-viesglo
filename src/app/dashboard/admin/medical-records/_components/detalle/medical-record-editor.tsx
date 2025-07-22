@@ -85,7 +85,7 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
   // Procesamiento simplificado de diagnósticos
   const diagnosticsValues = useMemo(
     () =>
-      (data?.diagnosticValues?.map((value) => ({
+      (data?.diagnosticValues?.map((value: DiagnosticValue) => ({
         ...value,
         diagnosticName: value.diagnosticName || "",
         value: Array.isArray(value.value) ? value.value : value.value ? [value.value] : [],
@@ -182,17 +182,29 @@ export function MedicalRecordDetails({ recordId, mode }: MedicalRecordDetailsPro
       }
 
       // Procesar diagnósticos para defaultValues, similar a updateDiagnosticsInForm/useMemo
+      interface ProcessedDiagnosticsAccumulator {
+        [diagnosticName: string]: string[];
+      }
+
+      interface DiagnosticValueFromApi {
+        diagnosticId: string | null;
+        diagnosticName: string;
+        id: string;
+        medicalRecordId: string;
+        value: string[] | string;
+      }
+
       const processedDiagnosticsForReset = (data.diagnosticValues || []).reduce(
-        (acc, diag) => {
+        (acc: ProcessedDiagnosticsAccumulator, diag: DiagnosticValueFromApi) => {
           if (diag.diagnosticName) {
             // Usamos el mismo filtro que en updateDiagnosticsInForm para consistencia
             acc[diag.diagnosticName] = Array.isArray(diag.value)
-              ? diag.value.filter((v) => v !== null && v !== undefined && v !== "")
+              ? diag.value.filter((v: string | null | undefined) => v !== null && v !== undefined && v !== "")
               : [];
           }
           return acc;
         },
-        {} as Record<string, string[]>
+        {} as ProcessedDiagnosticsAccumulator
       );
 
       // Inicializar defaultValues para el formulario

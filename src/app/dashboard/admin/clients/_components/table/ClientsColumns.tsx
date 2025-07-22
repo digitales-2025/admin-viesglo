@@ -6,7 +6,7 @@ import { Building2, CheckCircle, Mail, MapPin, User, XCircle } from "lucide-reac
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClientProfileResponseDto } from "../_types/clients.types";
+import { ClientProfileResponseDto } from "../../_types/clients.types";
 import ClientsTableActions from "./ClientsTableActions";
 
 export const columnsClients = (): ColumnDef<ClientProfileResponseDto>[] => [

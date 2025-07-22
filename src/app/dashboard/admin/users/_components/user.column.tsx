@@ -2,8 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { IdCard, Mail, Phone, Shield } from "lucide-react";
-import { formatPhoneNumberIntl } from "react-phone-number-input";
+import { IdCard, Mail, Shield } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
@@ -33,22 +32,6 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     ),
   },
   {
-    id: "teléfono",
-    accessorKey: "phone",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Teléfono" />,
-    cell: ({ row }) =>
-      row.original.phone && row.original.phone !== "" ? (
-        <Link href={`tel:${row.getValue("teléfono")}`}>
-          <Badge variant="outline">
-            <Phone className="w-4 h-4" />
-            {formatPhoneNumberIntl(row.getValue("teléfono")) || row.original.phone}
-          </Badge>
-        </Link>
-      ) : (
-        <Badge variant="outline">No tiene teléfono</Badge>
-      ),
-  },
-  {
     id: "cargo",
     accessorKey: "post",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
@@ -64,7 +47,7 @@ export const columnsUsers = (): ColumnDef<User>[] => [
           <div className="flex flex-wrap gap-2 capitalize font-semibold">
             {row.original.roles.map((role) => (
               <span key={role.id} className="inline-flex items-center gap-2">
-                {row.original.isSuperAdmin ? (
+                {row.original.isActive ? (
                   <Shield className="w-4 h-4 text-emerald-500" />
                 ) : (
                   <IdCard className="w-4 h-4 text-muted-foreground" />

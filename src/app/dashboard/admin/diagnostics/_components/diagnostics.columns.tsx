@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { FileText, Info, ToggleLeft } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { DiagnosticEntity } from "../../medical-records/_types/medical-record.types";
 import DiagnosticsTableActions from "./DiagnosticsTableActions";

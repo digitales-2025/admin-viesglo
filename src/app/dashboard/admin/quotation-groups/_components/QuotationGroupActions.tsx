@@ -1,7 +1,6 @@
 import React from "react";
 import { Edit, IterationCcw, MoreHorizontal, Trash } from "lucide-react";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -12,7 +11,6 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { QuotationGroupResponse } from "../_types/quotation-groups.types";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import { MODULE_QUOTATION_GROUP } from "./QuotationGroupDialogs";
 
 interface QuotationGroupActionsProps {
@@ -35,12 +33,7 @@ export default function QuotationGroupActions({ row }: QuotationGroupActionsProp
   };
 
   return (
-    <ProtectedComponent
-      requiredPermissions={[
-        { resource: EnumResource.quotations, action: EnumAction.update },
-        { resource: EnumResource.quotations, action: EnumAction.delete },
-      ]}
-    >
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="bg-background" size="icon">
@@ -48,22 +41,22 @@ export default function QuotationGroupActions({ row }: QuotationGroupActionsProp
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.quotations, action: EnumAction.update }]}>
+          <>
             <DropdownMenuItem onClick={handleEdit}>
               Editar
               <DropdownMenuShortcut>
                 <Edit className="size-4 mr-2" />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
-          </ProtectedComponent>
-          <ProtectedComponent requiredPermissions={[{ resource: EnumResource.quotations, action: EnumAction.delete }]}>
+          </>
+          <>
             <DropdownMenuItem onClick={handleDelete} disabled={!row.isActive}>
               Eliminar
               <DropdownMenuShortcut>
                 <Trash className="size-4 mr-2" />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
-          </ProtectedComponent>
+          </>
           {!row.isActive && (
             <DropdownMenuItem onClick={handleTogleActive}>
               Activar
@@ -74,6 +67,6 @@ export default function QuotationGroupActions({ row }: QuotationGroupActionsProp
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    </ProtectedComponent>
+    </>
   );
 }

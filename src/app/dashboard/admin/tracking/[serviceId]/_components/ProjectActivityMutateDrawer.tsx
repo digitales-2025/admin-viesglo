@@ -208,9 +208,9 @@ export default function ProjectActivityMutateDrawer({
                               field.value
                                 ? {
                                     id: field.value,
-                                    label: users?.find((user) => user.id === field.value)?.fullName || "",
+                                    label: users?.find((user) => user.id === field.value)?.name || "",
                                     value: field.value,
-                                    name: users?.find((user) => user.id === field.value)?.fullName || "",
+                                    name: users?.find((user) => user.id === field.value)?.name || "",
                                   }
                                 : null
                             }
@@ -220,12 +220,12 @@ export default function ProjectActivityMutateDrawer({
                             onSearch={(query) => {
                               return Promise.resolve(
                                 users
-                                  ?.filter((user) => user.fullName.toLowerCase().includes(query.toLowerCase()))
+                                  ?.filter((user) => user.name.toLowerCase().includes(query.toLowerCase()))
                                   .map((user) => ({
                                     id: user.id,
-                                    label: user.fullName,
+                                    label: user.name,
                                     value: user.id,
-                                    name: user.fullName,
+                                    name: user.name,
                                   })) || []
                               );
                             }}

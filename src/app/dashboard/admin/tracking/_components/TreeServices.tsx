@@ -167,7 +167,9 @@ export default function TreeServices({ services, value = [], onChange, className
       const objectiveMatches = objective.name.toLowerCase().includes(searchTerm.toLowerCase());
       if (objectiveMatches) return true;
 
-      return objective.activities.some((activity) => activity.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      return objective.activities.some((activity: ActivityResponse) =>
+        activity.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
     });
   });
 
@@ -279,7 +281,7 @@ export default function TreeServices({ services, value = [], onChange, className
 
                     {expandedObjectives.has(objective.id) && (
                       <div className="pl-8">
-                        {objective.activities.map((activity) => (
+                        {objective.activities.map((activity: ActivityResponse) => (
                           <div key={activity.id} className="flex items-center px-4 py-2 border-t hover:bg-muted/50">
                             <Button
                               type="button"

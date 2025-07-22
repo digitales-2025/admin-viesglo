@@ -66,21 +66,42 @@ export const useUpdateClient = () => {
 };
 
 /**
- * Hook para consultar info SUNAT por RUC
+ * Hook para consultar info SUNAT por RUC - COMPLETAMENTE ARREGLADO
  */
 export const useSunatInfoByRuc = (ruc: string, enabled = false) => {
-  const shouldFetch = enabled && ruc.length === 11;
+  const isValidRuc = typeof ruc === "string" && ruc.length === 11 && /^\d{11}$/.test(ruc);
+  const shouldExecute = isValidRuc && enabled;
 
-  const query = backend.useQuery("get", "/v1/clients/sunat/{ruc}", {
-    params: {
-      path: { ruc },
+  // El hook SIEMPRE se llama, pero solo ejecuta la consulta si shouldExecute
+  const query = backend.useQuery(
+    "get",
+    "/v1/clients/perudev/sunat/{ruc}",
+    {
+      params: {
+        path: { ruc: isValidRuc ? ruc : "" }, // Valor dummy si no es válido
+      },
     },
-    enabled: shouldFetch,
-  });
+    {
+      enabled: shouldExecute,
+    }
+  );
+
+  // Si no se ejecuta, normaliza el resultado
+  if (!shouldExecute) {
+    return {
+      ...query,
+      data: null,
+      isSuccess: false,
+      isFetching: false,
+      error: null,
+      refetch: query.refetch,
+    };
+  }
 
   return {
     ...query,
     isSuccess: query.isSuccess,
+    refetch: query.refetch,
   };
 };
 

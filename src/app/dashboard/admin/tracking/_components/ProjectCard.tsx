@@ -6,7 +6,6 @@ import { format } from "date-fns";
 import { ChevronsRight, ClockArrowUp, Edit, MoreVertical, RotateCcw, Trash, User, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { FileXls } from "@/shared/components/icons/Files";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -30,7 +29,6 @@ import { downloadProjectDetailXls } from "../_actions/project.actions";
 import { useToggleProjectActive, useUpdateProject } from "../_hooks/useProject";
 import { useProjectStore } from "../_hooks/useProjectStore";
 import { ProjectResponse, ProjectStatus, ProjectStatusColors, ProjectStatusLabels } from "../_types/tracking.types";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 
 interface ProjectCardProps {
   className?: string;
@@ -134,12 +132,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
           <Badge variant="outline" className={cn("text-xs sm:text-sm border-none", ProjectStatusColors[displayStatus])}>
             {ProjectStatusLabels[displayStatus]}
           </Badge>
-          <ProtectedComponent
-            requiredPermissions={[
-              { resource: EnumResource.projects, action: EnumAction.update },
-              { resource: EnumResource.projects, action: EnumAction.delete },
-            ]}
-          >
+          <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-muted-foreground h-7 w-7 sm:h-8 sm:w-8">
@@ -147,9 +140,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <ProtectedComponent
-                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.update }]}
-                >
+                <>
                   <DropdownMenuSub>
                     <DropdownMenuSubTrigger disabled={isUpdating}>
                       {isUpdating ? "Actualizando..." : "Cambiar estado"}
@@ -187,10 +178,8 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                       <Edit className="size-3 sm:size-4" />
                     </DropdownMenuShortcut>
                   </DropdownMenuItem>
-                </ProtectedComponent>
-                <ProtectedComponent
-                  requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
-                >
+                </>
+                <>
                   {project.isActive ? (
                     <DropdownMenuItem
                       onClick={(e) => {
@@ -220,7 +209,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                       </DropdownMenuShortcut>
                     </DropdownMenuItem>
                   )}
-                </ProtectedComponent>
+                </>
                 <DropdownMenuItem
                   onClick={(e) => {
                     e.stopPropagation();
@@ -236,7 +225,7 @@ const ProjectCard = memo(function ProjectCard({ className, project }: ProjectCar
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </ProtectedComponent>
+          </>
           <span className="first-letter:uppercase text-wrap text-sm sm:text-base line-clamp-2">
             {project.typeContract}
           </span>

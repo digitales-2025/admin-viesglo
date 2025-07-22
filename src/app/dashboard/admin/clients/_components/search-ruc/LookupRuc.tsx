@@ -8,27 +8,45 @@ import type { UseFormReturn } from "react-hook-form";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
-import type { CreateClientFormData } from "../../_hooks/use-client-form";
 import { useSunatInfoByRuc } from "../../_hooks/use-clients";
+import { CreateClientFormData } from "../../_schemas/clients.schemas";
 
 interface LookupRucProps {
   form: UseFormReturn<CreateClientFormData>;
+  isUpdate?: boolean;
 }
 
-export default function LookupRuc({ form }: LookupRucProps) {
+export default function LookupRuc({ form, isUpdate = false }: LookupRucProps) {
   const [rucInput, setRucInput] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
-  const [lastSearchedRuc, setLastSearchedRuc] = useState("");
-  const [rucToSearch, setRucToSearch] = useState("");
+  const [lastSearchedRuc, setLastSearchedRuc] = useState<string | undefined>(undefined);
+
+  // ARREGLADO: Solo hacer la consulta si el usuario ha buscado manualmente
+  const shouldQuery = hasSearched && !!lastSearchedRuc && lastSearchedRuc.length === 11;
 
   const {
     data: sunatData,
     isFetching: isLoadingSunat,
     error: errorSunat,
     isSuccess: isSuccessSunat,
-  } = useSunatInfoByRuc(rucToSearch, !!rucToSearch && rucToSearch.length === 11);
+  } = useSunatInfoByRuc(lastSearchedRuc ?? "", shouldQuery);
 
-  console.log("LookupRuc - sunatData:", JSON.stringify(sunatData, null, 2));
+  // Sincronizar el input con el valor del formulario (para modo actualizar)
+  useEffect(() => {
+    const formRuc = form.getValues("ruc");
+    if (formRuc && formRuc !== rucInput) {
+      setRucInput(formRuc);
+    }
+  }, [form.watch("ruc")]);
+
+  // Limpiar estado cuando se cierra/abre el modal
+  useEffect(() => {
+    if (!isUpdate) {
+      setRucInput("");
+      setHasSearched(false);
+      setLastSearchedRuc("");
+    }
+  }, [isUpdate]);
 
   // Validar si el RUC es válido (11 dígitos)
   const isRucValid = rucInput.length === 11 && /^\d{11}$/.test(rucInput);
@@ -41,14 +59,11 @@ export default function LookupRuc({ form }: LookupRucProps) {
     if (isButtonDisabled) return;
     setHasSearched(true);
     setLastSearchedRuc(rucInput);
-    setRucToSearch(rucInput);
   };
 
-  // Auto-llenar el formulario cuando se encuentren datos
+  // Auto-llenar el formulario cuando se encuentren datos (solo en modo crear)
   useEffect(() => {
     if (isSuccessSunat && sunatData) {
-      console.log("LookupRuc - Llenando formulario con datos SUNAT");
-
       // Llenar datos básicos
       form.setValue("name", sunatData.sunatInfo?.businessName || "");
       form.setValue("legalRepresentative", sunatData.legalRepresentative || "");
@@ -60,34 +75,32 @@ export default function LookupRuc({ form }: LookupRucProps) {
       form.setValue("sunatInfo.state", sunatData.sunatInfo?.state || "");
       form.setValue("sunatInfo.condition", sunatData.sunatInfo?.condition || "");
 
-      // Llenar ubicación geográfica
-      const department = sunatData.sunatInfo?.department || "";
-      const province = sunatData.sunatInfo?.province || "";
-      const district = sunatData.sunatInfo?.district || "";
-
-      console.log("LookupRuc - Asignando ubicación:", { department, province, district });
-
-      form.setValue("sunatInfo.department", department);
-      form.setValue("sunatInfo.province", province);
-      form.setValue("sunatInfo.district", district);
-
-      // Verificar que se asignaron correctamente
+      // Llenar ubicación geográfica con delay para sincronización
       setTimeout(() => {
-        const currentValues = form.getValues();
-        console.log("LookupRuc - Valores actuales del formulario:", {
-          department: currentValues.sunatInfo?.department,
-          province: currentValues.sunatInfo?.province,
-          district: currentValues.sunatInfo?.district,
-        });
-      }, 100);
+        const department = sunatData.sunatInfo?.department || "";
+        const province = sunatData.sunatInfo?.province || "";
+        const district = sunatData.sunatInfo?.district || "";
+
+        form.setValue("sunatInfo.department", department, { shouldValidate: true });
+        form.setValue("sunatInfo.province", province, { shouldValidate: true });
+        form.setValue("sunatInfo.district", district, { shouldValidate: true });
+
+        // Forzar trigger para notificar a los watchers
+        form.trigger(["sunatInfo.department", "sunatInfo.province", "sunatInfo.district"]);
+      }, 200);
     }
-  }, [isSuccessSunat, sunatData, form]);
+  }, [isUpdate, isSuccessSunat, sunatData, form]);
 
   // Manejar el cambio en el input del RUC
   const handleRucChange = (value: string) => {
     const numericValue = value.replace(/\D/g, "").slice(0, 11);
     setRucInput(numericValue);
     form.setValue("ruc", numericValue);
+
+    // Resetear estado de búsqueda si cambia el RUC
+    if (numericValue !== lastSearchedRuc) {
+      setHasSearched(false);
+    }
   };
 
   // Manejar Enter para buscar
@@ -153,20 +166,20 @@ export default function LookupRuc({ form }: LookupRucProps) {
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <>
-                <Search className="h-4 w-4 mr-2" />
-                Buscar
+                <Search className="h-4 w-4" />
+                <span className="sm:block hidden">{isUpdate ? "Consultar" : "Buscar"}</span>
               </>
             )}
           </Button>
         </div>
 
-        {/* Status simple */}
+        {/* Status */}
         {rucInput.length > 0 && (
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
               {isRucValid ? (
                 <span className="text-primary font-medium">
-                  ✓ RUC válido. Verifique y haga clic en "Buscar" para consultar
+                  RUC válido. Haga clic en "{isUpdate ? "Consultar" : "Buscar"}" para obtener datos
                 </span>
               ) : (
                 <span className="text-muted-foreground">{rucInput.length}/11 dígitos</span>
@@ -195,24 +208,54 @@ export default function LookupRuc({ form }: LookupRucProps) {
 
       {/* Success State */}
       {isSuccessSunat && sunatData && hasSearched && (
-        <div className="flex items-center gap-3 p-3 rounded-lg border bg-primary/5 border-primary/20">
-          <div className="p-1.5 rounded-md bg-primary/10">
-            <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-          </div>
-          <div className="flex-1">
-            <div className="font-medium text-sm">✅ Datos encontrados y asignados</div>
-            <div className="text-foreground font-semibold">{sunatData.sunatInfo?.businessName}</div>
-            <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              📍 {sunatData.sunatInfo?.department} - {sunatData.sunatInfo?.province} - {sunatData.sunatInfo?.district}
+        <div className="flex flex-col md:flex-row gap-4 p-4 rounded-lg border bg-primary/5 border-primary/20 shadow-sm">
+          {/* Columna izquierda: icono grande y badge */}
+          <div className="flex flex-col items-center justify-center gap-2 min-w-[80px]">
+            <div className="rounded-full bg-primary/10 p-2 flex items-center justify-center">
+              <CheckCircle className="h-6 w-6 text-primary" />
             </div>
-            <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Estado: {sunatData.sunatInfo?.state} | Condición: {sunatData.sunatInfo?.condition}
+            <Badge variant="success" className="text-xs px-2 py-0.5 mt-1">
+              Consulta exitosa
+            </Badge>
+          </div>
+          {/* Columna derecha: información */}
+          <div className="flex-1 flex flex-col gap-2">
+            {/* Nombre y representante */}
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-primary/70 shrink-0" />
+                <span className="font-semibold text-base">{sunatData.sunatInfo?.businessName}</span>
+              </div>
+              {sunatData.legalRepresentative && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <User className="h-3 w-3 shrink-0" />
+                  <span>
+                    Representante legal: <span className="font-medium">{sunatData.legalRepresentative}</span>
+                  </span>
+                </div>
+              )}
+            </div>
+            {/* Ubicación */}
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Info className="h-3 w-3" />
+              <span>
+                {sunatData.sunatInfo?.department} - {sunatData.sunatInfo?.province} - {sunatData.sunatInfo?.district}
+              </span>
+            </div>
+            {/* Estado y condición */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <Badge variant="outline" className="px-1.5 py-0.5 flex items-center gap-1">
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                Estado: {sunatData.sunatInfo?.state}
+              </Badge>
+              <Badge variant="outline" className="px-1.5 py-0.5 flex items-center gap-1">
+                <Info className="h-3 w-3 text-blue-600" />
+                Condición: {sunatData.sunatInfo?.condition}
+              </Badge>
             </div>
           </div>
-          <User className="h-5 w-5 text-primary/60 shrink-0" />
         </div>
       )}
-
       {/* Error State */}
       {hasSearched && hasError() && (
         <div className="flex items-start gap-3 p-3 rounded-lg border bg-destructive/5 border-destructive/20">

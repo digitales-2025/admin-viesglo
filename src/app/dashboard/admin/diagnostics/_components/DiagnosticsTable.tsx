@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useAllDiagnostics } from "../../medical-records/_hooks/useMedicalRecords";
 import { columnsDiagnostics } from "./diagnostics.columns";
 
