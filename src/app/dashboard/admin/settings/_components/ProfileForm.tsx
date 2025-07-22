@@ -6,7 +6,7 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { useUpdateUser } from "@/app/dashboard/admin/users/_hooks/useUsers";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -39,7 +39,7 @@ const profileFormSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileFormSchema>;
 
 export default function ProfileForm() {
-  const { data: user, isLoading } = useCurrentUser();
+  const { data: user, isLoading } = useProfile();
 
   const { mutate: updateUser, isPending } = useUpdateUser();
 
