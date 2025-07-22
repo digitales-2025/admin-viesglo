@@ -1,7 +1,5 @@
-import { components } from "@/lib/api/types/api";
+export type ClinicResponse = any;
 
-export type ClinicResponse = components["schemas"]["ClinicResponseDto"];
+export type ClinicCreate = any;
 
-export type ClinicCreate = components["schemas"]["CreateClinicDto"];
-
-export type ClinicUpdate = components["schemas"]["UpdateClinicDto"];
+export type ClinicUpdate = any;
