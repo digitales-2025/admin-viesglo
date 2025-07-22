@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Eye, MoreHorizontal } from "lucide-react";
 
-import { useAuth } from "@/auth/presentation/providers/AuthProvider";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -20,22 +19,8 @@ interface MedicalRecordTableActionsProps {
 }
 
 export default function MedicalRecordTableActions({ record }: MedicalRecordTableActionsProps) {
-  const { user, hasRole } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(false);
+  const user = useProfile();
   const router = useRouter();
-
-  useEffect(() => {
-    const checkAdminRole = async () => {
-      if (user) {
-        // Verificar si el usuario tiene rol de superadmin o admin
-        const isSuperAdmin = await hasRole("superadmin");
-        const isAdminUser = await hasRole("admin");
-        setIsAdmin(isSuperAdmin || isAdminUser);
-      }
-    };
-
-    checkAdminRole();
-  }, [user, hasRole]);
 
   const handleViewDetails = () => {
     router.push(`/dashboard/admin/medical-records/${record.id}/details`);
@@ -50,7 +35,7 @@ export default function MedicalRecordTableActions({ record }: MedicalRecordTable
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {isAdmin && (
+          {user.isSuperAdmin && (
             <DropdownMenuItem className="cursor-pointer" onClick={handleViewDetails}>
               Ver detalles
               <DropdownMenuShortcut>
