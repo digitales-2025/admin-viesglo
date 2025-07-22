@@ -6,6 +6,9 @@ pipeline {
             args '-u 0:0 -v /home/jenkinsci/pnpm-store:/root/.pnpm-store'
         }
     }
+    environment {
+        NEXT_PUBLIC_BACKEND_URL="http://localhost:5000"
+    }
     stages {
         stage('Config pnpm') {
             steps {
