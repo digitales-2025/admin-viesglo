@@ -139,7 +139,7 @@ export default function ClientsEditorForm({
           <button
             type="button"
             onClick={() => setContactsExpanded(!contactsExpanded)}
-            className="w-full flex items-center justify-between pb-2 border-b"
+            className="w-full flex items-center justify-between pb-2 border-b cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
@@ -258,7 +258,7 @@ export default function ClientsEditorForm({
           <button
             type="button"
             onClick={() => setSunatExpanded(!sunatExpanded)}
-            className="w-full flex items-center justify-between pb-2 border-b"
+            className="w-full flex items-center justify-between pb-2 border-b cursor-pointer"
           >
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
