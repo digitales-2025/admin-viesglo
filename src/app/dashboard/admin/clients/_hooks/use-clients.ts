@@ -33,7 +33,7 @@ export const useCreateClient = () => {
       toast.success("Cliente creado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -55,7 +55,7 @@ export const useUpdateClient = () => {
       toast.success("Cliente actualizado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -116,7 +116,7 @@ export const useAddContactToClient = () => {
       toast.success("Contacto agregado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -137,7 +137,7 @@ export const useUpdateContactOfClient = () => {
       toast.success("Contacto actualizado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -158,7 +158,7 @@ export const useDeleteClient = () => {
       toast.success("Cliente eliminado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 };
@@ -174,7 +174,7 @@ export const useReactivateClient = () => {
       toast.success("Cliente reactivado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 };

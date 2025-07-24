@@ -10,6 +10,7 @@ import { Loading } from "@/shared/components/loading";
 import { useClients } from "../../_hooks/use-clients";
 import { ClientProfileResponseDto } from "../../_types/clients.types";
 import { facetedFilters } from "../../_utils/clients.filter.utils";
+import { ClientDescription } from "./ClientDescription";
 import { columnsClients } from "./ClientsColumns";
 
 export default function ClientsTable() {
@@ -40,6 +41,8 @@ export default function ClientsTable() {
         pageCount: data.meta.totalPages,
         total: data.meta.total,
       }}
+      getRowCanExpand={() => true}
+      renderExpandedRow={(row) => <ClientDescription row={row} />}
       initialColumnVisibility={{
         isActive: isSuperAdmin,
       }}
