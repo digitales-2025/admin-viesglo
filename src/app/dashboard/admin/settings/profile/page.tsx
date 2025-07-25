@@ -1,10 +1,10 @@
-import React from "react";
+"use client";
 
 import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { Loading } from "@/shared/components/loading";
-import AccountForm from "./_components/AccountForm";
+import ProfileForm from "../_components/ProfileForm";
 
-export default function AccountPage() {
+export default function ProfilePage() {
   const user = useProfile();
 
   if (!user?.data) {
@@ -15,5 +15,9 @@ export default function AccountPage() {
     );
   }
 
-  return <AccountForm data={{ ...user.data, isSuperAdmin: user.isSuperAdmin }} />;
+  return (
+    <div className="w-full">
+      <ProfileForm data={{ ...user.data, isSuperAdmin: user.isSuperAdmin }} />
+    </div>
+  );
 }
