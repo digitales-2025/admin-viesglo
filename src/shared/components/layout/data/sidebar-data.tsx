@@ -134,12 +134,12 @@ export const sidebarData: SidebarData = {
             {
               title: "Perfil",
               icon: UserRound,
-              url: "/dashboard/admin/settings",
+              url: "/dashboard/admin/settings/profile",
             },
             {
               title: "Seguridad",
               icon: Lock,
-              url: "/dashboard/admin/security",
+              url: "/dashboard/admin/settings/security",
             },
           ],
         },
