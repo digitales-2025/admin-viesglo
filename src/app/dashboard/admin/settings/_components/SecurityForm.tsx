@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { CheckCircle, Key, Shield, XCircle } from "lucide-react";
 
-import type { components } from "@/lib/api/types/api";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
@@ -13,15 +12,9 @@ import { useProfileForm } from "../_hooks/use-profile-form";
 import type { PasswordRequirement } from "../_types/password";
 import { getPasswordStrength, getProgressColor, getStrengthText } from "../_utils/profile.utils";
 
-interface SecurityFormProps {
-  data: components["schemas"]["UserResponseDto"] & {
-    isSuperAdmin?: boolean;
-  };
-}
-
-export default function SecurityForm({ data }: SecurityFormProps) {
+export default function SecurityForm() {
   // Hook para el formulario de cambio de contraseña
-  const { form, isPending, onSubmit } = useProfileForm({ userId: data.id });
+  const { form, isPending, onSubmit } = useProfileForm({});
 
   // Requisitos visuales de contraseña
   const [passwordRequirements, setPasswordRequirements] = useState<Array<PasswordRequirement>>([
