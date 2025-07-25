@@ -21,14 +21,14 @@ export function Shell({ children, search = true, breadcrumbMaxItems = 4, showBre
       <Header fixed>
         <div className="flex items-center w-full gap-4">
           {/* Left Section - Breadcrumb */}
-          <div className="hidden md:flex items-center min-w-0 flex-1">
+          <div className="hidden lg:flex items-center min-w-0 flex-1">
             <AutoBreadcrumb maxItems={breadcrumbMaxItems} showIcons={showBreadcrumbIcons} className="max-w-md" />
           </div>
 
           {/* Center Section - Search */}
           {search && (
             <>
-              <Separator orientation="vertical" className="hidden md:block h-6" />
+              <Separator orientation="vertical" className="hidden lg:block h-6" />
               <div className="flex-1 max-w-sm">
                 <Search />
               </div>
@@ -45,9 +45,9 @@ export function Shell({ children, search = true, breadcrumbMaxItems = 4, showBre
       </Header>
 
       {/* Mobile Breadcrumb */}
-      <div className="md:hidden sticky top-16 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-12 items-center px-4">
-          <AutoBreadcrumb maxItems={3} showIcons={showBreadcrumbIcons} className="min-w-0 flex-1" />
+      <div className="lg:hidden sticky top-16 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 w-full">
+        <div className="flex h-12 items-center w-full px-4 justify-center">
+          <AutoBreadcrumb maxItems={3} showIcons={showBreadcrumbIcons} className="min-w-0 flex justify-center" />
         </div>
       </div>
 
