@@ -1,5 +1,6 @@
 import type React from "react";
 
+import NotificationsBell from "../ui/notifications-bell";
 import { Separator } from "../ui/separator";
 import { AutoBreadcrumb } from "./AutoBreadcrumb";
 import { Header } from "./Header";
@@ -37,6 +38,7 @@ export function Shell({ children, search = true, breadcrumbMaxItems = 4, showBre
 
           {/* Right Section - Actions */}
           <div className="flex items-center space-x-3 ml-auto">
+            <NotificationsBell />
             <ThemeSwitch />
             <Separator orientation="vertical" className="h-6" />
             <ProfileDropdown />
