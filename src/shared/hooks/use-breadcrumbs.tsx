@@ -30,6 +30,7 @@ class BreadcrumbGenerator {
     this.sidebar = sidebar;
     this.segmentTitleMap = {
       dashboard: "Dashboard",
+      account: "Mi Cuenta",
       admin: "Administración",
       users: "Usuarios",
       roles: "Roles y Permisos",

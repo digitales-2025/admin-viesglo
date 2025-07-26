@@ -1,10 +1,11 @@
-import ContentSection from "../_components/ContentSection";
-import SecurityForm from "./_components/SecurityForm";
+"use client";
 
-export default function AdminSecuritySettingsPage() {
+import SecurityForm from "../_components/SecurityForm";
+
+export default function SecurityPage() {
   return (
-    <ContentSection title="Seguridad" desc="Configura tus credenciales de seguridad">
+    <div className="w-full">
       <SecurityForm />
-    </ContentSection>
+    </div>
   );
 }
