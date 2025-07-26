@@ -5,14 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { useLogout } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
-import { passwordSchema, type PasswordForm } from "../_schemas/profile.schemas";
-import { useChangeUserPassword } from "./use-profile";
+import { passwordSchema, UserInfoForm, userInfoSchema, type PasswordForm } from "../_schemas/profile.schemas";
+import { useChangeUserPassword, useUpdateProfile } from "./use-profile";
 
-interface UseProfileFormProps {
+interface useChangePasswordFormProps {
   onSuccess?: () => void;
 }
 
-export function useProfileForm({ onSuccess }: UseProfileFormProps) {
+export function useChangePasswordForm({ onSuccess }: useChangePasswordFormProps) {
   const { mutate: changePassword, isPending, isSuccess } = useChangeUserPassword();
   const { onLogout } = useLogout();
 
@@ -42,6 +42,42 @@ export function useProfileForm({ onSuccess }: UseProfileFormProps) {
         currentPassword: data.current,
         password: data.new,
         confirmPassword: data.confirm,
+      },
+    });
+  };
+
+  return {
+    form,
+    isPending,
+    isSuccess,
+    onSubmit,
+  };
+}
+
+export function useProfileForm({ initialData, onSuccess }: { initialData?: UserInfoForm; onSuccess?: () => void }) {
+  const { mutate: updateProfile, isPending, isSuccess } = useUpdateProfile();
+
+  const form = useForm<UserInfoForm>({
+    resolver: zodResolver(userInfoSchema),
+    defaultValues: initialData || {
+      name: "",
+      lastName: "",
+    },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    if (isSuccess) {
+      form.reset();
+      onSuccess?.();
+    }
+  }, [isSuccess]);
+
+  const onSubmit = (data: UserInfoForm) => {
+    updateProfile({
+      body: {
+        name: data.name,
+        lastName: data.lastName,
       },
     });
   };

@@ -23,3 +23,22 @@ export const useChangeUserPassword = () => {
     isSuccess: mutation.isSuccess,
   };
 };
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation("patch", "/v1/auth/profile", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/users/{id}"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/auth/me"] });
+      toast.success("Perfil actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error al actualizar el perfil");
+    },
+  });
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
