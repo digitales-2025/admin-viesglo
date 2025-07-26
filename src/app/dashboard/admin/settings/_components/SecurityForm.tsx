@@ -8,13 +8,13 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { PasswordInput } from "@/shared/components/ui/password-input";
 import { Progress } from "@/shared/components/ui/progress";
-import { useProfileForm } from "../_hooks/use-profile-form";
+import { useChangePasswordForm } from "../_hooks/use-profile-form";
 import type { PasswordRequirement } from "../_types/password";
 import { getPasswordStrength, getProgressColor, getStrengthText } from "../_utils/profile.utils";
 
 export default function SecurityForm() {
   // Hook para el formulario de cambio de contraseña
-  const { form, isPending, onSubmit } = useProfileForm({});
+  const { form, isPending, onSubmit } = useChangePasswordForm({});
 
   // Requisitos visuales de contraseña
   const [passwordRequirements, setPasswordRequirements] = useState<Array<PasswordRequirement>>([

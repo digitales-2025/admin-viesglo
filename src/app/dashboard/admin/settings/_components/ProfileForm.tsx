@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
 import { AlertTriangle, Building, CheckCircle, Edit3, Lock, Mail, Save, Settings, Shield, User } from "lucide-react";
-import { useForm } from "react-hook-form";
 
 import type { components } from "@/lib/api/types/api";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
@@ -12,7 +10,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { userInfoSchema, type UserInfoForm } from "../_schemas/profile.schemas";
+import { useProfileForm } from "../_hooks/use-profile-form";
 import { getTimeAgo } from "../_utils/profile.utils";
 
 interface ProfileFormProps {
@@ -31,13 +29,21 @@ export default function ProfileForm({ data }: ProfileFormProps) {
     role: data.role?.name ?? "Usuario",
   };
 
-  const userForm = useForm<UserInfoForm>({
-    resolver: zodResolver(userInfoSchema),
-    defaultValues: {
+  // Hook para el formulario de perfil
+  const { form, isPending, onSubmit } = useProfileForm({
+    initialData: {
       name: userData.name,
-      lastName: userData.lastName ?? "",
+      lastName: userData.lastName,
     },
+    onSuccess: () => setIsEditing(false),
   });
+
+  useEffect(() => {
+    form.reset({
+      name: userData.name,
+      lastName: userData.lastName,
+    });
+  }, [userData.name, userData.lastName]);
 
   const getInitials = (name: string) =>
     name
@@ -46,11 +52,6 @@ export default function ProfileForm({ data }: ProfileFormProps) {
       .join("")
       .toUpperCase()
       .slice(0, 2);
-
-  const onUserInfoSubmit = (data: UserInfoForm) => {
-    console.log("Datos del usuario:", data);
-    setIsEditing(false);
-  };
 
   return (
     <div className="w-full space-y-10">
@@ -125,10 +126,10 @@ export default function ProfileForm({ data }: ProfileFormProps) {
         {/* Información personal editable */}
         <div className="space-y-6">
           <h3 className="mb-2 text-lg font-semibold">Información Personal</h3>
-          <Form {...userForm}>
-            <form onSubmit={userForm.handleSubmit(onUserInfoSubmit)} className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                control={userForm.control}
+                control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -150,7 +151,7 @@ export default function ProfileForm({ data }: ProfileFormProps) {
               />
 
               <FormField
-                control={userForm.control}
+                control={form.control}
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
@@ -173,7 +174,7 @@ export default function ProfileForm({ data }: ProfileFormProps) {
 
               {isEditing && (
                 <div className="pt-4">
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={isPending}>
                     <Save className="mr-2 h-4 w-4" />
                     Guardar Cambios
                   </Button>
