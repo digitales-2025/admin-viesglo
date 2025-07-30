@@ -1,15 +1,13 @@
 import { components } from "@/lib/api/types/api";
 
-// Tipo original de la API
-export type UserResponseOriginal = components["schemas"]["UserResponseDto"];
-export type User = UserResponseOriginal & { roles: Role[] };
-
-export type UserCreate = Omit<any, "roleIds"> & {
-  roleIds: string[];
-};
-
-export type UserUpdate = Omit<any, "roleIds"> & {
-  roleIds: string[];
-};
-
+// Tipos generados automáticamente desde el backend
+export type UserResponse = components["schemas"]["UserResponseDto"];
+export type UserProfile = components["schemas"]["UserProfileDto"];
 export type Role = components["schemas"]["RoleResponseDto"];
+
+// Para crear y actualizar usuario, puedes definir así si tienes los DTOs:
+export type UserCreate = components["schemas"]["CreateUserRequestDto"];
+export type UserUpdate = components["schemas"]["UpdateUserRequestDto"];
+export type ChangePasswordRequest = components["schemas"]["ChangePasswordRequestDto"];
+
+export type PaginatedUserResponse = components["schemas"]["PaginatedUserResponseDto"];
