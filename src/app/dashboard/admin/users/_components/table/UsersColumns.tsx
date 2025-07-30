@@ -6,17 +6,29 @@ import { IdCard, Mail, Shield } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
-import { Role, User } from "../_types/user.types";
+import { UserResponse } from "../../_types/user.types";
 import { UsersTableActions } from "./UsersTablesActions";
 
 // Esta función crea las columnas y recibe una función para manejar la expansión
-export const columnsUsers = (): ColumnDef<User>[] => [
+export const columnsUsers = (actualUserId: string): ColumnDef<UserResponse>[] => [
   // Columna de expansión explícita
   {
-    id: "nombre completo",
-    accessorKey: "fullName",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre Completo" />,
-    cell: ({ row }) => <div className="font-semibold capitalize">{row.getValue("nombre completo")}</div>,
+    id: "nombre",
+    accessorKey: "name",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
+    cell: ({ row }) => {
+      const name = row.original.name || "";
+      return <div className="font-semibold capitalize">{name}</div>;
+    },
+  },
+  {
+    id: "apellido",
+    accessorKey: "lastName",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Apellido" />,
+    cell: ({ row }) => {
+      const lastName = row.original.lastName || "";
+      return <div className="font-semibold capitalize">{lastName}</div>;
+    },
   },
   {
     id: "email",
@@ -32,35 +44,28 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     ),
   },
   {
-    id: "cargo",
-    accessorKey: "post",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Cargo" />,
-    cell: ({ row }) => <div className=" capitalize">{row.getValue("cargo")}</div>,
-  },
-  {
     id: "rol",
-    accessorKey: "roles",
+    accessorKey: "roleName",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Rol" />,
     cell: ({ row }) => {
+      const isActive = row.original.isActive;
+      const roleName = row.original.role?.name;
       return (
         <Link href="/roles">
-          <div className="flex flex-wrap gap-2 capitalize font-semibold">
-            {row.original.roles.map((role) => (
-              <span key={role.id} className="inline-flex items-center gap-2">
-                {row.original.isActive ? (
-                  <Shield className="w-4 h-4 text-emerald-500" />
-                ) : (
-                  <IdCard className="w-4 h-4 text-muted-foreground" />
-                )}
-                {role.name}
-              </span>
-            ))}
+          <div className="flex items-center gap-2 capitalize font-semibold">
+            {isActive ? (
+              <Shield className="w-4 h-4 text-emerald-500" />
+            ) : (
+              <IdCard className="w-4 h-4 text-muted-foreground" />
+            )}
+            {roleName}
           </div>
         </Link>
       );
     },
     filterFn: (row, _, filterValue) => {
-      return filterValue.some((role: string) => row.original.roles.some((r: Role) => r.name === role));
+      // Ahora roleName es string, no array
+      return filterValue.some((role: string) => row.original.role?.name === role);
     },
   },
   {
@@ -83,7 +88,7 @@ export const columnsUsers = (): ColumnDef<User>[] => [
     size: 100,
     cell: ({ row }) => {
       const item = row.original;
-      return <UsersTableActions row={item} />;
+      return <UsersTableActions row={item} actualUserId={actualUserId} />;
     },
   },
 ];

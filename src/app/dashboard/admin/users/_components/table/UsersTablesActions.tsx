@@ -11,14 +11,15 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useToggleActiveUser } from "../_hooks/useUsers";
-import { User } from "../_types/user.types";
+import { useToggleActiveUser } from "../../_hooks/use-users";
+import { UserResponse } from "../../_types/user.types";
 
 interface UsersTableActionsProps {
-  row: User;
+  row: UserResponse;
+  actualUserId: string;
 }
 
-export function UsersTableActions({ row }: UsersTableActionsProps) {
+export function UsersTableActions({ row, actualUserId }: UsersTableActionsProps) {
   const { open } = useDialogStore();
 
   const { mutate: reactivateUser, isPending: isReactivating } = useToggleActiveUser();
@@ -27,7 +28,7 @@ export function UsersTableActions({ row }: UsersTableActionsProps) {
   const MODULE = "users";
 
   const handleReactivateUser = () => {
-    reactivateUser(row.id);
+    reactivateUser({ params: { path: { id: row?.id } } });
   };
 
   return (
@@ -45,22 +46,22 @@ export function UsersTableActions({ row }: UsersTableActionsProps) {
             <Edit className="size-4 mr-2" />
           </DropdownMenuShortcut>
         </DropdownMenuItem>
-
-        {row.isActive ? (
-          <DropdownMenuItem onClick={() => open(MODULE, "delete", row)} disabled={!row.isActive}>
-            Eliminar
-            <DropdownMenuShortcut>
-              <Trash className="size-4 mr-2" />
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem onClick={handleReactivateUser} disabled={row.isActive || isReactivating}>
-            Reactivar
-            <DropdownMenuShortcut>
-              <RotateCcw className="size-4 mr-2 text-yellow-600" />
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-        )}
+        {row.id !== actualUserId &&
+          (row.isActive ? (
+            <DropdownMenuItem onClick={() => open(MODULE, "delete", row)} disabled={!row.isActive}>
+              Eliminar
+              <DropdownMenuShortcut>
+                <Trash className="size-4 mr-2" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={handleReactivateUser} disabled={row.isActive || isReactivating}>
+              Reactivar
+              <DropdownMenuShortcut>
+                <RotateCcw className="size-4 mr-2 text-yellow-600" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   );
