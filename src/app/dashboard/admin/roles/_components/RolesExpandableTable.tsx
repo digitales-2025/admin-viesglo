@@ -29,7 +29,7 @@ export function RolesExpandableTable() {
   return (
     <DataTable
       columns={columns}
-      data={roles}
+      data={roles as unknown as Role[]}
       isLoading={isLoading}
       getSubRows={(row) => row.permissionIds as unknown as Role[]}
       renderExpandedRow={(row) => <RolePermissionsView role={row} />}
