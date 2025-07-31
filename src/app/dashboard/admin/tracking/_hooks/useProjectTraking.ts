@@ -1,9 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-
-import { getUsersProjects } from "../../users/_actions/user.actions";
-
 export const USERS_PROJECTS_KEYS = {
   all: ["UserProject"] as const,
   lists: () => [...USERS_PROJECTS_KEYS.all, "list"] as const,
@@ -15,19 +11,3 @@ export const USERS_PROJECTS_KEYS = {
   project: () => [...USERS_PROJECTS_KEYS.all, "list"] as const,
   search: (filter: string) => [...USERS_PROJECTS_KEYS.all, "search", filter] as const,
 };
-
-/**
- * Hook para obtener todos los usuarios
- */
-export function useUsersProject() {
-  return useQuery({
-    queryKey: USERS_PROJECTS_KEYS.project(),
-    queryFn: async () => {
-      const response = await getUsersProjects();
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener usuarios");
-      }
-      return response.data;
-    },
-  });
-}

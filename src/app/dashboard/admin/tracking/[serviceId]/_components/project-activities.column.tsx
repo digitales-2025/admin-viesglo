@@ -1,22 +1,19 @@
 import { useEffect, useState } from "react";
 import { TZDate } from "@date-fns/tz";
 import { ColumnDef } from "@tanstack/react-table";
-import { Check, CircleFadingArrowUp, Clock, ClockFading, Download, Image, Info, Loader2, Trash, X } from "lucide-react";
+import { Check, CircleFadingArrowUp, Clock, ClockFading, Download, Image, Loader2, Trash, X } from "lucide-react";
 import { toast } from "sonner";
 
-import { User as UserResponse } from "@/app/dashboard/admin/users/_types/user.types";
 import { AuditResponse, AuditType } from "@/shared/actions/audit/audit.types";
 import { useAudit } from "@/shared/actions/audit/useAudit";
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { FileUpload } from "@/shared/components/file-upload";
 import { FileUploadAlert } from "@/shared/components/file-upload-alert";
 import { Doc, File, Pdf } from "@/shared/components/icons/Files";
-import AutocompleteSelect from "@/shared/components/ui/autocomplete-select";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import {
@@ -34,7 +31,7 @@ import { FileType, ProjectActivityResponse } from "../../_types/tracking.types";
 import ProjectActivitiesActions from "./ProjectActivitiesActions";
 import { MODULE_PROJECT_ACTIVITIES } from "./ProjectActivitiesDialogs";
 
-export const columnsActivities = (users: UserResponse[], objectiveId: string): ColumnDef<ProjectActivityResponse>[] => [
+export const columnsActivities = (objectiveId: string): ColumnDef<ProjectActivityResponse>[] => [
   {
     id: "name",
     accessorKey: "name",
@@ -44,53 +41,6 @@ export const columnsActivities = (users: UserResponse[], objectiveId: string): C
         {row.getValue("name")}
       </div>
     ),
-  },
-  {
-    id: "responsibleUserId",
-    accessorKey: "responsibleUserId",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Responsable" />,
-    cell: function Cell({ row }) {
-      const responsibleUser = users.find((user) => user.id === row.original.responsibleUser.id);
-      const { mutate: updateResponsibleUserId, isPending } = useUpdateTrackingActivity();
-      const onUpdateResponsibleUserId = (id: string) => {
-        updateResponsibleUserId({
-          objectiveId,
-          activityId: row.original.id,
-          trackingActivity: {
-            responsibleUserId: id,
-          },
-        });
-      };
-
-      return (
-        <div className="flex items-center w-[220px] gap-2" title={responsibleUser?.name}>
-          <AutocompleteSelect
-            label="Responsable"
-            options={users.map((user) => ({ value: user.id, label: user.name }))}
-            value={responsibleUser?.id || ""}
-            onChange={onUpdateResponsibleUserId}
-            isLoading={isPending}
-            className="border-none"
-          />
-
-          {!row.original.responsibleUser.id
-            ? null
-            : !responsibleUser && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <Info className="size-4 text-rose-500" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      El usuario {row.original.responsibleUser.fullName} ha sido eliminado. Seleccione otro usuario
-                      responsable
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
-        </div>
-      );
-    },
   },
   {
     id: "scheduledDate",
