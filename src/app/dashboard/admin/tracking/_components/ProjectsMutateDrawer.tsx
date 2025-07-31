@@ -29,7 +29,6 @@ import {
   SheetTitle,
 } from "@/shared/components/ui/sheet-responsive";
 import { useCreateProject, useUpdateProject } from "../_hooks/useProject";
-import { useUsersProject } from "../_hooks/useProjectTraking";
 import {
   CreateProject,
   ProjectResponse,
@@ -79,7 +78,6 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const { data: services, isLoading, error } = useServices();
-  const { isPending: isLoadingUsers } = useUsersProject();
   const isUpdate = !!currentRow?.id;
   const isPending = isCreating || isUpdating;
 
@@ -192,123 +190,116 @@ export default function ProjectsMutateDrawer({ open, onOpenChange, currentRow }:
             Haz clic en guardar cuando hayas terminado.
           </SheetDescription>
         </SheetHeader>
-        {isLoadingUsers ? (
-          <div className="flex justify-center items-center h-full">
-            <Loader2 className="w-4 h-4 animate-spin" />
-          </div>
-        ) : (
-          <>
-            <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
-              <Form {...form}>
-                <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1 grid grid-cols-2 items-center gap-2 w-full">
-                        <FormLabel>{isUpdate ? "Estado actual" : "Este proyecto inicia como:"}</FormLabel>
-                        <FormControl>
-                          <Select value={field.value} onValueChange={field.onChange}>
-                            <FormItem className="w-full">
-                              <FormControl>
-                                <SelectTrigger className={cn("w-full ", ProjectStatusColors[field.value])}>
-                                  <SelectValue placeholder="Selecciona un estado" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {Object.values(ProjectStatus).map((status) => (
-                                  <SelectItem key={status} value={status}>
-                                    {ProjectStatusLabels[status as ProjectStatus]}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </FormItem>
-                          </Select>
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="typeContract"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1">
-                        <FormLabel>Tipo de contrato</FormLabel>
-                        <FormControl>
-                          <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
-                        </FormControl>
-                        <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem className="space-y-1 flex-1">
-                        <FormLabel>Fecha de inicio</FormLabel>
-                        <FormControl>
-                          <DatePicker
-                            selected={field.value ? new Date(field.value) : undefined}
-                            onSelect={(date) => {
-                              const dateString = date ? date.toISOString() : "";
-                              field.onChange(dateString);
-                            }}
-                            disabled={isPending}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {!isUpdate ? (
-                    <>
-                      {isLoading && (
-                        <div className="flex items-center justify-center">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        </div>
-                      )}
-                      {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
-                      {services && (
-                        <FormField
-                          control={form.control}
-                          name="services"
-                          render={({ field }) => (
-                            <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
-                              <FormLabel>Servicios del proyecto</FormLabel>
-                              <FormControl>
-                                <TreeServices services={services} value={field.value} onChange={field.onChange} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </>
-                  ) : (
+        <ScrollArea className="h-[calc(100vh-500px)] sm:h-[calc(100vh-250px)]">
+          <Form {...form}>
+            <form id="projects-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 space-y-5 p-4">
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 grid grid-cols-2 items-center gap-2 w-full">
+                    <FormLabel>{isUpdate ? "Estado actual" : "Este proyecto inicia como:"}</FormLabel>
+                    <FormControl>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormItem className="w-full">
+                          <FormControl>
+                            <SelectTrigger className={cn("w-full ", ProjectStatusColors[field.value])}>
+                              <SelectValue placeholder="Selecciona un estado" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {Object.values(ProjectStatus).map((status) => (
+                              <SelectItem key={status} value={status}>
+                                {ProjectStatusLabels[status as ProjectStatus]}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </FormItem>
+                      </Select>
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="typeContract"
+                render={({ field }) => (
+                  <FormItem className="space-y-1">
+                    <FormLabel>Tipo de contrato</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Ingrese un tipo de contrato" disabled={isPending} />
+                    </FormControl>
+                    <FormDescription>El tipo de contrato es el nombre del proyecto.</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="space-y-1 flex-1">
+                    <FormLabel>Fecha de inicio</FormLabel>
+                    <FormControl>
+                      <DatePicker
+                        selected={field.value ? new Date(field.value) : undefined}
+                        onSelect={(date) => {
+                          const dateString = date ? date.toISOString() : "";
+                          field.onChange(dateString);
+                        }}
+                        disabled={isPending}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {!isUpdate ? (
+                <>
+                  {isLoading && (
                     <div className="flex items-center justify-center">
-                      <p className="text-sm text-muted-foreground">
-                        Los servicios de un proyecto los puedes ver al seleccionar el proyecto.
-                      </p>
+                      <Loader2 className="h-4 w-4 animate-spin" />
                     </div>
                   )}
-                </form>
-              </Form>
-            </ScrollArea>
-            <SheetFooter className="gap-2">
-              <Button form="projects-form" type="submit" disabled={isPending}>
-                {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
-              </Button>
-              <SheetClose asChild>
-                <Button variant="outline" disabled={isPending}>
-                  Cancelar
-                </Button>
-              </SheetClose>
-            </SheetFooter>
-          </>
-        )}
+                  {error && <div className="text-red-500 text-sm">Error al cargar servicios: {error.message}</div>}
+                  {services && (
+                    <FormField
+                      control={form.control}
+                      name="services"
+                      render={({ field }) => (
+                        <FormItem className={`${hasServiceErrors ? "border-red-500 rounded-lg" : ""}`}>
+                          <FormLabel>Servicios del proyecto</FormLabel>
+                          <FormControl>
+                            <TreeServices services={services} value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </>
+              ) : (
+                <div className="flex items-center justify-center">
+                  <p className="text-sm text-muted-foreground">
+                    Los servicios de un proyecto los puedes ver al seleccionar el proyecto.
+                  </p>
+                </div>
+              )}
+            </form>
+          </Form>
+        </ScrollArea>
+        <SheetFooter className="gap-2">
+          <Button form="projects-form" type="submit" disabled={isPending}>
+            {isPending ? "Guardando..." : isUpdate ? "Actualizar" : "Crear"}
+          </Button>
+          <SheetClose asChild>
+            <Button variant="outline" disabled={isPending}>
+              Cancelar
+            </Button>
+          </SheetClose>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

@@ -2,27 +2,30 @@
 
 import { Trash } from "lucide-react";
 
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteUser } from "../_hooks/useUsers";
-import { UserMutateDrawer } from "./UsersMutateDrawer";
+import { useToggleActiveUser } from "../../_hooks/use-users";
+import { UsersEditorSheet } from "../editor/UsersEditorSheet";
 
-export default function UsersDialogs() {
+export default function UsersOverlays() {
   const { isOpenForModule, data, close } = useDialogStore();
-  const { mutate: deleteUser } = useDeleteUser();
+  const user = useProfile();
+  const { mutate: deleteUser } = useToggleActiveUser();
   // Constantes para módulo
   const MODULE = "users";
 
   return (
     <>
       {/* Diálogo para crear/editar usuario */}
-      <UserMutateDrawer
+      <UsersEditorSheet
         key="user-mutate"
         open={isOpenForModule(MODULE, "create") || isOpenForModule(MODULE, "edit")}
         onOpenChange={(open) => {
           if (!open) close();
         }}
         currentRow={isOpenForModule(MODULE, "edit") ? data : undefined}
+        actualUserId={isOpenForModule(MODULE, "edit") ? (user.data?.id ?? "") : undefined}
       />
 
       {/* Diálogo para eliminar rol */}
@@ -33,11 +36,14 @@ export default function UsersDialogs() {
           if (!open) close();
         }}
         handleConfirm={() => {
-          deleteUser(data?.id, {
-            onSuccess: () => {
-              close();
-            },
-          });
+          deleteUser(
+            { params: { path: { id: data?.id } } },
+            {
+              onSuccess: () => {
+                close();
+              },
+            }
+          );
         }}
         className="max-w-md"
         title={

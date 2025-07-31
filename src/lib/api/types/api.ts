@@ -483,6 +483,23 @@ export interface paths {
     patch: operations["ClientsController_toggleActiveContact_v1"];
     trace?: never;
   };
+  "/v1/roles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los roles */
+    get: operations["RolesController_getAllRoles_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -664,70 +681,6 @@ export interface components {
       /** @description Error details */
       error: components["schemas"]["ErrorResponse"];
     };
-    UserListItemDto: {
-      /**
-       * @description Identificador único de la entidad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Indica si la entidad está activa
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación de la entidad
-       * @example 2024-01-15T10:30:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2024-01-15T10:30:00.000Z
-       */
-      updatedAt: string;
-      /**
-       * @description Fecha de eliminación (soft delete)
-       * @example null
-       */
-      deletedAt?: Record<string, never> | null;
-      /**
-       * @description Nombre del usuario
-       * @example Juan
-       */
-      name: string;
-      /**
-       * @description Apellido del usuario
-       * @example Pérez
-       */
-      lastName: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      /**
-       * @description Email del usuario
-       * @example juan@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Email enmascarado
-       * @example ju***@ejemplo.com
-       */
-      maskedEmail: string;
-      /**
-       * @description Solo el nombre del rol
-       * @example MANAGEMENT
-       */
-      roleName?: string;
-      /**
-       * @description Si el email está verificado
-       * @example true
-       */
-      emailVerified: boolean;
-    };
     PaginationMetadataDto: {
       /**
        * @description Número total de elementos
@@ -762,7 +715,7 @@ export interface components {
     };
     PaginatedUserResponseDto: {
       /** @description Lista de usuarios paginados */
-      data: components["schemas"]["UserListItemDto"][];
+      data: components["schemas"]["UserResponseDto"][];
       /** @description Metadatos de paginación */
       meta: components["schemas"]["PaginationMetadataDto"];
     };
@@ -806,21 +759,10 @@ export interface components {
        */
       lastName?: string;
       /**
-       * Format: email
-       * @description Email del usuario
-       * @example nuevo.email@ejemplo.com
-       */
-      email?: string;
-      /**
        * @description ID del rol a asignar al usuario
        * @example role-456
        */
       roleId?: string;
-      /**
-       * @description Estado activo del usuario
-       * @example false
-       */
-      isActive?: boolean;
     };
     ChangePasswordRequestDto: {
       /**
@@ -1338,6 +1280,31 @@ export interface components {
        */
       isActive: boolean;
     };
+    PermissionsResponseDto: {
+      /** @example projects:read */
+      name: string;
+      /** @example projects */
+      resource: string;
+      /** @example read */
+      action: string;
+    };
+    RolesResponseDto: {
+      /** @example 688294e01d42a5feea2a897b */
+      id: string;
+      /** @example CONSULTANT */
+      name: string;
+      /** @example Consultor - Ejecución de actividades y consultas */
+      description: string;
+      permissions: components["schemas"]["PermissionsResponseDto"][];
+      /** @example true */
+      isActive: boolean;
+      /** @example false */
+      isSystem: boolean;
+      /** @example 2025-07-24T20:17:36.874Z */
+      createdAt: string;
+      /** @example 2025-07-24T20:17:36.874Z */
+      updatedAt: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -1675,6 +1642,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description Identificador del usuario */
         id: string;
       };
       cookie?: never;
@@ -2718,6 +2686,44 @@ export interface operations {
       };
       /** @description Cliente o contacto no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_getAllRoles_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Roles obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RolesResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos para obtener roles */
+      403: {
         headers: {
           [name: string]: unknown;
         };
