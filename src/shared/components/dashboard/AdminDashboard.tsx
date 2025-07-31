@@ -9,6 +9,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import PeruHeatMap from "./_components/clients/PeruHeatMap";
 
 // Datos de ejemplo basados en la imagen
 const projectHealthData = [
@@ -101,8 +102,9 @@ export default function Dashboard() {
 
         {/* Navigation Tabs */}
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 lg:w-96">
+          <TabsList className="grid w-full grid-cols-5 ">
             <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="clientes">Clientes</TabsTrigger>
             <TabsTrigger value="analiticas">Analíticas</TabsTrigger>
             <TabsTrigger value="reportes">Reportes</TabsTrigger>
             <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
@@ -243,6 +245,18 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="clientes">
+            <Card>
+              <CardHeader>
+                <CardTitle>Clientes</CardTitle>
+                <CardDescription>Análisis detallado de clientes y su comportamiento</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PeruHeatMap />
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="analiticas">
