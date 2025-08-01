@@ -51,7 +51,7 @@ export const columnsUsers = (actualUserId: string): ColumnDef<UserResponse>[] =>
       const isActive = row.original.isActive;
       const roleName = row.original.role?.name;
       return (
-        <Link href="/roles">
+        <Link href="/dashboard/admin/roles">
           <div className="flex items-center gap-2 capitalize font-semibold">
             {isActive ? (
               <Shield className="w-4 h-4 text-emerald-500" />
