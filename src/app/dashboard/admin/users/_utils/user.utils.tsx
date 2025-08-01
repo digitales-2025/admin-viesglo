@@ -35,6 +35,47 @@ export const actionColors = {
   "*": "bg-purple-100 text-purple-700 border-purple-200",
 };
 
+/**
+ * Traduce el nombre del recurso a una etiqueta legible en español.
+ */
+export function translateResource(resource: string): string {
+  const map: Record<string, string> = {
+    users: "Usuarios",
+    projects: "Proyectos",
+    clients: "Clientes",
+    milestones: "Hitos",
+    phases: "Fases",
+    deliverables: "Entregables",
+    activities: "Actividades",
+    roles: "Roles",
+    notifications: "Notificaciones",
+    reports: "Reportes",
+    dashboard: "Dashboard",
+    system: "Sistema",
+    "*": "Todos los recursos",
+  };
+  return map[resource] || resource;
+}
+
+/**
+ * Traduce el nombre de la acción a una etiqueta legible en español.
+ */
+export function translateAction(action: string): string {
+  const map: Record<string, string> = {
+    create: "Crear",
+    read: "Ver",
+    update: "Actualizar",
+    delete: "Eliminar",
+    manage: "Gestionar",
+    assign: "Asignar",
+    approve: "Aprobar",
+    export: "Exportar",
+    admin: "Administrar",
+    "*": "Todas las acciones",
+  };
+  return map[action] || action;
+}
+
 export const copyPassword = async (password: string, setCopiedPassword: (value: boolean) => void) => {
   if (password) {
     await navigator.clipboard.writeText(password);
