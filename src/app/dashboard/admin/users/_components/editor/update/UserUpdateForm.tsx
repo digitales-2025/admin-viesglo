@@ -31,7 +31,6 @@ interface UserUpdateFormProps {
   passwordOptions: PasswordOptions;
   showPermissions: boolean;
   setShowPermissions: (visible: boolean) => void;
-  selectedRole: Roles;
   passwordForm: UseFormReturn<ChangePasswordFormData>;
   showPassword: boolean;
   setShowPassword: (visible: boolean) => void;
@@ -53,7 +52,6 @@ export default function UserUpdateForm({
   passwordOptions,
   showPermissions,
   setShowPermissions,
-  selectedRole,
   passwordForm,
   showPassword,
   setShowPassword,
@@ -66,6 +64,8 @@ export default function UserUpdateForm({
   isActualUser,
 }: UserUpdateFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const selectedRoleId = userForm.watch("roleId");
+  const selectedRole = data?.find((role) => role.id === selectedRoleId);
   return (
     <Tabs value={isActualUser ? "user-data" : activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className={`grid w-full ${isActualUser ? "grid-cols-1" : "grid-cols-2"}`}>

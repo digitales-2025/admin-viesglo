@@ -47,14 +47,8 @@ export default function UsersEditorForm({
   const { data, isLoading } = useRoles();
   const [showPassword, setShowPassword] = useState(false);
 
-  const userForm = isUpdate ? updateForm : createForm;
-
-  const selectedRoleId = (userForm.getValues as (name: string) => string)("roleId");
-
   const currentPassword = !isUpdate ? createForm.getValues("password") : "";
   const newPassword = isUpdate ? passwordForm.getValues("newPassword") : "";
-
-  const selectedRole = data?.find((role) => role.id === selectedRoleId);
 
   return (
     <div>
@@ -86,7 +80,6 @@ export default function UsersEditorForm({
               showPassword={showPassword}
               isUpdate={isUpdate}
               data={data as Roles[]}
-              selectedRole={selectedRole as Roles}
               isActualUser={isActualUser}
             />
           ) : (
@@ -99,7 +92,6 @@ export default function UsersEditorForm({
               passwordOptions={passwordOptions}
               setPasswordOptions={setPasswordOptions}
               data={data as Roles[]}
-              selectedRole={selectedRole as Roles}
               setShowPassword={setShowPassword}
               showPassword={showPassword}
               isUserPending={isUserPending}

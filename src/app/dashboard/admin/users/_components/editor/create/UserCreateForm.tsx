@@ -25,7 +25,6 @@ interface UserCreateFormProps {
   showPermissions: boolean;
   setShowPermissions: (visible: boolean) => void;
   data: Array<Roles>;
-  selectedRole: Roles;
   showPassword: boolean;
   setShowPassword: (visible: boolean) => void;
   passwordOptions: PasswordOptions;
@@ -42,7 +41,6 @@ export default function UserCreateForm({
   showPermissions,
   setShowPermissions,
   data,
-  selectedRole,
   showPassword,
   setShowPassword,
   passwordOptions,
@@ -52,6 +50,8 @@ export default function UserCreateForm({
   setCopiedPassword,
   currentPassword,
 }: UserCreateFormProps) {
+  const selectedRoleId = userForm.watch("roleId");
+  const selectedRole = data?.find((role) => role.id === selectedRoleId);
   return (
     <Form {...userForm}>
       <div className="space-y-6">

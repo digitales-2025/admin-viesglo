@@ -98,17 +98,43 @@ export const generateAdvancedPassword = (
   const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
   let charset = "";
-  if (passwordOptions.includeUppercase) charset += uppercase;
-  if (passwordOptions.includeLowercase) charset += lowercase;
-  if (passwordOptions.includeNumbers) charset += numbers;
-  if (passwordOptions.includeSymbols) charset += symbols;
+  const requiredChars: string[] = [];
 
-  if (charset === "") charset = lowercase + numbers;
+  if (passwordOptions.includeUppercase) {
+    charset += uppercase;
+    requiredChars.push(uppercase[Math.floor(Math.random() * uppercase.length)]);
+  }
+  if (passwordOptions.includeLowercase) {
+    charset += lowercase;
+    requiredChars.push(lowercase[Math.floor(Math.random() * lowercase.length)]);
+  }
+  if (passwordOptions.includeNumbers) {
+    charset += numbers;
+    requiredChars.push(numbers[Math.floor(Math.random() * numbers.length)]);
+  }
+  if (passwordOptions.includeSymbols) {
+    charset += symbols;
+    requiredChars.push(symbols[Math.floor(Math.random() * symbols.length)]);
+  }
 
-  let password = "";
-  for (let i = 0; i < passwordOptions.length; i++) {
+  if (charset === "") {
+    charset = lowercase + numbers;
+    requiredChars.push(
+      lowercase[Math.floor(Math.random() * lowercase.length)],
+      numbers[Math.floor(Math.random() * numbers.length)]
+    );
+  }
+
+  let password = requiredChars.join("");
+  for (let i = password.length; i < passwordOptions.length; i++) {
     password += charset.charAt(Math.floor(Math.random() * charset.length));
   }
+
+  // Mezclar la contraseña para evitar que los caracteres requeridos estén siempre al principio
+  password = password
+    .split("")
+    .sort(() => 0.5 - Math.random())
+    .join("");
 
   // Toast personalizado con icono y color
   toast(
