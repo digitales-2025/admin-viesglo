@@ -1,28 +1,19 @@
 "use client";
 
-import { Building2, CheckCircle, Globe, Mail, MapPin, Phone, Shield, User, Users, XCircle } from "lucide-react";
+import { Building2, CheckCircle, Globe, Mail, MapPin, Shield, User, XCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import LogoWhatsapp from "@/shared/components/icons/LogoWhatsapp";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { ClientProfileResponseDto } from "../../_types/clients.types";
+import { getInitials } from "../../_utils/clients.utils";
+import ContactContentDescription from "./ContactContentDescription";
 
 interface ClientDescriptionProps {
   row: ClientProfileResponseDto;
 }
 
 export const ClientDescription = ({ row }: ClientDescriptionProps) => {
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .slice(0, 2)
-      .map((word) => word.charAt(0))
-      .join("")
-      .toUpperCase();
-  };
-
   return (
     <div className="w-full space-y-4 py-2 px-6">
       {/* Header Section - Diseño horizontal minimalista */}
@@ -150,7 +141,9 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
                       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
                         Dirección Fiscal
                       </p>
-                      <p className="font-medium mb-2">{row.sunatInfo.fullAddress}</p>
+                      <div>
+                        <p className="font-medium mb-2 break-words whitespace-normal">{row.sunatInfo.fullAddress}</p>
+                      </div>
                       <div className="flex flex-wrap gap-1">
                         <span className="text-xs px-2 py-1 bg-background rounded border">{row.sunatInfo.district}</span>
                         <span className="text-xs px-2 py-1 bg-background rounded border">{row.sunatInfo.province}</span>
@@ -167,87 +160,7 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
         </div>
 
         {/* Columna derecha - Contactos */}
-        <div className="col-span-12 lg:col-span-4">
-          {row.contacts && row.contacts.length > 0 && (
-            <div className="bg-card rounded-xl border px-1 h-[555px] overflow-hidden">
-              <div className="flex items-center justify-between p-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg">Contactos</h3>
-                </div>
-                <Badge variant="default" className="text-xs">
-                  {row.contacts.length}
-                </Badge>
-              </div>
-              <ScrollArea className="max-h-[450px] h-full">
-                <div className="space-y-3 px-6 pb-2">
-                  {row.contacts.map((contact) => (
-                    <div key={contact.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-start gap-3">
-                        <Avatar className="h-10 w-10 border">
-                          <AvatarFallback className="bg-muted text-xs font-medium">
-                            {getInitials(contact.name)}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <p className="font-medium text-sm truncate">{contact.name}</p>
-                            <div
-                              className={cn(
-                                "h-2 w-2 rounded-full",
-                                contact.isActive ? "bg-emerald-500" : "bg-destructive"
-                              )}
-                            />
-                          </div>
-
-                          <p className="text-xs text-muted-foreground mb-3 truncate">{contact.position}</p>
-
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 text-xs">
-                              <Phone className="h-3 w-3 text-muted-foreground" />
-                              <a
-                                href={`tel:${contact._phone.value.replace(/[^0-9]/g, "")}`}
-                                className="truncate hover:underline text-primary"
-                                title={`Llamar a ${contact._phone.value}`}
-                              >
-                                {contact._phone.value}
-                              </a>
-                            </div>
-                            <div className="flex items-center gap-2 text-xs">
-                              <Mail className="h-3 w-3 text-muted-foreground" />
-                              <a
-                                href={`mailto:${contact._email.value}`}
-                                className="truncate hover:underline text-primary"
-                                title={`Enviar correo a ${contact._email.value}`}
-                              >
-                                {contact._email.value}
-                              </a>
-                            </div>
-
-                            {/* Botón WhatsApp */}
-                            <a
-                              href={`https://wa.me/${contact._phone.value.replace(/[^0-9]/g, "")}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-3 py-1 mt-2 rounded bg-green-500 hover:bg-green-600 text-white text-xs font-medium transition-colors"
-                              title="Chatear por WhatsApp"
-                            >
-                              <LogoWhatsapp className="h-4 w-4" />
-                              WhatsApp
-                            </a>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </ScrollArea>
-            </div>
-          )}
-        </div>
+        <ContactContentDescription row={row} />
       </div>
     </div>
   );

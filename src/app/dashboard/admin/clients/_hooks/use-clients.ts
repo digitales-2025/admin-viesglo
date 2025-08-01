@@ -178,3 +178,19 @@ export const useReactivateClient = () => {
     },
   });
 };
+
+/**
+ * Hook para activar/desactivar contacto de cliente
+ */
+export const useToggleActiveContact = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("patch", "/v1/clients/{id}/contacts/{email}/toggle-active", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Estado del contacto actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+    },
+  });
+};
