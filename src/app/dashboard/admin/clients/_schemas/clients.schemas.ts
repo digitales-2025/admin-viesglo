@@ -2,7 +2,7 @@ import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
 // Schema para contactos (sin isActive en el formulario)
-const contactSchema = z.object({
+export const contactSchema = z.object({
   name: z
     .string()
     .min(2, "El nombre debe tener al menos 2 caracteres")
