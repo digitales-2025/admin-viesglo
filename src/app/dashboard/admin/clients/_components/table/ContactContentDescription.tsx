@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import LogoWhatsapp from "@/shared/components/icons/LogoWhatsapp";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
+import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +29,7 @@ interface ContactContentDescriptionProps {
 export default function ContactContentDescription({ row }: ContactContentDescriptionProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<ClientContactResponseDto | null>(null);
+  const [contactToDelete, setContactToDelete] = useState<ClientContactResponseDto | null>(null);
 
   const toggleActiveContact = useToggleActiveContact();
 
@@ -125,7 +127,7 @@ export default function ContactContentDescription({ row }: ContactContentDescrip
                               {contact.isActive ? (
                                 <DropdownMenuItem
                                   className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                  onClick={() => handleToggleStatus(contact)}
+                                  onClick={() => setContactToDelete(contact)}
                                   disabled={toggleActiveContact.isPending}
                                 >
                                   Desactivar
@@ -202,6 +204,36 @@ export default function ContactContentDescription({ row }: ContactContentDescrip
             </div>
           )}
         </ScrollArea>
+        {contactToDelete && (
+          <ConfirmDialog
+            key="contact-delete"
+            open={!!contactToDelete}
+            onOpenChange={(open) => {
+              if (!open) setContactToDelete(null);
+            }}
+            handleConfirm={() => {
+              handleToggleStatus(contactToDelete);
+              setContactToDelete(null);
+            }}
+            title={
+              <div className="flex items-center gap-2">
+                <Trash className="h-4 w-4 text-rose-500" />
+                Desactivar contacto
+              </div>
+            }
+            desc={
+              <>
+                Estás a punto de desactivar el contacto{" "}
+                <strong className="uppercase text-wrap">{contactToDelete?.name}</strong>.<br />
+                Esta acción puede revertirse reactivando el contacto.
+              </>
+            }
+            confirmText="Desactivar"
+            cancelBtnText="Cancelar"
+            destructive
+            isLoading={toggleActiveContact.isPending}
+          />
+        )}
       </div>
     </div>
   );
