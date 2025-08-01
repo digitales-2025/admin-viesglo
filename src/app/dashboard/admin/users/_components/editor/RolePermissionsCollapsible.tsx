@@ -4,7 +4,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import { cn } from "@/shared/lib/utils";
-import { actionColors, resourceIcons } from "../../_utils/user.utils";
+import { actionColors, resourceIcons, translateAction, translateResource } from "../../_utils/user.utils";
 import { Roles } from "../../../settings/_types/roles.types";
 
 interface Props {
@@ -64,10 +64,12 @@ export default function RolePermissionsCollapsible({ showPermissions, setShowPer
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-sm capitalize">
-                        {permission.resource === "*" ? "Todos los recursos" : permission.resource}
+                        {permission.resource === "*" ? "Todos los recursos" : translateResource(permission.resource)}
                       </span>
                       <span className="text-xs text-muted-foreground">
-                        {permission.action === "*" ? "Acceso completo" : `Acción: ${permission.action}`}
+                        {permission.action === "*"
+                          ? "Acceso completo"
+                          : `Acción: ${translateAction(permission.action)}`}
                       </span>
                     </div>
                   </div>
@@ -78,7 +80,7 @@ export default function RolePermissionsCollapsible({ showPermissions, setShowPer
                     )}
                     variant="outline"
                   >
-                    {permission.action === "*" ? "TOTAL" : permission.action.toUpperCase()}
+                    {permission.action === "*" ? "TOTAL" : translateAction(permission.action).toUpperCase()}
                   </Badge>
                 </div>
               );
