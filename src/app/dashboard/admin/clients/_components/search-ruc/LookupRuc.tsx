@@ -265,11 +265,16 @@ export default function LookupRuc({ form, isUpdate = false }: LookupRucProps) {
           <div className="flex-1">
             <div className="font-medium text-sm text-destructive">Error en la consulta</div>
             <div className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              {errorSunat instanceof Error
-                ? errorSunat.message
-                : typeof errorSunat === "object" && errorSunat !== null && "message" in errorSunat
-                  ? String((errorSunat as any).message)
-                  : "No se pudo obtener los datos del RUC. Verifique el número e intente nuevamente."}
+              {/* Mostrar primero el userMessage si existe, si no el message */}
+              {errorSunat?.error?.userMessage ? (
+                <div className="mb-1">{errorSunat.error.userMessage}</div>
+              ) : errorSunat?.error?.message ? (
+                <div className="mb-1">{errorSunat.error.message}</div>
+              ) : errorSunat instanceof Error ? (
+                <div className="mb-1">{errorSunat.message}</div>
+              ) : (
+                <div>No se pudo obtener los datos del RUC. Verifique el número e intente nuevamente.</div>
+              )}
             </div>
           </div>
         </div>
