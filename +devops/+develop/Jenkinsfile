@@ -85,7 +85,7 @@ ungrouped:
 				}
 				stage("Setup target") {
 					steps {
-						dir ("+devops") {
+						dir ("+devops/+$PROJECT_STAGE") {
 							ansiblePlaybook(
 								credentialsId: SSH_CRED,
 								inventory: "inventory.yml",
@@ -103,7 +103,7 @@ ungrouped:
 		}
 		stage("Up services") {
 			steps {
-				dir ("+devops") {
+				dir ("+devops/+$PROJECT_STAGE") {
 					ansiblePlaybook(
 						credentialsId: SSH_CRED,
 						inventory: "inventory.yml",
