@@ -103,6 +103,9 @@ ungrouped:
 			}
 		}
 		stage("Up services") {
+			environment {
+				PROJECT_SERVICE   = "frontend"
+			}
 			steps {
 				dir ("+devops/+$PROJECT_STAGE") {
 					ansiblePlaybook(
