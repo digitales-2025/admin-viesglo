@@ -3,13 +3,12 @@
   become: false
   hosts: all
   vars:
-    remote_folder: "{{ remote_folder }}"
-    image_tag: "{{ build_reference }}"
-    full_registry_url: "{{ full_registry_url }}"
-    # e.g. backend
-    project_service: "{{ project_service }}"
-    # e.g. develop
-    project_stage: "{{ project_stage }}"
+    remote_folder: "{{ _remote_folder }}"
+    image_tag: "{{ _image_tag }}"
+    full_registry_url: "{{ _full_registry_url }}"
+    project_name: "{{ _project_name }}"
+    project_service: "{{ _project_service }}"
+    project_stage: "{{ _project_stage }}"
 
   tasks:
     - name: Pull image
