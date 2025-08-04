@@ -11,7 +11,7 @@ import { UsersEditorSheet } from "../editor/UsersEditorSheet";
 export default function UsersOverlays() {
   const { isOpenForModule, data, close } = useDialogStore();
   const user = useProfile();
-  const { mutate: deleteUser } = useToggleActiveUser();
+  const { mutate: deleteUser, isPending: isDeleting } = useToggleActiveUser();
   // Constantes para módulo
   const MODULE = "users";
 
@@ -36,8 +36,10 @@ export default function UsersOverlays() {
           if (!open) close();
         }}
         handleConfirm={() => {
+          if (isDeleting) return;
+          if (!data?.id) return;
           deleteUser(
-            { params: { path: { id: data?.id } } },
+            { params: { path: { id: data.id } } },
             {
               onSuccess: () => {
                 close();
@@ -45,6 +47,7 @@ export default function UsersOverlays() {
             }
           );
         }}
+        isLoading={isDeleting}
         className="max-w-md"
         title={
           <div className="flex items-center gap-2">

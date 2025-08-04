@@ -42,9 +42,7 @@ export function UsersEditorSheet({ open, onOpenChange, currentRow, actualUserId 
     isUpdate,
     initialData: currentRow,
     onSuccess: () => {
-      if (!isUpdate) {
-        onOpenChange(false);
-      }
+      onOpenChange(false);
     },
     mode: "user",
   });
@@ -53,7 +51,9 @@ export function UsersEditorSheet({ open, onOpenChange, currentRow, actualUserId 
   const passwordFormResult = useUserForm({
     isUpdate: true,
     initialData: currentRow,
-    onSuccess: () => {},
+    onSuccess: () => {
+      onOpenChange(false);
+    },
     mode: "password",
   });
 
