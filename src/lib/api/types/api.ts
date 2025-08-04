@@ -835,6 +835,57 @@ export interface paths {
     patch: operations["ClientsController_toggleActiveContact_v1"];
     trace?: never;
   };
+  "/v1/clients/{id}/addresses": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar dirección a cliente */
+    post: operations["ClientsController_addAddress_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/addresses/{addressId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar dirección de cliente */
+    put: operations["ClientsController_updateAddress_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/clients/{id}/addresses/{addressId}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activar/desactivar dirección de cliente */
+    patch: operations["ClientsController_toggleActiveAddress_v1"];
+    trace?: never;
+  };
   "/v1/roles": {
     parameters: {
       query?: never;
@@ -1744,7 +1795,75 @@ export interface components {
        */
       emailVerified: boolean;
     };
-    BaseErrorResponse: Record<string, never>;
+    ErrorResponse: {
+      /**
+       * @description Unique identifier for the error instance
+       * @example ERR_001_20231201_143022
+       */
+      id: string;
+      /**
+       * @description User-friendly error message
+       * @example El recurso solicitado no fue encontrado
+       */
+      message: string;
+      /**
+       * @description Detailed error description for developers
+       * @example Usuario con ID 123 no existe en la base de datos
+       */
+      userMessage?: string;
+      /**
+       * @description Error category classification
+       * @example VALIDATION_ERROR
+       */
+      category: string;
+      /**
+       * @description Error severity level
+       * @example MEDIUM
+       * @enum {string}
+       */
+      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+      /**
+       * @description HTTP status code
+       * @example 404
+       */
+      statusCode: number;
+      /**
+       * @description ISO 8601 timestamp when the error occurred
+       * @example 2023-12-01T14:30:22.123Z
+       */
+      timestamp: string;
+      /**
+       * @description Request path where the error occurred
+       * @example /api/v1/users/123
+       */
+      path: string;
+      /**
+       * @description HTTP method used in the request
+       * @example GET
+       * @enum {string}
+       */
+      method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
+      /**
+       * @description Technical error details (only available in development environment)
+       * @example Database connection timeout after 5000ms
+       */
+      technicalDetails?: Record<string, never>;
+      /**
+       * @description Error stack trace (only available in development environment)
+       * @example Error: Connection timeout
+       *         at Database.connect (/app/db.js:42:15)
+       */
+      stack?: Record<string, never>;
+    };
+    BaseErrorResponse: {
+      /**
+       * @description Indicates whether the request was successful or not
+       * @example false
+       */
+      success: boolean;
+      /** @description Error details */
+      error: components["schemas"]["ErrorResponse"];
+    };
     PaginationMetadataDto: {
       /**
        * @description Número total de elementos
@@ -1958,6 +2077,23 @@ export interface components {
        */
       isActive?: boolean;
     };
+    ClientAddressRequestDto: {
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
+       * @example true
+       */
+      isActive?: boolean;
+    };
     ClientSunatInfoRequestDto: {
       /**
        * @description Dirección fiscal
@@ -2029,6 +2165,8 @@ export interface components {
       isActive?: boolean;
       /** @description Contactos del cliente */
       contacts?: components["schemas"]["ClientContactRequestDto"][];
+      /** @description Direcciones del cliente */
+      addresses?: components["schemas"]["ClientAddressRequestDto"][];
       /** @description Información SUNAT del cliente */
       sunatInfo?: components["schemas"]["ClientSunatInfoRequestDto"];
     };
@@ -2068,6 +2206,28 @@ export interface components {
       _email: components["schemas"]["EmailVO"];
       /**
        * @description Si el contacto está activo
+       * @example true
+       */
+      isActive: boolean;
+    };
+    ClientAddressResponseDto: {
+      /**
+       * @description ID de la dirección
+       * @example address-123
+       */
+      id: string;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
        * @example true
        */
       isActive: boolean;
@@ -2151,6 +2311,8 @@ export interface components {
       updatedAt: string;
       /** @description Contactos del cliente */
       contacts?: components["schemas"]["ClientContactResponseDto"][];
+      /** @description Direcciones del cliente */
+      addresses?: components["schemas"]["ClientAddressResponseDto"][];
       /** @description Información SUNAT del cliente */
       sunatInfo?: components["schemas"]["ClientSunatInfoResponseDto"];
     };
@@ -2183,6 +2345,8 @@ export interface components {
       isActive?: boolean;
       /** @description Contactos del cliente */
       contacts?: components["schemas"]["ClientContactRequestDto"][];
+      /** @description Direcciones del cliente */
+      addresses?: components["schemas"]["ClientAddressRequestDto"][];
       /** @description Información SUNAT del cliente */
       sunatInfo?: components["schemas"]["ClientSunatInfoRequestDto"];
     };
@@ -2223,6 +2387,8 @@ export interface components {
       updatedAt: string;
       /** @description Contactos del cliente */
       contacts?: components["schemas"]["ClientContactResponseDto"][];
+      /** @description Direcciones del cliente */
+      addresses?: components["schemas"]["ClientAddressResponseDto"][];
       /** @description Información SUNAT del cliente */
       sunatInfo?: components["schemas"]["ClientSunatInfoResponseDto"];
     };
@@ -2340,6 +2506,84 @@ export interface components {
       _email: components["schemas"]["EmailVO"];
       /**
        * @description Si el contacto está activo
+       * @example true
+       */
+      isActive: boolean;
+    };
+    AddAddressRequestDto: {
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ClientAddressOperationResponseDto: {
+      /**
+       * @description ID de la dirección
+       * @example address-123
+       */
+      id: string;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateAddressRequestDto: {
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address?: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    ClientAddressToggleActiveResponseDto: {
+      /**
+       * @description ID de la dirección
+       * @example address-123
+       */
+      id: string;
+      /**
+       * @description Dirección del cliente
+       * @example Av. Principal 123
+       */
+      address: string;
+      /**
+       * @description Referencia de la dirección
+       * @example Frente al parque
+       */
+      reference?: string;
+      /**
+       * @description Si la dirección está activa
        * @example true
        */
       isActive: boolean;
@@ -4388,6 +4632,163 @@ export interface operations {
         };
       };
       /** @description Cliente o contacto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_addAddress_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddAddressRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Dirección agregada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientAddressOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_updateAddress_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        addressId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAddressRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Dirección actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientAddressOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente o dirección no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsController_toggleActiveAddress_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        addressId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Dirección activada/desactivada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientAddressToggleActiveResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Cliente o dirección no encontrada */
       404: {
         headers: {
           [name: string]: unknown;
