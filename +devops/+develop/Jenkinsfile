@@ -43,13 +43,14 @@ ungrouped:
 						PROJECT_SERVICE   = "frontend"
 						PROJECT_TRIPLET   = "${PROJECT_NAME}-${PROJECT_SERVICE}-${PROJECT_STAGE}"
 						FULL_REGISTRY_URL = "${REGISTRY_URL}/${REGISTRY_USER}/${PROJECT_TRIPLET}"
+						NEXT_PUBLIC_BACKEND_URL = "https://viesglo-frontend-develop.acide.win"
 					}
 					stages {
 						stage("Build & Push") {
 							steps {
 								script {
 									withDockerRegistry(credentialsId: "${REGISTRY_CREDENTIALS}") {
-										def image = docker.build("${FULL_REGISTRY_URL}:${BUILD_REF}", "-f +devops/docker/Dockerfile .")
+										def image = docker.build("${FULL_REGISTRY_URL}:${BUILD_REF}", "--build-arg NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL} -f +devops/docker/Dockerfile .")
 										image.push()
 									}
 								}
