@@ -36,6 +36,358 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/webhooks/mqtt": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Endpoint genérico para webhooks MQTT
+     * @description Endpoint genérico para testing de conectores MQTT y recepción de webhooks
+     */
+    post: operations["ProjectWebhookController_receiveGenericWebhook"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/webhooks/mqtt/project-notifications": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recibir notificaciones generales de proyectos
+     * @description Endpoint para recibir webhooks de notificaciones generales de proyectos desde EMQX
+     */
+    post: operations["ProjectWebhookController_receiveProjectNotification"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/webhooks/mqtt/deliverable-completed": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recibir notificaciones de entregables completados
+     * @description Endpoint para recibir webhooks cuando se completa un entregable
+     */
+    post: operations["ProjectWebhookController_receiveDeliverableCompleted"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/webhooks/mqtt/incident-created": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recibir notificaciones de incidentes creados
+     * @description Endpoint para recibir webhooks cuando se crea un incidente
+     */
+    post: operations["ProjectWebhookController_receiveIncidentCreated"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/setup-project-system": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Configurar sistema MQTT para proyecto
+     * @description Crea automáticamente conector, acción y regla MQTT para un proyecto específico
+     */
+    post: operations["MqttManagementController_setupProjectSystem"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/simulate-event": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Simular evento MQTT
+     * @description Simula un evento MQTT para testing del sistema de notificaciones
+     */
+    post: operations["MqttManagementController_simulateEvent"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/connectors": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar conectores MQTT
+     * @description Obtiene la lista de todos los conectores MQTT configurados
+     */
+    get: operations["MqttManagementController_listConnectors"];
+    put?: never;
+    /**
+     * Crear conector MQTT
+     * @description Crea un nuevo conector MQTT para webhooks o notificaciones
+     */
+    post: operations["MqttManagementController_createConnector"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/connectors/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener conector por ID
+     * @description Obtiene los detalles de un conector MQTT específico
+     */
+    get: operations["MqttManagementController_getConnector"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/actions": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar acciones MQTT
+     * @description Obtiene la lista de todas las acciones MQTT configuradas
+     */
+    get: operations["MqttManagementController_listActions"];
+    put?: never;
+    /**
+     * Crear acción MQTT
+     * @description Crea una nueva acción MQTT asociada a un conector
+     */
+    post: operations["MqttManagementController_createAction"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/rules": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar reglas MQTT
+     * @description Obtiene la lista de todas las reglas MQTT configuradas
+     */
+    get: operations["MqttManagementController_listRules"];
+    put?: never;
+    /**
+     * Crear regla MQTT
+     * @description Crea una nueva regla MQTT para procesar eventos
+     */
+    post: operations["MqttManagementController_createRule"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check MQTT synchronization status
+     * @description Returns the MQTT synchronization status for all users in the system
+     */
+    get: operations["MqttDiagnosticsController_getSystemSyncStatus"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/status/user": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Check MQTT synchronization status for specific user
+     * @description Returns the MQTT synchronization status for a specific user
+     */
+    get: operations["MqttDiagnosticsController_getUserSyncStatus"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/repair": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Repair MQTT synchronization issues
+     * @description Automatically repairs MQTT synchronization issues for all users
+     */
+    post: operations["MqttDiagnosticsController_repairAllUsers"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/repair/user": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Repair MQTT synchronization for specific user
+     * @description Automatically repairs MQTT synchronization issues for a specific user
+     */
+    post: operations["MqttDiagnosticsController_repairUser"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/consistency": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Verify system consistency
+     * @description Performs comprehensive system consistency checks including MQTT sync, user roles, and database integrity
+     */
+    get: operations["MqttDiagnosticsController_verifySystemConsistency"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/recovery": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Perform automatic system recovery
+     * @description Automatically attempts to fix common system issues including MQTT sync problems and missing roles
+     */
+    post: operations["MqttDiagnosticsController_performAutomaticRecovery"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/mqtt/diagnostics/health": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get system health summary
+     * @description Returns a quick health summary of the MQTT synchronization system
+     */
+    get: operations["MqttDiagnosticsController_getSystemHealth"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/users/me": {
     parameters: {
       query?: never;
@@ -504,6 +856,786 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
+    WebhookResponseDto: {
+      /**
+       * @description Indica si el webhook fue recibido exitosamente
+       * @example true
+       */
+      received: boolean;
+      /**
+       * @description Timestamp de cuando se recibió el webhook
+       * @example 2024-01-15T10:30:00Z
+       */
+      timestamp: string;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Webhook processed successfully
+       */
+      message: string;
+      /**
+       * @description ID de procesamiento interno (para tracking)
+       * @example proc_12345
+       */
+      processingId: string;
+    };
+    ProjectNotificationWebhookDto: {
+      /**
+       * @description ID del proyecto
+       * @example proj_123
+       */
+      projectId: string;
+      /**
+       * @description Timestamp del evento
+       * @example 2024-01-15T10:30:00Z
+       */
+      timestamp?: string;
+      /**
+       * @description Metadatos adicionales del evento
+       * @example {
+       *       "source": "system",
+       *       "version": "1.0"
+       *     }
+       */
+      metadata?: Record<string, never>;
+      /**
+       * @description Tipo de evento del proyecto
+       * @example status_change
+       * @enum {string}
+       */
+      eventType: "status_change" | "milestone_reached" | "deadline_approaching" | "team_update";
+      /**
+       * @description Mensaje descriptivo del evento
+       * @example Project status updated to In Progress
+       */
+      message: string;
+      /**
+       * @description Estado anterior del proyecto
+       * @example Planning
+       */
+      previousStatus?: string;
+      /**
+       * @description Estado actual del proyecto
+       * @example In Progress
+       */
+      currentStatus?: string;
+    };
+    WebhookErrorResponseDto: {
+      /**
+       * @description Indica que hubo un error procesando el webhook
+       * @example false
+       */
+      received: boolean;
+      /**
+       * @description Timestamp de cuando ocurrió el error
+       * @example 2024-01-15T10:30:00Z
+       */
+      timestamp: string;
+      /**
+       * @description Mensaje de error descriptivo
+       * @example Invalid payload format
+       */
+      error: string;
+      /**
+       * @description Detalles adicionales del error
+       * @example [
+       *       "projectId is required",
+       *       "eventType must be a valid enum value"
+       *     ]
+       */
+      details: string[];
+      /**
+       * @description Código de error interno
+       * @example VALIDATION_ERROR
+       */
+      errorCode: string;
+    };
+    DeliverableCompletedWebhookDto: {
+      /**
+       * @description ID del proyecto
+       * @example proj_123
+       */
+      projectId: string;
+      /**
+       * @description Timestamp del evento
+       * @example 2024-01-15T10:30:00Z
+       */
+      timestamp?: string;
+      /**
+       * @description Metadatos adicionales del evento
+       * @example {
+       *       "source": "system",
+       *       "version": "1.0"
+       *     }
+       */
+      metadata?: Record<string, never>;
+      /**
+       * @description ID del entregable
+       * @example deliv_456
+       */
+      deliverableId: string;
+      /**
+       * @description Nombre del entregable
+       * @example Frontend Implementation
+       */
+      deliverableName: string;
+      /**
+       * @description ID del usuario que completó el entregable
+       * @example user_789
+       */
+      completedBy: string;
+      /**
+       * @description Fecha y hora de completado
+       * @example 2024-01-15T10:30:00Z
+       */
+      completedAt: string;
+      /**
+       * @description Porcentaje de completado
+       * @example 100
+       */
+      completionPercentage?: number;
+      /**
+       * @description Comentarios adicionales
+       * @example Entregable completado exitosamente con todas las funcionalidades
+       */
+      comments?: string;
+    };
+    IncidentCreatedWebhookDto: {
+      /**
+       * @description ID del proyecto
+       * @example proj_123
+       */
+      projectId: string;
+      /**
+       * @description Timestamp del evento
+       * @example 2024-01-15T10:30:00Z
+       */
+      timestamp?: string;
+      /**
+       * @description Metadatos adicionales del evento
+       * @example {
+       *       "source": "system",
+       *       "version": "1.0"
+       *     }
+       */
+      metadata?: Record<string, never>;
+      /**
+       * @description ID del incidente
+       * @example inc_789
+       */
+      incidentId: string;
+      /**
+       * @description Título del incidente
+       * @example Critical System Error
+       */
+      incidentTitle: string;
+      /**
+       * @description Severidad del incidente
+       * @example HIGH
+       * @enum {string}
+       */
+      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+      /**
+       * @description ID del usuario que creó el incidente
+       * @example user_456
+       */
+      createdBy: string;
+      /**
+       * @description Fecha y hora de creación
+       * @example 2024-01-15T10:30:00Z
+       */
+      createdAt: string;
+      /**
+       * @description Descripción detallada del incidente
+       * @example System experiencing critical errors affecting user authentication
+       */
+      description: string;
+      /**
+       * @description Categoría del incidente
+       * @example TECHNICAL
+       * @enum {string}
+       */
+      category?: "TECHNICAL" | "BUSINESS" | "SECURITY" | "PERFORMANCE";
+      /**
+       * @description Prioridad del incidente
+       * @example URGENT
+       * @enum {string}
+       */
+      priority?: "LOW" | "NORMAL" | "HIGH" | "URGENT";
+    };
+    SetupProjectSystemDto: {
+      /**
+       * @description ID único del proyecto
+       * @example proj_123
+       */
+      projectId: string;
+      /**
+       * @description URL base del webhook para recibir notificaciones
+       * @example https://api.example.com
+       */
+      webhookUrl: string;
+      /**
+       * @description Ruta específica para las notificaciones del proyecto
+       * @example /webhooks/mqtt/project-notifications
+       */
+      notificationPath: string;
+      /**
+       * @description Nombre descriptivo del proyecto
+       * @example Sistema de Gestión Viesglo
+       */
+      projectName?: string;
+      /**
+       * @description Descripción del sistema MQTT del proyecto
+       * @example Sistema de notificaciones automáticas para el proyecto Viesglo
+       */
+      description?: string;
+      /**
+       * @description Etiquetas para categorizar el sistema MQTT
+       * @example [
+       *       "project",
+       *       "notifications",
+       *       "viesglo"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Metadatos adicionales del sistema
+       * @example {
+       *       "environment": "production",
+       *       "version": "1.0"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    SetupProjectSystemResponseDto: {
+      /**
+       * @description Indica si la configuración fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Sistema MQTT configurado exitosamente para el proyecto proj_123
+       */
+      message: string;
+      /**
+       * @description Información del conector creado
+       * @example {
+       *       "id": "http:project-proj_123-connector-1642234567890",
+       *       "name": "project-proj_123-connector-1642234567890",
+       *       "type": "http",
+       *       "url": "https://api.example.com",
+       *       "enable": true
+       *     }
+       */
+      connector: Record<string, never>;
+      /**
+       * @description Información de la acción creada
+       * @example {
+       *       "id": "http:project-proj_123-action-1642234567890",
+       *       "name": "project-proj_123-action-1642234567890",
+       *       "type": "http",
+       *       "connectorId": "http:project-proj_123-connector-1642234567890",
+       *       "enable": true
+       *     }
+       */
+      action: Record<string, never>;
+      /**
+       * @description Información de la regla creada
+       * @example {
+       *       "id": "project-proj_123-rule-1642234567890",
+       *       "name": "project-proj_123-rule-1642234567890",
+       *       "sql": "SELECT * FROM \"projects/proj_123/events/+\" WHERE payload.projectId = 'proj_123'",
+       *       "actions": [
+       *         "http:project-proj_123-action-1642234567890"
+       *       ],
+       *       "enable": true
+       *     }
+       */
+      rule: Record<string, never>;
+      /**
+       * @description Timestamp de la configuración
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+      /**
+       * @description Metadatos adicionales de la configuración
+       * @example {
+       *       "projectId": "proj_123",
+       *       "setupDuration": "2.5s",
+       *       "componentsCreated": 3
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    ManagementErrorResponseDto: {
+      /**
+       * @description Indica que la operación falló
+       * @example false
+       */
+      success: boolean;
+      /**
+       * @description Mensaje de error
+       * @example Error al crear el conector MQTT
+       */
+      message: string;
+      /**
+       * @description Código de error específico
+       * @example CONNECTOR_CREATION_FAILED
+       */
+      errorCode: string;
+      /**
+       * @description Detalles técnicos del error
+       * @example {
+       *       "originalError": "Connection timeout to EMQX API",
+       *       "operation": "create_connector",
+       *       "timestamp": "2024-01-15T10:30:00.000Z"
+       *     }
+       */
+      details: Record<string, never>;
+      /**
+       * @description Timestamp del error
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+      /**
+       * @description Sugerencias para resolver el error
+       * @example [
+       *       "Verificar la conectividad con EMQX",
+       *       "Revisar las credenciales de API",
+       *       "Intentar nuevamente en unos minutos"
+       *     ]
+       */
+      suggestions?: string[];
+    };
+    SimulateEventDto: {
+      /**
+       * @description Tipo de evento a simular
+       * @example project_notification
+       * @enum {string}
+       */
+      eventType:
+        | "project_notification"
+        | "deliverable_completed"
+        | "incident_created"
+        | "milestone_reached"
+        | "status_change";
+      /**
+       * @description ID del proyecto relacionado con el evento
+       * @example proj_123
+       */
+      projectId: string;
+      /**
+       * @description Payload del evento a simular
+       * @example {
+       *       "message": "Test notification",
+       *       "timestamp": "2024-01-15T10:30:00Z",
+       *       "severity": "INFO"
+       *     }
+       */
+      payload: Record<string, never>;
+      /**
+       * @description Tópico MQTT específico para el evento
+       * @example projects/proj_123/events/notifications
+       */
+      topic?: string;
+      /**
+       * @description Nivel de QoS para el mensaje MQTT
+       * @example 1
+       * @enum {number}
+       */
+      qos?: 0 | 1 | 2;
+    };
+    SimulateEventResponseDto: {
+      /**
+       * @description Indica si la simulación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Evento simulado exitosamente
+       */
+      message: string;
+      /**
+       * @description Información del evento simulado
+       * @example {
+       *       "eventType": "project_notification",
+       *       "projectId": "proj_123",
+       *       "topic": "projects/proj_123/events/notifications",
+       *       "qos": 1
+       *     }
+       */
+      event: Record<string, never>;
+      /**
+       * @description Payload del evento enviado
+       * @example {
+       *       "message": "Test notification",
+       *       "timestamp": "2024-01-15T10:30:00Z",
+       *       "severity": "INFO"
+       *     }
+       */
+      payload: Record<string, never>;
+      /**
+       * @description Timestamp de la simulación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+      /**
+       * @description ID del mensaje MQTT generado
+       * @example msg_1642234567890
+       */
+      messageId?: string;
+      /**
+       * @description Información de las reglas que procesaron el evento
+       * @example [
+       *       {
+       *         "ruleId": "60f7b3b3b3b3b3b3b3b3b3b5",
+       *         "ruleName": "project-proj_123-rule-1642234567890",
+       *         "matched": true,
+       *         "actionsTriggered": 1
+       *       }
+       *     ]
+       */
+      rulesProcessed?: string[];
+    };
+    CreateConnectorDto: {
+      /**
+       * @description Nombre único del conector
+       * @example webhook-connector-prod
+       */
+      name: string;
+      /**
+       * @description Tipo de conector
+       * @example http
+       * @enum {string}
+       */
+      type: "http";
+      /**
+       * @description URL del endpoint del conector
+       * @example https://api.example.com/webhooks
+       */
+      url: string;
+      /**
+       * @description Timeout de conexión
+       * @default 15s
+       * @example 15s
+       */
+      connectTimeout: string;
+      /**
+       * @description Tamaño del pool de conexiones
+       * @default 8
+       * @example 8
+       */
+      poolSize: number;
+      /**
+       * @description Estado habilitado del conector
+       * @default true
+       * @example true
+       */
+      enable: boolean;
+      /**
+       * @description Headers HTTP adicionales
+       * @example {
+       *       "Content-Type": "application/json",
+       *       "Authorization": "Bearer token"
+       *     }
+       */
+      headers?: Record<string, never>;
+      /**
+       * @description Tipo de pool de conexiones
+       * @default random
+       * @example random
+       * @enum {string}
+       */
+      poolType: "hash" | "random";
+      /**
+       * @description Número de conexiones para pipelining
+       * @default 100
+       * @example 100
+       */
+      enablePipelining: number;
+      /**
+       * @description Descripción del conector
+       * @example Conector para webhooks de notificaciones del proyecto
+       */
+      description?: string;
+      /**
+       * @description Etiquetas para categorizar el conector
+       * @example [
+       *       "webhook",
+       *       "notifications",
+       *       "production"
+       *     ]
+       */
+      tags?: string[];
+      /**
+       * @description Metadatos adicionales del conector
+       * @example {
+       *       "environment": "production",
+       *       "version": "1.0"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    CreateConnectorResponseDto: {
+      /**
+       * @description Indica si la creación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Conector MQTT creado exitosamente
+       */
+      message: string;
+      /**
+       * @description Información del conector creado
+       * @example {
+       *       "id": "http:webhook-connector-prod",
+       *       "name": "webhook-connector-prod",
+       *       "type": "http",
+       *       "url": "https://api.example.com/webhooks",
+       *       "enable": true,
+       *       "createdAt": "2024-01-15T10:30:00.000Z"
+       *     }
+       */
+      connector: Record<string, never>;
+      /**
+       * @description Timestamp de la creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+    };
+    ResourceOptsDto: {
+      /**
+       * @description Tamaño del pool de workers
+       * @default 8
+       * @example 8
+       */
+      workerPoolSize: number;
+      /**
+       * @description Intervalo de verificación de salud
+       * @default 30s
+       * @example 30s
+       */
+      healthCheckInterval: string;
+      /**
+       * @description Modo de consulta
+       * @default async
+       * @example async
+       * @enum {string}
+       */
+      queryMode: "async" | "sync";
+    };
+    CreateActionDto: {
+      /**
+       * @description Nombre único de la acción
+       * @example project-notification-action
+       */
+      name: string;
+      /**
+       * @description Tipo de acción
+       * @example http
+       * @enum {string}
+       */
+      type: "http";
+      /**
+       * @description Nombre del conector asociado (solo el nombre, no el ID completo)
+       * @example webhook-connector-prod
+       */
+      connectorId: string;
+      /**
+       * @description Ruta del endpoint para la acción
+       * @example /webhooks/notifications
+       */
+      path: string;
+      /**
+       * @description Método HTTP
+       * @default post
+       * @example post
+       * @enum {string}
+       */
+      method: "post" | "put" | "get" | "delete";
+      /**
+       * @description Headers HTTP adicionales
+       * @example {
+       *       "Content-Type": "application/json"
+       *     }
+       */
+      headers?: Record<string, never>;
+      /**
+       * @description Cuerpo de la petición HTTP
+       * @example {"message": "${payload}", "timestamp": "${now_timestamp()}"}
+       */
+      body?: string;
+      /**
+       * @description Número máximo de reintentos
+       * @default 3
+       * @example 3
+       */
+      maxRetries: number;
+      /**
+       * @description Tipo de evento para acciones de dominio
+       * @example user.created
+       */
+      eventType?: string;
+      /**
+       * @description Estado habilitado de la acción
+       * @default true
+       * @example true
+       */
+      enable: boolean;
+      /**
+       * @description Descripción de la acción
+       * @example Acción para enviar notificaciones de proyecto
+       */
+      description?: string;
+      /**
+       * @description Etiquetas para categorizar la acción
+       * @example [
+       *       "notification",
+       *       "project",
+       *       "webhook"
+       *     ]
+       */
+      tags?: string[];
+      /** @description Opciones de recursos para la acción */
+      resourceOpts?: components["schemas"]["ResourceOptsDto"];
+      /**
+       * @description Metadatos adicionales de la acción
+       * @example {
+       *       "priority": "high",
+       *       "category": "notifications"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    CreateActionResponseDto: {
+      /**
+       * @description Indica si la creación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Acción MQTT creada exitosamente
+       */
+      message: string;
+      /**
+       * @description Información de la acción creada
+       * @example {
+       *       "id": "http:project-notification-action",
+       *       "name": "project-notification-action",
+       *       "type": "http",
+       *       "connectorId": "http:webhook-connector-prod",
+       *       "enable": true,
+       *       "createdAt": "2024-01-15T10:30:00.000Z"
+       *     }
+       */
+      action: Record<string, never>;
+      /**
+       * @description Timestamp de la creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+    };
+    CreateRuleDto: {
+      /**
+       * @description Nombre único de la regla
+       * @example project-events-rule
+       */
+      name: string;
+      /**
+       * @description Tipo de regla
+       * @example project
+       * @enum {string}
+       */
+      type: "project" | "notification" | "alarm" | "domain-event" | "data-saver" | "custom";
+      /**
+       * @description Consulta SQL para la regla (requerida para tipo 'custom')
+       * @example SELECT * FROM "projects/+/events/+" WHERE payload.severity = "HIGH"
+       */
+      sql?: string;
+      /**
+       * @description Filtro de tópico MQTT
+       * @example projects/+/events/+
+       */
+      topicFilter?: string;
+      /**
+       * @description Condición adicional para la regla
+       * @example payload.severity = 'HIGH'
+       */
+      condition?: string;
+      /**
+       * @description Filtro de datos específico
+       * @example payload.projectId
+       */
+      dataFilter?: string;
+      /**
+       * @description Tipo de evento para reglas de dominio
+       * @example project.status.changed
+       */
+      eventType?: string;
+      /**
+       * @description Nombres de las acciones a ejecutar (se convertirán automáticamente al formato http:action_name)
+       * @example [
+       *       "project-notification-action",
+       *       "alert-action"
+       *     ]
+       */
+      actions: string[];
+      /**
+       * @description Estado habilitado de la regla
+       * @default true
+       * @example true
+       */
+      enable: boolean;
+      /**
+       * @description Descripción de la regla
+       * @example Regla para procesar eventos de proyecto con alta severidad
+       */
+      description?: string;
+      /**
+       * @description Metadatos adicionales de la regla
+       * @example {
+       *       "priority": "high",
+       *       "category": "project-events"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    CreateRuleResponseDto: {
+      /**
+       * @description Indica si la creación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Regla MQTT creada exitosamente
+       */
+      message: string;
+      /**
+       * @description Información de la regla creada
+       * @example {
+       *       "id": "project-events-rule",
+       *       "name": "project-events-rule",
+       *       "type": "project",
+       *       "sql": "SELECT * FROM \"projects/+/events/+\" WHERE payload.severity = \"HIGH\"",
+       *       "actions": [
+       *         "http:project-notification-action"
+       *       ],
+       *       "enable": true,
+       *       "createdAt": "2024-01-15T10:30:00.000Z"
+       *     }
+       */
+      rule: Record<string, never>;
+      /**
+       * @description Timestamp de la creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      timestamp: string;
+    };
     RoleResponseDto: {
       /**
        * @description ID del rol
@@ -612,75 +1744,7 @@ export interface components {
        */
       emailVerified: boolean;
     };
-    ErrorResponse: {
-      /**
-       * @description Unique identifier for the error instance
-       * @example ERR_001_20231201_143022
-       */
-      id: string;
-      /**
-       * @description User-friendly error message
-       * @example El recurso solicitado no fue encontrado
-       */
-      message: string;
-      /**
-       * @description Detailed error description for developers
-       * @example Usuario con ID 123 no existe en la base de datos
-       */
-      userMessage?: string;
-      /**
-       * @description Error category classification
-       * @example VALIDATION_ERROR
-       */
-      category: string;
-      /**
-       * @description Error severity level
-       * @example MEDIUM
-       * @enum {string}
-       */
-      severity: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
-      /**
-       * @description HTTP status code
-       * @example 404
-       */
-      statusCode: number;
-      /**
-       * @description ISO 8601 timestamp when the error occurred
-       * @example 2023-12-01T14:30:22.123Z
-       */
-      timestamp: string;
-      /**
-       * @description Request path where the error occurred
-       * @example /api/v1/users/123
-       */
-      path: string;
-      /**
-       * @description HTTP method used in the request
-       * @example GET
-       * @enum {string}
-       */
-      method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
-      /**
-       * @description Technical error details (only available in development environment)
-       * @example Database connection timeout after 5000ms
-       */
-      technicalDetails?: Record<string, never>;
-      /**
-       * @description Error stack trace (only available in development environment)
-       * @example Error: Connection timeout
-       *         at Database.connect (/app/db.js:42:15)
-       */
-      stack?: Record<string, never>;
-    };
-    BaseErrorResponse: {
-      /**
-       * @description Indicates whether the request was successful or not
-       * @example false
-       */
-      success: boolean;
-      /** @description Error details */
-      error: components["schemas"]["ErrorResponse"];
-    };
+    BaseErrorResponse: Record<string, never>;
     PaginationMetadataDto: {
       /**
        * @description Número total de elementos
@@ -1281,28 +2345,26 @@ export interface components {
       isActive: boolean;
     };
     PermissionsResponseDto: {
-      /** @example projects:read */
-      name: string;
-      /** @example projects */
+      /** @example resource */
       resource: string;
-      /** @example read */
+      /** @example action */
       action: string;
     };
     RolesResponseDto: {
-      /** @example 688294e01d42a5feea2a897b */
+      /** @example role-id */
       id: string;
-      /** @example CONSULTANT */
+      /** @example ROLE_NAME */
       name: string;
-      /** @example Consultor - Ejecución de actividades y consultas */
+      /** @example Descripción del rol */
       description: string;
       permissions: components["schemas"]["PermissionsResponseDto"][];
       /** @example true */
       isActive: boolean;
       /** @example false */
       isSystem: boolean;
-      /** @example 2025-07-24T20:17:36.874Z */
+      /** @example 2025-01-01T00:00:00.000Z */
       createdAt: string;
-      /** @example 2025-07-24T20:17:36.874Z */
+      /** @example 2025-01-01T00:00:00.000Z */
       updatedAt: string;
     };
   };
@@ -1340,6 +2402,647 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectWebhookController_receiveGenericWebhook: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Webhook recibido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectWebhookController_receiveProjectNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Payload del webhook de notificación de proyecto */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ProjectNotificationWebhookDto"];
+      };
+    };
+    responses: {
+      /** @description Webhook recibido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookResponseDto"];
+        };
+      };
+      /** @description Payload del webhook malformado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectWebhookController_receiveDeliverableCompleted: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Payload del webhook de entregable completado */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeliverableCompletedWebhookDto"];
+      };
+    };
+    responses: {
+      /** @description Webhook recibido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookResponseDto"];
+        };
+      };
+      /** @description Payload del webhook malformado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectWebhookController_receiveIncidentCreated: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Payload del webhook de incidente creado */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["IncidentCreatedWebhookDto"];
+      };
+    };
+    responses: {
+      /** @description Webhook recibido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookResponseDto"];
+        };
+      };
+      /** @description Payload del webhook malformado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["WebhookErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_setupProjectSystem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Configuración del sistema MQTT del proyecto */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetupProjectSystemDto"];
+      };
+    };
+    responses: {
+      /** @description Sistema MQTT configurado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SetupProjectSystemResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_simulateEvent: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos del evento a simular */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SimulateEventDto"];
+      };
+    };
+    responses: {
+      /** @description Evento simulado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["SimulateEventResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_listConnectors: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por estado habilitado */
+        enabled?: boolean;
+        /** @description Filtrar por tipo de conector */
+        type?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de conectores obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MqttManagementController_createConnector: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos del conector a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateConnectorDto"];
+      };
+    };
+    responses: {
+      /** @description Conector creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateConnectorResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_getConnector: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del conector */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Conector encontrado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Conector no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_listActions: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por estado habilitado */
+        enabled?: boolean;
+        /** @description Filtrar por tipo de acción */
+        type?: string;
+        /** @description Filtrar por ID del conector */
+        connectorId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de acciones obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MqttManagementController_createAction: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos de la acción a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateActionDto"];
+      };
+    };
+    responses: {
+      /** @description Acción creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateActionResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttManagementController_listRules: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por estado habilitado */
+        enabled?: boolean;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de reglas obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MqttManagementController_createRule: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos de la regla a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateRuleDto"];
+      };
+    };
+    responses: {
+      /** @description Regla creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreateRuleResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ManagementErrorResponseDto"];
+        };
+      };
+    };
+  };
+  MqttDiagnosticsController_getSystemSyncStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description MQTT synchronization status retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            totalUsers?: number;
+            fullySynced?: number;
+            partiallySynced?: number;
+            notSynced?: number;
+            syncRate?: number;
+            usersWithIssues?: {
+              userId?: string;
+              email?: string;
+              syncStatus?: string;
+              issues?: string[];
+            }[];
+          };
+        };
+      };
+    };
+  };
+  MqttDiagnosticsController_getUserSyncStatus: {
+    parameters: {
+      query: {
+        /** @description User email to check */
+        email: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User MQTT synchronization status retrieved successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MqttDiagnosticsController_repairAllUsers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Repair options */
+    requestBody?: {
+      content: {
+        "application/json": {
+          /**
+           * @description If true, only simulates the repair without making changes
+           * @default false
+           */
+          dryRun?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description MQTT repair operation completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            success?: boolean;
+            totalUsers?: number;
+            successfulRepairs?: number;
+            failedRepairs?: number;
+            results?: {
+              email?: string;
+              success?: boolean;
+              actionsPerformed?: string[];
+              errors?: string[];
+            }[];
+          };
+        };
+      };
+    };
+  };
+  MqttDiagnosticsController_repairUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description User repair options */
+    requestBody: {
+      content: {
+        "application/json": {
+          /** @description User email to repair */
+          email: string;
+          /**
+           * @description If true, only simulates the repair without making changes
+           * @default false
+           */
+          dryRun?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description User MQTT repair operation completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  MqttDiagnosticsController_verifySystemConsistency: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description System consistency check completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            consistent?: boolean;
+            issues?: string[];
+            recommendations?: string[];
+            summary?: Record<string, never>;
+          };
+        };
+      };
+    };
+  };
+  MqttDiagnosticsController_performAutomaticRecovery: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Recovery options */
+    requestBody?: {
+      content: {
+        "application/json": {
+          /**
+           * @description If true, only simulates the recovery without making changes
+           * @default false
+           */
+          dryRun?: boolean;
+        };
+      };
+    };
+    responses: {
+      /** @description Automatic recovery operation completed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            success?: boolean;
+            actionsPerformed?: string[];
+            errors?: string[];
+            summary?: Record<string, never>;
+          };
+        };
+      };
+    };
+  };
+  MqttDiagnosticsController_getSystemHealth: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description System health summary retrieved successfully */
       200: {
         headers: {
           [name: string]: unknown;
