@@ -72,18 +72,21 @@ export function ClientsEditorSheet({ open, onOpenChange, currentRow }: ClientsEd
       showDefaultFooter={false}
       footer={
         <SheetFooter className="gap-2">
-          <Button form="client-form" type="submit" disabled={isPending}>
+          <Button
+            form="client-form"
+            type="submit"
+            disabled={isPending}
+            className="min-w-[180px] flex items-center justify-center"
+          >
             {isPending ? (
-              "Guardando..."
-            ) : isUpdate ? (
               <>
-                Actualizar cliente
-                <Send className="w-4 h-4 ml-2" />
+                <span className="mr-2">Guardando...</span>
+                <Send className="w-4 h-4 opacity-0" />
               </>
             ) : (
               <>
-                Crear cliente
-                <Send className="w-4 h-4 ml-2" />
+                <span className="mr-2">{isUpdate ? "Actualizar cliente" : "Crear cliente"}</span>
+                <Send className="w-4 h-4" />
               </>
             )}
           </Button>

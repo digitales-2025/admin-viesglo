@@ -9,7 +9,7 @@ import { ClientsEditorSheet } from "../editor/ClientsEditorSheet";
 
 export default function ClientsOverlays() {
   const { isOpenForModule, data, close } = useDialogStore();
-  const { mutate: deleteClient } = useDeleteClient();
+  const { mutate: deleteClient, isPending: isDeleting } = useDeleteClient();
   // Constantes para módulo
   const MODULE = "clients";
 
@@ -31,12 +31,22 @@ export default function ClientsOverlays() {
           if (!open) close();
         }}
         handleConfirm={() => {
-          deleteClient(data?.id, {
-            onSuccess: () => {
-              close();
-            },
-          });
+          if (isDeleting) return;
+          if (!data?.id) {
+            return;
+          }
+          deleteClient(
+            { params: { path: { id: data.id } } },
+            {
+              onSuccess: () => {
+                close();
+              },
+            }
+          );
         }}
+        isLoading={isDeleting}
+        confirmText="Eliminar"
+        destructive
         title={
           <div className="flex items-center gap-2">
             <Trash className="h-4 w-4 text-rose-500" />

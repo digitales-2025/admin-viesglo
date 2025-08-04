@@ -174,9 +174,22 @@ export default function ProfileForm({ data }: ProfileFormProps) {
 
               {isEditing && (
                 <div className="pt-4">
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    <Save className="mr-2 h-4 w-4" />
-                    Guardar Cambios
+                  <Button
+                    type="submit"
+                    className="w-full min-w-[160px] flex items-center justify-center"
+                    disabled={isPending}
+                  >
+                    {isPending ? (
+                      <>
+                        <Save className="mr-2 h-4 w-4 animate-spin" />
+                        Guardando...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Guardar Cambios
+                      </>
+                    )}
                   </Button>
                 </div>
               )}

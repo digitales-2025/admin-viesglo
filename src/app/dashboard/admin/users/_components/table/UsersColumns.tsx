@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ColumnDef } from "@tanstack/react-table";
-import { IdCard, Mail, Shield } from "lucide-react";
+import { CheckCircle, IdCard, Mail, Shield, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
@@ -71,16 +71,27 @@ export const columnsUsers = (actualUserId: string): ColumnDef<UserResponse>[] =>
   {
     id: "estado",
     accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    header: ({ column }) => <DataTableColumnHeader column={column} className="justify-center" title="Estado" />,
     cell: ({ row }) => {
+      const isActive = row.original.isActive;
+
       return (
-        <div className="truncate max-w-[300px]">
-          {row.getValue("estado") ? <Badge variant="success">Activo</Badge> : <Badge variant="error">Inactivo</Badge>}
+        <div className="min-w-[120px] space-y-1 items-center flex justify-center">
+          <Badge variant={isActive ? "default" : "destructive"} className="flex items-center gap-1 w-fit">
+            {isActive ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+
+            {isActive ? "Activo" : "Inactivo"}
+          </Badge>
         </div>
       );
     },
-    filterFn: (row, id, filterValue) => {
-      return filterValue.includes(String(row.getValue(id)));
+    filterFn: (row, columnId, filterValue) => {
+      // Si filterValue es un array, revisa si el valor está incluido
+      if (Array.isArray(filterValue)) {
+        return filterValue.includes(row.getValue(columnId));
+      }
+      // Si es un valor único, compara directamente
+      return row.getValue(columnId) === filterValue;
     },
   },
   {

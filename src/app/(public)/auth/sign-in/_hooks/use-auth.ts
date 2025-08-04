@@ -30,7 +30,7 @@ export const useLogin = () => {
     onError: (error) => {
       hide();
       if (error && typeof error === "object" && "error" in error) {
-        toast.error(error.error.message);
+        toast.error(error.error.userMessage);
       } else {
         toast.error("Ocurrió un error inesperado, por favor intenta de nuevo");
       }

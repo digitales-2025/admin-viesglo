@@ -9,6 +9,7 @@ import { EmptyData } from "@/shared/components/data-table/empty-data";
 import { Loading } from "@/shared/components/loading";
 import { useUsers } from "../../_hooks/use-users";
 import { UserResponse } from "../../_types/user.types";
+import { facetedFilters } from "../../_utils/users.filter.utils";
 import { columnsUsers } from "./UsersColumns";
 
 export default function UsersTable() {
@@ -44,6 +45,7 @@ export default function UsersTable() {
       initialColumnVisibility={{
         isActive: user.isSuperAdmin,
       }}
+      facetedFilters={facetedFilters}
     />
   );
 }
