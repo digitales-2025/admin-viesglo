@@ -151,11 +151,20 @@ export default function SecurityForm() {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full min-w-[180px] flex items-center justify-center"
             disabled={!form.formState.isValid || getPasswordStrength(passwordRequirements) < 100 || isPending}
           >
-            <Shield className="mr-2 h-4 w-4" />
-            Actualizar Contraseña
+            {isPending ? (
+              <>
+                <Shield className="mr-2 h-4 w-4 animate-spin" />
+                Actualizando...
+              </>
+            ) : (
+              <>
+                <Shield className="mr-2 h-4 w-4" />
+                Actualizar Contraseña
+              </>
+            )}
           </Button>
         </form>
       </Form>
