@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { Calendar, FileDown } from "lucide-react";
 import { toast } from "sonner";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { MedicalRecordResponse } from "../_types/medical-record.types";

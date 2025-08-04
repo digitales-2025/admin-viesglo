@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useActivitiesProject } from "../../_hooks/useActivitiesProject";
-import { useUsersProject } from "../../_hooks/useProjectTraking";
 import { columnsActivities } from "./project-activities.column";
 
 interface TableProjectActivitiesProps {
@@ -11,8 +10,7 @@ interface TableProjectActivitiesProps {
 
 export default function TableProjectActivities({ objectiveId }: TableProjectActivitiesProps) {
   const { data: activities, isLoading, error } = useActivitiesProject(objectiveId);
-  const { data: users, isLoading: isLoadingUsers } = useUsersProject();
-  const columns = useMemo(() => columnsActivities(users || [], objectiveId), [users, objectiveId]);
+  const columns = useMemo(() => columnsActivities(objectiveId), [objectiveId]);
 
   if (error) {
     return (
@@ -22,14 +20,5 @@ export default function TableProjectActivities({ objectiveId }: TableProjectActi
     );
   }
 
-  return (
-    <DataTable
-      columns={columns}
-      data={activities || []}
-      isLoading={isLoading || isLoadingUsers}
-      toolBar={false}
-      pagination={false}
-      className="rounded-t-none"
-    />
-  );
+  return <DataTable columns={columns} data={activities || []} isLoading={isLoading} />;
 }

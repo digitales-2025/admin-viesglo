@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ChevronDown, ChevronRight, IdCard, Shield } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Role } from "../_types/roles";

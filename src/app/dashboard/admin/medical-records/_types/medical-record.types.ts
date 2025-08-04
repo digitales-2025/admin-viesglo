@@ -1,23 +1,21 @@
-import { components } from "@/lib/api/types/api";
-
-export type MedicalRecordResponse = components["schemas"]["MedicalRecordResponseDto"] & {
+export type MedicalRecordResponse = any & {
   details?: any;
 };
 
 // Usar el esquema de la API para los tipos
-export type MedicalRecordCreate = components["schemas"]["CreateMedicalRecordDto"];
+export type MedicalRecordCreate = any;
 
 // Usar el esquema de la API para los tipos
-export type MedicalRecordUpdate = components["schemas"]["UpdateMedicalRecordDto"];
+export type MedicalRecordUpdate = any;
 
 export type MedicalRecordFileInfo = {
   status?: string;
   message?: string;
-  fileInfo?: components["schemas"]["FileMetadataResponseDto"];
+  fileInfo?: any;
 };
 
 // Usar el esquema de la API para los detalles
-export type UpdateMedicalRecordDetails = components["schemas"]["UpdateMedicalRecordDetailsDto"];
+export type UpdateMedicalRecordDetails = any;
 
 // Tipos para diagnósticos médicos
 export type CreateDiagnostic = {

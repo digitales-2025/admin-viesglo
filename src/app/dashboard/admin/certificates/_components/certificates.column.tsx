@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Calendar, File, Image as ImageIcon } from "lucide-react";
 
-import { DataTableColumnHeader } from "@/shared/components/data-table/DataTableColumnHeaderProps";
+import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Pdf } from "@/shared/components/icons/Files";
 import { Badge } from "@/shared/components/ui/badge";
 import CopyButton from "@/shared/components/ui/button-copy";

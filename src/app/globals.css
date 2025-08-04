@@ -180,6 +180,23 @@
   }
 }
 
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg);}
+  20% { transform: rotate(-15deg);}
+  40% { transform: rotate(10deg);}
+  60% { transform: rotate(-10deg);}
+  80% { transform: rotate(5deg);}
+}
+.animate-shake {
+  animation: shake 0.5s;
+}
+.hover\:animate-shake:hover {
+  animation: shake 0.5s;
+}
+.group:hover .group-hover\:animate-shake {
+  animation: shake 0.5s;
+}
+
 @layer utilities {
   .step {
     counter-increment: step;

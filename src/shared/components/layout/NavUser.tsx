@@ -73,9 +73,9 @@ export function NavUser() {
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings/account">
+                    <Link href="/dashboard/admin/settings/profile">
                       <BadgeCheckIcon />
-                      Account
+                      Cuenta
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

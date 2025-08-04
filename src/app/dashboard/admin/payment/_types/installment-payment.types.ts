@@ -1,18 +1,13 @@
-import { components } from "@/lib/api/types/api";
+export type InstallmentPaymentResponse = any;
 
-export type InstallmentPaymentResponse = components["schemas"]["InstallmentPayment"];
+export type InstallmentPaymentCreate = any;
 
-export type InstallmentPaymentCreate = components["schemas"]["CreateInstallmentPaymentDto"];
+export type InstallmentPaymentUpdate = any;
 
-export type InstallmentPaymentUpdate = components["schemas"]["UpdateInstallmentPaymentDto"];
+export type CreatePaymentInstallmentConfig = any;
 
-export type CreatePaymentInstallmentConfig = components["schemas"]["CreatePaymentInstallmentConfigDto"];
+export type UpdatePaymentInstallmentConfig = any;
 
-export type UpdatePaymentInstallmentConfig = components["schemas"]["UpdatePaymentInstallmentConfigDto"];
-
-export type PaymentInstallmentConfigResponse = Omit<
-  components["schemas"]["PaymentInstallmentConfigResponseDto"],
-  "payment"
-> & {
+export type PaymentInstallmentConfigResponse = Omit<any, "payment"> & {
   payment: PaymentResponse;
 };

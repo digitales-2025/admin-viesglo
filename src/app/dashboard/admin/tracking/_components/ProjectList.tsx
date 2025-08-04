@@ -3,14 +3,12 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { Loader2, Plus } from "lucide-react";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import AlertError from "@/shared/components/alerts/AlertError";
 import { Button } from "@/shared/components/ui/button";
 import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useProjectsPaginated } from "../_hooks/useProject";
 import { useProjectFiltersStore } from "../_stores/useProjectFiltersStore";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import ProjectCard from "./ProjectCard";
 import { ProjectFilterValues, ProjectsAdvancedSearch } from "./ProjectsAdvancedSearch";
 
@@ -81,7 +79,7 @@ const ProjectList = memo(function ProjectList() {
   return (
     <div className="flex flex-col gap-2 sm:gap-4 h-full p-2 m-3">
       <div className="flex justify-end items-center flex-shrink-0">
-        <ProtectedComponent requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}>
+        <>
           <Button
             onClick={() => open("projects", "create")}
             size={isMobile ? "sm" : "default"}
@@ -90,7 +88,7 @@ const ProjectList = memo(function ProjectList() {
             <Plus className="size-3 sm:size-4 mr-1 sm:mr-2" />
             {isMobile ? "Agregar" : "Agregar proyecto"}
           </Button>
-        </ProtectedComponent>
+        </>
       </div>
 
       <ProjectsAdvancedSearch onSearch={handleSearch} defaultValues={filters} className="flex-shrink-0" />

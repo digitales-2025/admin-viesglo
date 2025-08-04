@@ -33,7 +33,7 @@ export const useCreateClient = () => {
       toast.success("Cliente creado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -55,7 +55,7 @@ export const useUpdateClient = () => {
       toast.success("Cliente actualizado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -66,21 +66,42 @@ export const useUpdateClient = () => {
 };
 
 /**
- * Hook para consultar info SUNAT por RUC
+ * Hook para consultar info SUNAT por RUC - COMPLETAMENTE ARREGLADO
  */
 export const useSunatInfoByRuc = (ruc: string, enabled = false) => {
-  const shouldFetch = enabled && ruc.length === 11;
+  const isValidRuc = typeof ruc === "string" && ruc.length === 11 && /^\d{11}$/.test(ruc);
+  const shouldExecute = isValidRuc && enabled;
 
-  const query = backend.useQuery("get", "/v1/clients/sunat/{ruc}", {
-    params: {
-      path: { ruc },
+  // El hook SIEMPRE se llama, pero solo ejecuta la consulta si shouldExecute
+  const query = backend.useQuery(
+    "get",
+    "/v1/clients/perudev/sunat/{ruc}",
+    {
+      params: {
+        path: { ruc: isValidRuc ? ruc : "" }, // Valor dummy si no es válido
+      },
     },
-    enabled: shouldFetch,
-  });
+    {
+      enabled: shouldExecute,
+    }
+  );
+
+  // Si no se ejecuta, normaliza el resultado
+  if (!shouldExecute) {
+    return {
+      ...query,
+      data: null,
+      isSuccess: false,
+      isFetching: false,
+      error: null,
+      refetch: query.refetch,
+    };
+  }
 
   return {
     ...query,
     isSuccess: query.isSuccess,
+    refetch: query.refetch,
   };
 };
 
@@ -95,7 +116,7 @@ export const useAddContactToClient = () => {
       toast.success("Contacto agregado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -116,7 +137,7 @@ export const useUpdateContactOfClient = () => {
       toast.success("Contacto actualizado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 
@@ -137,7 +158,7 @@ export const useDeleteClient = () => {
       toast.success("Cliente eliminado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 };
@@ -153,7 +174,23 @@ export const useReactivateClient = () => {
       toast.success("Cliente reactivado correctamente");
     },
     onError: (error) => {
-      toast.error(error?.error?.message || "Ocurrió un error inesperado");
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+    },
+  });
+};
+
+/**
+ * Hook para activar/desactivar contacto de cliente
+ */
+export const useToggleActiveContact = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("patch", "/v1/clients/{id}/contacts/{email}/toggle-active", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Estado del contacto actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
 };

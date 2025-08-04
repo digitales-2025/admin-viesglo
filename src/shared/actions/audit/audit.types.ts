@@ -1,6 +1,4 @@
-import { components } from "@/lib/api/types/api";
-
-export type AuditResponse = components["schemas"]["AuditResponseDto"];
+export type AuditResponse = any;
 
 export enum AuditType {
   CREATE = "CREATE",

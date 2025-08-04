@@ -49,7 +49,7 @@ export function ProfileDropdown() {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <Link href="/settings">
+                  <Link href="/dashboard/admin/settings/profile">
                     Mi cuenta
                     <DropdownMenuShortcut>
                       <BadgeCheck />

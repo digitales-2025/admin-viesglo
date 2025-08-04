@@ -1,19 +1,17 @@
-import { components } from "@/lib/api/types/api";
-
 // Tipo original de la API
-type OriginalRole = components["schemas"]["RoleResponseDto"];
+type OriginalRole = any;
 
 // Tipo modificado con permissionIds como string[] en lugar de string[][]
 export type Role = Omit<OriginalRole, "permissionIds"> & {
   permissionIds: string[];
 };
 
-export type RoleCreate = Omit<components["schemas"]["CreateRoleDto"], "permissionIds"> & {
+export type RoleCreate = Omit<any, "permissionIds"> & {
   permissionIds: string[];
 };
 
-export type RoleUpdate = Omit<components["schemas"]["UpdateRoleDto"], "permissionIds"> & {
+export type RoleUpdate = Omit<any, "permissionIds"> & {
   permissionIds: string[];
 };
 
-export type Permission = components["schemas"]["PermissionResponseDto"];
+export type Permission = any;

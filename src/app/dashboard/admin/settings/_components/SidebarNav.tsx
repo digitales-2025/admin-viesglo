@@ -1,71 +1,59 @@
 "use client";
 
-import { JSX, useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 
-import { buttonVariants } from "@/shared/components/ui/button";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { cn } from "@/shared/lib/utils";
+import { cn } from "@/lib/utils";
 
-interface SidebarNavProps extends React.HTMLAttributes<HTMLElement> {
-  items: {
-    title: string;
-    href: string;
-    icon: JSX.Element;
-  }[];
+interface SidebarNavItem {
+  title: string;
+  icon: ReactNode;
+  href: string;
 }
 
-export default function SidebarNav({ className, items, ...props }: SidebarNavProps) {
+interface SidebarNavProps {
+  items: SidebarNavItem[];
+}
+
+export default function SidebarNav({ items }: SidebarNavProps) {
   const pathname = usePathname();
-  const router = useRouter();
-
-  const [val, setVal] = useState(pathname ?? "/dashboard/admin/settings");
-
-  const handleSelect = (href: string) => {
-    setVal(href);
-    router.push(href);
-  };
 
   return (
-    <>
-      <div className="p-1 md:hidden">
-        <Select value={val} onValueChange={handleSelect}>
-          <SelectTrigger className="h-12 sm:w-48">
-            <SelectValue placeholder="Theme" />
-          </SelectTrigger>
-          <SelectContent>
-            {items.map((item) => (
-              <SelectItem key={item.href} value={item.href}>
-                <div className="flex gap-x-4 px-2 py-1">
-                  <span className="scale-125">{item.icon}</span>
-                  <span className="text-md">{item.title}</span>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <ScrollArea type="always" className="hidden w-full min-w-40 bg-background px-1 py-2 md:block">
-        <nav className={cn("flex space-x-2 py-1 lg:flex-col lg:space-x-0 lg:space-y-1", className)} {...props}>
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                buttonVariants({ variant: "ghost" }),
-                pathname === item.href ? "bg-muted hover:bg-muted" : "hover:bg-transparent hover:underline",
-                "justify-start"
-              )}
-            >
-              <span className="mr-2">{item.icon}</span>
-              {item.title}
-            </Link>
-          ))}
-        </nav>
-      </ScrollArea>
-    </>
+    <nav className="flex flex-col gap-2 px-4 py-6 bg-background/80 rounded-xl shadow-md border border-muted">
+      <h2 className="mb-2 font-semibold tracking-tight text-primary/90">Configuración</h2>
+      <ul className="flex flex-col gap-1">
+        {items.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <li key={item.href}>
+              <Link href={item.href} className="group relative block">
+                <span
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-4 py-3 font-medium transition-all duration-200",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    isActive ? "bg-primary/10 text-primary shadow-inner" : "text-muted-foreground"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "transition-transform duration-200",
+                      isActive ? "scale-110" : "scale-100 group-hover:scale-105"
+                    )}
+                  >
+                    {item.icon}
+                  </span>
+                  <span className="flex-1 truncate text-sm">{item.title}</span>
+                  {/* Indicador animado de selección */}
+                  {isActive && (
+                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-primary transition-all" />
+                  )}
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

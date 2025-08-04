@@ -1,7 +1,6 @@
 import { memo } from "react";
 import { Info, Loader2, PlusCircle } from "lucide-react";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -11,7 +10,6 @@ import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useServicesProject } from "../_hooks/useServicesProject";
 import { ProjectResponse } from "../_types/tracking.types";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import ProjectServiceCard from "./ProjectServiceCard";
 
 interface ProjectServicesProps {
@@ -77,7 +75,7 @@ const ProjectServices = memo(function ProjectServices({ project }: ProjectServic
             </TooltipProvider>
           )}
         </div>
-        <ProtectedComponent requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}>
+        <>
           <Button
             variant="outline"
             size={isMobile ? "sm" : "default"}
@@ -87,7 +85,7 @@ const ProjectServices = memo(function ProjectServices({ project }: ProjectServic
             <PlusCircle className="size-3 sm:size-4 mr-1 sm:mr-2" />
             <span className={isMobile ? "sr-only" : ""}>Agregar servicio</span>
           </Button>
-        </ProtectedComponent>
+        </>
       </div>
       {services.length > 0 ? (
         <ScrollArea className="flex-grow  bg-muted rounded-2xl p-2 relative">

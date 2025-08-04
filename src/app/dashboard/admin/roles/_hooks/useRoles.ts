@@ -3,12 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+import { backend } from "@/lib/api/types/backend";
 import {
   createRole,
   deleteRole,
   getRole,
   getRolePermissions,
-  getRoles,
   toggleActiveRole,
   updateRole,
 } from "../_actions/roles.actions";
@@ -25,21 +25,9 @@ export const ROLES_KEYS = {
   permissionsDetail: (id: string) => [...ROLES_KEYS.permissions(), id] as const,
 };
 
-/**
- * Hook para obtener todos los roles
- */
-export function useRoles() {
-  return useQuery({
-    queryKey: ROLES_KEYS.lists(),
-    queryFn: async () => {
-      const response = await getRoles();
-      if (!response.success) {
-        throw new Error(response.error || "Error al obtener roles");
-      }
-      return response.data;
-    },
-  });
-}
+export const useRoles = () => {
+  return backend.useQuery("get", "/v1/roles");
+};
 
 /**
  * Hook para obtener un rol por ID

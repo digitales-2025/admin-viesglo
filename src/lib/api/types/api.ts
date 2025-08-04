@@ -87,8 +87,8 @@ export interface paths {
     get: operations["UsersController_getAllUsers_v1"];
     put?: never;
     /**
-     * Crear nuevo usuario
-     * @description Crea un nuevo usuario con Better Auth y asigna roles y permisos automáticamente.
+     * Crear nuevo usuario con eventos de dominio
+     * @description Crea un nuevo usuario con Better Auth, asigna roles automáticamente y ejecuta eventos de dominio para efectos secundarios (emails, sincronización, auditoría).
      */
     post: operations["UsersController_createUser_v1"];
     delete?: never;
@@ -138,6 +138,26 @@ export interface paths {
     patch: operations["UsersController_toggleActiveUser_v1"];
     trace?: never;
   };
+  "/v1/users/{id}/change-password": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Cambiar contraseña de usuario (administradores)
+     * @description Permite a un administrador cambiar la contraseña de cualquier usuario. Genera automáticamente el evento PasswordChangedEvent para envío de notificaciones y auditoría.
+     */
+    patch: operations["UsersController_changeUserPassword_v1"];
+    trace?: never;
+  };
   "/v1/auth/signin": {
     parameters: {
       query?: never;
@@ -179,7 +199,7 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Obtener usuario actual */
+    /** Obtener usuario actual con roles y permisos */
     get: operations["AuthController_getMe_v1"];
     put?: never;
     post?: never;
@@ -187,6 +207,24 @@ export interface paths {
     options?: never;
     head?: never;
     patch?: never;
+    trace?: never;
+  };
+  "/v1/auth/profile": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener perfil del usuario actual */
+    get: operations["AuthController_getProfile_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Actualizar perfil del usuario actual */
+    patch: operations["AuthController_updateProfile_v1"];
     trace?: never;
   };
   "/v1/auth/update-password": {
@@ -377,7 +415,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/v1/clients/sunat/{ruc}": {
+  "/v1/clients/perudev/sunat/{ruc}": {
     parameters: {
       query?: never;
       header?: never;
@@ -445,6 +483,23 @@ export interface paths {
     patch: operations["ClientsController_toggleActiveContact_v1"];
     trace?: never;
   };
+  "/v1/roles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener todos los roles */
+    get: operations["RolesController_getAllRoles_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -489,6 +544,7 @@ export interface components {
        *     ]
        */
       permissions: {
+        name?: string;
         resource?: string;
         action?: string;
       }[];
@@ -625,70 +681,6 @@ export interface components {
       /** @description Error details */
       error: components["schemas"]["ErrorResponse"];
     };
-    UserListItemDto: {
-      /**
-       * @description Identificador único de la entidad
-       * @example 123e4567-e89b-12d3-a456-426614174000
-       */
-      id: string;
-      /**
-       * @description Indica si la entidad está activa
-       * @example true
-       */
-      isActive: boolean;
-      /**
-       * Format: date-time
-       * @description Fecha de creación de la entidad
-       * @example 2024-01-15T10:30:00.000Z
-       */
-      createdAt: string;
-      /**
-       * Format: date-time
-       * @description Fecha de última actualización
-       * @example 2024-01-15T10:30:00.000Z
-       */
-      updatedAt: string;
-      /**
-       * @description Fecha de eliminación (soft delete)
-       * @example null
-       */
-      deletedAt?: Record<string, never> | null;
-      /**
-       * @description Nombre del usuario
-       * @example Juan
-       */
-      name: string;
-      /**
-       * @description Apellido del usuario
-       * @example Pérez
-       */
-      lastName: string;
-      /**
-       * @description Nombre completo del usuario
-       * @example Juan Pérez
-       */
-      fullName: string;
-      /**
-       * @description Email del usuario
-       * @example juan@ejemplo.com
-       */
-      email: string;
-      /**
-       * @description Email enmascarado
-       * @example ju***@ejemplo.com
-       */
-      maskedEmail: string;
-      /**
-       * @description Solo el nombre del rol
-       * @example MANAGEMENT
-       */
-      roleName?: string;
-      /**
-       * @description Si el email está verificado
-       * @example true
-       */
-      emailVerified: boolean;
-    };
     PaginationMetadataDto: {
       /**
        * @description Número total de elementos
@@ -723,7 +715,7 @@ export interface components {
     };
     PaginatedUserResponseDto: {
       /** @description Lista de usuarios paginados */
-      data: components["schemas"]["UserListItemDto"][];
+      data: components["schemas"]["UserResponseDto"][];
       /** @description Metadatos de paginación */
       meta: components["schemas"]["PaginationMetadataDto"];
     };
@@ -767,21 +759,22 @@ export interface components {
        */
       lastName?: string;
       /**
-       * Format: email
-       * @description Email del usuario
-       * @example nuevo.email@ejemplo.com
-       */
-      email?: string;
-      /**
        * @description ID del rol a asignar al usuario
        * @example role-456
        */
       roleId?: string;
+    };
+    ChangePasswordRequestDto: {
       /**
-       * @description Estado activo del usuario
-       * @example false
+       * @description Nueva contraseña del usuario
+       * @example NuevaContraseña123!
        */
-      isActive?: boolean;
+      newPassword: string;
+      /**
+       * @description Confirmación de la nueva contraseña
+       * @example NuevaContraseña123!
+       */
+      confirmPassword: string;
     };
     SignInDto: {
       /**
@@ -794,6 +787,67 @@ export interface components {
        * @example miContraseña123
        */
       password: string;
+    };
+    UserProfileDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
+      /**
+       * @description Nombre del usuario
+       * @example Juan
+       */
+      name: string;
+      /**
+       * @description Apellido del usuario
+       * @example Pérez
+       */
+      lastName: string;
+      /**
+       * @description Email del usuario
+       * @example juan@ejemplo.com
+       */
+      email: string;
+      /**
+       * @description Nombre del rol asignado
+       * @example MANAGEMENT
+       */
+      roleName?: string;
+    };
+    UpdateProfileDto: {
+      /**
+       * @description Nombre del usuario
+       * @example Juan Carlos
+       */
+      name?: string;
+      /**
+       * @description Apellido del usuario
+       * @example Pérez García
+       */
+      lastName?: string;
     };
     UpdatePasswordDto: {
       /**
@@ -1038,6 +1092,11 @@ export interface components {
     };
     UpdateClientRequestDto: {
       /**
+       * @description RUC del cliente
+       * @example 20123456789
+       */
+      ruc: string;
+      /**
        * @description Razón social
        * @example EMPRESA S.A.C.
        */
@@ -1220,6 +1279,31 @@ export interface components {
        * @example true
        */
       isActive: boolean;
+    };
+    PermissionsResponseDto: {
+      /** @example projects:read */
+      name: string;
+      /** @example projects */
+      resource: string;
+      /** @example read */
+      action: string;
+    };
+    RolesResponseDto: {
+      /** @example 688294e01d42a5feea2a897b */
+      id: string;
+      /** @example CONSULTANT */
+      name: string;
+      /** @example Consultor - Ejecución de actividades y consultas */
+      description: string;
+      permissions: components["schemas"]["PermissionsResponseDto"][];
+      /** @example true */
+      isActive: boolean;
+      /** @example false */
+      isSystem: boolean;
+      /** @example 2025-07-24T20:17:36.874Z */
+      createdAt: string;
+      /** @example 2025-07-24T20:17:36.874Z */
+      updatedAt: string;
     };
   };
   responses: never;
@@ -1404,7 +1488,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description Usuario creado exitosamente con datos completos de rol y permisos */
+      /** @description Usuario creado exitosamente con datos completos de rol y permisos. Se ejecutan automáticamente: envío de email de bienvenida, sincronización con MQTT, registro de auditoría. */
       201: {
         headers: {
           [name: string]: unknown;
@@ -1558,6 +1642,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
+        /** @description Identificador del usuario */
         id: string;
       };
       cookie?: never;
@@ -1571,6 +1656,68 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  UsersController_changeUserPassword_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ChangePasswordRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Contraseña cambiada exitosamente. Se ejecutan automáticamente: envío de email de notificación, registro de auditoría. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description Contraseñas no coinciden o datos inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
       /** @description No autenticado */
@@ -1687,6 +1834,95 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UserResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_getProfile_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Perfil obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserProfileDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_updateProfile_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProfileDto"];
+      };
+    };
+    responses: {
+      /** @description Perfil actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserProfileDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
       /** @description No autenticado */
@@ -2450,6 +2686,44 @@ export interface operations {
       };
       /** @description Cliente o contacto no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_getAllRoles_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Roles obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RolesResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos para obtener roles */
+      403: {
         headers: {
           [name: string]: unknown;
         };

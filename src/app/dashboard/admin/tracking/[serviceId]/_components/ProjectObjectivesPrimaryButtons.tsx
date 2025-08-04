@@ -1,7 +1,5 @@
 import { PlusCircle } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
 import { Button } from "@/shared/components/ui/button";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MODULE_PROJECT_OBJECTIVES } from "./ProjectObjectivesDialogs";
@@ -11,7 +9,7 @@ export default function ProjectObjectivesPrimaryButtons() {
 
   return (
     <div>
-      <ProtectedComponent requiredPermissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}>
+      <>
         <Button
           className="space-x-1"
           onClick={() => {
@@ -21,7 +19,7 @@ export default function ProjectObjectivesPrimaryButtons() {
           <PlusCircle />
           Agregar objetivo
         </Button>
-      </ProtectedComponent>
+      </>
     </div>
   );
 }

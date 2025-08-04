@@ -2,14 +2,14 @@
 
 import { useMemo } from "react";
 
-import { useIsAdmin } from "@/auth/presentation/hooks/useIsAdmin";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { DataTable } from "@/shared/components/data-table/DataTable";
+import { DataTable } from "@/shared/components/data-table/data-table";
 import { useClinics } from "../_hooks/useClinics";
 import { columnsClinics } from "./clinics.columns";
 
 export default function ClinicsTable() {
-  const isAdmin = useIsAdmin();
+  const user = useProfile();
   const { data: clinics, isLoading, error } = useClinics();
 
   const columns = useMemo(() => columnsClinics(), []);
@@ -21,7 +21,7 @@ export default function ClinicsTable() {
       columns={columns}
       data={clinics || []}
       isLoading={isLoading}
-      initialColumnVisibility={{ estado: isAdmin }}
+      initialColumnVisibility={{ estado: user.isSuperAdmin }}
     />
   );
 }

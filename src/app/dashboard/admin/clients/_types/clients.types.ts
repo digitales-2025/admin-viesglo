@@ -15,7 +15,6 @@ export type ClientContactOperationResponseDto = components["schemas"]["ClientCon
 export type ClientContactToggleActiveResponseDto = components["schemas"]["ClientContactToggleActiveResponseDto"];
 export type ClientOperationResponseDto = components["schemas"]["ClientOperationResponseDto"];
 export type PaginatedClientResponseDto = components["schemas"]["PaginatedClientResponseDto"];
-export type BaseErrorResponse = components["schemas"]["BaseErrorResponse"];
 
 // Respuesta paginada para tabla de clientes
 export type ResponseCustomerPaginatedDto = {

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { useCurrentUser } from "@/app/(public)/auth/sign-in/_hooks/useAuth";
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import {
   activateDiagnosticInSystem,
   addDiagnostic,
@@ -57,7 +57,7 @@ export const MEDICAL_RECORDS_KEYS = {
  * Hook para obtener todos los registros médicos
  */
 export function useMedicalRecords(filters?: MedicalRecordsFilter) {
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useProfile();
   const _userId = currentUser?.id;
 
   const [paginationMeta, setPaginationMeta] = useState<PaginationMeta | null>(null);
@@ -97,7 +97,7 @@ export function useMedicalRecords(filters?: MedicalRecordsFilter) {
  */
 export function useMedicalRecord(id: string) {
   // Obtener el ID del usuario actual para incluirlo en la clave de consulta
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useProfile();
   const _userId = currentUser?.id;
 
   return useQuery({
@@ -120,7 +120,7 @@ export function useMedicalRecord(id: string) {
 export function useCreateMedicalRecord() {
   const queryClient = useQueryClient();
   // Obtener el ID del usuario actual
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useProfile();
   const _userId = currentUser?.id;
 
   return useMutation({
@@ -361,7 +361,7 @@ export function useDownloadMedicalReport() {
  */
 export function useUpdateMedicalRecord() {
   const queryClient = useQueryClient();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useProfile();
   const _userId = currentUser?.id;
 
   return useMutation({
@@ -393,7 +393,7 @@ export function useUpdateMedicalRecord() {
  */
 export function useDeleteMedicalRecord() {
   const queryClient = useQueryClient();
-  const { data: currentUser } = useCurrentUser();
+  const { data: currentUser } = useProfile();
   const _userId = currentUser?.id;
 
   return useMutation({

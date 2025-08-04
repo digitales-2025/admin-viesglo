@@ -2,8 +2,6 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ChevronRight, Plus, SquareDashed } from "lucide-react";
 
-import { ProtectedComponent } from "@/auth/presentation/components/ProtectedComponent";
-import { useAuth } from "@/auth/presentation/providers/AuthProvider";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
@@ -12,7 +10,6 @@ import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { SERVICES_KEYS, useServices } from "../_hooks/useServices";
 import { useServiceStore } from "../_hooks/useServiceStore";
-import { EnumAction, EnumResource } from "../../roles/_utils/groupedPermission";
 import CardItem from "./CardItem";
 
 export default function ObjectivesList() {
@@ -24,7 +21,6 @@ export default function ObjectivesList() {
     setSelectedActivity,
     setSelectedService,
   } = useServiceStore();
-  const { hasPermission } = useAuth();
   const { open, isOpenForModule } = useDialogStore();
   const queryClient = useQueryClient();
   const { data: services } = useServices();
@@ -71,12 +67,12 @@ export default function ObjectivesList() {
         <div className="flex flex-col gap-2">
           <h3 className="text-lg font-bold">Lista de Objetivos</h3>
         </div>
-        <ProtectedComponent requiredPermissions={[{ resource: EnumResource.services, action: EnumAction.create }]}>
+        <>
           <Button size="sm" disabled={!selectedService} variant="outline" onClick={() => open("objectives", "create")}>
             <Plus className="w-4 h-4" />
             Nuevo Objetivo
           </Button>
-        </ProtectedComponent>
+        </>
       </div>
       <Separator />
       <ScrollArea className="flex-1 h-full">
@@ -98,10 +94,6 @@ export default function ObjectivesList() {
                   className={cn(
                     selectedObjective?.id === objective.id && "border-sky-400  outline-4 outline-sky-300/10"
                   )}
-                  permissions={{
-                    update: hasPermission(EnumResource.services, EnumAction.update),
-                    delete: hasPermission(EnumResource.services, EnumAction.delete),
-                  }}
                 />
               ))
             ) : (
