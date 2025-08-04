@@ -1,3 +1,5 @@
+import { Loader } from "lucide-react";
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -50,13 +52,22 @@ export function ConfirmDialog(props: ConfirmDialogProps) {
         </AlertDialogHeader>
         {children}
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isLoading}>{cancelBtnText ?? "Cancel"}</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>{cancelBtnText ?? "Cancelar"}</AlertDialogCancel>
           <Button
             variant={destructive ? "destructive" : "default"}
             onClick={handleConfirm}
             disabled={disabled || isLoading}
           >
-            {confirmText ?? "Continue"}
+            <span className="flex items-center justify-center">
+              {isLoading ? (
+                <>
+                  <Loader className="animate-spin h-4 w-4 mr-2" />
+                  {confirmText ?? "Continuar"}
+                </>
+              ) : (
+                <>{confirmText ?? "Continuar"}</>
+              )}
+            </span>
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

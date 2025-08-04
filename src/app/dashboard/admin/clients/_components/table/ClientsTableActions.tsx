@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteClient, useReactivateClient } from "../../_hooks/use-clients";
+import { useReactivateClient } from "../../_hooks/use-clients";
 import { ClientProfileResponseDto } from "../../_types/clients.types";
 
 interface ClientsTableActionsProps {
@@ -18,23 +18,12 @@ interface ClientsTableActionsProps {
 
 export default function ClientsTableActions({ client }: ClientsTableActionsProps) {
   const { open } = useDialogStore();
-
-  const { mutate: deleteClient, isPending: isDeleting } = useDeleteClient();
   const { mutate: reactivateClient, isPending: isReactivating } = useReactivateClient();
-
   const MODULE = "clients";
 
-  const handleEdit = () => {
-    open(MODULE, "edit", client);
-  };
-
-  const handleDelete = () => {
-    deleteClient({ params: { path: { id: client.id } } });
-  };
-
-  const handleReactivate = () => {
-    reactivateClient({ params: { path: { id: client.id } } });
-  };
+  const handleEdit = () => open(MODULE, "edit", client);
+  const handleDelete = () => open(MODULE, "delete", client);
+  const handleReactivate = () => reactivateClient({ params: { path: { id: client.id } } });
 
   return (
     <DropdownMenu>
@@ -51,7 +40,7 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
           </DropdownMenuShortcut>
         </DropdownMenuItem>
         {client.isActive ? (
-          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete} disabled={isDeleting}>
+          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
             Eliminar
             <DropdownMenuShortcut>
               <Trash className="size-4 mr-2" />
@@ -59,10 +48,21 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
           </DropdownMenuItem>
         ) : (
           <DropdownMenuItem className="cursor-pointer" onClick={handleReactivate} disabled={isReactivating}>
-            Reactivar
-            <DropdownMenuShortcut>
-              <RotateCcw className="size-4 mr-2 text-yellow-500" />
-            </DropdownMenuShortcut>
+            {isReactivating ? (
+              <>
+                Reactivando...
+                <DropdownMenuShortcut>
+                  <RotateCcw className="size-4 mr-2 text-yellow-500 opacity-0" />
+                </DropdownMenuShortcut>
+              </>
+            ) : (
+              <>
+                Reactivar
+                <DropdownMenuShortcut>
+                  <RotateCcw className="size-4 mr-2 text-yellow-500" />
+                </DropdownMenuShortcut>
+              </>
+            )}
           </DropdownMenuItem>
         )}
       </DropdownMenuContent>
