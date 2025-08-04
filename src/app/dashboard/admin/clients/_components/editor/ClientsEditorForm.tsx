@@ -10,7 +10,6 @@ import {
   Plus,
   ShieldCheck,
   Trash2,
-  User,
   UserCheck,
   Users,
 } from "lucide-react";
@@ -22,6 +21,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { PhoneInput } from "@/shared/components/ui/phone-input";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { CreateClientFormData } from "../../_schemas/clients.schemas";
 import LookupRuc from "../search-ruc/LookupRuc";
 
@@ -32,9 +32,13 @@ interface ClientsEditorFormProps {
   setSunatExpanded: (expanded: boolean) => void;
   contactsExpanded: boolean;
   setContactsExpanded: (expanded: boolean) => void;
+  addressesExpanded: boolean;
+  setAddressesExpanded: (expanded: boolean) => void;
   isUpdate: boolean;
   removeContact: (index: number) => void;
   addContact: () => void;
+  removeAddress: (index: number) => void;
+  addAddress: () => void;
 }
 
 export default function ClientsEditorForm({
@@ -44,11 +48,17 @@ export default function ClientsEditorForm({
   setSunatExpanded,
   contactsExpanded,
   setContactsExpanded,
+  addressesExpanded,
+  setAddressesExpanded,
   isUpdate,
   removeContact,
   addContact,
+  removeAddress,
+  addAddress,
 }: ClientsEditorFormProps) {
   const contacts = form.watch("contacts") || [];
+
+  const addresses = form.watch("addresses") || [];
 
   return (
     <Form {...form}>
@@ -165,8 +175,8 @@ export default function ClientsEditorForm({
                   <div className="space-y-4 p-4 border border-dashed rounded-lg bg-muted/20">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-muted-foreground/95">Contacto {index + 1}</span>
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span className="text-muted-foreground/95 font-semibold text-sm">Contacto {index + 1}</span>
                       </div>
                       <Button
                         type="button"
@@ -216,7 +226,7 @@ export default function ClientsEditorForm({
                           <FormItem>
                             <FormLabel className="text-xs font-medium text-muted-foreground">Teléfono</FormLabel>
                             <FormControl>
-                              <PhoneInput defaultCountry="PE" placeholder="+51987654321" {...field} />
+                              <PhoneInput defaultCountry="PE" placeholder="987 654 321" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -248,6 +258,95 @@ export default function ClientsEditorForm({
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Agregar Contacto
+              </Button>
+            </div>
+          )}
+        </section>
+
+        {/* Direcciones */}
+        <section className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setAddressesExpanded && setAddressesExpanded(!addressesExpanded)}
+            className="w-full flex items-center justify-between pb-2 border-b cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center group-hover:bg-muted/80 transition-colors">
+                <MapPin className="h-4 w-4" />
+              </div>
+              <h3>Direcciones</h3>
+              {addresses.length > 0 && (
+                <Badge variant="outline" className="rounded-full">
+                  {addresses.length}
+                </Badge>
+              )}
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${addressesExpanded ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {addressesExpanded && (
+            <div className="space-y-4">
+              {addresses.map((_, index) => (
+                <div key={index} className="relative px-2">
+                  <div className="absolute -left-6 top-0 w-px h-full bg-border" />
+                  <div className="space-y-4 p-4 border border-dashed rounded-lg bg-muted/20">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-primary" />
+                        <span className="text-muted-foreground/95 font-semibold text-sm">Dirección {index + 1}</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeAddress(index)}
+                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        aria-label="Eliminar dirección"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`addresses.${index}.address`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-medium text-muted-foreground">Dirección</FormLabel>
+                            <FormControl>
+                              <Input placeholder="Av. Principal 123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`addresses.${index}.reference`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-xs font-medium text-muted-foreground">Referencia</FormLabel>
+                            <FormControl>
+                              <Textarea placeholder="Frente al parque" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addAddress}
+                className="w-full border-dashed hover:bg-muted/50 bg-transparent"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Agregar Dirección
               </Button>
             </div>
           )}

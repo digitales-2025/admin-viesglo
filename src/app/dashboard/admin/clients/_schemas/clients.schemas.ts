@@ -19,6 +19,12 @@ export const contactSchema = z.object({
   email: z.string().email("Debe ser un email válido"),
 });
 
+// Schema para dirección de cliente (sin isActive en el formulario)
+export const clientAddressSchema = z.object({
+  address: z.string().min(1, "La dirección es requerida"),
+  reference: z.string().max(255, "La referencia no puede tener más de 255 caracteres").optional().or(z.literal("")), // Permite string vacío como opcional
+});
+
 // Schema para información SUNAT
 const sunatInfoSchema = z.object({
   address: z.string().min(1, "La dirección es requerida"),
@@ -48,8 +54,10 @@ export const createClientSchema = z.object({
     .min(2, "El representante legal debe tener al menos 2 caracteres")
     .max(100, "El representante legal no puede tener más de 100 caracteres"),
   contacts: z.array(contactSchema).optional().default([]),
+  addresses: z.array(clientAddressSchema).optional().default([]),
   sunatInfo: sunatInfoSchema.optional(),
 });
 
 export type CreateClientFormData = z.infer<typeof createClientSchema>;
 export type ContactFormData = z.infer<typeof contactSchema>;
+export type ClientAddressFormData = z.infer<typeof clientAddressSchema>;

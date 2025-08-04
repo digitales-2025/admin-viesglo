@@ -26,6 +26,7 @@ export function useClientForm({ isUpdate = false, initialData, onSuccess }: UseC
       email: "",
       legalRepresentative: "",
       contacts: [],
+      addresses: [],
       sunatInfo: {
         address: "",
         fullAddress: "",
@@ -53,6 +54,11 @@ export function useClientForm({ isUpdate = false, initialData, onSuccess }: UseC
             position: contact.position || "",
             phone: contact._phone.value || "",
             email: contact._email.value || "",
+          })) || [],
+        addresses:
+          initialData.addresses?.map((address) => ({
+            address: address.address || "",
+            reference: address.reference || "",
           })) || [],
         sunatInfo: {
           address: initialData.sunatInfo?.address || "",
@@ -133,10 +139,31 @@ export function useClientForm({ isUpdate = false, initialData, onSuccess }: UseC
     );
   };
 
+  const addAddress = () => {
+    const currentAddresses = form.getValues("addresses") || [];
+    form.setValue("addresses", [
+      ...currentAddresses,
+      {
+        address: "",
+        reference: "",
+      },
+    ]);
+  };
+
+  const removeAddress = (index: number) => {
+    const currentAddresses = form.getValues("addresses") || [];
+    form.setValue(
+      "addresses",
+      currentAddresses.filter((_, i) => i !== index)
+    );
+  };
+
   return {
     form,
     addContact,
     removeContact,
+    addAddress,
+    removeAddress,
     isUpdate,
     onSuccess,
     getSubmitData,
