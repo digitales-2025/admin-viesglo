@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { Button } from "@/shared/components/ui/button";
@@ -17,7 +18,7 @@ interface UpdateContactDialogProps {
   setIsDialogOpen: (open: boolean) => void;
   editingContact?: ClientContactResponseDto | null;
   setEditingContact: (contact: ClientContactResponseDto | null) => void;
-  clientId: string; // <-- Necesitas el id del cliente para los hooks
+  clientId: string;
 }
 
 export default function UpdateContactDialog({
@@ -184,8 +185,22 @@ export default function UpdateContactDialog({
             <Button type="button" variant="outline" onClick={handleCloseDialog}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={addContact.isPending || updateContact.isPending}>
-              {editingContact ? "Actualizar" : "Agregar"}
+            <Button
+              type="submit"
+              disabled={addContact.isPending || updateContact.isPending}
+              className="flex items-center justify-center"
+            >
+              {addContact.isPending || updateContact.isPending ? (
+                <>
+                  <span className="mr-2">Guardando...</span>
+                  {/* Spinner usando Loader de lucide-react */}
+                  <Loader className="animate-spin h-4 w-4" />
+                </>
+              ) : (
+                <>
+                  <span>{editingContact ? "Actualizar" : "Agregar"}</span>
+                </>
+              )}
             </Button>
           </div>
         </form>
