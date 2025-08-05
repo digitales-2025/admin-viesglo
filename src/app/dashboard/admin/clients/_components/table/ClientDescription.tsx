@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { Building2, CheckCircle, Globe, Mail, MapPin, Shield, User, XCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
-import { ClientProfileResponseDto } from "../../_types/clients.types";
+import { Button } from "@/shared/components/ui/button";
+import type { ClientProfileResponseDto } from "../../_types/clients.types";
 import { getInitials } from "../../_utils/clients.utils";
+import AddressesContentDescription from "./AddressesContentDescription";
 import ContactContentDescription from "./ContactContentDescription";
 
 interface ClientDescriptionProps {
@@ -14,6 +17,8 @@ interface ClientDescriptionProps {
 }
 
 export const ClientDescription = ({ row }: ClientDescriptionProps) => {
+  const [showAddresses, setShowAddresses] = useState(false);
+
   return (
     <div className="w-full space-y-4 py-2 px-6">
       {/* Header Section - Diseño horizontal minimalista */}
@@ -32,7 +37,6 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
               )}
             />
           </div>
-
           <div className="space-y-1">
             <h1 className="text-2xl font-bold text-foreground">{row.name}</h1>
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -49,10 +53,8 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
             </div>
           </div>
         </div>
-
         <Badge variant={row.isActive ? "default" : "destructive"} className="flex items-center gap-1 w-fit">
           {row.isActive ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
-
           {row.isActive ? "Activo" : "Inactivo"}
         </Badge>
       </div>
@@ -69,7 +71,6 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
               </div>
               <h3 className="font-semibold text-lg">Contacto Principal</h3>
             </div>
-
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -96,7 +97,6 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
                 </div>
                 <h3 className="font-semibold text-lg">Datos SUNAT</h3>
               </div>
-
               <div className="space-y-4">
                 {/* Fila 1: Estado y Condición */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -162,6 +162,24 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
         {/* Columna derecha - Contactos */}
         <ContactContentDescription row={row} />
       </div>
+
+      {/* Botón para mostrar direcciones - Nueva ubicación */}
+      {!showAddresses && (
+        <div className="flex justify-center">
+          <Button type="button" onClick={() => setShowAddresses(true)}>
+            <MapPin className="h-4 w-4" />
+            Ver Direcciones del Cliente
+            {row.addresses && row.addresses.length > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {row.addresses.length}
+              </Badge>
+            )}
+          </Button>
+        </div>
+      )}
+
+      {/* Panel de direcciones mejorado */}
+      {showAddresses && <AddressesContentDescription row={row} setShowAddresses={setShowAddresses} />}
     </div>
   );
 };
