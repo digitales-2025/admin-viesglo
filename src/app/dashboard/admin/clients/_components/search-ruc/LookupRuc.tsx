@@ -9,6 +9,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useSunatInfoByRuc } from "../../_hooks/use-clients";
 import { CreateClientFormData } from "../../_schemas/clients.schemas";
+import { ClientCondition, ClientState } from "../../_types/clients.types";
 import { clientConditionConfig, clientStateConfig } from "../../_utils/clients.utils";
 
 interface LookupRucProps {
@@ -72,8 +73,19 @@ export default function LookupRuc({ form, isUpdate = false }: LookupRucProps) {
       form.setValue("sunatInfo.address", sunatData.sunatInfo?.address || "");
       form.setValue("sunatInfo.fullAddress", sunatData.sunatInfo?.fullAddress || "");
       form.setValue("sunatInfo.businessName", sunatData.sunatInfo?.businessName || "");
-      form.setValue("sunatInfo.state", sunatData.sunatInfo?.state || "");
-      form.setValue("sunatInfo.condition", sunatData.sunatInfo?.condition || "");
+      form.setValue(
+        "sunatInfo.state",
+        sunatData.sunatInfo?.state
+          ? (ClientState[sunatData.sunatInfo.state as keyof typeof ClientState] as ClientState)
+          : ClientState.OTRO
+      );
+
+      form.setValue(
+        "sunatInfo.condition",
+        sunatData.sunatInfo?.condition
+          ? (ClientCondition[sunatData.sunatInfo.condition as keyof typeof ClientCondition] as ClientCondition)
+          : ClientCondition.OTRO
+      );
 
       // Llenar ubicación geográfica con delay para sincronización
       setTimeout(() => {
