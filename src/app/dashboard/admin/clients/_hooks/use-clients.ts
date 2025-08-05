@@ -194,3 +194,61 @@ export const useToggleActiveContact = () => {
     },
   });
 };
+
+/**
+ * Hook para agregar dirección a cliente
+ */
+export const useAddAddressToClient = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation("post", "/v1/clients/{id}/addresses", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Dirección agregada correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+    },
+  });
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
+
+/**
+ * Hook para actualizar dirección de cliente
+ */
+export const useUpdateAddressOfClient = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation("put", "/v1/clients/{id}/addresses/{addressId}", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Dirección actualizada correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+    },
+  });
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
+
+/**
+ * Hook para activar/desactivar dirección de cliente
+ */
+export const useToggleActiveAddress = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation("patch", "/v1/clients/{id}/addresses/{addressId}/toggle-active", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/clients/paginated"] });
+      toast.success("Estado de la dirección actualizado correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+    },
+  });
+};
