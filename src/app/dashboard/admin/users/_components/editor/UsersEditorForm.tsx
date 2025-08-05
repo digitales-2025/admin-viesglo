@@ -79,7 +79,7 @@ export default function UsersEditorForm({
               setShowPassword={setShowPassword}
               showPassword={showPassword}
               isUpdate={isUpdate}
-              data={data as Roles[]}
+              data={data as unknown as Roles[]}
               isActualUser={isActualUser}
             />
           ) : (
@@ -91,7 +91,7 @@ export default function UsersEditorForm({
               currentPassword={currentPassword ?? ""}
               passwordOptions={passwordOptions}
               setPasswordOptions={setPasswordOptions}
-              data={data as Roles[]}
+              data={data as unknown as Roles[]}
               setShowPassword={setShowPassword}
               showPassword={showPassword}
               isUserPending={isUserPending}

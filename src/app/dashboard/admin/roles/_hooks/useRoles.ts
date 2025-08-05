@@ -26,7 +26,7 @@ export const ROLES_KEYS = {
 };
 
 export const useRoles = () => {
-  return backend.useQuery("get", "/v1/roles");
+  return backend.useQuery("get", "/v1/roles/paginated");
 };
 
 /**
