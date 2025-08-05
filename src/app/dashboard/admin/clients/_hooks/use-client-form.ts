@@ -5,7 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { CreateClientFormData, createClientSchema } from "../_schemas/clients.schemas";
-import { ClientContactResponseDto, ClientOperationResponseDto } from "../_types/clients.types";
+import {
+  ClientCondition,
+  ClientContactResponseDto,
+  ClientOperationResponseDto,
+  ClientState,
+} from "../_types/clients.types";
 import { useCreateClient, useUpdateClient } from "./use-clients";
 
 interface UseClientFormProps {
@@ -31,8 +36,8 @@ export function useClientForm({ isUpdate = false, initialData, onSuccess }: UseC
         address: "",
         fullAddress: "",
         businessName: "",
-        state: "",
-        condition: "",
+        state: undefined,
+        condition: undefined,
         department: "",
         province: "",
         district: "",
@@ -64,8 +69,12 @@ export function useClientForm({ isUpdate = false, initialData, onSuccess }: UseC
           address: initialData.sunatInfo?.address || "",
           fullAddress: initialData.sunatInfo?.fullAddress || "",
           businessName: initialData.sunatInfo?.businessName || "",
-          state: initialData.sunatInfo?.state || "",
-          condition: initialData.sunatInfo?.condition || "",
+          state: initialData.sunatInfo?.state
+            ? (ClientState[initialData.sunatInfo.state as keyof typeof ClientState] as ClientState)
+            : ClientState.OTRO,
+          condition: initialData.sunatInfo?.condition
+            ? (ClientCondition[initialData.sunatInfo.condition as keyof typeof ClientCondition] as ClientCondition)
+            : ClientCondition.OTRO,
           department: initialData.sunatInfo?.department || "",
           province: initialData.sunatInfo?.province || "",
           district: initialData.sunatInfo?.district || "",

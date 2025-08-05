@@ -1,6 +1,8 @@
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { z } from "zod";
 
+import { ClientCondition, ClientState } from "../_types/clients.types";
+
 // Schema para contactos (sin isActive en el formulario)
 export const contactSchema = z.object({
   name: z
@@ -30,8 +32,16 @@ const sunatInfoSchema = z.object({
   address: z.string().min(1, "La dirección es requerida"),
   fullAddress: z.string().min(1, "La dirección completa es requerida"),
   businessName: z.string().min(1, "La razón social es requerida"),
-  state: z.string().min(1, "El estado es requerido"),
-  condition: z.string().min(1, "La condición es requerida"),
+  state: z
+    .nativeEnum(ClientState, {
+      errorMap: () => ({ message: "El estado es requerido y debe ser válido" }),
+    })
+    .describe("Estado SUNAT"),
+  condition: z
+    .nativeEnum(ClientCondition, {
+      errorMap: () => ({ message: "La condición es requerida y debe ser válida" }),
+    })
+    .describe("Condición SUNAT"),
   department: z.string().min(1, "El departamento es requerido"),
   province: z.string().min(1, "La provincia es requerida"),
   district: z.string().min(1, "El distrito es requerido"),
