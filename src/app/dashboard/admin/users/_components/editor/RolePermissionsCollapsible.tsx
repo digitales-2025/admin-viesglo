@@ -64,12 +64,14 @@ export default function RolePermissionsCollapsible({ showPermissions, setShowPer
                     </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-sm capitalize">
-                        {permission.resource === "*" ? "Todos los recursos" : translateResource(permission.resource)}
+                        {permission.resource === "*"
+                          ? "Todos los recursos"
+                          : translateResource(permission.resource ?? "")}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {permission.action === "*"
                           ? "Acceso completo"
-                          : `Acción: ${translateAction(permission.action)}`}
+                          : `Acción: ${translateAction(permission.action ?? "")}`}
                       </span>
                     </div>
                   </div>
@@ -80,7 +82,7 @@ export default function RolePermissionsCollapsible({ showPermissions, setShowPer
                     )}
                     variant="outline"
                   >
-                    {permission.action === "*" ? "TOTAL" : translateAction(permission.action).toUpperCase()}
+                    {permission.action === "*" ? "TOTAL" : translateAction(permission.action ?? "").toUpperCase()}
                   </Badge>
                 </div>
               );
