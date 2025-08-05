@@ -1,5 +1,4 @@
 import { components } from "@/lib/api/types/api";
-import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 
 // Tipos de DTOs usados en el controlador de clientes
 export type AddContactRequestDto = components["schemas"]["AddContactRequestDto"];
@@ -17,8 +16,21 @@ export type ClientOperationResponseDto = components["schemas"]["ClientOperationR
 export type ClientAddressResponseDto = components["schemas"]["ClientAddressResponseDto"];
 export type PaginatedClientResponseDto = components["schemas"]["PaginatedClientResponseDto"];
 
-// Respuesta paginada para tabla de clientes
-export type ResponseCustomerPaginatedDto = {
-  data: ClientProfileResponseDto[];
-  meta: MetaPaginated;
-};
+// Enums traídos del backend
+export enum ClientState {
+  ACTIVO = "ACTIVO",
+  BAJA_PROVISIONAL = "BAJA_PROVISIONAL",
+  BAJA_DEFINITIVA = "BAJA_DEFINITIVA",
+  SUSPENSION_TEMPORAL = "SUSPENSION_TEMPORAL",
+  BAJA_PROV_POR_OFICIO = "BAJA_PROV_POR_OFICIO",
+  BAJA_DEFI_POR_OFICIO = "BAJA_DEFI_POR_OFICIO",
+  OTRO = "OTRO",
+}
+
+export enum ClientCondition {
+  HABIDO = "HABIDO",
+  NO_HABIDO = "NO_HABIDO",
+  NO_HALLADO = "NO_HALLADO",
+  PENDIENTE = "PENDIENTE",
+  OTRO = "OTRO",
+}
