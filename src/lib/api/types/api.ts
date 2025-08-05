@@ -886,6 +886,26 @@ export interface paths {
     patch: operations["ClientsController_toggleActiveAddress_v1"];
     trace?: never;
   };
+  "/v1/roles/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener roles con paginación
+     * @description Obtiene una lista paginada de roles con filtros opcionales por nombre, descripción y estado activo. Incluye metadatos de paginación.
+     */
+    get: operations["RolesController_getRolesPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/roles": {
     parameters: {
       query?: never;
@@ -893,8 +913,72 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Obtener todos los roles */
-    get: operations["RolesController_getAllRoles_v1"];
+    get?: never;
+    put?: never;
+    /**
+     * Crear nuevo rol
+     * @description Crea un nuevo rol con permisos específicos. Valida unicidad del nombre y formato de permisos.
+     */
+    post: operations["RolesController_createRole_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/roles/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener rol por ID */
+    get: operations["RolesController_getRoleById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Actualización parcial de rol
+     * @description Actualiza parcialmente los datos de un rol existente. Sincroniza automáticamente con usuarios que tienen el rol asignado.
+     */
+    patch: operations["RolesController_updateRole_v1"];
+    trace?: never;
+  };
+  "/v1/roles/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Alternar estado activo del rol
+     * @description Alterna automáticamente el estado activo/inactivo del rol. Si está activo, se desactiva y se remueve de usuarios. Si está inactivo, se reactiva.
+     */
+    patch: operations["RolesController_toggleActiveRole_v1"];
+    trace?: never;
+  };
+  "/v1/roles/permissions/available": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener permisos disponibles
+     * @description Obtiene todos los recursos, acciones y combinaciones de permisos disponibles para la creación y actualización de roles.
+     */
+    get: operations["RolesController_getAvailablePermissions_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2113,13 +2197,22 @@ export interface components {
       /**
        * @description Estado SUNAT
        * @example ACTIVO
+       * @enum {string}
        */
-      state: string;
+      state:
+        | "ACTIVO"
+        | "BAJA_PROVISIONAL"
+        | "BAJA_DEFINITIVA"
+        | "SUSPENSION_TEMPORAL"
+        | "BAJA_PROV_POR_OFICIO"
+        | "BAJA_DEFI_POR_OFICIO"
+        | "OTRO";
       /**
        * @description Condición SUNAT
        * @example HABIDO
+       * @enum {string}
        */
-      condition: string;
+      condition: "HABIDO" | "NO_HABIDO" | "NO_HALLADO" | "PENDIENTE" | "OTRO";
       /**
        * @description Departamento
        * @example LIMA
@@ -2251,13 +2344,22 @@ export interface components {
       /**
        * @description Estado SUNAT
        * @example ACTIVO
+       * @enum {string}
        */
-      state: string;
+      state:
+        | "ACTIVO"
+        | "BAJA_PROVISIONAL"
+        | "BAJA_DEFINITIVA"
+        | "SUSPENSION_TEMPORAL"
+        | "BAJA_PROV_POR_OFICIO"
+        | "BAJA_DEFI_POR_OFICIO"
+        | "OTRO";
       /**
        * @description Condición SUNAT
        * @example HABIDO
+       * @enum {string}
        */
-      condition: string;
+      condition: "HABIDO" | "NO_HABIDO" | "NO_HALLADO" | "PENDIENTE" | "OTRO";
       /**
        * @description Departamento
        * @example LIMA
@@ -2588,28 +2690,302 @@ export interface components {
        */
       isActive: boolean;
     };
-    PermissionsResponseDto: {
-      /** @example resource */
-      resource: string;
-      /** @example action */
-      action: string;
-    };
-    RolesResponseDto: {
-      /** @example role-id */
+    RoleListItemDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
       id: string;
-      /** @example ROLE_NAME */
-      name: string;
-      /** @example Descripción del rol */
-      description: string;
-      permissions: components["schemas"]["PermissionsResponseDto"][];
-      /** @example true */
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
       isActive: boolean;
-      /** @example false */
-      isSystem: boolean;
-      /** @example 2025-01-01T00:00:00.000Z */
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
       createdAt: string;
-      /** @example 2025-01-01T00:00:00.000Z */
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
       updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
+      /**
+       * @description Nombre del rol
+       * @example CUSTOM_MANAGER
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Gestor personalizado con permisos específicos
+       */
+      description: string;
+      /**
+       * @description Número de permisos asignados
+       * @example 8
+       */
+      permissionCount: number;
+      /**
+       * @description Indica si es un rol del sistema (no modificable)
+       * @example false
+       */
+      isSystem: boolean;
+      /**
+       * @description Número de usuarios que tienen asignado este rol
+       * @example 5
+       */
+      userCount?: number;
+    };
+    PaginatedRoleResponseDto: {
+      /** @description Lista de roles paginados */
+      data: components["schemas"]["RoleListItemDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    PermissionRequestDto: {
+      /**
+       * @description Recurso del sistema al que aplica el permiso
+       * @example users
+       * @enum {string}
+       */
+      resource:
+        | "users"
+        | "projects"
+        | "clients"
+        | "milestones"
+        | "phases"
+        | "deliverables"
+        | "activities"
+        | "roles"
+        | "notifications"
+        | "reports"
+        | "dashboard"
+        | "system";
+      /**
+       * @description Acción que se puede realizar sobre el recurso
+       * @example read
+       * @enum {string}
+       */
+      action: "read" | "write" | "manage";
+    };
+    CreateRoleRequestDto: {
+      /**
+       * @description Nombre del rol
+       * @example CUSTOM_MANAGER
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Gestor personalizado con permisos específicos para el área comercial
+       */
+      description: string;
+      /**
+       * @description Lista de permisos del rol
+       * @example [
+       *       {
+       *         "resource": "users",
+       *         "action": "read"
+       *       },
+       *       {
+       *         "resource": "projects",
+       *         "action": "manage"
+       *       },
+       *       {
+       *         "resource": "clients",
+       *         "action": "write"
+       *       }
+       *     ]
+       */
+      permissions: components["schemas"]["PermissionRequestDto"][];
+    };
+    PermissionResponseDto: {
+      /**
+       * @description Nombre del permiso en formato 'recurso:acción'
+       * @example users:read
+       */
+      name: string;
+      /**
+       * @description Recurso del sistema al que aplica el permiso
+       * @example users
+       */
+      resource: string;
+      /**
+       * @description Acción que se puede realizar sobre el recurso
+       * @example read
+       * @enum {string}
+       */
+      action: "read" | "write" | "manage";
+    };
+    RoleDetailResponseDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
+      /**
+       * @description Nombre del rol
+       * @example CUSTOM_MANAGER
+       */
+      name: string;
+      /**
+       * @description Descripción del rol
+       * @example Gestor personalizado con permisos específicos para el área comercial
+       */
+      description: string;
+      /**
+       * @description Lista de permisos del rol
+       * @example [
+       *       {
+       *         "name": "users:read",
+       *         "resource": "users",
+       *         "action": "read"
+       *       },
+       *       {
+       *         "name": "projects:manage",
+       *         "resource": "projects",
+       *         "action": "manage"
+       *       },
+       *       {
+       *         "name": "clients:write",
+       *         "resource": "clients",
+       *         "action": "write"
+       *       }
+       *     ]
+       */
+      permissions: components["schemas"]["PermissionResponseDto"][];
+      /**
+       * @description Indica si es un rol del sistema (no modificable)
+       * @example false
+       */
+      isSystem: boolean;
+      /**
+       * @description Número de usuarios que tienen asignado este rol
+       * @example 5
+       */
+      userCount?: number;
+    };
+    RoleOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Rol creado exitosamente
+       */
+      message: string;
+      /** @description Datos del rol afectado */
+      data: components["schemas"]["RoleDetailResponseDto"];
+      /**
+       * @description Número de usuarios afectados por la operación (para actualizaciones)
+       * @example 3
+       */
+      affectedUsers?: number;
+    };
+    UpdateRoleRequestDto: {
+      /**
+       * @description Nombre del rol
+       * @example CUSTOM_MANAGER_UPDATED
+       */
+      name?: string;
+      /**
+       * @description Descripción del rol
+       * @example Gestor personalizado actualizado con nuevos permisos
+       */
+      description?: string;
+      /**
+       * @description Lista de permisos del rol
+       * @example [
+       *       {
+       *         "resource": "users",
+       *         "action": "read"
+       *       },
+       *       {
+       *         "resource": "projects",
+       *         "action": "manage"
+       *       },
+       *       {
+       *         "resource": "reports",
+       *         "action": "read"
+       *       }
+       *     ]
+       */
+      permissions?: components["schemas"]["PermissionRequestDto"][];
+    };
+    AvailablePermissionsResponseDto: {
+      /**
+       * @description Lista de recursos disponibles en el sistema
+       * @example [
+       *       "users",
+       *       "projects",
+       *       "clients",
+       *       "milestones",
+       *       "phases",
+       *       "deliverables",
+       *       "activities",
+       *       "roles",
+       *       "notifications",
+       *       "reports",
+       *       "dashboard",
+       *       "system"
+       *     ]
+       */
+      resources: string[];
+      /**
+       * @description Lista de acciones disponibles (simplificadas)
+       * @example [
+       *       "read",
+       *       "write",
+       *       "manage"
+       *     ]
+       */
+      actions: string[];
+      /**
+       * @description Lista de todas las combinaciones válidas de permisos
+       * @example [
+       *       "users:read",
+       *       "users:write",
+       *       "users:manage",
+       *       "projects:read",
+       *       "projects:write",
+       *       "projects:manage",
+       *       "clients:read",
+       *       "clients:write",
+       *       "clients:manage"
+       *     ]
+       */
+      combinations: string[];
     };
   };
   responses: never;
@@ -4799,22 +5175,44 @@ export interface operations {
       };
     };
   };
-  RolesController_getAllRoles_v1: {
+  RolesController_getRolesPaginated_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Número de página (comenzando desde 1) */
+        page?: number;
+        /** @description Cantidad de elementos por página */
+        size?: number;
+        /** @description Término de búsqueda para nombre y descripción */
+        search?: string;
+        /** @description Filtrar por estado activo */
+        isActive?: boolean;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Roles obtenidos exitosamente */
+      /** @description Lista paginada de roles con metadatos de paginación */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["RolesResponseDto"][];
+          "application/json": components["schemas"]["PaginatedRoleResponseDto"];
+        };
+      };
+      /** @description Parámetros de paginación inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
       /** @description No autenticado */
@@ -4826,7 +5224,275 @@ export interface operations {
           "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
-      /** @description Sin permisos para obtener roles */
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_createRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateRoleRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Rol creado exitosamente con datos completos */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleOperationResponseDto"];
+        };
+      };
+      /** @description Error al crear rol */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Nombre del rol ya está en uso */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Datos inválidos o permisos incorrectos */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_getRoleById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Rol encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleDetailResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Rol no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_updateRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateRoleRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Rol actualizado exitosamente con sincronización de usuarios */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Rol no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Rol del sistema no puede ser modificado */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_toggleActiveRole_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Identificador del rol */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado del rol alternado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleOperationResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Rol no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Rol del sistema no puede ser desactivado */
+      422: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_getAvailablePermissions_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de permisos disponibles */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AvailablePermissionsResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
       403: {
         headers: {
           [name: string]: unknown;
