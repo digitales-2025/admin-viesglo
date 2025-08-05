@@ -14,6 +14,7 @@ export type ClientSunatFullInfoResponseDto = components["schemas"]["ClientSunatF
 export type ClientContactOperationResponseDto = components["schemas"]["ClientContactOperationResponseDto"];
 export type ClientContactToggleActiveResponseDto = components["schemas"]["ClientContactToggleActiveResponseDto"];
 export type ClientOperationResponseDto = components["schemas"]["ClientOperationResponseDto"];
+export type ClientAddressResponseDto = components["schemas"]["ClientAddressResponseDto"];
 export type PaginatedClientResponseDto = components["schemas"]["PaginatedClientResponseDto"];
 
 // Respuesta paginada para tabla de clientes

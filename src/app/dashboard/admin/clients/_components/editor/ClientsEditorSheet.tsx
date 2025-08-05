@@ -19,10 +19,11 @@ interface ClientsEditorSheetProps {
 export function ClientsEditorSheet({ open, onOpenChange, currentRow }: ClientsEditorSheetProps) {
   const [contactsExpanded, setContactsExpanded] = useState(true);
   const [sunatExpanded, setSunatExpanded] = useState(true);
+  const [addressesExpanded, setAddressesExpanded] = useState(true);
 
   const isUpdate = !!currentRow;
 
-  const { form, addContact, removeContact, onSubmit, isPending } = useClientForm({
+  const { form, addContact, removeContact, onSubmit, isPending, addAddress, removeAddress } = useClientForm({
     isUpdate: isUpdate,
     initialData: currentRow,
     onSuccess: () => {
@@ -41,6 +42,7 @@ export function ClientsEditorSheet({ open, onOpenChange, currentRow }: ClientsEd
           email: "",
           legalRepresentative: "",
           contacts: [],
+          addresses: [],
           sunatInfo: {
             address: "",
             fullAddress: "",
@@ -108,6 +110,10 @@ export function ClientsEditorSheet({ open, onOpenChange, currentRow }: ClientsEd
         addContact={addContact}
         removeContact={removeContact}
         onSubmit={onSubmit}
+        addressesExpanded={addressesExpanded}
+        setAddressesExpanded={setAddressesExpanded}
+        addAddress={addAddress}
+        removeAddress={removeAddress}
       />
     </GenericSheet>
   );
