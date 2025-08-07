@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { backend } from "@/lib/api/types/backend";
+import { usePagination } from "@/shared/hooks/use-pagination";
 import {
   createRole,
   deleteRole,
@@ -26,7 +27,45 @@ export const ROLES_KEYS = {
 };
 
 export const useRoles = () => {
-  return backend.useQuery("get", "/v1/roles/paginated");
+  const { page, size, setPagination, resetPagination } = usePagination();
+  const query = backend.useQuery("get", "/v1/roles/paginated", {
+    params: {
+      query: {
+        page,
+        size: size,
+      },
+    },
+  });
+
+  return { query, setPagination, resetPagination };
+};
+
+/**
+ * Hook para obtener todos los roles activos (sin paginación, excluye roles del sistema)
+ */
+export const useAllRoles = () => {
+  const query = backend.useQuery("get", "/v1/roles/all");
+  return query;
+};
+
+/**
+ * Hook para obtener el detalle de un rol por ID
+ */
+export const useRoleDetail = (id: string, enabled = true) => {
+  const query = backend.useQuery(
+    "get",
+    "/v1/roles/{id}",
+    {
+      params: {
+        path: { id },
+      },
+    },
+    {
+      enabled: !!id && enabled,
+    }
+  );
+
+  return query;
 };
 
 /**
