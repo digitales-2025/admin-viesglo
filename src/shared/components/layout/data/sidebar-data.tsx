@@ -15,7 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/roles.utils";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { type SidebarData } from "./types";
 
 export const sidebarData: SidebarData = {
@@ -98,7 +98,7 @@ export const sidebarData: SidebarData = {
           title: "Certificados",
           icon: GraduationCap,
           url: "/dashboard/admin/certificates",
-          permissions: [{ resource: EnumResource.certificate, action: EnumAction.read }],
+          permissions: [{ resource: EnumResource.clients, action: EnumAction.read }],
         },
       ],
     },
