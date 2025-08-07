@@ -1,30 +1,10 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
-import {
-  createRole,
-  deleteRole,
-  getRole,
-  getRolePermissions,
-  toggleActiveRole,
-  updateRole,
-} from "../_actions/roles.actions";
-import { RoleCreate, RoleUpdate } from "../_types/roles";
-
-// Claves de consulta para roles
-export const ROLES_KEYS = {
-  all: ["roles"] as const,
-  lists: () => [...ROLES_KEYS.all, "list"] as const,
-  list: (filters: string) => [...ROLES_KEYS.lists(), { filters }] as const,
-  details: () => [...ROLES_KEYS.all, "detail"] as const,
-  detail: (id: string) => [...ROLES_KEYS.details(), id] as const,
-  permissions: () => [...ROLES_KEYS.all, "permissions"] as const,
-  permissionsDetail: (id: string) => [...ROLES_KEYS.permissions(), id] as const,
-};
 
 export const useRoles = () => {
   const { page, size, setPagination, resetPagination } = usePagination();
@@ -69,131 +49,65 @@ export const useRoleDetail = (id: string, enabled = true) => {
 };
 
 /**
- * Hook para obtener un rol por ID
- */
-export function useRole(id: string) {
-  return useQuery({
-    queryKey: ROLES_KEYS.detail(id),
-    queryFn: async () => {
-      const response = await getRole(id);
-      if (!response.success || !response.data) {
-        throw new Error(response.error || "Error al obtener rol");
-      }
-      return response.data;
-    },
-    enabled: !!id, // Solo ejecuta la consulta si hay un ID
-  });
-}
-
-/**
  * Hook para crear un nuevo rol
  */
-export function useCreateRole() {
+export const useCreateRole = () => {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (newRole: RoleCreate) => createRole(newRole),
+  const mutation = backend.useMutation("post", "/v1/roles", {
     onSuccess: () => {
-      // Invalida consultas para refrescar la lista
-      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/roles/paginated"] });
       toast.success("Rol creado exitosamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al crear rol");
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Error al crear rol");
     },
   });
-}
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
 
 /**
  * Hook para actualizar un rol
  */
-export function useUpdateRole() {
+export const useUpdateRole = () => {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<RoleUpdate> }) => updateRole(id, data),
-    onSuccess: (data, variables) => {
-      // Invalida consultas para refrescar los datos
-      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
-      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.detail(variables.id) });
+  const mutation = backend.useMutation("patch", "/v1/roles/{id}", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/roles/paginated"] });
       toast.success("Rol actualizado exitosamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al actualizar rol");
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Error al actualizar rol");
     },
   });
-}
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
 
 /**
- * Hook para eliminar un rol
+ * Hook para alternar estado activo/inactivo de un rol
  */
-export function useDeleteRole() {
+export const useToggleActiveRole = () => {
   const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await deleteRole(id);
-      if (!response.success) {
-        throw new Error(response.error || "Error al eliminar rol");
-      }
-      return response;
-    },
+  const mutation = backend.useMutation("patch", "/v1/roles/{id}/toggle-active", {
     onSuccess: () => {
-      // Invalida consultas para refrescar la lista
-      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
-      toast.success("Rol eliminado exitosamente");
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/roles/paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/roles/all"] });
+      toast.success("Estado de rol actualizado correctamente");
     },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al eliminar rol");
-    },
-  });
-}
-
-/**
- * Hook para toggle el rol de un usuario
- */
-export function useToggleActiveRole() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (id: string) => {
-      const response = await toggleActiveRole(id);
-      if (!response.success) {
-        throw new Error(response.error || "Error al toggle el rol de un usuario");
-      }
-      return response;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ROLES_KEYS.lists() });
-      toast.success("Rol activado exitosamente");
-    },
-    onError: (error: Error) => {
-      toast.error(error.message || "Error al toggle el rol de un usuario");
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
     },
   });
-}
 
-/**
- * Hook para obtener los permisos de un rol
- */
-export function useRolePermissions(id: string) {
-  return useQuery({
-    queryKey: ROLES_KEYS.permissionsDetail(id),
-    queryFn: async () => {
-      try {
-        const response = await getRolePermissions(id);
-
-        if (!response.success) {
-          throw new Error(response.error || "Error al obtener permisos del rol");
-        }
-
-        return response.data;
-      } catch (error) {
-        throw error;
-      }
-    },
-    enabled: !!id,
-    staleTime: 0, // Siempre obtener datos frescos
-    gcTime: 1000 * 60 * 5, // Caché por 5 minutos
-  });
-}
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
