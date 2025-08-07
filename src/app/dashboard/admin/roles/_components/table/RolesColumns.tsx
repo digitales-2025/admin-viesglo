@@ -17,7 +17,7 @@ export const columnsRoles = (): ColumnDef<RoleListItem>[] => [
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
     cell: ({ row }) => (
       <div className="flex items-center gap-3 py-1">
-        <UserCircle className="size-5 text-primary" />
+        <UserCircle className="size-4 text-primary" />
         <span className="font-semibold text-sm capitalize">{row.getValue("nombre")}</span>
       </div>
     ),
