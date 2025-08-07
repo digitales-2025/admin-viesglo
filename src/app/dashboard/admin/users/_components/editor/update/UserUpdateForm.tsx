@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bot, Check, Copy, Eye, EyeOff, KeyRound, Lock, Shield, User } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
+import { useRoleDetail } from "@/app/dashboard/admin/roles/_hooks/use-roles";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
@@ -18,7 +19,7 @@ import {
   getRoleStatusBadge,
   PasswordOptions,
 } from "../../../_utils/user.utils";
-import { Roles } from "../../../../settings/_types/roles.types";
+import { RoleListItem } from "../../../../settings/_types/roles.types";
 import PasswordOptionsCollapsible from "../PasswordOptionsCollapsible";
 import RolePermissionsCollapsible from "../RolePermissionsCollapsible";
 
@@ -27,7 +28,7 @@ interface UserUpdateFormProps {
   isUserPending: boolean;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  data: Array<Roles>;
+  data: Array<RoleListItem>;
   passwordOptions: PasswordOptions;
   showPermissions: boolean;
   setShowPermissions: (visible: boolean) => void;
@@ -65,7 +66,8 @@ export default function UserUpdateForm({
 }: UserUpdateFormProps) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const selectedRoleId = userForm.watch("roleId");
-  const selectedRole = data?.find((role) => role.id === selectedRoleId);
+  // Hook para obtener el detalle del rol seleccionado solo si hay roleId válido
+  const { data: selectedRole, isLoading: isRoleLoading } = useRoleDetail(selectedRoleId, !!selectedRoleId);
   return (
     <Tabs value={isActualUser ? "user-data" : activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className={`grid w-full ${isActualUser ? "grid-cols-1" : "grid-cols-2"}`}>
@@ -219,6 +221,7 @@ export default function UserUpdateForm({
                     showPermissions={showPermissions}
                     setShowPermissions={setShowPermissions}
                     selectedRole={selectedRole}
+                    isLoading={isRoleLoading}
                   />
                 )}
               </CardContent>
