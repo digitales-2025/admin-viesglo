@@ -1,13 +1,7 @@
 import { Briefcase, CheckCircle, Lock, RefreshCw, Send, Settings, Shield, Unlock, User } from "lucide-react";
 
 import { Permission } from "../_types/roles";
-
-// Acciones válidas
-export enum EnumAction {
-  read = "read",
-  write = "write",
-  manage = "manage",
-}
+import { EnumAction, EnumResource } from "../../settings/_types/roles.types";
 
 // Etiquetas de acciones
 export const labelPermission = {
@@ -15,23 +9,6 @@ export const labelPermission = {
   [EnumAction.write]: "Escribir",
   [EnumAction.manage]: "Gestionar",
 };
-
-// Recursos válidos
-export enum EnumResource {
-  users = "users",
-  projects = "projects",
-  clients = "clients",
-  milestones = "milestones",
-  phases = "phases",
-  deliverables = "deliverables",
-  activities = "activities",
-  roles = "roles",
-  notifications = "notifications",
-  reports = "reports",
-  dashboard = "dashboard",
-  system = "system",
-  all = "*",
-}
 
 // Etiquetas de recursos
 export const labelResource = {
@@ -119,3 +96,22 @@ export function groupedPermission(permissions: Permission | undefined): GroupedP
     return { resource, actions };
   });
 }
+
+// Plantillas de roles predefinidas
+export const roleTemplates = {
+  admin: {
+    name: "Administrador",
+    description: "Acceso completo a todos los recursos",
+    permissions: "all",
+  },
+  manager: {
+    name: "Gerente",
+    description: "Gestión de proyectos y equipos",
+    permissions: ["projects:manage", "users:read", "reports:read", "dashboard:read"],
+  },
+  viewer: {
+    name: "Visualizador",
+    description: "Solo lectura en todos los recursos",
+    permissions: "read-only",
+  },
+};
