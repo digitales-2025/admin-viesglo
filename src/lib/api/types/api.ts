@@ -926,6 +926,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/roles/all": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener todos los roles
+     * @description Obtiene todos los roles activos sin paginación. Excluye roles del sistema. Útil para dropdowns y selects.
+     */
+    get: operations["RolesController_getAllRoles_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/roles/{id}": {
     parameters: {
       query?: never;
@@ -5286,6 +5306,44 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  RolesController_getAllRoles_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista completa de roles activos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleListItemDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos suficientes */
+      403: {
         headers: {
           [name: string]: unknown;
         };
