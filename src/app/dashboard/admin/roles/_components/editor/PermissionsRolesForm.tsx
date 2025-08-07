@@ -62,7 +62,7 @@ export default function PermissionsRolesForm({
       name="permissions"
       render={() => (
         <FormItem>
-          <div className="space-y-3 max-h-96 overflow-y-auto">
+          <div className="space-y-3">
             {filteredGroups.map((group) => {
               // Construir acciones del grupo en formato { resource, action }
               const groupActionsForHandlers = group.actions.map((a) => ({
@@ -219,7 +219,6 @@ export default function PermissionsRolesForm({
                               >
                                 {translateAction(permission.action)}
                               </label>
-                              <FormMessage />
                             </FormItem>
                           );
                         })}
@@ -229,6 +228,7 @@ export default function PermissionsRolesForm({
               );
             })}
           </div>
+          <FormMessage />
         </FormItem>
       )}
     />

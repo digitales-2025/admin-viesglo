@@ -149,7 +149,7 @@ export default function PermissionsConfiguration({
           placeholder="Buscar recursos o permisos..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10 h-10 text-sm bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900"
+          className="pl-10 text-sm"
         />
       </div>
 
