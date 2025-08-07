@@ -4,8 +4,8 @@ import { UseFormReturn } from "react-hook-form";
 
 import { ChangePasswordFormData, CreateUserFormData, UpdateUserFormData } from "../../_schemas/users.schemas";
 import { PasswordOptions } from "../../_utils/user.utils";
-import { useRoles } from "../../../roles/_hooks/useRoles";
-import { Roles } from "../../../settings/_types/roles.types";
+import { useAllRoles } from "../../../roles/_hooks/use-roles";
+import { RoleListItem } from "../../../settings/_types/roles.types";
 import UserCreateForm from "./create/UserCreateForm";
 import UserUpdateForm from "./update/UserUpdateForm";
 
@@ -44,7 +44,7 @@ export default function UsersEditorForm({
   isActualUser,
   setShowPermissions,
 }: UsersEditorFormProps) {
-  const { data, isLoading } = useRoles();
+  const { data, isLoading } = useAllRoles();
   const [showPassword, setShowPassword] = useState(false);
 
   const currentPassword = !isUpdate ? createForm.getValues("password") : "";
@@ -79,7 +79,7 @@ export default function UsersEditorForm({
               setShowPassword={setShowPassword}
               showPassword={showPassword}
               isUpdate={isUpdate}
-              data={data as unknown as Roles[]}
+              data={data as RoleListItem[]}
               isActualUser={isActualUser}
             />
           ) : (
@@ -91,7 +91,7 @@ export default function UsersEditorForm({
               currentPassword={currentPassword ?? ""}
               passwordOptions={passwordOptions}
               setPasswordOptions={setPasswordOptions}
-              data={data as unknown as Roles[]}
+              data={data as RoleListItem[]}
               setShowPassword={setShowPassword}
               showPassword={showPassword}
               isUserPending={isUserPending}
