@@ -20,61 +20,44 @@ interface RolesTableActionsProps {
 
 export function RolesTableActions({ row }: RolesTableActionsProps) {
   const { open } = useDialogStore();
-
-  // Constante para módulo
+  const { mutate: toggleActiveRole, isPending: isToggling } = useToggleActiveRole();
   const MODULE = "roles";
 
-  const handleEdit = () => {
-    open(MODULE, "edit", row);
-  };
-
-  const handleDelete = () => {
-    open(MODULE, "delete", row);
-  };
-
-  const { mutate: toggleActiveRole, isPending: isTogglingActive } = useToggleActiveRole();
-
-  const handleToggleActive = () => {
-    toggleActiveRole(row.id);
+  const handleReactivateRole = () => {
+    toggleActiveRole({ params: { path: { id: row.id } } });
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Abrir menú</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <>
-            <DropdownMenuItem onClick={handleEdit}>
-              Editar
-              <DropdownMenuShortcut>
-                <Edit className="mr-2 h-4 w-4" />
-              </DropdownMenuShortcut>
-            </DropdownMenuItem>
-          </>
-          <>
-            {row.isActive ? (
-              <DropdownMenuItem onClick={handleDelete} disabled={!row.isActive}>
-                Eliminar
-                <DropdownMenuShortcut>
-                  <Trash className="mr-2 h-4 w-4" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ) : (
-              <DropdownMenuItem onClick={handleToggleActive} disabled={row.isActive || isTogglingActive}>
-                Reactivar
-                <DropdownMenuShortcut>
-                  <RotateCcw className="mr-2 h-4 w-4 text-yellow-600" />
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            )}
-          </>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Abrir menú</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => open(MODULE, "edit", row)}>
+          Editar
+          <DropdownMenuShortcut>
+            <Edit className="size-4 mr-2" />
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
+        {row.isActive ? (
+          <DropdownMenuItem onClick={() => open(MODULE, "delete", row)} disabled={!row.isActive || isToggling}>
+            Desactivar
+            <DropdownMenuShortcut>
+              <Trash className="size-4 mr-2" />
+            </DropdownMenuShortcut>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem onClick={handleReactivateRole} disabled={row.isActive || isToggling}>
+            Reactivar
+            <DropdownMenuShortcut>
+              <RotateCcw className="size-4 mr-2 text-primary" />
+            </DropdownMenuShortcut>
+          </DropdownMenuItem>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
