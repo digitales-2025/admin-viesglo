@@ -4,10 +4,10 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteRole } from "../_hooks/use-roles";
-import { RolesMutateDrawer } from "./RolesMutateDrawer";
+import { useDeleteRole } from "../../_hooks/use-roles";
+import { RolesEditorSheet } from "../editor/RolesEditorSheet";
 
-export default function RolesDialogs() {
+export default function RolesOverlays() {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteRole } = useDeleteRole();
   // Constantes para módulo
@@ -16,7 +16,7 @@ export default function RolesDialogs() {
   return (
     <>
       {/* Diálogo para crear/editar rol */}
-      <RolesMutateDrawer
+      <RolesEditorSheet
         key="rol-mutate"
         open={isOpenForModule(MODULE, "create") || isOpenForModule(MODULE, "edit")}
         onOpenChange={(open) => {
