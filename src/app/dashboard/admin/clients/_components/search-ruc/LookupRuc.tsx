@@ -1,7 +1,6 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle, Info, Loader2, Search, User } from "lucide-react";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -10,6 +9,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useSunatInfoByRuc } from "../../_hooks/use-clients";
 import { CreateClientFormData } from "../../_schemas/clients.schemas";
+import { ClientCondition, ClientState } from "../../_types/clients.types";
+import { clientConditionConfig, clientStateConfig } from "../../_utils/clients.utils";
 
 interface LookupRucProps {
   form: UseFormReturn<CreateClientFormData>;
@@ -72,8 +73,19 @@ export default function LookupRuc({ form, isUpdate = false }: LookupRucProps) {
       form.setValue("sunatInfo.address", sunatData.sunatInfo?.address || "");
       form.setValue("sunatInfo.fullAddress", sunatData.sunatInfo?.fullAddress || "");
       form.setValue("sunatInfo.businessName", sunatData.sunatInfo?.businessName || "");
-      form.setValue("sunatInfo.state", sunatData.sunatInfo?.state || "");
-      form.setValue("sunatInfo.condition", sunatData.sunatInfo?.condition || "");
+      form.setValue(
+        "sunatInfo.state",
+        sunatData.sunatInfo?.state
+          ? (ClientState[sunatData.sunatInfo.state as keyof typeof ClientState] as ClientState)
+          : ClientState.OTRO
+      );
+
+      form.setValue(
+        "sunatInfo.condition",
+        sunatData.sunatInfo?.condition
+          ? (ClientCondition[sunatData.sunatInfo.condition as keyof typeof ClientCondition] as ClientCondition)
+          : ClientCondition.OTRO
+      );
 
       // Llenar ubicación geográfica con delay para sincronización
       setTimeout(() => {
@@ -242,15 +254,44 @@ export default function LookupRuc({ form, isUpdate = false }: LookupRucProps) {
                 {sunatData.sunatInfo?.department} - {sunatData.sunatInfo?.province} - {sunatData.sunatInfo?.district}
               </span>
             </div>
-            {/* Estado y condición */}
             <div className="flex flex-wrap items-center gap-2 text-xs">
-              <Badge variant="outline" className="px-1.5 py-0.5 flex items-center gap-1">
-                <CheckCircle className="h-3 w-3 text-green-600" />
-                Estado: {sunatData.sunatInfo?.state}
+              <Badge
+                variant="outline"
+                className={`px-1.5 py-0.5 flex items-center gap-1 ${clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig]?.className ?? ""} ${clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig]?.borderColor ?? ""}`}
+              >
+                {clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig]?.icon &&
+                  React.createElement(
+                    clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig].icon,
+                    {
+                      className: `h-3 w-3 ${
+                        clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig]?.iconClass ?? ""
+                      }`,
+                    }
+                  )}
+                Estado:{" "}
+                {clientStateConfig[sunatData.sunatInfo?.state as keyof typeof clientStateConfig]?.label ??
+                  sunatData.sunatInfo?.state}
               </Badge>
-              <Badge variant="outline" className="px-1.5 py-0.5 flex items-center gap-1">
-                <Info className="h-3 w-3 text-blue-600" />
-                Condición: {sunatData.sunatInfo?.condition}
+              <Badge
+                variant="outline"
+                className={`px-1.5 py-0.5 flex items-center gap-1
+      ${clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig]?.className ?? ""}
+      ${clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig]?.borderColor ?? ""}
+    `}
+              >
+                {clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig]?.icon &&
+                  React.createElement(
+                    clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig].icon,
+                    {
+                      className: `h-3 w-3 ${
+                        clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig]
+                          ?.iconClass ?? ""
+                      }`,
+                    }
+                  )}
+                Condición:{" "}
+                {clientConditionConfig[sunatData.sunatInfo?.condition as keyof typeof clientConditionConfig]?.label ??
+                  sunatData.sunatInfo?.condition}
               </Badge>
             </div>
           </div>

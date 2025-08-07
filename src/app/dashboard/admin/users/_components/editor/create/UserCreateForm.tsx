@@ -1,6 +1,7 @@
 import { Bot, Check, Copy, Eye, EyeOff, Lock, Mail, Shield, User } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
+import { useRoleDetail } from "@/app/dashboard/admin/roles/_hooks/use-roles";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
@@ -15,7 +16,7 @@ import {
   getRoleStatusBadge,
   PasswordOptions,
 } from "../../../_utils/user.utils";
-import { Roles } from "../../../../settings/_types/roles.types";
+import { RoleListItem } from "../../../../settings/_types/roles.types";
 import PasswordOptionsCollapsible from "../PasswordOptionsCollapsible";
 import RolePermissionsCollapsible from "../RolePermissionsCollapsible";
 
@@ -24,7 +25,7 @@ interface UserCreateFormProps {
   isUserPending: boolean;
   showPermissions: boolean;
   setShowPermissions: (visible: boolean) => void;
-  data: Array<Roles>;
+  data: Array<RoleListItem>;
   showPassword: boolean;
   setShowPassword: (visible: boolean) => void;
   passwordOptions: PasswordOptions;
@@ -51,7 +52,7 @@ export default function UserCreateForm({
   currentPassword,
 }: UserCreateFormProps) {
   const selectedRoleId = userForm.watch("roleId");
-  const selectedRole = data?.find((role) => role.id === selectedRoleId);
+  const { data: selectedRole, isLoading: isRoleLoading } = useRoleDetail(selectedRoleId, !!selectedRoleId);
   return (
     <Form {...userForm}>
       <div className="space-y-6">
@@ -189,6 +190,7 @@ export default function UserCreateForm({
                 showPermissions={showPermissions}
                 setShowPermissions={setShowPermissions}
                 selectedRole={selectedRole}
+                isLoading={isRoleLoading}
               />
             )}
           </CardContent>

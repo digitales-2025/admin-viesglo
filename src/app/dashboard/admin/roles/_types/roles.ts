@@ -1,3 +1,5 @@
+import { components } from "@/lib/api/types/api";
+
 // Tipo original de la API
 type OriginalRole = any;
 
@@ -14,4 +16,4 @@ export type RoleUpdate = Omit<any, "permissionIds"> & {
   permissionIds: string[];
 };
 
-export type Permission = any;
+export type Permission = components["schemas"]["AvailablePermissionsResponseDto"];

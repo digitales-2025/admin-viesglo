@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import type { ClientProfileResponseDto } from "../../_types/clients.types";
-import { getInitials } from "../../_utils/clients.utils";
+import { clientConditionConfig, clientStateConfig, getInitials } from "../../_utils/clients.utils";
 import AddressesContentDescription from "./AddressesContentDescription";
 import ContactContentDescription from "./ContactContentDescription";
 
@@ -104,18 +104,34 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
                     <span className="text-sm font-medium text-muted-foreground">Estado</span>
                     <Badge
                       variant="outline"
-                      className="bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
+                      className={`flex items-center gap-1 px-2 py-0.5 ${clientStateConfig[row.sunatInfo.state]?.textClass ?? ""} ${clientStateConfig[row.sunatInfo.state]?.borderColor ?? ""}`}
                     >
-                      {row.sunatInfo.state}
+                      {clientStateConfig[row.sunatInfo.state]?.icon &&
+                        (() => {
+                          const Icon = clientStateConfig[row.sunatInfo.state].icon;
+                          return (
+                            <Icon className={`h-3 w-3 ${clientStateConfig[row.sunatInfo.state]?.iconClass ?? ""}`} />
+                          );
+                        })()}
+                      {clientStateConfig[row.sunatInfo.state]?.label ?? row.sunatInfo.state}
                     </Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <span className="text-sm font-medium text-muted-foreground">Condición</span>
                     <Badge
                       variant="outline"
-                      className="bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                      className={`flex items-center gap-1 px-2 py-0.5 ${clientConditionConfig[row.sunatInfo.condition]?.textClass ?? ""} ${clientConditionConfig[row.sunatInfo.condition]?.borderColor ?? ""}`}
                     >
-                      {row.sunatInfo.condition}
+                      {clientConditionConfig[row.sunatInfo.condition]?.icon &&
+                        (() => {
+                          const Icon = clientConditionConfig[row.sunatInfo.condition].icon;
+                          return (
+                            <Icon
+                              className={`h-3 w-3 ${clientConditionConfig[row.sunatInfo.condition]?.iconClass ?? ""}`}
+                            />
+                          );
+                        })()}
+                      {clientConditionConfig[row.sunatInfo.condition]?.label ?? row.sunatInfo.condition}
                     </Badge>
                   </div>
                 </div>

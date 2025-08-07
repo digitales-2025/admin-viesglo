@@ -1,29 +1,14 @@
-import {
-  BadgeCheck,
-  Building2,
-  ChevronDown,
-  FileText,
-  Landmark,
-  Mail,
-  Map,
-  MapPin,
-  Plus,
-  ShieldCheck,
-  Trash2,
-  UserCheck,
-  Users,
-} from "lucide-react";
+import { Building2, ChevronDown, FileText, Mail, MapPin, UserCheck, Users } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
-import UbigeoSelect from "@/shared/components/UbigeoSelect";
 import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { PhoneInput } from "@/shared/components/ui/phone-input";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { CreateClientFormData } from "../../_schemas/clients.schemas";
 import LookupRuc from "../search-ruc/LookupRuc";
+import ClientsAddressesForm from "./ClientsAddressesForm";
+import ClientsContactsForm from "./ClientsContactsForm";
+import ClientsSunatInformationForm from "./ClientsSunatInformationForm";
 
 interface ClientsEditorFormProps {
   form: UseFormReturn<CreateClientFormData>;
@@ -81,6 +66,7 @@ export default function ClientsEditorForm({
                     <FormLabel className="text-sm font-medium flex items-center gap-2">
                       <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                       RUC
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <LookupRuc form={form} isUpdate={isUpdate} />
@@ -97,6 +83,7 @@ export default function ClientsEditorForm({
                     <FormLabel className="text-sm font-medium flex items-center gap-2">
                       <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
                       Razón Social
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input placeholder="EMPRESA S.A.C." {...field} />
@@ -116,6 +103,7 @@ export default function ClientsEditorForm({
                     <FormLabel className="text-sm font-medium flex items-center gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
                       Email
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input type="email" placeholder="contacto@empresa.com" {...field} />
@@ -132,6 +120,7 @@ export default function ClientsEditorForm({
                     <FormLabel className="text-sm font-medium flex items-center gap-2">
                       <UserCheck className="h-4 w-4 text-muted-foreground shrink-0" />
                       Representante Legal
+                      <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
                       <Input placeholder="Juan Pérez" {...field} />
@@ -168,98 +157,12 @@ export default function ClientsEditorForm({
           </button>
 
           {contactsExpanded && (
-            <div className="space-y-4">
-              {contacts.map((_, index) => (
-                <div key={index} className="relative px-2">
-                  <div className="absolute -left-6 top-0 w-px h-full bg-border" />
-                  <div className="space-y-4 p-4 border border-dashed rounded-lg bg-muted/20">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground/95 font-semibold text-sm">Contacto {index + 1}</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeContact(index)}
-                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.name`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Nombre</FormLabel>
-                            <FormControl>
-                              <Input placeholder="María López" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.position`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Cargo</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Gerente Comercial" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.phone`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Teléfono</FormLabel>
-                            <FormControl>
-                              <PhoneInput defaultCountry="PE" placeholder="987 654 321" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`contacts.${index}.email`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
-                            <FormControl>
-                              <Input type="email" placeholder="maria@empresa.com" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addContact}
-                className="w-full border-dashed hover:bg-muted/50 bg-transparent"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Contacto
-              </Button>
-            </div>
+            <ClientsContactsForm
+              form={form}
+              contacts={contacts}
+              removeContact={removeContact}
+              addContact={addContact}
+            />
           )}
         </section>
 
@@ -287,68 +190,12 @@ export default function ClientsEditorForm({
           </button>
 
           {addressesExpanded && (
-            <div className="space-y-4">
-              {addresses.map((_, index) => (
-                <div key={index} className="relative px-2">
-                  <div className="absolute -left-6 top-0 w-px h-full bg-border" />
-                  <div className="space-y-4 p-4 border border-dashed rounded-lg bg-muted/20">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-primary" />
-                        <span className="text-muted-foreground/95 font-semibold text-sm">Dirección {index + 1}</span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAddress(index)}
-                        className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        aria-label="Eliminar dirección"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-4">
-                      <FormField
-                        control={form.control}
-                        name={`addresses.${index}.address`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Dirección</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Av. Principal 123" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name={`addresses.${index}.reference`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-medium text-muted-foreground">Referencia</FormLabel>
-                            <FormControl>
-                              <Textarea placeholder="Frente al parque" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addAddress}
-                className="w-full border-dashed hover:bg-muted/50 bg-transparent"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Dirección
-              </Button>
-            </div>
+            <ClientsAddressesForm
+              form={form}
+              addresses={addresses}
+              removeAddress={removeAddress}
+              addAddress={addAddress}
+            />
           )}
         </section>
 
@@ -368,113 +215,7 @@ export default function ClientsEditorForm({
             <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${sunatExpanded ? "rotate-180" : ""}`} />
           </button>
 
-          {sunatExpanded && (
-            <div className="space-y-4 px-2">
-              <div className="absolute -left-6 top-0 w-px h-full bg-border" />
-              <div className="grid grid-cols-1 gap-4">
-                <FormField
-                  control={form.control}
-                  name="sunatInfo.businessName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                        Razón Social SUNAT
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="EMPRESA S.A.C." {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="sunatInfo.state"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        <BadgeCheck className="h-4 w-4 text-muted-foreground shrink-0" />
-                        Estado
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="ACTIVO" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="sunatInfo.condition"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
-                      Condición
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="HABIDO" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="sunatInfo.address"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
-                        Dirección Fiscal
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Av. Principal 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="sunatInfo.fullAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-sm font-medium flex items-center gap-2">
-                        <Map className="h-4 w-4 text-muted-foreground shrink-0" />
-                        Dirección Completa
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Av. Principal 123, Lima, Lima" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-4">
-                <UbigeoSelect
-                  control={form.control}
-                  fieldNames={{
-                    department: "sunatInfo.department",
-                    province: "sunatInfo.province",
-                    district: "sunatInfo.district",
-                  }}
-                  required={true}
-                  icons={{
-                    department: <Landmark className="h-4 w-4 text-muted-foreground" />,
-                    province: <MapPin className="h-4 w-4 text-muted-foreground" />,
-                    district: <Map className="h-4 w-4 text-muted-foreground" />,
-                  }}
-                />
-              </div>
-            </div>
-          )}
+          {sunatExpanded && <ClientsSunatInformationForm form={form} />}
         </section>
       </form>
     </Form>
