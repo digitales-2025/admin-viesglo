@@ -15,7 +15,7 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/groupedPermission";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/roles/_utils/roles.utils";
 import { type SidebarData } from "./types";
 
 export const sidebarData: SidebarData = {
