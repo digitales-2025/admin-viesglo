@@ -4,7 +4,7 @@ import { Trash } from "lucide-react";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useDeleteRole } from "../_hooks/useRoles";
+import { useDeleteRole } from "../_hooks/use-roles";
 import { RolesMutateDrawer } from "./RolesMutateDrawer";
 
 export default function RolesDialogs() {
