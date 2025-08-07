@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { CheckCircle, ChevronDown, ChevronRight, IdCard, Shield, XCircle } from "lucide-react";
+import { CheckCircle, ChevronDown, ChevronRight, UserCircle, XCircle } from "lucide-react";
 
 import { DataTableColumnHeader } from "@/shared/components/data-table/data-table-column-header";
 import { Badge } from "@/shared/components/ui/badge";
@@ -16,13 +16,9 @@ export const columnsRoles = (): ColumnDef<RoleListItem>[] => [
     accessorKey: "name",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Nombre" />,
     cell: ({ row }) => (
-      <div className="font-semibold capitalize flex items-center gap-2">
-        {row.original.name === "superadmin" ? (
-          <Shield className="size-4 text-emerald-500" />
-        ) : (
-          <IdCard className="size-4 text-muted-foreground" />
-        )}
-        {row.getValue("nombre")}
+      <div className="flex items-center gap-3 py-1">
+        <UserCircle className="size-5 text-primary" />
+        <span className="font-semibold text-sm capitalize">{row.getValue("nombre")}</span>
       </div>
     ),
   },
@@ -30,7 +26,11 @@ export const columnsRoles = (): ColumnDef<RoleListItem>[] => [
     id: "descripcion",
     accessorKey: "description",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Descripción" />,
-    cell: ({ row }) => <div className="truncate max-w-[300px]">{row.getValue("descripcion")}</div>,
+    cell: ({ row }) => (
+      <div className="truncate max-w-[300px] text-gray-500 dark:text-gray-400 text-sm">
+        {row.getValue("descripcion")}
+      </div>
+    ),
   },
   {
     id: "estado",
