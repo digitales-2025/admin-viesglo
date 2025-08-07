@@ -11,11 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
-import { useToggleActiveRole } from "../_hooks/useRoles";
-import { Role } from "../_types/roles";
+import { useToggleActiveRole } from "../../_hooks/use-roles";
+import { RoleListItem } from "../../../settings/_types/roles.types";
 
 interface RolesTableActionsProps {
-  row: Role;
+  row: RoleListItem;
 }
 
 export function RolesTableActions({ row }: RolesTableActionsProps) {
