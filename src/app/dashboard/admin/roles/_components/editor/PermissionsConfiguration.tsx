@@ -162,10 +162,7 @@ export default function PermissionsConfiguration({
             variant={allSelected ? "default" : "outline"}
             size="sm"
             onClick={toggleAllPermissions}
-            className={cn(
-              "h-8 text-xs transition-all",
-              allSelected && "bg-emerald-500 hover:bg-emerald-600 text-white"
-            )}
+            className={cn("h-8 text-xs transition-all", allSelected && "bg-primary hover:bg-primary/80 text-white")}
           >
             <CheckSquare className="w-3 h-3 mr-1" />
             {allSelected ? "Deseleccionar todos" : "Seleccionar todos"}
@@ -176,7 +173,7 @@ export default function PermissionsConfiguration({
             variant={allReadSelected ? "default" : "outline"}
             size="sm"
             onClick={() => toggleByAction(EnumAction.read)}
-            className={cn("h-8 text-xs transition-all", allReadSelected && "bg-blue-500 hover:bg-blue-600 text-white")}
+            className={cn("h-8 text-xs transition-all", allReadSelected && "bg-primary hover:bg-primary/80 text-white")}
           >
             <Eye className="w-3 h-3 mr-1" />
             {allReadSelected ? "Quitar lectura" : "Solo lectura"}
@@ -189,7 +186,7 @@ export default function PermissionsConfiguration({
             onClick={() => toggleByAction(EnumAction.write)}
             className={cn(
               "h-8 text-xs transition-all",
-              allWriteSelected && "bg-yellow-500 hover:bg-yellow-600 text-white"
+              allWriteSelected && "bg-primary hover:bg-primary/80 text-white"
             )}
           >
             <Edit className="w-3 h-3 mr-1" />
@@ -203,7 +200,7 @@ export default function PermissionsConfiguration({
             onClick={() => toggleByAction(EnumAction.manage)}
             className={cn(
               "h-8 text-xs transition-all",
-              allManageSelected && "bg-green-500 hover:bg-green-600 text-white"
+              allManageSelected && "bg-primary hover:bg-primary/80 text-white"
             )}
           >
             <Settings className="w-3 h-3 mr-1" />

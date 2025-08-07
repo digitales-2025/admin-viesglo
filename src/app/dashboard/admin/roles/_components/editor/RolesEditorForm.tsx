@@ -50,6 +50,15 @@ export default function RolesEditorForm({
 
   // Aplicar plantilla de rol
   const applyTemplate = (templateKey: string) => {
+    if (selectedTemplate === templateKey) {
+      // Deselecciona la plantilla y limpia los campos
+      form.setValue("name", "");
+      form.setValue("description", "");
+      form.setValue("permissions", []);
+      setSelectedTemplate(null);
+      return;
+    }
+
     const template = roleTemplates[templateKey as keyof typeof roleTemplates];
     if (!template) return;
 
@@ -57,7 +66,6 @@ export default function RolesEditorForm({
     form.setValue("description", template.description);
 
     if (template.permissions === "all") {
-      // Seleccionar todos los permisos
       const allPermissions = groupedPermissions.flatMap((group) =>
         group.actions.map((action) => ({
           resource: EnumResource[group.resource as keyof typeof EnumResource],
@@ -66,7 +74,6 @@ export default function RolesEditorForm({
       );
       form.setValue("permissions", allPermissions);
     } else if (template.permissions === "read-only") {
-      // Solo permisos de lectura
       const readPermissions = groupedPermissions.flatMap((group) =>
         group.actions
           .filter((action) => action.action === EnumAction.read)
@@ -77,7 +84,6 @@ export default function RolesEditorForm({
       );
       form.setValue("permissions", readPermissions);
     } else if (Array.isArray(template.permissions)) {
-      // Permisos personalizados (ejemplo: ["projects:manage", ...])
       const customPermissions = template.permissions
         .map((permStr) => {
           const [resource, action] = permStr.split(":");
@@ -100,7 +106,6 @@ export default function RolesEditorForm({
 
     setSelectedTemplate(templateKey);
   };
-
   return (
     <Form {...form}>
       <form id="roles-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
