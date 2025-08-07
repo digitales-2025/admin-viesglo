@@ -52,14 +52,14 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
               <>
                 Reactivando...
                 <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-yellow-500 opacity-0" />
+                  <RotateCcw className="size-4 mr-2 text-primary opacity-0" />
                 </DropdownMenuShortcut>
               </>
             ) : (
               <>
                 Reactivar
                 <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-yellow-500" />
+                  <RotateCcw className="size-4 mr-2 text-primary" />
                 </DropdownMenuShortcut>
               </>
             )}
