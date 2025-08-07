@@ -58,7 +58,7 @@ export function UsersTableActions({ row, actualUserId }: UsersTableActionsProps)
             <DropdownMenuItem onClick={handleReactivateUser} disabled={row.isActive || isReactivating}>
               Reactivar
               <DropdownMenuShortcut>
-                <RotateCcw className="size-4 mr-2 text-yellow-600" />
+                <RotateCcw className="size-4 mr-2 text-primary" />
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           ))}
