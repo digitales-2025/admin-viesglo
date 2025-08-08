@@ -6,9 +6,23 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 
 import { useMqttQueryIntegration } from "../../hooks/use-mqtt-query-integration";
+import type { MqttMessage } from "../../types/mqtt.types";
+
+// Create context for sharing the global message handler
+const MqttQueryContext = createContext<{
+  handleGlobalMessage: (topic: string, message: MqttMessage) => void;
+} | null>(null);
+
+export const useMqttQueryContext = () => {
+  const context = useContext(MqttQueryContext);
+  if (!context) {
+    throw new Error("useMqttQueryContext must be used within a MqttQueryProvider");
+  }
+  return context;
+};
 
 interface MqttQueryProviderProps {
   children: React.ReactNode;
@@ -26,13 +40,7 @@ interface MqttQueryProviderProps {
  * @param children - Child components that can use useMqttTopic
  */
 export function MqttQueryProvider({ children }: MqttQueryProviderProps) {
-  const {
-    isConnected,
-    // TODO: Add invalidateAllTopics back in
-    // invalidateAllTopics,
-    clearAllTopics,
-    getActiveTopics,
-  } = useMqttQueryIntegration();
+  const { isConnected, handleGlobalMessage, clearAllTopics, getActiveTopics } = useMqttQueryIntegration();
 
   // Log connection status changes for debugging
   useEffect(() => {
@@ -51,7 +59,7 @@ export function MqttQueryProvider({ children }: MqttQueryProviderProps) {
     };
   }, [clearAllTopics]);
 
-  return <>{children}</>;
+  return <MqttQueryContext.Provider value={{ handleGlobalMessage }}>{children}</MqttQueryContext.Provider>;
 }
 
 /**
@@ -63,6 +71,7 @@ export function useMqttQueryProvider() {
 
   return {
     isConnected: integration.isConnected,
+    handleGlobalMessage: integration.handleGlobalMessage,
     invalidateAllTopics: integration.invalidateAllTopics,
     clearAllTopics: integration.clearAllTopics,
     getActiveTopics: integration.getActiveTopics,

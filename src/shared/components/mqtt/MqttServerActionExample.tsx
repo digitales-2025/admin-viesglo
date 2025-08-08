@@ -9,7 +9,11 @@
 import React, { useState, useTransition } from "react";
 import { CheckCircle, Loader2, Send, Server, Shield, XCircle } from "lucide-react";
 
-import { publishMqttMessage, publishMqttMessageWithProperties, publishMqttRequest } from "../../actions/mqtt.actions";
+import {
+  publishMqttMessage,
+  publishMqttMessageWithProperties,
+  publishMqttRequest,
+} from "../../actions/mqtt-server.actions";
 import type { MqttPublishOptions } from "../../types/mqtt.types";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Badge } from "../ui/badge";

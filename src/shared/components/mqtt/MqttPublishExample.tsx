@@ -6,7 +6,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import { CheckCircle, Loader2, Send, Wifi, WifiOff, XCircle } from "lucide-react";
 
 import { useMqttPublish, useMqttPublishJson, useMqttPublishRequest } from "../../hooks";
@@ -19,12 +19,24 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 
+interface MqttPublishExampleProps {
+  /**
+   * Optional initial topic for publishing
+   */
+  topic?: string;
+
+  /**
+   * Optional title for the component
+   */
+  title?: string;
+}
+
 /**
  * Example component demonstrating MQTT publishing with TanStack Query mutations
  */
-export function MqttPublishExample() {
+export function MqttPublishExample({ topic: initialTopic = "test/publish" }: MqttPublishExampleProps = {}) {
   // Form state
-  const [topic, setTopic] = useState("test/publish");
+  const [topic, setTopic] = useState(initialTopic);
   const [message, setMessage] = useState("Hello MQTT!");
   const [qos, setQos] = useState<0 | 1 | 2>(1);
   const [retain, setRetain] = useState(false);
@@ -34,7 +46,7 @@ export function MqttPublishExample() {
 
   // Basic MQTT publish mutation
   const basicPublish = useMqttPublish({
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       console.log("Message published successfully:", variables);
     },
     onError: (error, variables) => {
