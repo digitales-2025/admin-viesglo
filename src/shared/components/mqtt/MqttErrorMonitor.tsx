@@ -255,28 +255,35 @@ export function MqttErrorMonitor({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {recentErrors.slice(0, 10).map((error, index) => (
-                <div key={`error-${error.timestamp.getTime()}-${index}`} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center space-x-2">
-                      <Badge variant={getCategoryColor(error.category)}>{error.category}</Badge>
-                      <Badge variant={getSeverityColor(error.severity)}>{error.severity}</Badge>
+              {recentErrors.slice(0, 10).map((error, index) => {
+                const ctx = (error.context || {}) as Partial<{
+                  topic: string;
+                  payloadSize: number;
+                  qos: 0 | 1 | 2;
+                }>;
+                return (
+                  <div key={`error-${error.timestamp.getTime()}-${index}`} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <Badge variant={getCategoryColor(error.category)}>{error.category}</Badge>
+                        <Badge variant={getSeverityColor(error.severity)}>{error.severity}</Badge>
+                      </div>
+                      <span className="text-xs text-muted-foreground">{error.timestamp.toLocaleString()}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">{error.timestamp.toLocaleString()}</span>
-                  </div>
 
-                  <p className="text-sm font-medium mb-2">{error.message}</p>
+                    <p className="text-sm font-medium mb-2">{error.message}</p>
 
-                  {error.context && (
                     <div className="text-xs text-muted-foreground space-y-1">
-                      {error.context.topic && <div>Topic: {error.context.topic}</div>}
-                      {error.context.payloadSize && <div>Payload Size: {error.context.payloadSize} bytes</div>}
-                      {error.context.qos !== undefined && <div>QoS: {error.context.qos}</div>}
-                      {error.shouldRetry && error.retryDelay && <div>Retry in: {formatDuration(error.retryDelay)}</div>}
+                      {typeof ctx.topic === "string" && ctx.topic.length > 0 && <div>Topic: {ctx.topic}</div>}
+                      {typeof ctx.payloadSize === "number" && <div>Payload Size: {ctx.payloadSize} bytes</div>}
+                      {typeof ctx.qos === "number" && <div>QoS: {ctx.qos}</div>}
+                      {error.shouldRetry && typeof error.retryDelay === "number" && (
+                        <div>Retry in: {formatDuration(error.retryDelay)}</div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </div>
           </CardContent>
         </Card>
