@@ -3,7 +3,7 @@
  * Based on the design document specifications
  */
 
-import type { MqttClient } from 'mqtt';
+import type { MqttClient } from "mqtt";
 
 /**
  * MQTT.js UserProperties type definition
@@ -34,7 +34,7 @@ export interface MqttConnectionOptions {
   username?: string;
   password?: string;
   clientId?: string;
-  
+
   // WebSocket transport configuration
   transformWsUrl?: (url: string, options: any, client: any) => string;
   wsOptions?: {
@@ -42,7 +42,7 @@ export interface MqttConnectionOptions {
     maxPayload?: number;
     [key: string]: any;
   };
-  
+
   // MQTT v5.0 properties
   properties?: {
     sessionExpiryInterval?: number;
@@ -58,7 +58,7 @@ export interface MqttConnectionOptions {
 /**
  * Connection status states for MQTT client
  */
-export type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error';
+export type ConnectionStatus = "disconnected" | "connecting" | "connected" | "reconnecting" | "error";
 
 /**
  * MQTT v5.0 message structure with properties support
@@ -196,6 +196,7 @@ export interface UseMqttReturn {
   client: MqttClient | null;
   error: string | null;
   isConnected: boolean;
+  connect: (forceCredentialsRefresh?: boolean) => Promise<void>;
   subscribe: (topic: string, qos?: 0 | 1 | 2) => Promise<void>;
   unsubscribe: (topic: string) => Promise<void>;
   publish: (topic: string, message: string | Buffer, options?: MqttPublishOptions) => Promise<void>;

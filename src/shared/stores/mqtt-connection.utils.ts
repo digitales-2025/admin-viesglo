@@ -3,18 +3,18 @@
  * Provides validation and helper functions for MQTT connection state management
  */
 
-import type { ConnectionStatus } from '../types/mqtt.types';
+import type { ConnectionStatus } from "../types/mqtt.types";
 
 /**
  * Valid state transitions for MQTT connection
  * Ensures proper state flow as per requirements
  */
 const VALID_TRANSITIONS: Record<ConnectionStatus, ConnectionStatus[]> = {
-  disconnected: ['connecting', 'error'],
-  connecting: ['connected', 'error', 'disconnected'],
-  connected: ['disconnected', 'reconnecting', 'error'],
-  reconnecting: ['connected', 'error', 'disconnected'],
-  error: ['connecting', 'reconnecting', 'disconnected']
+  disconnected: ["connecting", "error"],
+  connecting: ["connected", "error", "disconnected"],
+  connected: ["disconnected", "reconnecting", "error"],
+  reconnecting: ["connected", "error", "disconnected"],
+  error: ["connecting", "reconnecting", "disconnected"],
 };
 
 /**
@@ -24,7 +24,17 @@ const VALID_TRANSITIONS: Record<ConnectionStatus, ConnectionStatus[]> = {
  * @returns True if transition is valid
  */
 export function isValidStateTransition(from: ConnectionStatus, to: ConnectionStatus): boolean {
-  return VALID_TRANSITIONS[from].includes(to);
+  const isValid = VALID_TRANSITIONS[from].includes(to);
+
+  console.log(`🔍 State Transition Validation:`, {
+    currentStatus: from,
+    targetStatus: to,
+    validTargets: VALID_TRANSITIONS[from],
+    isValid,
+    timestamp: new Date().toISOString(),
+  });
+
+  return isValid;
 }
 
 /**
@@ -42,7 +52,7 @@ export function getValidNextStates(current: ConnectionStatus): ConnectionStatus[
  * @returns True if status is stable (connected or disconnected)
  */
 export function isStableState(status: ConnectionStatus): boolean {
-  return status === 'connected' || status === 'disconnected';
+  return status === "connected" || status === "disconnected";
 }
 
 /**
@@ -51,7 +61,7 @@ export function isStableState(status: ConnectionStatus): boolean {
  * @returns True if status is transitional (connecting or reconnecting)
  */
 export function isTransitionalState(status: ConnectionStatus): boolean {
-  return status === 'connecting' || status === 'reconnecting';
+  return status === "connecting" || status === "reconnecting";
 }
 
 /**
@@ -60,7 +70,7 @@ export function isTransitionalState(status: ConnectionStatus): boolean {
  * @returns True if status indicates an error
  */
 export function isErrorState(status: ConnectionStatus): boolean {
-  return status === 'error';
+  return status === "error";
 }
 
 /**
@@ -70,13 +80,13 @@ export function isErrorState(status: ConnectionStatus): boolean {
  */
 export function getStatusDescription(status: ConnectionStatus): string {
   const descriptions: Record<ConnectionStatus, string> = {
-    disconnected: 'Disconnected from MQTT broker',
-    connecting: 'Connecting to MQTT broker...',
-    connected: 'Connected to MQTT broker',
-    reconnecting: 'Reconnecting to MQTT broker...',
-    error: 'Connection error occurred'
+    disconnected: "Disconnected from MQTT broker",
+    connecting: "Connecting to MQTT broker...",
+    connected: "Connected to MQTT broker",
+    reconnecting: "Reconnecting to MQTT broker...",
+    error: "Connection error occurred",
   };
-  
+
   return descriptions[status];
 }
 
@@ -90,8 +100,8 @@ export function getStatusDescription(status: ConnectionStatus): string {
  * @returns Delay in milliseconds for the next reconnection attempt
  */
 export function calculateReconnectionDelay(
-  attempt: number, 
-  baseDelay: number = 1000, 
+  attempt: number,
+  baseDelay: number = 1000,
   maxDelay: number = 30000,
   backoffMultiplier: number = 2,
   jitterEnabled: boolean = true
@@ -99,7 +109,7 @@ export function calculateReconnectionDelay(
   // Calculate exponential backoff delay
   const exponentialDelay = baseDelay * Math.pow(backoffMultiplier, attempt);
   const cappedDelay = Math.min(exponentialDelay, maxDelay);
-  
+
   // Add jitter to prevent thundering herd problem
   if (jitterEnabled) {
     // Add random jitter of ±25% of the delay
@@ -107,7 +117,7 @@ export function calculateReconnectionDelay(
     const jitter = (Math.random() - 0.5) * 2 * jitterRange;
     return Math.max(baseDelay, cappedDelay + jitter);
   }
-  
+
   return cappedDelay;
 }
 
@@ -128,23 +138,19 @@ export function shouldAttemptBasicReconnection(attempts: number, maxAttempts: nu
  * @param additionalInfo Additional information to include
  * @returns Formatted error message
  */
-export function formatMqttError(
-  context: string, 
-  error: Error | string, 
-  additionalInfo?: Record<string, any>
-): string {
+export function formatMqttError(context: string, error: Error | string, additionalInfo?: Record<string, any>): string {
   const errorMessage = error instanceof Error ? error.message : error;
   const timestamp = new Date().toISOString();
-  
+
   let message = `[MQTT ${context}] ${errorMessage} (${timestamp})`;
-  
+
   if (additionalInfo) {
     const info = Object.entries(additionalInfo)
       .map(([key, value]) => `${key}: ${value}`)
-      .join(', ');
+      .join(", ");
     message += ` - ${info}`;
   }
-  
+
   return message;
 }
 
@@ -155,43 +161,43 @@ export function formatMqttError(
  */
 export function validateMqttV5Options(options: any): { valid: boolean; issues: string[] } {
   const issues: string[] = [];
-  
+
   // Check protocol version
   if (options.protocolVersion !== 5) {
     issues.push(`Invalid protocol version: ${options.protocolVersion}. Expected: 5`);
   }
-  
+
   // Check keepalive range
   if (options.keepalive < 0 || options.keepalive > 65535) {
     issues.push(`Invalid keepalive: ${options.keepalive}. Must be between 0-65535`);
   }
-  
+
   // Check connect timeout
   if (options.connectTimeout < 1000) {
     issues.push(`Connect timeout too low: ${options.connectTimeout}ms. Minimum: 1000ms`);
   }
-  
+
   // Check v5.0 properties
   if (options.properties) {
     const props = options.properties;
-    
+
     if (props.sessionExpiryInterval !== undefined && props.sessionExpiryInterval < 0) {
       issues.push(`Invalid sessionExpiryInterval: ${props.sessionExpiryInterval}`);
     }
-    
+
     if (props.receiveMaximum !== undefined && (props.receiveMaximum < 1 || props.receiveMaximum > 65535)) {
       issues.push(`Invalid receiveMaximum: ${props.receiveMaximum}. Must be between 1-65535`);
     }
-    
+
     if (props.maximumPacketSize !== undefined && props.maximumPacketSize < 1) {
       issues.push(`Invalid maximumPacketSize: ${props.maximumPacketSize}`);
     }
-    
+
     if (props.topicAliasMaximum !== undefined && props.topicAliasMaximum < 0) {
       issues.push(`Invalid topicAliasMaximum: ${props.topicAliasMaximum}`);
     }
   }
-  
+
   return {
     valid: issues.length === 0,
     issues,
@@ -205,19 +211,19 @@ export function validateMqttV5Options(options: any): { valid: boolean; issues: s
  */
 export function transformToWebSocketUrl(url: string): string {
   let wsUrl = url;
-  
+
   // Transform protocol
-  if (wsUrl.startsWith('mqtt://')) {
-    wsUrl = wsUrl.replace('mqtt://', 'ws://');
-  } else if (wsUrl.startsWith('mqtts://')) {
-    wsUrl = wsUrl.replace('mqtts://', 'wss://');
+  if (wsUrl.startsWith("mqtt://")) {
+    wsUrl = wsUrl.replace("mqtt://", "ws://");
+  } else if (wsUrl.startsWith("mqtts://")) {
+    wsUrl = wsUrl.replace("mqtts://", "wss://");
   }
-  
+
   // Ensure WebSocket path is included
-  if (!wsUrl.includes('/mqtt') && (wsUrl.startsWith('ws://') || wsUrl.startsWith('wss://'))) {
-    wsUrl = wsUrl.replace(/\/$/, '') + '/mqtt';
+  if (!wsUrl.includes("/mqtt") && (wsUrl.startsWith("ws://") || wsUrl.startsWith("wss://"))) {
+    wsUrl = wsUrl.replace(/\/$/, "") + "/mqtt";
   }
-  
+
   return wsUrl;
 }
 
@@ -226,7 +232,7 @@ export function transformToWebSocketUrl(url: string): string {
  * @param prefix Optional prefix for the client ID
  * @returns Unique client ID string
  */
-export function generateClientId(prefix: string = 'mqtt-client'): string {
+export function generateClientId(prefix: string = "mqtt-client"): string {
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(2, 11);
   return `${prefix}-${timestamp}-${random}`;
@@ -239,20 +245,20 @@ export function generateClientId(prefix: string = 'mqtt-client'): string {
  */
 export function isTokenExpirationError(error: Error | string): boolean {
   const errorMessage = error instanceof Error ? error.message.toLowerCase() : error.toLowerCase();
-  
+
   // Common patterns for authentication/authorization errors
   const tokenExpirationPatterns = [
-    'unauthorized',
-    'authentication failed',
-    'bad user name or password',
-    'not authorized',
-    'token expired',
-    'invalid credentials',
-    'access denied',
-    'forbidden'
+    "unauthorized",
+    "authentication failed",
+    "bad user name or password",
+    "not authorized",
+    "token expired",
+    "invalid credentials",
+    "access denied",
+    "forbidden",
   ];
-  
-  return tokenExpirationPatterns.some(pattern => errorMessage.includes(pattern));
+
+  return tokenExpirationPatterns.some((pattern) => errorMessage.includes(pattern));
 }
 
 /**
@@ -263,35 +269,30 @@ export function isTokenExpirationError(error: Error | string): boolean {
 export function isNetworkConnectivityError(error: Error | string): boolean {
   const errorMessage = error instanceof Error ? error.message.toLowerCase() : error.toLowerCase();
   const errorCode = (error as any)?.code?.toLowerCase();
-  
+
   // Common patterns for network connectivity errors
   const networkErrorPatterns = [
-    'network error',
-    'connection refused',
-    'connection timeout',
-    'connection failed',
-    'server unavailable',
-    'dns lookup failed',
-    'socket hang up',
-    'enotfound',
-    'econnrefused',
-    'econnreset',
-    'etimedout',
-    'enetunreach',
-    'ehostunreach'
+    "network error",
+    "connection refused",
+    "connection timeout",
+    "connection failed",
+    "server unavailable",
+    "dns lookup failed",
+    "socket hang up",
+    "enotfound",
+    "econnrefused",
+    "econnreset",
+    "etimedout",
+    "enetunreach",
+    "ehostunreach",
   ];
-  
-  const networkErrorCodes = [
-    'enotfound',
-    'econnrefused',
-    'econnreset',
-    'etimedout',
-    'enetunreach',
-    'ehostunreach'
-  ];
-  
-  return networkErrorPatterns.some(pattern => errorMessage.includes(pattern)) ||
-         (errorCode && networkErrorCodes.includes(errorCode));
+
+  const networkErrorCodes = ["enotfound", "econnrefused", "econnreset", "etimedout", "enetunreach", "ehostunreach"];
+
+  return (
+    networkErrorPatterns.some((pattern) => errorMessage.includes(pattern)) ||
+    (errorCode && networkErrorCodes.includes(errorCode))
+  );
 }
 
 /**
@@ -314,38 +315,38 @@ export function shouldAttemptReconnection(
   if (isTokenExpired) {
     return {
       shouldReconnect: false,
-      reason: 'Authentication token expired - requires re-authentication'
+      reason: "Authentication token expired - requires re-authentication",
     };
   }
-  
+
   // Don't reconnect if network is offline
   if (!isNetworkOnline) {
     return {
       shouldReconnect: false,
-      reason: 'Network is offline - waiting for connectivity'
+      reason: "Network is offline - waiting for connectivity",
     };
   }
-  
+
   // Don't reconnect if max attempts reached
   if (attempts >= maxAttempts) {
     return {
       shouldReconnect: false,
-      reason: `Maximum reconnection attempts (${maxAttempts}) reached`
+      reason: `Maximum reconnection attempts (${maxAttempts}) reached`,
     };
   }
-  
+
   // Check if error indicates token expiration
   if (error && isTokenExpirationError(error)) {
     return {
       shouldReconnect: false,
-      reason: 'Authentication error detected - requires re-authentication'
+      reason: "Authentication error detected - requires re-authentication",
     };
   }
-  
+
   // For network errors or other recoverable errors, attempt reconnection
   return {
     shouldReconnect: true,
-    reason: 'Recoverable error - attempting reconnection'
+    reason: "Recoverable error - attempting reconnection",
   };
 }
 
@@ -355,32 +356,29 @@ export function shouldAttemptReconnection(
  * @param onOffline Callback when network goes offline
  * @returns Cleanup function to remove event listeners
  */
-export function createNetworkMonitor(
-  onOnline: () => void,
-  onOffline: () => void
-): () => void {
+export function createNetworkMonitor(onOnline: () => void, onOffline: () => void): () => void {
   const handleOnline = () => {
-    console.log('Network connectivity restored');
+    console.log("Network connectivity restored");
     onOnline();
   };
-  
+
   const handleOffline = () => {
-    console.log('Network connectivity lost');
+    console.log("Network connectivity lost");
     onOffline();
   };
-  
+
   // Add event listeners for network status changes
-  if (typeof window !== 'undefined') {
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    
+  if (typeof window !== "undefined") {
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
     // Return cleanup function
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }
-  
+
   // Return no-op cleanup for server-side rendering
   return () => {};
 }

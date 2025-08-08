@@ -3,7 +3,9 @@
  * Default settings and configuration for MQTT client
  */
 
-import type { MqttConnectionOptions } from '../types/mqtt.types';
+import type { IClientOptions, MqttClient as MqttJsClient } from "mqtt";
+
+import type { MqttConnectionOptions } from "../types/mqtt.types";
 
 /**
  * WebSocket transport configuration for MQTT over WebSockets
@@ -11,13 +13,13 @@ import type { MqttConnectionOptions } from '../types/mqtt.types';
  */
 export const WEBSOCKET_CONFIG = {
   // WebSocket-specific options
-  transformWsUrl: (url: string, options: any, client: any) => {
+  transformWsUrl: (url: string, _options: IClientOptions, _client: MqttJsClient) => {
     // Ensure WebSocket protocol is used
-    if (url.startsWith('mqtt://')) {
-      return url.replace('mqtt://', 'ws://');
+    if (url.startsWith("mqtt://")) {
+      return url.replace("mqtt://", "ws://");
     }
-    if (url.startsWith('mqtts://')) {
-      return url.replace('mqtts://', 'wss://');
+    if (url.startsWith("mqtts://")) {
+      return url.replace("mqtts://", "wss://");
     }
     return url;
   },
@@ -40,27 +42,27 @@ export const DEFAULT_MQTT_OPTIONS: MqttConnectionOptions = {
   clean: true, // Clean session on connect
   reconnectPeriod: 1000, // Reconnect after 1 second
   connectTimeout: 30000, // 30 second connection timeout
-  
+
   // MQTT v5.0 specific properties
   properties: {
     // Session management
     sessionExpiryInterval: 3600, // Session expires after 1 hour of inactivity
-    
+
     // Flow control
     receiveMaximum: 100, // Maximum number of QoS 1 and QoS 2 publications
     maximumPacketSize: 1048576, // 1MB maximum packet size
-    
+
     // Topic alias support for bandwidth optimization
     topicAliasMaximum: 10, // Support up to 10 topic aliases
-    
+
     // Enhanced features
     requestResponseInformation: true, // Request response information from server
     requestProblemInformation: true, // Request problem information on errors
-    
+
     // User properties for custom metadata
     userProperties: {
-      'client-type': 'web-frontend',
-      'client-version': '1.0.0',
+      "client-type": "web-frontend",
+      "client-version": "1.0.0",
     },
   },
 };
@@ -70,7 +72,7 @@ export const DEFAULT_MQTT_OPTIONS: MqttConnectionOptions = {
  * Requirements: 3.2, 3.4 - Automatic reconnection with backoff strategy
  */
 export const RECONNECTION_CONFIG = {
-  maxReconnectAttempts: 10,
+  maxReconnectAttempts: 5, // Reduced from 10 to 5 to prevent error spam
   baseReconnectDelay: 1000, // 1 second
   maxReconnectDelay: 30000, // 30 seconds
   backoffMultiplier: 2, // Exponential backoff multiplier
@@ -119,12 +121,12 @@ export const REASON_CODES = {
   NOT_AUTHORIZED: 0x87,
   SERVER_UNAVAILABLE: 0x88,
   SERVER_BUSY: 0x89,
-  BANNED: 0x8A,
-  SERVER_SHUTTING_DOWN: 0x8B,
-  BAD_AUTHENTICATION_METHOD: 0x8C,
-  KEEP_ALIVE_TIMEOUT: 0x8D,
-  SESSION_TAKEN_OVER: 0x8E,
-  TOPIC_FILTER_INVALID: 0x8F,
+  BANNED: 0x8a,
+  SERVER_SHUTTING_DOWN: 0x8b,
+  BAD_AUTHENTICATION_METHOD: 0x8c,
+  KEEP_ALIVE_TIMEOUT: 0x8d,
+  SESSION_TAKEN_OVER: 0x8e,
+  TOPIC_FILTER_INVALID: 0x8f,
   TOPIC_NAME_INVALID: 0x90,
   PACKET_IDENTIFIER_IN_USE: 0x91,
   PACKET_IDENTIFIER_NOT_FOUND: 0x92,
@@ -135,13 +137,13 @@ export const REASON_CODES = {
   QUOTA_EXCEEDED: 0x97,
   ADMINISTRATIVE_ACTION: 0x98,
   PAYLOAD_FORMAT_INVALID: 0x99,
-  RETAIN_NOT_SUPPORTED: 0x9A,
-  QOS_NOT_SUPPORTED: 0x9B,
-  USE_ANOTHER_SERVER: 0x9C,
-  SERVER_MOVED: 0x9D,
-  SHARED_SUBSCRIPTIONS_NOT_SUPPORTED: 0x9E,
-  CONNECTION_RATE_EXCEEDED: 0x9F,
-  MAXIMUM_CONNECT_TIME: 0xA0,
-  SUBSCRIPTION_IDENTIFIERS_NOT_SUPPORTED: 0xA1,
-  WILDCARD_SUBSCRIPTIONS_NOT_SUPPORTED: 0xA2,
+  RETAIN_NOT_SUPPORTED: 0x9a,
+  QOS_NOT_SUPPORTED: 0x9b,
+  USE_ANOTHER_SERVER: 0x9c,
+  SERVER_MOVED: 0x9d,
+  SHARED_SUBSCRIPTIONS_NOT_SUPPORTED: 0x9e,
+  CONNECTION_RATE_EXCEEDED: 0x9f,
+  MAXIMUM_CONNECT_TIME: 0xa0,
+  SUBSCRIPTION_IDENTIFIERS_NOT_SUPPORTED: 0xa1,
+  WILDCARD_SUBSCRIPTIONS_NOT_SUPPORTED: 0xa2,
 } as const;
