@@ -4,10 +4,11 @@
  * Implements requirement 2.3: Cache invalidation on message receipt
  */
 
-import { useEffect, useCallback } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useMqtt } from './use-mqtt';
-import type { MqttMessage } from '../types/mqtt.types';
+import { useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { useMqttConnectionStore } from "../stores/mqtt-connection.store";
+import type { MqttMessage } from "../types/mqtt.types";
 
 /**
  * Topic data structure stored in TanStack Query cache
@@ -28,63 +29,68 @@ interface MqttTopicData<T = any> {
  */
 export function useMqttQueryIntegration() {
   const queryClient = useQueryClient();
-  
+
   /**
    * Handles incoming MQTT messages and updates TanStack Query cache
    * Implements requirement 2.3: Cache invalidation on message receipt
    */
-  const handleGlobalMessage = useCallback((topic: string, message: MqttMessage) => {
-    const queryKey = ['mqtt-topic', topic];
-    
-    // Get current cached data
-    const currentData = queryClient.getQueryData<MqttTopicData>(queryKey);
-    
-    // Only update if there are active subscribers for this topic
-    if (!currentData || currentData.subscribers === 0) {
-      return;
-    }
+  const handleGlobalMessage = useCallback(
+    (topic: string, message: MqttMessage) => {
+      const queryKey = ["mqtt-topic", topic];
 
-    // Create updated topic data
-    const updatedData: MqttTopicData = {
-      ...currentData,
-      messages: [
-        ...currentData.messages,
-        message
-      ].slice(-100), // Keep only the last 100 messages by default
-      lastMessage: message,
-      lastUpdated: new Date(),
-      // Note: parsedData will be handled by individual useMqttTopic hooks
-    };
+      // Get current cached data
+      const currentData = queryClient.getQueryData<MqttTopicData>(queryKey);
 
-    // Update cache with new data
-    queryClient.setQueryData(queryKey, updatedData);
-    
-    // Invalidate query to trigger re-renders (requirement 2.4)
-    queryClient.invalidateQueries({ queryKey });
+      // Only update if there are active subscribers for this topic
+      if (!currentData || currentData.subscribers === 0) {
+        console.log(`Skipping MQTT message for topic ${topic} - no active subscribers:`, {
+          topic,
+          hasCurrentData: !!currentData,
+          subscribers: currentData?.subscribers || 0,
+          timestamp: new Date().toISOString(),
+        });
+        return;
+      }
 
-    console.log(`Global MQTT message processed for topic ${topic}:`, {
-      topic,
-      messageCount: updatedData.messages.length,
-      subscribers: updatedData.subscribers,
-      timestamp: new Date().toISOString(),
-    });
-  }, [queryClient]);
+      // Create updated topic data
+      const updatedData: MqttTopicData = {
+        ...currentData,
+        messages: [...currentData.messages, message].slice(-100), // Keep only the last 100 messages by default
+        lastMessage: message,
+        lastUpdated: new Date(),
+        // Note: parsedData will be handled by individual useMqttTopic hooks
+      };
 
-  // Set up global message handler
-  const { isConnected } = useMqtt({
-    onMessage: handleGlobalMessage
-  });
+      // Update cache with new data
+      queryClient.setQueryData(queryKey, updatedData);
+
+      // Invalidate query to trigger re-renders (requirement 2.4)
+      queryClient.invalidateQueries({ queryKey });
+
+      console.log(`Global MQTT message processed for topic ${topic}:`, {
+        topic,
+        messageCount: updatedData.messages.length,
+        subscribers: updatedData.subscribers,
+        timestamp: new Date().toISOString(),
+      });
+    },
+    [queryClient]
+  );
+
+  // Derive connection state from global store to avoid provider order dependency
+  const isConnected = useMqttConnectionStore((state) => state.status === "connected");
 
   return {
     isConnected,
+    handleGlobalMessage,
     /**
      * Manually invalidate all MQTT topic queries
      * Useful for cleanup or forced refresh
      */
     invalidateAllTopics: useCallback(() => {
-      queryClient.invalidateQueries({ 
-        queryKey: ['mqtt-topic'],
-        type: 'all'
+      queryClient.invalidateQueries({
+        queryKey: ["mqtt-topic"],
+        type: "all",
       });
     }, [queryClient]),
 
@@ -93,9 +99,9 @@ export function useMqttQueryIntegration() {
      * Useful for logout or connection reset
      */
     clearAllTopics: useCallback(() => {
-      queryClient.removeQueries({ 
-        queryKey: ['mqtt-topic'],
-        type: 'all'
+      queryClient.removeQueries({
+        queryKey: ["mqtt-topic"],
+        type: "all",
       });
     }, [queryClient]),
 
@@ -103,7 +109,7 @@ export function useMqttQueryIntegration() {
      * Get all active MQTT topic subscriptions
      */
     getActiveTopics: useCallback(() => {
-      const queries = queryClient.getQueriesData({ queryKey: ['mqtt-topic'] });
+      const queries = queryClient.getQueriesData({ queryKey: ["mqtt-topic"] });
       return queries
         .map(([key, data]) => ({
           topic: key[1] as string,

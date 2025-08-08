@@ -4,15 +4,16 @@
  * Implements requirements 2.1, 2.2, 2.3, 2.4 for reactive state management
  */
 
-import { useEffect, useCallback, useRef } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMqtt } from './use-mqtt';
-import type { MqttMessage } from '../types/mqtt.types';
+import { useCallback, useEffect, useRef } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { useMqttContext } from "../context/mqtt-provider";
+import type { MqttMessage } from "../types/mqtt.types";
 
 /**
  * Topic data structure stored in TanStack Query cache
  */
-interface MqttTopicData<T = any> {
+interface MqttTopicData<T = unknown> {
   topic: string;
   messages: MqttMessage[];
   lastMessage: MqttMessage | null;
@@ -29,22 +30,22 @@ interface UseMqttTopicOptions<T> {
    * Parser function to transform message payload to typed data
    */
   parser?: (payload: string | Buffer) => T;
-  
+
   /**
    * QoS level for subscription (default: 1)
    */
   qos?: 0 | 1 | 2;
-  
+
   /**
    * Maximum number of messages to keep in cache (default: 100)
    */
   maxMessages?: number;
-  
+
   /**
    * Whether to automatically subscribe when connected (default: true)
    */
   autoSubscribe?: boolean;
-  
+
   /**
    * Custom error handler for parsing errors
    */
@@ -55,27 +56,24 @@ interface UseMqttTopicOptions<T> {
  * Hook for subscribing to specific MQTT topics with TanStack Query integration
  * Provides reactive updates when messages are received on the topic
  * Implements requirement 2.2: Topic-specific data queries with reactive updates
- * 
+ *
  * @param topic - The MQTT topic to subscribe to
  * @param options - Configuration options for the hook
  * @returns TanStack Query result for the topic data
  */
-export function useMqttTopic<T = any>(
-  topic: string, 
-  options: UseMqttTopicOptions<T> = {}
-) {
+export function useMqttTopic<T = unknown>(topic: string, options: UseMqttTopicOptions<T> = {}) {
   const {
     parser,
     qos = 1,
-    maxMessages = 100,
+    // maxMessages actualmente no se usa en la lógica del hook
+    // Renombrado para evitar warning de variable no utilizada
+    maxMessages: _maxMessages = 100,
     autoSubscribe = true,
-    onParseError
+    onParseError,
   } = options;
 
   const queryClient = useQueryClient();
-  const { subscribe, unsubscribe, isConnected, connectionStatus } = useMqtt({
-    // Don't set up global message handler here - it's handled by useMqttQueryIntegration
-  });
+  const { subscribe, unsubscribe, isConnected, connectionStatus } = useMqttContext();
 
   // Refs to maintain stable references
   const isSubscribedRef = useRef(false);
@@ -85,39 +83,43 @@ export function useMqttTopic<T = any>(
    * Parse the latest message data when cache is updated
    * This runs whenever the query data changes (triggered by global message handler)
    */
-  const parseLatestMessage = useCallback((data: MqttTopicData<T>): MqttTopicData<T> => {
-    if (!parser || !data.lastMessage) {
-      return data;
-    }
+  const parseLatestMessage = useCallback(
+    (data: MqttTopicData<T>): MqttTopicData<T> => {
+      if (!parser || !data.lastMessage) {
+        return data;
+      }
 
-    try {
-      const payloadString = data.lastMessage.payload instanceof Buffer 
-        ? data.lastMessage.payload.toString('utf8') 
-        : data.lastMessage.payload;
-      
-      const parsedData = parser(payloadString);
-      
-      return {
-        ...data,
-        parsedData,
-      };
-    } catch (error) {
-      console.error(`Failed to parse MQTT message for topic ${topic}:`, {
-        error: error instanceof Error ? error.message : 'Unknown error',
-        topic,
-        payloadPreview: data.lastMessage.payload.toString().substring(0, 100),
-        timestamp: new Date().toISOString(),
-      });
-      
-      // Call custom error handler if provided
-      onParseError?.(error instanceof Error ? error : new Error('Parse error'), data.lastMessage);
-      
-      return {
-        ...data,
-        parsedData: null,
-      };
-    }
-  }, [topic, parser, onParseError]);
+      try {
+        const payloadString =
+          data.lastMessage.payload instanceof Buffer
+            ? data.lastMessage.payload.toString("utf8")
+            : data.lastMessage.payload;
+
+        const parsedData = parser(payloadString);
+
+        return {
+          ...data,
+          parsedData,
+        };
+      } catch (error) {
+        console.error(`Failed to parse MQTT message for topic ${topic}:`, {
+          error: error instanceof Error ? error.message : "Unknown error",
+          topic,
+          payloadPreview: data.lastMessage.payload.toString().substring(0, 100),
+          timestamp: new Date().toISOString(),
+        });
+
+        // Call custom error handler if provided
+        onParseError?.(error instanceof Error ? error : new Error("Parse error"), data.lastMessage);
+
+        return {
+          ...data,
+          parsedData: null,
+        };
+      }
+    },
+    [topic, parser, onParseError]
+  );
 
   /**
    * Subscribe to MQTT topic
@@ -133,7 +135,7 @@ export function useMqttTopic<T = any>(
       subscribersCountRef.current += 1;
 
       // Update subscribers count in cache
-      const queryKey = ['mqtt-topic', topic];
+      const queryKey = ["mqtt-topic", topic];
       const currentData = queryClient.getQueryData<MqttTopicData<T>>(queryKey);
       if (currentData) {
         queryClient.setQueryData(queryKey, {
@@ -167,7 +169,7 @@ export function useMqttTopic<T = any>(
       subscribersCountRef.current = Math.max(0, subscribersCountRef.current - 1);
 
       // Update subscribers count in cache
-      const queryKey = ['mqtt-topic', topic];
+      const queryKey = ["mqtt-topic", topic];
       const currentData = queryClient.getQueryData<MqttTopicData<T>>(queryKey);
       if (currentData) {
         queryClient.setQueryData(queryKey, {
@@ -211,11 +213,11 @@ export function useMqttTopic<T = any>(
    * Implements requirement 2.1: Reactive state management with TanStack Query
    */
   const query = useQuery({
-    queryKey: ['mqtt-topic', topic],
+    queryKey: ["mqtt-topic", topic],
     queryFn: (): MqttTopicData<T> => {
       // Get existing data from cache (updated by global message handler)
-      const existingData = queryClient.getQueryData<MqttTopicData<T>>(['mqtt-topic', topic]);
-      
+      const existingData = queryClient.getQueryData<MqttTopicData<T>>(["mqtt-topic", topic]);
+
       if (existingData) {
         // Apply parsing to the existing data
         return parseLatestMessage(existingData);
@@ -232,7 +234,7 @@ export function useMqttTopic<T = any>(
       };
 
       // Set initial data in cache
-      queryClient.setQueryData(['mqtt-topic', topic], initialData);
+      queryClient.setQueryData(["mqtt-topic", topic], initialData);
       return initialData;
     },
     enabled: true, // Always enabled, but data depends on connection
@@ -240,10 +242,13 @@ export function useMqttTopic<T = any>(
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes after last use
     refetchOnWindowFocus: false, // Don't refetch on window focus
     refetchOnReconnect: false, // Don't refetch on reconnect
-    select: useCallback((data: MqttTopicData<T>) => {
-      // Apply parsing whenever data is selected
-      return parseLatestMessage(data);
-    }, [parseLatestMessage]),
+    select: useCallback(
+      (data: MqttTopicData<T>) => {
+        // Apply parsing whenever data is selected
+        return parseLatestMessage(data);
+      },
+      [parseLatestMessage]
+    ),
   });
 
   // Return enhanced query result with MQTT-specific data and methods
@@ -256,12 +261,12 @@ export function useMqttTopic<T = any>(
     parsedData: query.data?.parsedData || null,
     lastUpdated: query.data?.lastUpdated || null,
     subscribers: query.data?.subscribers || 0,
-    
+
     // Connection state
     isConnected,
     connectionStatus,
     isSubscribed: isSubscribedRef.current,
-    
+
     // Manual subscription control
     subscribe: subscribeToTopic,
     unsubscribe: unsubscribeFromTopic,
