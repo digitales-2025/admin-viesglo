@@ -13,7 +13,7 @@ import type { MqttMessage } from "../types/mqtt.types";
 /**
  * Topic data structure stored in TanStack Query cache
  */
-interface MqttTopicData<T = any> {
+interface MqttTopicData<T = unknown> {
   topic: string;
   messages: MqttMessage[];
   lastMessage: MqttMessage | null;
@@ -29,6 +29,31 @@ interface MqttTopicData<T = any> {
  */
 export function useMqttQueryIntegration() {
   const queryClient = useQueryClient();
+
+  // Normaliza el payload a string (UTF-8) antes de guardar en la caché
+  const normalizeMessagePayload = useCallback((message: MqttMessage): MqttMessage => {
+    try {
+      const shouldDecodeAsString =
+        typeof message.payload === "string" ||
+        message.properties?.payloadFormatIndicator === true ||
+        (typeof message.properties?.contentType === "string" &&
+          message.properties.contentType.toLowerCase().includes("json"));
+
+      if (typeof message.payload === "string") {
+        return message;
+      }
+
+      if (shouldDecodeAsString) {
+        return { ...message, payload: message.payload.toString("utf8") };
+      }
+
+      // Como fallback, también guardamos como string (utf8) para evitar Buffers en la cache
+      return { ...message, payload: message.payload.toString("utf8") };
+    } catch (_err) {
+      // Si por alguna razón falla, devolvemos el mensaje original
+      return message;
+    }
+  }, []);
 
   /**
    * Handles incoming MQTT messages and updates TanStack Query cache
@@ -52,11 +77,15 @@ export function useMqttQueryIntegration() {
         return;
       }
 
-      // Create updated topic data
+      // Normalizamos todos los mensajes previos y el actual para evitar Buffers en cache
+      const normalizedPrevious = (currentData.messages || []).map(normalizeMessagePayload);
+      const normalizedIncoming = normalizeMessagePayload(message);
+
+      // Create updated topic data (manteniendo solo los últimos 100)
       const updatedData: MqttTopicData = {
         ...currentData,
-        messages: [...currentData.messages, message].slice(-100), // Keep only the last 100 messages by default
-        lastMessage: message,
+        messages: [...normalizedPrevious, normalizedIncoming].slice(-100),
+        lastMessage: normalizedIncoming,
         lastUpdated: new Date(),
         // Note: parsedData will be handled by individual useMqttTopic hooks
       };
@@ -74,7 +103,7 @@ export function useMqttQueryIntegration() {
         timestamp: new Date().toISOString(),
       });
     },
-    [queryClient]
+    [queryClient, normalizeMessagePayload]
   );
 
   // Derive connection state from global store to avoid provider order dependency

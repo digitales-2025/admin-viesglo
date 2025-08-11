@@ -135,21 +135,39 @@ export function useMqttPublish(mutationOptions: MqttPublishMutationOptions = {})
         // Snapshot the previous value
         const previousData = queryClient.getQueryData(queryKey);
 
-        // Optimistically update the cache
-        queryClient.setQueryData(queryKey, (old: any) => {
-          if (!old) return old;
+        // Optimistically update the cache (normalizando payload a string)
+        queryClient.setQueryData(queryKey, (old: unknown) => {
+          const current = old as {
+            messages: Array<{
+              topic: string;
+              payload: string | Buffer;
+              qos: 0 | 1 | 2;
+              retain: boolean;
+              properties?: MqttPublishOptions["properties"];
+            }>;
+            lastMessage: unknown;
+            lastUpdated: Date;
+          } | null;
+
+          if (!current) return current;
+
+          const payloadString = Buffer.isBuffer(message)
+            ? message.toString("utf8")
+            : typeof message === "object"
+              ? JSON.stringify(message)
+              : String(message);
 
           const optimisticMessage = {
             topic,
-            payload: typeof message === "object" && !Buffer.isBuffer(message) ? JSON.stringify(message) : message,
+            payload: payloadString,
             qos: variables.options?.qos || 1,
             retain: variables.options?.retain || false,
             properties: variables.options?.properties,
           };
 
           return {
-            ...old,
-            messages: [...old.messages, optimisticMessage].slice(-100),
+            ...current,
+            messages: [...current.messages, optimisticMessage].slice(-100),
             lastMessage: optimisticMessage,
             lastUpdated: new Date(),
           };
@@ -251,7 +269,7 @@ export function useMqttPublish(mutationOptions: MqttPublishMutationOptions = {})
  * @param mutationOptions - Configuration options for the mutation
  * @returns Enhanced mutation object with JSON-specific methods
  */
-export function useMqttPublishJson<T extends Record<string, any> = Record<string, any>>(
+export function useMqttPublishJson<T extends Record<string, unknown> = Record<string, unknown>>(
   mutationOptions: MqttPublishMutationOptions = {}
 ) {
   const baseMutation = useMqttPublish(mutationOptions);
