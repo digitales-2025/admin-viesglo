@@ -1,6 +1,4 @@
-import { cookies } from "next/headers";
-
-import { Result } from "./result";
+import type { Result } from "./result";
 
 // Configuración extendida para las peticiones
 interface ServerFetchConfig extends RequestInit {
@@ -26,6 +24,25 @@ type ServerFetchError = {
  * @returns true si está en el servidor, false si está en el cliente
  */
 const isServer = () => typeof window === "undefined";
+
+/**
+ * Safely imports cookies only when running on the server
+ * @returns Promise<cookies function | null>
+ */
+async function getCookiesFunction() {
+  if (!isServer()) {
+    return null;
+  }
+
+  try {
+    // Dynamic import only on server-side
+    const { cookies } = await import("next/headers");
+    return cookies;
+  } catch (error) {
+    console.error("Failed to import cookies from next/headers:", error);
+    return null;
+  }
+}
 
 /**
  * Realiza una petición al backend y devuelve un Result.
@@ -71,9 +88,12 @@ export async function serverFetch<Success>(
   try {
     // Solo accedemos a cookies si estamos en el servidor
     if (isServer()) {
-      cookieStore = await cookies();
-      accessToken = cookieStore.get("access_token")?.value;
-      refreshToken = cookieStore.get("refresh_token")?.value;
+      const cookiesFunction = await getCookiesFunction();
+      if (cookiesFunction) {
+        cookieStore = await cookiesFunction();
+        accessToken = cookieStore.get("access_token")?.value;
+        refreshToken = cookieStore.get("refresh_token")?.value;
+      }
     } else {
       // En cliente, podríamos intentar obtener los tokens de otra manera
       // Por ejemplo, de localStorage o de un estado global de la aplicación
@@ -156,7 +176,7 @@ export async function serverFetch<Success>(
       try {
         // Extraer y guardar el nuevo access_token si está presente
         const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
-        if (accessTokenMatch && accessTokenMatch[1]) {
+        if (accessTokenMatch?.[1]) {
           cookieStore.set("access_token", accessTokenMatch[1], {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -196,6 +216,23 @@ export async function serverFetch<Success>(
         error: "Error interno",
       },
     ];
+  }
+}
+
+/**
+ * Permite utilizar un objeto plano como body
+ */
+function processBody(body: BodyInit | object | undefined): BodyInit | undefined {
+  if (
+    body instanceof Blob ||
+    body instanceof ArrayBuffer ||
+    body instanceof FormData ||
+    body instanceof URLSearchParams ||
+    body instanceof ReadableStream
+  ) {
+    return body;
+  } else {
+    return JSON.stringify(body);
   }
 }
 
@@ -251,9 +288,22 @@ export async function serverFetchWithResponse<T>(
   url: string,
   options?: RequestInit
 ): Promise<[T | null, ServerFetchError | null, Response | null]> {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("access_token")?.value;
-  const refreshToken = cookieStore.get("refresh_token")?.value;
+  let cookieStore = null;
+  let accessToken = null;
+  let refreshToken = null;
+
+  try {
+    if (isServer()) {
+      const cookiesFunction = await getCookiesFunction();
+      if (cookiesFunction) {
+        cookieStore = await cookiesFunction();
+        accessToken = cookieStore.get("access_token")?.value;
+        refreshToken = cookieStore.get("refresh_token")?.value;
+      }
+    }
+  } catch (error) {
+    console.error("Error al acceder a las cookies en serverFetchWithResponse:", error);
+  }
 
   // Si no hay refreshToken, no podemos autenticar la solicitud
   if (!refreshToken) {
@@ -289,10 +339,10 @@ export async function serverFetchWithResponse<T>(
 
     // Si recibimos cookies de Set-Cookie, las guardamos para actualizar el access_token
     const setCookieHeader = response.headers.get("set-cookie");
-    if (setCookieHeader) {
+    if (setCookieHeader && cookieStore) {
       // Extraer y guardar el nuevo access_token si está presente
       const accessTokenMatch = setCookieHeader.match(/access_token=([^;]+)/);
-      if (accessTokenMatch && accessTokenMatch[1]) {
+      if (accessTokenMatch?.[1]) {
         cookieStore.set("access_token", accessTokenMatch[1], {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
@@ -537,9 +587,12 @@ export const http = {
       let cookieStore = null;
 
       if (isServer()) {
-        cookieStore = await cookies();
-        accessToken = cookieStore.get("access_token")?.value;
-        refreshToken = cookieStore.get("refresh_token")?.value;
+        const cookiesFunction = await getCookiesFunction();
+        if (cookiesFunction) {
+          cookieStore = await cookiesFunction();
+          accessToken = cookieStore.get("access_token")?.value;
+          refreshToken = cookieStore.get("refresh_token")?.value;
+        }
       }
 
       // Configuramos los cookies para la solicitud
@@ -590,7 +643,7 @@ export const http = {
       const contentDisposition = response.headers.get("content-disposition");
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
-        if (filenameMatch && filenameMatch[1]) {
+        if (filenameMatch?.[1]) {
           filename = filenameMatch[1];
         }
       }
@@ -708,20 +761,3 @@ export const http = {
     });
   },
 };
-
-/**
- * Permite utilizar un objeto plano como body
- */
-function processBody(body: BodyInit | object | undefined): BodyInit | undefined {
-  if (
-    body instanceof Blob ||
-    body instanceof ArrayBuffer ||
-    body instanceof FormData ||
-    body instanceof URLSearchParams ||
-    body instanceof ReadableStream
-  ) {
-    return body;
-  } else {
-    return JSON.stringify(body);
-  }
-}

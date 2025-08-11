@@ -630,6 +630,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/auth/mqtt-credentials": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener credenciales MQTT del usuario autenticado */
+    get: operations["AuthController_getMqttCredentials_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/auth/session": {
     parameters: {
       query?: never;
@@ -2152,6 +2169,28 @@ export interface components {
        * @example NuevaContraseña123!
        */
       confirmPassword: string;
+    };
+    MqttCredentialsResponseDto: {
+      /**
+       * @description URL del broker MQTT con protocolo WebSocket
+       * @example ws://localhost:8083/mqtt
+       */
+      brokerUrl: string;
+      /**
+       * @description Usuario para autenticación MQTT
+       * @example user_mqtt_2024
+       */
+      username: string;
+      /**
+       * @description Contraseña para autenticación MQTT
+       * @example mqtt_secure_password_123
+       */
+      password: string;
+      /**
+       * @description ID único del cliente MQTT (opcional)
+       * @example web-client-user-123
+       */
+      clientId?: string;
     };
     ClientContactRequestDto: {
       /**
@@ -4400,6 +4439,62 @@ export interface operations {
       };
       /** @description Usuario no encontrado */
       404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AuthController_getMqttCredentials_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Credenciales MQTT obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MqttCredentialsResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos para acceder a MQTT */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Usuario no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Servicio MQTT temporalmente no disponible */
+      503: {
         headers: {
           [name: string]: unknown;
         };
