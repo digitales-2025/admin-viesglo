@@ -41,8 +41,8 @@ export function MqttPublishExample({ topic: initialTopic = "test/publish" }: Mqt
   const [qos, setQos] = useState<0 | 1 | 2>(1);
   const [retain, setRetain] = useState(false);
   const [jsonData, setJsonData] = useState('{"temperature": 25.5, "humidity": 60}');
-  const [requestTopic, setRequestTopic] = useState("request/data");
-  const [responseTopic, setResponseTopic] = useState("response/data");
+  const [requestTopic, setRequestTopic] = useState("dashboard/test3");
+  const [responseTopic, setResponseTopic] = useState("dashboard/test4");
 
   // Basic MQTT publish mutation
   const basicPublish = useMqttPublish({
@@ -90,7 +90,7 @@ export function MqttPublishExample({ topic: initialTopic = "test/publish" }: Mqt
   const handleJsonPublish = () => {
     try {
       const data = JSON.parse(jsonData);
-      jsonPublish.publishJson("sensors/json", data, {
+      jsonPublish.publishJson("dashboard/test2", data, {
         qos: 1,
         properties: {
           userProperties: {
