@@ -164,6 +164,14 @@ export function useMqttTopic<T = unknown>(topic: string, options: UseMqttTopicOp
     }
 
     try {
+      // Evitar desuscribir si el cliente está desconectado o en proceso de desconexión
+      const ctx = (globalThis as any).__MQTT_CTX__;
+      const client = ctx?.client as { connected?: boolean; disconnecting?: boolean } | undefined;
+      if (client && (client as any).disconnecting) {
+        console.warn(`Skipping unsubscribe for ${topic} because client is disconnecting`);
+        return;
+      }
+
       await unsubscribe(topic);
       isSubscribedRef.current = false;
       subscribersCountRef.current = Math.max(0, subscribersCountRef.current - 1);
