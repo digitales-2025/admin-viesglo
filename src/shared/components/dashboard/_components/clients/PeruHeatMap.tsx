@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import type { Feature } from "geojson";
 import { MapPin, Minus, Move, Plus, ZoomIn } from "lucide-react";
 import { ComposableMap, Geographies, Geography, ZoomableGroup } from "react-simple-maps";
@@ -10,45 +11,59 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { peruDepartamental } from "@/shared/data/peru-departament";
+// type ClientEventPayload = {
+//   type: "created" | "updated" | "deleted";
+//   client: ClientSummary;
+// };
+import { useRealtimeSubscription } from "@/shared/hooks/use-realtime-subscription";
+import { fetchClientsDashboardSummary } from "@/shared/lib/clients.service";
 
-// Datos de ejemplo de clientes por departamento
-const clientesData = [
-  { departamento: "Lima", clientes: 1500 },
-  { departamento: "Arequipa", clientes: 20 },
-  { departamento: "La Libertad", clientes: 380 },
-  { departamento: "Piura", clientes: 320 },
-  { departamento: "Cusco", clientes: 300 },
-  { departamento: "Junín", clientes: 280 },
-  { departamento: "Lambayeque", clientes: 250 },
-  { departamento: "Ancash", clientes: 220 },
-  { departamento: "Ica", clientes: 200 },
-  { departamento: "Cajamarca", clientes: 180 },
-  { departamento: "Huánuco", clientes: 150 },
-  { departamento: "San Martín", clientes: 140 },
-  { departamento: "Tacna", clientes: 130 },
-  { departamento: "Ayacucho", clientes: 120 },
-  { departamento: "Loreto", clientes: 110 },
-  { departamento: "Puno", clientes: 100 },
-  { departamento: "Ucayali", clientes: 90 },
-  { departamento: "Huancavelica", clientes: 80 },
-  { departamento: "Apurímac", clientes: 70 },
-  { departamento: "Tumbes", clientes: 60 },
-  { departamento: "Pasco", clientes: 50 },
-  { departamento: "Moquegua", clientes: 45 },
-  { departamento: "Amazonas", clientes: 40 },
-  { departamento: "Madre de Dios", clientes: 30 },
-  { departamento: "Callao", clientes: 200 },
-];
+// Tipo para el ViewModel completo del dashboard
+type DashboardSummary = {
+  summary: {
+    totalClients: number;
+    departaments: Array<{ name: string; count: number }>;
+    quarterlyGrowth: {
+      currentQuarter: number;
+      previousQuarter: number;
+      growthPercentage: number;
+      quarterLabel: string;
+    };
+    concentration: {
+      highest: { department: string; count: number };
+      lowest: { department: string; count: number };
+    };
+  };
+  list: Array<{
+    id: string;
+    name?: string;
+    ruc?: string;
+    email?: string;
+    sunatInfo?: { department?: string; [k: string]: unknown };
+    createdAt?: Date;
+  }>;
+  meta: {
+    source: string;
+    at: string;
+    lastUpdated: string;
+  };
+};
+
+// Construye arreglo consumible por el mapa desde el ViewModel agregado del backend
+function buildClientesDataFromSummary(summary: DashboardSummary["summary"] | undefined) {
+  if (!summary) return [] as Array<{ departamento: string; clientes: number }>;
+  return summary.departaments.map((d) => ({ departamento: d.name, clientes: d.count }));
+}
 
 // Función para obtener color basado en número de clientes
 const getColor = (clientes: number) => {
-  if (clientes > 1000) return "#800026"; // Rojo muy oscuro
-  if (clientes > 500) return "#BD0026"; // Rojo oscuro
-  if (clientes > 300) return "#E31A1C"; // Rojo
-  if (clientes > 200) return "#FC4E2A"; // Rojo-naranja
-  if (clientes > 100) return "#FD8D3C"; // Naranja
-  if (clientes > 50) return "#FEB24C"; // Naranja claro
-  if (clientes > 20) return "#FED976"; // Amarillo-naranja
+  if (clientes > 100) return "#800026"; // Rojo muy oscuro
+  if (clientes > 50) return "#BD0026"; // Rojo oscuro
+  if (clientes > 30) return "#E31A1C"; // Rojo
+  if (clientes > 20) return "#FC4E2A"; // Rojo-naranja
+  if (clientes > 10) return "#FD8D3C"; // Naranja
+  if (clientes > 5) return "#FEB24C"; // Naranja claro
+  if (clientes > 2) return "#FED976"; // Amarillo-naranja
   return "#FFEDA0"; // Amarillo muy claro
 };
 
@@ -60,8 +75,37 @@ export default function PeruHeatMap() {
   const [zoom, setZoom] = useState(1);
   const [center, setCenter] = useState([-75, -9.5]);
 
-  const maxClientes = Math.max(...clientesData.map((d) => d.clientes));
-  const minClientes = Math.min(...clientesData.map((d) => d.clientes));
+  // Fase 1: carga inicial (ViewModel agregado completo desde el backend)
+  const { data: summaryData } = useQuery({
+    queryKey: ["clients", "dashboard", "summary"],
+    queryFn: fetchClientsDashboardSummary,
+    staleTime: 60_000,
+  });
+
+  // Extraer métricas del ViewModel completo
+  const dashboardData = summaryData as DashboardSummary | undefined;
+  const clientesData = buildClientesDataFromSummary(dashboardData?.summary);
+  const quarterlyGrowth = dashboardData?.summary?.quarterlyGrowth;
+  const concentration = dashboardData?.summary?.concentration;
+
+  // Calcular métricas para compatibilidad con código existente
+  const maxClientes =
+    concentration?.highest?.count || (clientesData.length ? Math.max(...clientesData.map((d) => d.clientes)) : 0);
+  const minClientes =
+    concentration?.lowest?.count || (clientesData.length ? Math.min(...clientesData.map((d) => d.clientes)) : 0);
+  const totalClientes = dashboardData?.summary?.totalClients || clientesData.reduce((sum, d) => sum + d.clientes, 0);
+  const highestDepartment = concentration?.highest?.department || "Lima";
+  const lowestDepartment = concentration?.lowest?.department || "Madre de Dios";
+
+  // Fase 2: actualizaciones en tiempo real (ViewModel ya agregado desde el backend)
+  useRealtimeSubscription(
+    "clients/dashboard/stream",
+    ["clients", "dashboard", "summary"],
+    (_oldData: unknown, payload: unknown) => {
+      // Reemplazar directamente con el ViewModel que publica el backend
+      return payload as any;
+    }
+  );
 
   const getClientesForDepartment = (deptName: string) => {
     const dept = clientesData.find(
@@ -95,16 +139,30 @@ export default function PeruHeatMap() {
 
   return (
     <div className="w-full space-y-6">
-      {/* Estadísticas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {/* Estadísticas Mejoradas */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium">Total Clientes</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">
-              {clientesData.reduce((sum, d) => sum + d.clientes, 0).toLocaleString()}
+            <div className="text-2xl font-bold text-red-600">{totalClientes.toLocaleString()}</div>
+            <p className="text-xs text-gray-500 mt-1">{quarterlyGrowth?.quarterLabel || "Q4 2024"}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Crecimiento Trimestral</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div
+              className={`text-2xl font-bold ${(quarterlyGrowth?.growthPercentage || 0) >= 0 ? "text-green-600" : "text-red-600"}`}
+            >
+              {quarterlyGrowth?.growthPercentage?.toFixed(1) || "0.0"}%
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {quarterlyGrowth?.currentQuarter || 0} vs {quarterlyGrowth?.previousQuarter || 0} anterior
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -113,6 +171,7 @@ export default function PeruHeatMap() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">{clientesData.length}</div>
+            <p className="text-xs text-gray-500 mt-1">Con clientes activos</p>
           </CardContent>
         </Card>
         <Card>
@@ -121,7 +180,7 @@ export default function PeruHeatMap() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-600">{maxClientes.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">Lima</p>
+            <p className="text-xs text-gray-500 mt-1">{highestDepartment}</p>
           </CardContent>
         </Card>
         <Card>
@@ -130,7 +189,7 @@ export default function PeruHeatMap() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{minClientes.toLocaleString()}</div>
-            <p className="text-xs text-gray-500">Madre de Dios</p>
+            <p className="text-xs text-gray-500 mt-1">{lowestDepartment}</p>
           </CardContent>
         </Card>
       </div>
@@ -162,7 +221,6 @@ export default function PeruHeatMap() {
               <div
                 ref={mapRef}
                 className="w-full h-[427px] rounded-lg overflow-hidden relative cursor-grab active:cursor-grabbing"
-                onMouseMove={handleMouseMove}
               >
                 {peruDepartamental && (
                   <ComposableMap
@@ -174,6 +232,7 @@ export default function PeruHeatMap() {
                     width={600}
                     height={400}
                     style={{ width: "100%", height: "100%" }}
+                    onMouseMove={handleMouseMove}
                   >
                     <ZoomableGroup zoom={zoom} minZoom={0.5} maxZoom={4} center={center}>
                       <Geographies geography={peruDepartamental}>
@@ -210,6 +269,8 @@ export default function PeruHeatMap() {
                 {/* Tooltip flotante */}
                 {hoveredDept && (
                   <div
+                    role="tooltip"
+                    aria-hidden={!hoveredDept}
                     className="absolute pointer-events-none z-10 bg-white border border-gray-200 rounded-md shadow-lg px-3 py-2 transform -translate-x-1/2 -translate-y-full select-none"
                     style={{
                       left: mousePosition.x,
@@ -291,8 +352,14 @@ export default function PeruHeatMap() {
                 .sort((a, b) => b.clientes - a.clientes)
                 .slice(0, 10)
                 .map((item, index) => (
-                  <div
+                  <button
+                    type="button"
                     key={item.departamento}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setSelectedDept(selectedDept === item.departamento ? null : item.departamento);
+                      }
+                    }}
                     className={`flex items-center justify-between p-2 rounded cursor-pointer transition-colors ${
                       selectedDept === item.departamento ? "bg-blue-100" : "hover:bg-gray-50"
                     }`}
@@ -308,7 +375,7 @@ export default function PeruHeatMap() {
                       <div className="w-3 h-3 rounded-full" style={{ backgroundColor: getColor(item.clientes) }}></div>
                       <span className="text-sm font-bold">{item.clientes.toLocaleString()}</span>
                     </div>
-                  </div>
+                  </button>
                 ))}
             </CardContent>
           </Card>
