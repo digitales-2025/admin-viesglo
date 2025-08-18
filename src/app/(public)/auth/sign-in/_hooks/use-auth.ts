@@ -83,9 +83,10 @@ export const useLogout = () => {
   };
 };
 
-export const useProfile = () => {
+export const useProfile = (options: { enabled?: boolean } = { enabled: true }) => {
   const query = backend.useQuery("get", "/v1/auth/me", {
-    enabled: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    ...options,
   });
 
   const isSuperAdmin = query.data?.role?.name === "GERENCIA" || false;
