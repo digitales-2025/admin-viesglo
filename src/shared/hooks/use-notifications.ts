@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -6,7 +6,6 @@ import { es } from "date-fns/locale";
 import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import { http } from "@/lib/http/clientFetch";
 import {
-  CombinedNotification,
   GlobalNotificationDto,
   NotificationDto,
   NotificationOperationResponseDto,
@@ -21,7 +20,8 @@ export interface UseNotificationsOptions {
 
 export interface UseNotificationsReturn {
   // Data
-  notifications: CombinedNotification[];
+  personalNotifications: NotificationDto[];
+  globalNotifications: GlobalNotificationDto[];
   unreadCount: number;
   clientId?: string;
 
@@ -33,10 +33,15 @@ export interface UseNotificationsReturn {
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   removeNotification: (notificationId: string) => void;
+  onNewGlobalNotification: (callback: (notification: GlobalNotificationDto) => void) => () => void;
 
   // Mutation states
   isMarkingAsRead: boolean;
   isMarkingAllAsRead: boolean;
+
+  // Private actions for future use (prefixed with _)
+  _markGlobalAsRead?: (notificationId: string) => void;
+  _isMarkingGlobalAsRead?: boolean;
 
   // Error states
   error: Error | null;
@@ -51,6 +56,23 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const { data: profile, isLoading: isProfileLoading } = useProfile();
   const userId = profile?.id;
   const queryClient = useQueryClient();
+
+  // Callbacks para notificaciones globales en tiempo real
+  const globalNotificationCallbacks = useMemo(() => new Set<(notification: GlobalNotificationDto) => void>(), []);
+
+  // Refs para trackear el último mensaje procesado de cada tópico global
+  const lastProcessedAlertsRef = useRef<string>("");
+  const lastProcessedMaintenanceRef = useRef<string>("");
+
+  const onNewGlobalNotification = useCallback(
+    (callback: (notification: GlobalNotificationDto) => void) => {
+      globalNotificationCallbacks.add(callback);
+      return () => {
+        globalNotificationCallbacks.delete(callback);
+      };
+    },
+    [globalNotificationCallbacks]
+  );
 
   // Query para el snapshot inicial
   const {
@@ -185,39 +207,119 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     autoSubscribe: autoSubscribe && enableGlobalTopics,
   });
 
-  // Combinar todas las notificaciones
-  const notifications: CombinedNotification[] = useMemo(() => {
-    let allNotifications: (NotificationDto | GlobalNotificationDto)[] = [];
+  // Efecto para procesar notificaciones globales de sistema
+  useEffect(() => {
+    if (!enableGlobalTopics || !globalSystemMqtt.messages.length) return;
+    const latestMessage = globalSystemMqtt.messages[globalSystemMqtt.messages.length - 1];
+    if (!latestMessage) return;
 
-    // Agregar del snapshot
-    if (snapshot) {
-      allNotifications = [...snapshot.personal, ...snapshot.global];
-    }
+    console.log("🔔 useNotifications: Global system MQTT effect triggered", {
+      topic: latestMessage.topic,
+      messageCount: globalSystemMqtt.messages.length,
+      lastUpdated: globalSystemMqtt.lastUpdated,
+      callbacksCount: globalNotificationCallbacks.size,
+    });
 
-    // Agregar notificaciones globales de MQTT
-    const addMqttNotifications = (mqttData: any) => {
-      if (mqttData?.messages) {
-        mqttData.messages.forEach((msg: any) => {
-          try {
-            const parsed = JSON.parse(msg.payload);
-            if (parsed && parsed.id && !allNotifications.some((n) => n.id === parsed.id)) {
-              allNotifications.push(parsed);
-            }
-          } catch (error) {
-            console.error("🔔 useNotifications: Error parsing MQTT message:", error);
-          }
+    try {
+      const newGlobalNotification: GlobalNotificationDto = JSON.parse(latestMessage.payload as string);
+      if (newGlobalNotification && newGlobalNotification.id && newGlobalNotification.title) {
+        console.log("🔔 useNotifications: Executing callbacks for global system notification:", {
+          id: newGlobalNotification.id,
+          title: newGlobalNotification.title,
+          callbacksCount: globalNotificationCallbacks.size,
         });
+        globalNotificationCallbacks.forEach((callback) => callback(newGlobalNotification));
       }
-    };
-
-    if (enableGlobalTopics) {
-      addMqttNotifications(globalSystemMqtt.data);
-      addMqttNotifications(globalAlertsMqtt.data);
-      addMqttNotifications(globalMaintenanceMqtt.data);
+    } catch (error) {
+      console.error("🔔 useNotifications: Error parsing global system notification:", error);
     }
+  }, [globalSystemMqtt.messages, globalSystemMqtt.lastUpdated, enableGlobalTopics, globalNotificationCallbacks]);
 
-    // Mapear y ordenar
-    const mappedNotifications = allNotifications.map((n) => ({
+  // Efecto para procesar notificaciones globales de alertas
+  useEffect(() => {
+    if (!enableGlobalTopics || !globalAlertsMqtt.messages.length) return;
+    const latestMessage = globalAlertsMqtt.messages[globalAlertsMqtt.messages.length - 1];
+    if (!latestMessage) return;
+
+    // Evitar procesar el mismo mensaje múltiples veces
+    const messageKey = `${latestMessage.topic}-${latestMessage.payload}`;
+    if (lastProcessedAlertsRef.current === messageKey) return;
+    lastProcessedAlertsRef.current = messageKey;
+
+    try {
+      const newGlobalNotification: GlobalNotificationDto = JSON.parse(latestMessage.payload as string);
+      if (newGlobalNotification && newGlobalNotification.id && newGlobalNotification.title) {
+        globalNotificationCallbacks.forEach((callback) => callback(newGlobalNotification));
+      }
+    } catch (error) {
+      console.error("🔔 useNotifications: Error parsing global alerts notification:", error);
+    }
+  }, [globalAlertsMqtt.messages, enableGlobalTopics, globalNotificationCallbacks]);
+
+  // Efecto para procesar notificaciones globales de mantenimiento
+  useEffect(() => {
+    if (!enableGlobalTopics || !globalMaintenanceMqtt.messages.length) return;
+    const latestMessage = globalMaintenanceMqtt.messages[globalMaintenanceMqtt.messages.length - 1];
+    if (!latestMessage) return;
+
+    // Evitar procesar el mismo mensaje múltiples veces
+    const messageKey = `${latestMessage.topic}-${latestMessage.payload}`;
+    if (lastProcessedMaintenanceRef.current === messageKey) return;
+    lastProcessedMaintenanceRef.current = messageKey;
+
+    console.log("🔔 useNotifications: Processing global maintenance notification from MQTT", {
+      topic: latestMessage.topic,
+      timestamp: globalMaintenanceMqtt.lastUpdated,
+      callbacksCount: globalNotificationCallbacks.size,
+    });
+
+    try {
+      const newGlobalNotification: GlobalNotificationDto = JSON.parse(latestMessage.payload as string);
+      if (newGlobalNotification && newGlobalNotification.id && newGlobalNotification.title) {
+        console.log("🔔 useNotifications: Executing callbacks for global maintenance notification:", {
+          id: newGlobalNotification.id,
+          title: newGlobalNotification.title,
+          callbacksCount: globalNotificationCallbacks.size,
+        });
+        globalNotificationCallbacks.forEach((callback) => callback(newGlobalNotification));
+      }
+    } catch (error) {
+      console.error("🔔 useNotifications: Error parsing global maintenance notification:", error);
+    }
+  }, [
+    globalMaintenanceMqtt.messages,
+    globalMaintenanceMqtt.lastUpdated,
+    enableGlobalTopics,
+    globalNotificationCallbacks,
+  ]);
+
+  // Notificaciones personales (del snapshot + nuevas de MQTT) - Limitadas a las últimas 10
+  const personalNotifications: NotificationDto[] = useMemo(() => {
+    if (!snapshot) return [];
+    const allPersonal = [...snapshot.personal];
+
+    // Add new personal notifications from MQTT (already handled in previous useEffect)
+    // The queryClient.setQueryData already updates the snapshot.personal array directly.
+
+    const mappedNotifications = allPersonal.map((n) => ({
+      ...n,
+      timeAgo: formatDistanceToNow(new Date(n.createdAt), {
+        addSuffix: true,
+        locale: es,
+      }),
+    }));
+
+    // Ordenar por fecha de creación (más recientes primero) y limitar a 10
+    mappedNotifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return mappedNotifications.slice(0, 10);
+  }, [snapshot]);
+
+  // Notificaciones globales (solo del snapshot)
+  const globalNotifications: GlobalNotificationDto[] = useMemo(() => {
+    if (!snapshot) return [];
+    const allGlobal = [...snapshot.global];
+
+    const mappedNotifications = allGlobal.map((n) => ({
       ...n,
       timeAgo: formatDistanceToNow(new Date(n.createdAt), {
         addSuffix: true,
@@ -226,14 +328,15 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     }));
 
     mappedNotifications.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
     return mappedNotifications;
-  }, [snapshot, enableGlobalTopics, globalSystemMqtt.data, globalAlertsMqtt.data, globalMaintenanceMqtt.data]);
+  }, [snapshot]);
 
-  // Contar no leídas
+  // Contar no leídas (todas las personales, no solo las 10 mostradas)
   const unreadCount = useMemo(() => {
-    return notifications.filter((n) => ("isRead" in n && n.isRead === false) || !("isRead" in n)).length;
-  }, [notifications]);
+    if (!snapshot) return 0;
+    // Contar todas las notificaciones personales no leídas, no solo las 10 mostradas
+    return snapshot.personal.filter((n) => n.isRead === false).length;
+  }, [snapshot]);
 
   // Mutación para marcar como leída
   const markAsReadMutation = useMutation({
@@ -247,19 +350,28 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       queryClient.setQueryData(["notifications", userId], (oldData: any) => {
         if (!oldData) return oldData;
 
+        const updatedPersonal = oldData.personal.map((n: any) =>
+          n.id === notificationId ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
+        );
+
+        const newUnreadCount = updatedPersonal.filter((n: any) => n.isRead === false).length;
+
         return {
           ...oldData,
-          personal: oldData.personal.map((n: any) =>
-            n.id === notificationId ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
-          ),
+          personal: updatedPersonal,
           metadata: {
             ...oldData.metadata,
-            totalUnread: Math.max(0, oldData.metadata.totalUnread - 1),
+            totalUnread: newUnreadCount,
           },
         };
       });
 
       return { previousData };
+    },
+    onSuccess: (data, notificationId) => {
+      console.log("🔔 useNotifications: Successfully marked as read:", notificationId);
+      // Forzar una actualización del cache para asegurar sincronización
+      queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
     },
     onError: (error, notificationId, context) => {
       console.error("🔔 useNotifications: Error marking as read:", error);
@@ -269,11 +381,20 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     },
   });
 
-  // Mutación para marcar todas como leídas
-  const markAllAsReadMutation = useMutation({
-    mutationFn: () => {
+  // Mutación para marcar todas las personales como leídas (sin afectar globales)
+  const markAllPersonalAsReadMutation = useMutation({
+    mutationFn: async () => {
       if (!userId) throw new Error("User not found");
-      return http.put<NotificationOperationResponseDto>(`/notifications/read/all/${userId}`, {});
+
+      // Obtener solo las notificaciones personales no leídas
+      const unreadPersonalNotifications = personalNotifications.filter((n) => !n.isRead);
+
+      if (unreadPersonalNotifications.length === 0) {
+        return [];
+      }
+
+      // Usar el endpoint para marcar todas las personales como leídas
+      return http.put<{ success: boolean; count: number }>(`/notifications/read/all/${userId}`, {});
     },
     onMutate: async () => {
       const previousData = queryClient.getQueryData(["notifications", userId]);
@@ -282,36 +403,82 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
         if (!oldData) return oldData;
 
         const now = new Date().toISOString();
+        // Solo marcar las personales como leídas, mantener las globales intactas
+        const updatedPersonal = oldData.personal.map((n: any) => (n.isRead ? n : { ...n, isRead: true, readAt: now }));
+
+        // Calcular el nuevo conteo solo basado en personales no leídas
+        const newUnreadCount = updatedPersonal.filter((n: any) => n.isRead === false).length;
+
         return {
           ...oldData,
-          personal: oldData.personal.map((n: any) => (n.isRead ? n : { ...n, isRead: true, readAt: now })),
+          personal: updatedPersonal,
+          // Las globales no se modifican
+          global: oldData.global,
           metadata: {
             ...oldData.metadata,
-            totalUnread: 0,
+            totalUnread: newUnreadCount, // Solo contar personales no leídas
           },
         };
       });
 
       return { previousData };
     },
+    onSuccess: (_data) => {
+      console.log("🔔 useNotifications: Successfully marked all personal as read");
+      // Forzar una actualización del cache para asegurar sincronización
+      queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
+    },
     onError: (error, variables, context) => {
-      console.error("🔔 useNotifications: Error marking all as read:", error);
+      console.error("🔔 useNotifications: Error marking all personal as read:", error);
       if (context?.previousData) {
         queryClient.setQueryData(["notifications", userId], context.previousData);
       }
     },
   });
 
-  // Función para remover notificación localmente
+  // Mutación para marcar notificación global como vista (NO REMOVER, solo marcar como vista)
+  const markGlobalAsReadMutation = useMutation({
+    mutationFn: (notificationId: string) => {
+      if (!userId) throw new Error("User not found");
+      return http.put<{ success: boolean }>(`/notifications/global/${notificationId}/read/${userId}`, {});
+    },
+    onSuccess: (data, _notificationId) => {
+      console.log("🔔 useNotifications: Successfully marked global as viewed:", _notificationId);
+      // NO remover la notificación global del estado, solo marcarla como vista
+      queryClient.setQueryData(["notifications", userId], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        const updatedGlobal = oldData.global.map((n: any) =>
+          n.id === _notificationId ? { ...n, isViewed: true, viewedAt: new Date().toISOString() } : n
+        );
+
+        return {
+          ...oldData,
+          global: updatedGlobal,
+        };
+      });
+    },
+    onError: (error, _notificationId) => {
+      console.error("🔔 useNotifications: Error marking global as viewed:", error);
+    },
+  });
+
+  // Función para remover notificación personal localmente
   const removeNotification = useCallback(
     (notificationId: string) => {
       queryClient.setQueryData(["notifications", userId], (oldData: any) => {
         if (!oldData) return oldData;
 
+        const updatedPersonal = oldData.personal.filter((n: any) => n.id !== notificationId);
+        const newUnreadCount = updatedPersonal.filter((n: any) => n.isRead === false).length;
+
         return {
           ...oldData,
-          personal: oldData.personal.filter((n: any) => n.id !== notificationId),
-          global: oldData.global.filter((n: any) => n.id !== notificationId),
+          personal: updatedPersonal,
+          metadata: {
+            ...oldData.metadata,
+            totalUnread: newUnreadCount,
+          },
         };
       });
     },
@@ -320,7 +487,8 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
   return {
     // Data
-    notifications,
+    personalNotifications,
+    globalNotifications,
     unreadCount,
     clientId,
 
@@ -330,12 +498,17 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
     // Actions
     markAsRead: markAsReadMutation.mutate,
-    markAllAsRead: markAllAsReadMutation.mutate,
+    markAllAsRead: markAllPersonalAsReadMutation.mutate,
     removeNotification,
+    onNewGlobalNotification,
+
+    // Actions for future use (not exposed in main interface)
+    _markGlobalAsRead: markGlobalAsReadMutation.mutate,
 
     // Mutation states
     isMarkingAsRead: markAsReadMutation.isPending,
-    isMarkingAllAsRead: markAllAsReadMutation.isPending,
+    isMarkingAllAsRead: markAllPersonalAsReadMutation.isPending,
+    _isMarkingGlobalAsRead: markGlobalAsReadMutation.isPending,
 
     // Error states
     error: snapshotError as Error | null,
