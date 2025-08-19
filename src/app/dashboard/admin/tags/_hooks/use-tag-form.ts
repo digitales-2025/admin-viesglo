@@ -35,6 +35,12 @@ export function useTagForm({ isUpdate = false, initialData, onSuccess }: UseTagF
         color: initialData.color || "#3b82f6",
       };
       form.reset(formData);
+    } else if (!initialData && !isUpdate) {
+      // Limpiar formulario cuando no hay datos iniciales y no es update
+      form.reset({
+        name: "",
+        color: "#3b82f6",
+      });
     }
   }, [initialData, isUpdate, form]);
 
