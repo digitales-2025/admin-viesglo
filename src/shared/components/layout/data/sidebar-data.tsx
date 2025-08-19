@@ -46,7 +46,7 @@ export const sidebarData: SidebarData = {
             {
               title: "Plantillas",
               icon: ScrollText,
-              url: "/dashboard/templates",
+              url: "/dashboard/admin/templates",
               permissions: [{ resource: EnumResource.roles, action: EnumAction.read }],
             },
           ],
