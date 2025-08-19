@@ -65,9 +65,15 @@ export function TagEditorDialog({ selectedTags, onTagsChange }: TagEditorDialogP
 
   const handleSubmit = (data: CreateTagForm) => {
     onSubmit(data);
-    form.reset();
+    // Limpiar completamente el formulario después de crear/editar
+    form.reset({
+      name: "",
+      color: "#3b82f6",
+    });
+    // Forzar la limpieza de los campos
+    form.setValue("name", "");
+    form.setValue("color", "#3b82f6");
     setShowColorPicker(false);
-    // Limpiar color personalizado después de crear/editar
     setCustomColor("#3b82f6");
   };
 

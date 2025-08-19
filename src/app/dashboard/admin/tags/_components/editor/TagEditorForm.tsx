@@ -263,7 +263,14 @@ export function TagEditorForm({
                     variant="outline"
                     onClick={() => {
                       setEditingTag(null);
-                      form.reset();
+                      // Limpiar completamente el formulario
+                      form.reset({
+                        name: "",
+                        color: "#3b82f6",
+                      });
+                      // Forzar la limpieza del campo nombre
+                      form.setValue("name", "");
+                      form.setValue("color", "#3b82f6");
                       setCustomColor("#3b82f6");
                       setShowColorPicker(false);
                     }}
