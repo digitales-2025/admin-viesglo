@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import { Tags } from "lucide-react";
 
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
@@ -16,20 +15,38 @@ import { TagEditorForm } from "./TagEditorForm";
 interface TagEditorDialogProps {
   selectedTags: string[];
   onTagsChange: (tagIds: string[]) => void;
+  selectedTagObjects: TagResponseDto[];
+  onTagObjectsChange: (tagObjects: TagResponseDto[]) => void;
 }
 
-export function TagEditorDialog({ selectedTags, onTagsChange }: TagEditorDialogProps) {
+export const TagEditorDialog = memo(function TagEditorDialog({
+  selectedTags,
+  onTagsChange,
+  selectedTagObjects,
+  onTagObjectsChange,
+}: TagEditorDialogProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [editingTag, setEditingTag] = useState<TagResponseDto | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [customColor, setCustomColor] = useState("#3b82f6");
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
+  // Estado para el término de búsqueda debounced
+  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+
+  // useEffect simple para debounce sin dependencias circulares
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   // Usar hook real para buscar tags - con debounce para optimizar
   const { data: searchResults = [] } = useTagsByName(
-    debouncedSearchTerm,
+    debouncedTerm,
     10,
     true // Siempre habilitado para mostrar tags existentes
   );
@@ -51,60 +68,66 @@ export function TagEditorDialog({ selectedTags, onTagsChange }: TagEditorDialogP
   // Hook para eliminar tags
   const { mutate: deleteTag, isPending: isDeleting } = useDeleteTag();
 
-  // Debounce para optimizar búsquedas
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms de delay
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
   // Usar searchResults - el backend ya filtra por nombre, solo filtrar por isActive
   const filteredTags = searchResults.filter((tag) => tag.isActive);
 
-  const handleSubmit = (data: CreateTagForm) => {
-    onSubmit(data);
-    // Limpiar completamente el formulario después de crear/editar
-    form.reset({
-      name: "",
-      color: "#3b82f6",
-    });
-    // Forzar la limpieza de los campos
-    form.setValue("name", "");
-    form.setValue("color", "#3b82f6");
-    setShowColorPicker(false);
-    setCustomColor("#3b82f6");
-  };
+  // Funciones optimizadas con useCallback para evitar re-creaciones
+  const handleSubmit = useCallback(
+    (data: CreateTagForm) => {
+      onSubmit(data);
+      // Limpiar completamente el formulario después de crear/editar
+      form.reset({
+        name: "",
+        color: "#3b82f6",
+      });
+      // Forzar la limpieza de los campos
+      form.setValue("name", "");
+      form.setValue("color", "#3b82f6");
+      setShowColorPicker(false);
+      setCustomColor("#3b82f6");
+    },
+    [onSubmit, form, setShowColorPicker, setCustomColor]
+  );
 
-  const handleDeleteTag = (tagId: string) => {
-    deleteTag(
-      { params: { path: { id: tagId } } },
-      {
-        onSuccess: () => {
-          // Remover de tags seleccionados si estaba seleccionado
-          onTagsChange(selectedTags.filter((id) => id !== tagId));
-        },
+  const handleDeleteTag = useCallback(
+    (tagId: string) => {
+      deleteTag(
+        { params: { path: { id: tagId } } },
+        {
+          onSuccess: () => {
+            // Remover de tags seleccionados si estaba seleccionado
+            onTagsChange(selectedTags.filter((id) => id !== tagId));
+            onTagObjectsChange(selectedTagObjects.filter((tag) => tag.id !== tagId));
+          },
+        }
+      );
+    },
+    [deleteTag, selectedTags, selectedTagObjects, onTagsChange, onTagObjectsChange]
+  );
+
+  const toggleTagSelection = useCallback(
+    (tagId: string) => {
+      const newSelection = selectedTags.includes(tagId)
+        ? selectedTags.filter((id) => id !== tagId)
+        : [...selectedTags, tagId];
+      onTagsChange(newSelection);
+
+      // También actualizar selectedTagObjects
+      const tag = searchResults.find((t) => t.id === tagId);
+      if (tag) {
+        const newTagObjects = selectedTagObjects.some((t) => t.id === tagId)
+          ? selectedTagObjects.filter((t) => t.id !== tagId)
+          : [...selectedTagObjects, tag];
+        onTagObjectsChange(newTagObjects);
       }
-    );
-  };
-
-  const toggleTagSelection = (tagId: string) => {
-    const newSelection = selectedTags.includes(tagId)
-      ? selectedTags.filter((id) => id !== tagId)
-      : [...selectedTags, tagId];
-    onTagsChange(newSelection);
-  };
+    },
+    [selectedTags, searchResults, selectedTagObjects, onTagsChange, onTagObjectsChange]
+  );
 
   const trigger = (
-    <Button variant="outline" className="gap-2 bg-transparent">
+    <Button variant="outline" size="sm" className="gap-2 bg-transparent w-fit">
       <Tags className="w-4 h-4" />
-      Gestionar Tags
-      {selectedTags.length > 0 && (
-        <Badge variant="secondary" className="ml-1">
-          {selectedTags.length}
-        </Badge>
-      )}
+      Gestionar Etiquetas
     </Button>
   );
 
@@ -129,6 +152,7 @@ export function TagEditorDialog({ selectedTags, onTagsChange }: TagEditorDialogP
         setSearchTerm={setSearchTerm}
         filteredTags={filteredTags}
         selectedTags={selectedTags}
+        selectedTagObjects={selectedTagObjects}
         toggleTagSelection={toggleTagSelection}
         handleDeleteTag={handleDeleteTag}
         isDeleting={isDeleting}
@@ -137,8 +161,7 @@ export function TagEditorDialog({ selectedTags, onTagsChange }: TagEditorDialogP
         editingTag={editingTag}
         setEditingTag={setEditingTag}
         form={form}
-        searchResults={searchResults}
       />
     </ResponsiveDialog>
   );
-}
+});

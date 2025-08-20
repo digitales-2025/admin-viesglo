@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { Check, Edit2, Palette, Plus, Search, Tags, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
@@ -19,6 +20,7 @@ interface TagEditorFormProps {
   setSearchTerm: (term: string) => void;
   filteredTags: TagResponseDto[];
   selectedTags: string[];
+  selectedTagObjects: TagResponseDto[];
   toggleTagSelection: (tagId: string) => void;
   handleDeleteTag: (tagId: string) => void;
   isDeleting: boolean;
@@ -27,10 +29,9 @@ interface TagEditorFormProps {
   editingTag: TagResponseDto | null;
   setEditingTag: (tag: TagResponseDto | null) => void;
   form: UseFormReturn<CreateTagForm>;
-  searchResults: TagResponseDto[];
 }
 
-export function TagEditorForm({
+export const TagEditorForm = memo(function TagEditorForm({
   showColorPicker,
   setShowColorPicker,
   customColor,
@@ -39,6 +40,7 @@ export function TagEditorForm({
   setSearchTerm,
   filteredTags,
   selectedTags,
+  selectedTagObjects,
   toggleTagSelection,
   handleDeleteTag,
   isDeleting,
@@ -47,8 +49,68 @@ export function TagEditorForm({
   editingTag,
   setEditingTag,
   form,
-  searchResults,
 }: TagEditorFormProps) {
+  // Funciones optimizadas con useCallback
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchTerm(e.target.value);
+    },
+    [setSearchTerm]
+  );
+
+  const handleTagClick = useCallback(
+    (tagId: string) => {
+      toggleTagSelection(tagId);
+    },
+    [toggleTagSelection]
+  );
+
+  const handleEditClick = useCallback(
+    (e: React.MouseEvent, tag: TagResponseDto) => {
+      e.stopPropagation();
+      setEditingTag(tag);
+      setCustomColor(tag.color || "#3b82f6");
+    },
+    [setEditingTag, setCustomColor]
+  );
+
+  const handleDeleteClick = useCallback(
+    (e: React.MouseEvent, tagId: string) => {
+      e.stopPropagation();
+      handleDeleteTag(tagId);
+    },
+    [handleDeleteTag]
+  );
+
+  const handleColorSelect = useCallback(
+    (color: string) => {
+      form.setValue("color", color);
+      setCustomColor(color);
+    },
+    [form, setCustomColor]
+  );
+
+  const handleCustomColorChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const color = e.target.value;
+      setCustomColor(color);
+      form.setValue("color", color);
+    },
+    [setCustomColor, form]
+  );
+
+  const handleCancelEdit = useCallback(() => {
+    setEditingTag(null);
+    form.reset({
+      name: "",
+      color: "#3b82f6",
+    });
+    form.setValue("name", "");
+    form.setValue("color", "#3b82f6");
+    setCustomColor("#3b82f6");
+    setShowColorPicker(false);
+  }, [setEditingTag, form, setCustomColor, setShowColorPicker]);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
       {/* Left Panel - Tag List & Search */}
@@ -56,12 +118,7 @@ export function TagEditorForm({
         {/* Search Header */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Buscar etiquetas..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Buscar etiquetas..." value={searchTerm} onChange={handleSearchChange} className="pl-10" />
         </div>
 
         {/* Tags List */}
@@ -76,7 +133,7 @@ export function TagEditorForm({
                       ? "border-primary bg-primary/10 shadow-primary/20"
                       : "border-border hover:border-primary/30 hover:bg-muted/30"
                   }`}
-                  onClick={() => toggleTagSelection(tag.id)}
+                  onClick={() => handleTagClick(tag.id)}
                 >
                   <div className="flex items-center gap-3">
                     <div
@@ -96,11 +153,7 @@ export function TagEditorForm({
                       size="sm"
                       variant="ghost"
                       className="h-8 w-8 p-0 hover:bg-primary/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingTag(tag);
-                        setCustomColor(tag.color || "#3b82f6");
-                      }}
+                      onClick={(e) => handleEditClick(e, tag)}
                     >
                       <Edit2 className="w-3 h-3" />
                     </Button>
@@ -108,10 +161,7 @@ export function TagEditorForm({
                       size="sm"
                       variant="ghost"
                       className="h-8 w-8 p-0 hover:bg-destructive/10"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTag(tag.id);
-                      }}
+                      onClick={(e) => handleDeleteClick(e, tag.id)}
                       disabled={isDeleting}
                     >
                       {isDeleting ? (
@@ -197,10 +247,7 @@ export function TagEditorForm({
                             : "border-gray-300 hover:border-primary/50"
                         }`}
                         style={{ backgroundColor: color }}
-                        onClick={() => {
-                          form.setValue("color", color);
-                          setCustomColor(color);
-                        }}
+                        onClick={() => handleColorSelect(color)}
                       />
                     ))}
                   </div>
@@ -223,18 +270,12 @@ export function TagEditorForm({
                       <Input
                         type="color"
                         value={customColor}
-                        onChange={(e) => {
-                          setCustomColor(e.target.value);
-                          form.setValue("color", e.target.value);
-                        }}
+                        onChange={handleCustomColorChange}
                         className="p-1 border-2 rounded-lg cursor-pointer w-10"
                       />
                       <Input
                         value={customColor}
-                        onChange={(e) => {
-                          setCustomColor(e.target.value);
-                          form.setValue("color", e.target.value);
-                        }}
+                        onChange={handleCustomColorChange}
                         placeholder="#000000"
                         className="w-24 text-xs font-mono"
                       />
@@ -258,23 +299,7 @@ export function TagEditorForm({
                   )}
                 </Button>
                 {editingTag && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      setEditingTag(null);
-                      // Limpiar completamente el formulario
-                      form.reset({
-                        name: "",
-                        color: "#3b82f6",
-                      });
-                      // Forzar la limpieza del campo nombre
-                      form.setValue("name", "");
-                      form.setValue("color", "#3b82f6");
-                      setCustomColor("#3b82f6");
-                      setShowColorPicker(false);
-                    }}
-                  >
+                  <Button type="button" variant="outline" onClick={handleCancelEdit}>
                     Cancelar
                   </Button>
                 )}
@@ -284,35 +309,32 @@ export function TagEditorForm({
         </div>
 
         {/* Selected Tags */}
-        {selectedTags.length > 0 && (
+        {selectedTagObjects.length > 0 && (
           <div className="border-2 border-dashed border-primary/20 rounded-xl p-4 bg-gradient-to-br from-primary/5 to-background">
             <h4 className="font-medium mb-3 flex items-center gap-2">
               <Check className="w-4 h-4 text-primary" />
-              Etiquetas Seleccionadas ({selectedTags.length})
+              Etiquetas Seleccionadas ({selectedTagObjects.length})
             </h4>
             <div className="flex flex-wrap gap-2">
-              {selectedTags.map((tagId) => {
-                const tag = searchResults.find((t) => t.id === tagId);
-                return tag ? (
-                  <Badge
-                    key={tagId}
-                    variant="secondary"
-                    className="flex items-center gap-2 px-3 py-1 rounded-full border-2 transition-all hover:scale-105"
-                    style={{
-                      backgroundColor: `${tag.color}15`,
-                      borderColor: tag.color,
-                      color: tag.color,
-                    }}
-                  >
-                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color }} />
-                    {tag.name}
-                  </Badge>
-                ) : null;
-              })}
+              {selectedTagObjects.map((tag) => (
+                <Badge
+                  key={tag.id}
+                  variant="secondary"
+                  className="flex items-center gap-2 px-3 py-1 rounded-full border-2 transition-all hover:scale-105"
+                  style={{
+                    backgroundColor: `${tag.color}15`,
+                    borderColor: tag.color,
+                    color: tag.color,
+                  }}
+                >
+                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: tag.color }} />
+                  {tag.name}
+                </Badge>
+              ))}
             </div>
           </div>
         )}
       </div>
     </div>
   );
-}
+});
