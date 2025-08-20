@@ -64,6 +64,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const lastProcessedAlertsRef = useRef<string>("");
   const lastProcessedMaintenanceRef = useRef<string>("");
 
+  // Ref para trackear si es la primera carga del hook (para evitar procesar mensajes retenidos)
+  const isInitialMountRef = useRef(true);
+
   const onNewGlobalNotification = useCallback(
     (callback: (notification: GlobalNotificationDto) => void) => {
       globalNotificationCallbacks.add(callback);
@@ -166,6 +169,18 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
     const latestMessage = updatesMqtt.messages[updatesMqtt.messages.length - 1];
     if (!latestMessage) return;
+
+    // Evitar procesar actualizaciones automáticamente si estamos en las primeras cargas
+    // Esto evita que mensajes retenidos/antiguos marquen notificaciones como leídas al montar
+    if (isInitialMountRef.current) {
+      console.log("🔔 useNotifications: Ignoring update message during initial mount to prevent auto-marking as read", {
+        topic: latestMessage.topic,
+        timestamp: updatesMqtt.lastUpdated,
+      });
+      // Marcar que ya no es el montaje inicial después de ignorar el primer mensaje
+      isInitialMountRef.current = false;
+      return;
+    }
 
     console.log("🔔 useNotifications: Processing update from MQTT", {
       topic: latestMessage.topic,
