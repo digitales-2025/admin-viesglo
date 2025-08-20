@@ -95,7 +95,7 @@ export default function NotificationsBell() {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" className="scale-95 rounded-full group relative">
+        <Button variant="ghost" type="button" size="icon" className="scale-95 rounded-full group relative">
           <Bell className="h-4 w-4 group-hover:animate-shake transition-transform" />
           {unreadCount > 0 && (
             <Badge
@@ -114,6 +114,7 @@ export default function NotificationsBell() {
             <Button
               variant="ghost"
               size="sm"
+              type="button"
               onClick={handleMarkAllAsRead}
               className="text-xs"
               disabled={isMarkingAllAsRead}
@@ -137,7 +138,6 @@ export default function NotificationsBell() {
                 return (
                   <div // 👈 CAMBIO PRINCIPAL: de <button> a <div>
                     key={notification.id}
-                    role="button" // 👈 Añadido para accesibilidad
                     tabIndex={isClickable ? 0 : -1} // 👈 Añadido para navegación con teclado
                     className={`w-full text-left p-3 rounded-lg transition-colors group relative ${
                       isClickable
