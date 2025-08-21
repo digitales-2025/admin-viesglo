@@ -38,7 +38,6 @@ export function MilestoneRefDialog({
   });
 
   const handleSubmit = (data: MilestoneRefFormData) => {
-    console.log("Submitting milestone ref data:", JSON.stringify(data, null, 2));
     if (isUpdate && onUpdate) {
       onUpdate(data);
     } else if (onAdd) {

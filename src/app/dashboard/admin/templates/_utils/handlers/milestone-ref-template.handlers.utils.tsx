@@ -27,10 +27,15 @@ export const handleAddMilestoneRefConfig = (
     // Actualizar la configuración existente
     const updatedMilestones = [...currentMilestones];
     updatedMilestones[existingIndex] = milestoneRef as any;
+    // Actualizar directamente el formulario usando setValue
+    form.setValue("milestones", updatedMilestones as any, { shouldValidate: true });
     updateMilestones(updatedMilestones as any);
   } else {
     // Agregar nueva configuración
-    updateMilestones([...currentMilestones, milestoneRef] as any);
+    const newMilestones = [...currentMilestones, milestoneRef] as any;
+    // Actualizar directamente el formulario usando setValue
+    form.setValue("milestones", newMilestones, { shouldValidate: true });
+    updateMilestones(newMilestones);
   }
 };
 
@@ -103,5 +108,9 @@ export const handleUpdateMilestoneRefConfig = (
     ref.milestoneTemplateId === data.milestoneTemplateId ? (milestoneRef as any) : ref
   );
 
+  // Actualizar directamente el formulario usando setValue
+  form.setValue("milestones", updatedMilestones as any, { shouldValidate: true });
+
+  // También llamar a updateMilestones para mantener la sincronización
   updateMilestones(updatedMilestones as any);
 };

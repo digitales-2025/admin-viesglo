@@ -27,15 +27,8 @@ export default function CreateTemplatesPage() {
     });
 
   const handleSave = () => {
-    // Actualizar milestones y tags en el formulario antes de enviar
-    const milestoneRefs = selectedMilestoneObjects.map((milestone) => ({
-      milestoneTemplateId: milestone.id,
-      isRequired: false, // Por defecto, se puede configurar después
-      customName: undefined,
-      customizations: undefined,
-    }));
-
-    updateMilestones(milestoneRefs);
+    // El useEffect en CreateProjectTemplateForm ya maneja la sincronización correctamente
+    // Solo necesitamos asegurarnos de que los tags estén sincronizados
     updateTags(selectedTags);
 
     // Enviar el formulario

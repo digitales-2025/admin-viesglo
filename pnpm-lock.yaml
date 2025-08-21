@@ -107,6 +107,9 @@ importers:
       generate-password:
         specifier: 1.7.1
         version: 1.7.1
+      highcharts:
+        specifier: ^12.3.0
+        version: 12.3.0
       js-cookie:
         specifier: 3.0.5
         version: 3.0.5
@@ -2557,6 +2560,9 @@ packages:
   hasown@2.0.2:
     resolution: {integrity: sha512-0hJU9SCPvmMzIBdZFqNPXWa6dqh7WdH0cII9y+CyS8rG3nL48Bclra9HmKhVVUHyPWNH5Y7xDwAB7bfgSjkUMQ==}
     engines: {node: '>= 0.4'}
+
+  highcharts@12.3.0:
+    resolution: {integrity: sha512-QIKmaemgheRa1K2Ia9MLj1KLtBU1Tu/VQ6KAMqtMBMsAC4NzcFq6g96LF03ZO3IFFiSifmZx8ItEyRcz4w75cg==}
 
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
@@ -6285,6 +6291,8 @@ snapshots:
   hasown@2.0.2:
     dependencies:
       function-bind: 1.1.2
+
+  highcharts@12.3.0: {}
 
   https-proxy-agent@7.0.6(supports-color@9.4.0):
     dependencies:

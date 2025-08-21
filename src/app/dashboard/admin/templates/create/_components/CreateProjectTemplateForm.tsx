@@ -114,15 +114,29 @@ export default function CreateProjectTemplateForm({
 
   // Sincronizar milestones seleccionados con el formulario
   useEffect(() => {
-    const milestoneRefs: MilestoneTemplateRefRequestDto[] = selectedMilestoneObjects.map((milestone) => ({
-      milestoneTemplateId: milestone.id,
-      isRequired: false, // Por defecto
-      customName: undefined,
-      customizations: undefined,
-    }));
+    // Obtener las configuraciones actuales del formulario
+    const currentMilestones = form.getValues().milestones || [];
+
+    const milestoneRefs: MilestoneTemplateRefRequestDto[] = selectedMilestoneObjects.map((milestone) => {
+      // Buscar si ya existe una configuración para este milestone
+      const existingConfig = currentMilestones.find((ref) => ref.milestoneTemplateId === milestone.id);
+
+      if (existingConfig) {
+        // Mantener la configuración existente
+        return existingConfig as MilestoneTemplateRefRequestDto;
+      } else {
+        // Crear configuración por defecto
+        return {
+          milestoneTemplateId: milestone.id,
+          isRequired: false, // Por defecto
+          customName: undefined,
+          customizations: undefined,
+        };
+      }
+    });
 
     updateMilestones(milestoneRefs);
-  }, [selectedMilestoneObjects, updateMilestones]);
+  }, [selectedMilestoneObjects.map((m) => m.id).join(","), updateMilestones, form]);
 
   const addPhase = (data: PhaseFormData) => {
     const newPhase: PhaseTemplateResponseDto & { milestoneId: string } = {
