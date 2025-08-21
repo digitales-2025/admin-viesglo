@@ -3,9 +3,9 @@
 import { useMemo, useState } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { AlertTriangle, Bell, Calendar, CheckCircle, Clock, FileText, Users, X } from "lucide-react";
+import { AlertTriangle, Bell, Calendar, Check, CheckCircle, Clock, FileText, Users } from "lucide-react";
 
-import { useNotifications } from "@/shared/hooks/use-notifications";
+import { usePersonalNotifications } from "@/shared/hooks/use-personal-notifications";
 import type { NotificationDto } from "@/shared/types/notifications.types";
 import { Badge } from "./badge";
 import { Button } from "./button";
@@ -64,15 +64,14 @@ export default function NotificationsBell() {
   const [isOpen, setIsOpen] = useState(false);
 
   const {
-    personalNotifications,
+    notifications: personalNotifications,
     unreadCount,
     isLoading,
     isSnapshotLoading,
     markAsRead,
     markAllAsRead,
-    removeNotification,
     isMarkingAllAsRead,
-  } = useNotifications();
+  } = usePersonalNotifications();
 
   const notificationsToDisplay = useMemo(() => {
     return personalNotifications.map((n) => ({
@@ -136,26 +135,16 @@ export default function NotificationsBell() {
                 const isClickable = "isRead" in notification && (notification as Notification).isRead === false;
 
                 return (
-                  <div // 👈 CAMBIO PRINCIPAL: de <button> a <div>
+                  <div // Contenedor no interactivo por ahora
                     key={notification.id}
-                    tabIndex={isClickable ? 0 : -1} // 👈 Añadido para navegación con teclado
                     className={`w-full text-left p-3 rounded-lg transition-colors group relative ${
                       isClickable
                         ? `cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getTypeColor(notification.type as Notification["type"])}`
                         : "bg-muted/20"
                     }`}
-                    onClick={() => isClickable && handleMarkAsRead(notification.id)}
-                    onKeyDown={(e) => {
-                      // 👈 Añadido para accesibilidad
-                      if (isClickable && (e.key === "Enter" || e.key === " ")) {
-                        e.preventDefault();
-                        handleMarkAsRead(notification.id);
-                      }
-                    }}
-                    aria-label={
-                      isClickable ? `Marcar notificación "${notification.title}" como leída` : notification.title
-                    }
                   >
+                    {/* Futuro: activar navegación al hacer clic en toda la notificación */}
+                    {/* onClick={() => router.push(`/ruta/${notification.id}`)} */}
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         <div className="mt-0.5 text-muted-foreground">
@@ -166,7 +155,7 @@ export default function NotificationsBell() {
                             <h4
                               className={`text-sm font-medium truncate ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
                             >
-                              {notification.title}
+                              2 {notification.title}
                             </h4>
                             {isClickable && <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
                             <Badge
@@ -188,18 +177,17 @@ export default function NotificationsBell() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-destructive hover:text-destructive-foreground z-10" // Añadido z-10 para asegurar que esté por encima
+                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-green-100 text-green-600 hover:text-green-700 z-10"
                         onClick={(e) => {
-                          e.stopPropagation(); // Evita que el clic se propague al div padre
+                          e.stopPropagation();
                           if (isClickable) {
                             handleMarkAsRead(notification.id);
-                          } else {
-                            removeNotification(notification.id);
                           }
                         }}
-                        title={isClickable ? "Marcar como leída" : "Eliminar notificación"}
+                        title="Marcar como leída"
+                        disabled={!isClickable}
                       >
-                        <X className="h-3 w-3" />
+                        <Check className="h-3 w-3" />
                       </Button>
                     </div>
                     {/* El separador debe estar fuera del elemento clickeable */}
