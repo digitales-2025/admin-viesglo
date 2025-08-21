@@ -320,7 +320,7 @@ export const TagEditorForm = memo(function TagEditorForm({
                 <Badge
                   key={tag.id}
                   variant="secondary"
-                  className="flex items-center gap-2 px-3 py-1 rounded-full border-2 transition-all hover:scale-105"
+                  className="flex items-center gap-2 px-3 py-1 rounded-full border transition-all hover:scale-105"
                   style={{
                     backgroundColor: `${tag.color}15`,
                     borderColor: tag.color,
