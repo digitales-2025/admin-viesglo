@@ -37,6 +37,6 @@ export async function fetchClientsDashboardSummary(): Promise<{
 }
 
 export async function fetchClientsPaginated(params?: { page?: number; pageSize?: number; search?: string }) {
-  const res = await http.get("/v1/clients/paginated", { query: params });
+  const res = await http.get("/v1/clients/paginated", { params });
   return res.data;
 }

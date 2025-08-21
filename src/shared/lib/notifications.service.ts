@@ -10,12 +10,13 @@ type NotificationSnapshotResponseDto = components["schemas"]["NotificationSnapsh
  * @returns A promise that resolves to the notification snapshot data.
  */
 export async function fetchNotificationSnapshot(userId: string): Promise<NotificationSnapshotResponseDto> {
-  const [data, err] = await http.get<NotificationSnapshotResponseDto>(`/notifications/snapshot/${userId}`);
-  if (err) {
-    console.error("🔔 Service - Failed to fetch notification snapshot", err);
+  try {
+    const response = await http.get<NotificationSnapshotResponseDto>(`/notifications/snapshot/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error("🔔 Service - Failed to fetch notification snapshot", error);
     throw new Error("Failed to fetch notifications");
   }
-  return data;
 }
 
 /**
@@ -25,9 +26,10 @@ export async function fetchNotificationSnapshot(userId: string): Promise<Notific
  * @returns A promise that resolves when the operation is complete.
  */
 export async function markNotificationAsRead(notificationId: string, userId: string): Promise<void> {
-  const [_, err] = await http.put(`/notifications/${notificationId}/read/${userId}`, {});
-  if (err) {
-    console.error(`🔔 Service - Failed to mark notification ${notificationId} as read`, err);
+  try {
+    await http.put(`/notifications/${notificationId}/read/${userId}`, {});
+  } catch (error) {
+    console.error(`🔔 Service - Failed to mark notification ${notificationId} as read`, error);
     throw new Error(`Failed to mark notification ${notificationId} as read`);
   }
 }
@@ -38,9 +40,10 @@ export async function markNotificationAsRead(notificationId: string, userId: str
  * @returns A promise that resolves when the operation is complete.
  */
 export async function markAllNotificationsAsRead(userId: string): Promise<void> {
-  const [_, err] = await http.put(`/notifications/read/all/${userId}`, {});
-  if (err) {
-    console.error(`🔔 Service - Failed to mark all notifications as read for user ${userId}`, err);
+  try {
+    await http.put(`/notifications/read/all/${userId}`, {});
+  } catch (error) {
+    console.error(`🔔 Service - Failed to mark all notifications as read for user ${userId}`, error);
     throw new Error(`Failed to mark all notifications as read for user ${userId}`);
   }
 }
