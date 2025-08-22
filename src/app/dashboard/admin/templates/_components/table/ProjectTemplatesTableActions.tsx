@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
@@ -29,11 +30,15 @@ export default function ProjectTemplatesTableActions({ projectTemplate }: Projec
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="bg-background" size="icon">
+        <Button variant="ghost" size="icon">
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => router.push(`/dashboard/admin/templates/${projectTemplate.id}/view`)}>
+          Ver
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
           onClick={() => router.push(`/dashboard/admin/templates/${projectTemplate.id}/edit`)}
