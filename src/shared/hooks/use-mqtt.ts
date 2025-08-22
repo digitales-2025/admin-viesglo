@@ -1022,7 +1022,19 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         throw error;
       }
 
-      if (!client || status !== "connected") {
+      if (!client) {
+        const error = new Error(`MQTT client is not available (status: ${status})`);
+        console.error("Unsubscribe connection error:", {
+          topic,
+          status,
+          hasClient: !!client,
+          error: error.message,
+          timestamp: new Date().toISOString(),
+        });
+        throw error;
+      }
+
+      if ((client as any).disconnecting || status !== "connected") {
         const error = new Error(`MQTT client is not connected. Current status: ${status}`);
         console.error("Unsubscribe connection error:", {
           topic,
@@ -1031,6 +1043,8 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
           error: error.message,
           timestamp: new Date().toISOString(),
         });
+        // Si está desconectándose, no lanzamos, sólo salimos silenciosamente para evitar ruido
+        if ((client as any).disconnecting) return;
         throw error;
       }
 

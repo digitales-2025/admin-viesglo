@@ -1,22 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AlertTriangle, BarChart3, Bell, Calendar, FileText } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
+import { fetchClientsDashboardSummary } from "@/shared/lib/clients.service";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import PeruHeatMap from "./_components/clients/PeruHeatMap";
+import ClientsDashboard from "./_components/clients/ClientsDashboard";
 
-// Datos de ejemplo basados en la imagen
-const projectHealthData = [
-  { name: "Saludables", value: 45, color: "#22c55e" },
-  { name: "En riesgo", value: 20, color: "#eab308" },
-  { name: "Críticos", value: 11, color: "#ef4444" },
-];
+// Los datos de salud se derivan dinámicamente de clientes
 
 const milestoneData = [
   { name: "Hito 1", value: 186 },
@@ -48,10 +45,32 @@ const reminders = [
   },
 ];
 
+// Realtime del dashboard de clientes se maneja en el propio módulo de Clientes
+
 export default function Dashboard() {
   const [selectedArea, setSelectedArea] = useState("Área");
   const [selectedProjectType, setSelectedProjectType] = useState("Tipo de proyecto");
   const [selectedStatus, setSelectedStatus] = useState("Estado");
+
+  // Fase 1: carga inicial HTTP
+  const { data: dashboardSummary } = useQuery({
+    queryKey: ["clients", "dashboard", "summary"],
+    queryFn: fetchClientsDashboardSummary,
+    staleTime: 60_000,
+  });
+
+  // Derivar métricas simples desde clientes (placeholder de negocio)
+  const totalActivos = dashboardSummary?.summary?.totalClients ?? 0;
+  const totalRetraso = Math.max(0, Math.floor(totalActivos * 0.2));
+  const totalCostos = 45231.89; // TODO: reemplazar con endpoint real de costos
+
+  const projectHealthData = [
+    { name: "Saludables", value: Math.max(0, totalActivos - totalRetraso), color: "#22c55e" },
+    { name: "En riesgo", value: Math.floor(totalRetraso * 0.6), color: "#eab308" },
+    { name: "Críticos", value: Math.max(0, totalRetraso - Math.floor(totalRetraso * 0.6)), color: "#ef4444" },
+  ];
+
+  // Fase 2: se gestiona en <ClientsDashboard /> para aislar resuscripciones
 
   return (
     <div>
@@ -119,7 +138,7 @@ export default function Dashboard() {
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">76</div>
+                  <div className="text-2xl font-bold">{totalActivos}</div>
                   <p className="text-xs text-muted-foreground">Número total de proyectos activos</p>
                 </CardContent>
               </Card>
@@ -130,7 +149,7 @@ export default function Dashboard() {
                   <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">26</div>
+                  <div className="text-2xl font-bold">{totalRetraso}</div>
                   <p className="text-xs text-muted-foreground">Total de proyectos con retraso</p>
                 </CardContent>
               </Card>
@@ -141,7 +160,9 @@ export default function Dashboard() {
                   <FileText className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">S/ 45,231.89</div>
+                  <div className="text-2xl font-bold">
+                    S/ {totalCostos.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </div>
                   <p className="text-xs text-muted-foreground">Suma de todos los costos de los proyectos</p>
                 </CardContent>
               </Card>
@@ -168,16 +189,16 @@ export default function Dashboard() {
                           paddingAngle={5}
                           dataKey="value"
                         >
-                          {projectHealthData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          {projectHealthData.map((entry) => (
+                            <Cell key={`cell-${entry.name}`} fill={entry.color} />
                           ))}
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 space-y-2">
-                    {projectHealthData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
+                    {projectHealthData.map((item) => (
+                      <div key={item.name} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }} />
                           <span>{item.name}</span>
@@ -211,8 +232,8 @@ export default function Dashboard() {
                     </ResponsiveContainer>
                   </div>
                   <div className="mt-4 space-y-2">
-                    {milestoneData.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between text-sm">
+                    {milestoneData.map((item) => (
+                      <div key={item.name} className="flex items-center justify-between text-sm">
                         <span>{item.name}</span>
                         <span className="font-medium">{item.value}</span>
                       </div>
@@ -248,15 +269,7 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="clientes">
-            <Card>
-              <CardHeader>
-                <CardTitle>Clientes</CardTitle>
-                <CardDescription>Análisis detallado de clientes y su comportamiento</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PeruHeatMap />
-              </CardContent>
-            </Card>
+            <ClientsDashboard />
           </TabsContent>
 
           <TabsContent value="analiticas">

@@ -90,11 +90,9 @@ export function useMqttQueryIntegration() {
         // Note: parsedData will be handled by individual useMqttTopic hooks
       };
 
-      // Update cache with new data
+      // Update cache con actualización quirúrgica (sin invalidar)
+      // Esto evita refetchs innecesarios y re-render global
       queryClient.setQueryData(queryKey, updatedData);
-
-      // Invalidate query to trigger re-renders (requirement 2.4)
-      queryClient.invalidateQueries({ queryKey });
 
       console.log(`Global MQTT message processed for topic ${topic}:`, {
         topic,

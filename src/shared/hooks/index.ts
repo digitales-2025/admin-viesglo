@@ -15,6 +15,9 @@ export {
   useMqttHealthIndicator,
 } from "./use-mqtt-error-monitoring";
 
+// Notification Hooks
+export { useNotifications } from "./use-notifications";
+
 // Other existing hooks (add as needed)
 export { useToast } from "./use-toast";
 export { useIsMobile } from "./use-mobile";

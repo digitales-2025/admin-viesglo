@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { MqttProviderWrapper } from "@/shared/components/mqtt";
+import { GlobalNotificationsToasts } from "@/shared/components/notifications/global-notifications-toasts";
 import { AuthLoadingProvider } from "@/shared/context/auth-loading-provider";
 import { QueryProvider } from "@/shared/context/query-provider";
 import { ThemeProvider } from "@/shared/context/theme-provider";
@@ -41,6 +42,7 @@ export default function RootLayout({
               {children}
               <AuthLoadingProvider />
               <ToastProvider />
+              <GlobalNotificationsToasts />
             </MqttProviderWrapper>
           </QueryProvider>
         </ThemeProvider>

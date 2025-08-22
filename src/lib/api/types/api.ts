@@ -116,6 +116,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/webhooks/dashboard/client-update": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Recibir actualizaciones de clientes para el dashboard
+     * @description Webhook que procesa actualizaciones de clientes usando Clean Architecture con use cases. Calcula métricas avanzadas incluyendo crecimiento trimestral y concentraciones.
+     */
+    post: operations["DashboardWebhookController_clientUpdate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/api/mqtt/setup-project-system": {
     parameters: {
       query?: never;
@@ -130,6 +150,23 @@ export interface paths {
      * @description Crea automáticamente conector, acción y regla MQTT para un proyecto específico
      */
     post: operations["MqttManagementController_setupProjectSystem"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/api/mqtt/simulate/clients-dashboard": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Simular push del dashboard de clientes (ViewModel) */
+    post: operations["MqttManagementController_simulateClientsDashboardPush"];
     delete?: never;
     options?: never;
     head?: never;
@@ -382,6 +419,166 @@ export interface paths {
     get: operations["MqttDiagnosticsController_getSystemHealth"];
     put?: never;
     post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/snapshot/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener snapshot inicial de notificaciones
+     * @description Retorna todas las notificaciones no leídas del usuario y las globales activas. Usado por el frontend antes de conectarse a MQTT.
+     */
+    get: operations["NotificationsController_getSnapshot"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/personal/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Crear notificación personal
+     * @description Crea una notificación dirigida a un usuario específico. Se envía por MQTT en tiempo real.
+     */
+    post: operations["NotificationsController_createPersonalNotification"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/global": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Crear notificación global
+     * @description Crea una notificación que llega a todos los usuarios. Se envía por MQTT a todos los clientes conectados.
+     */
+    post: operations["NotificationsController_createGlobalNotification"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/{notificationId}/read/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Marcar notificación como leída
+     * @description Marca una notificación como leída. Actualiza BD y envía confirmación por MQTT.
+     */
+    put: operations["NotificationsController_markAsRead"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/read/all/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Marcar todas las notificaciones personales como leídas
+     * @description Marca todas las notificaciones personales no leídas de un usuario como leídas. Las globales no se ven afectadas.
+     */
+    put: operations["NotificationsController_markAllAsRead"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/stats/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener estadísticas de notificaciones
+     * @description Retorna estadísticas de notificaciones del usuario (total no leídas, por prioridad, por categoría).
+     */
+    get: operations["NotificationsController_getStats"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/global/{notificationId}/clear": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Limpiar notificación global del sistema
+     * @description Limpia una notificación global eliminando su mensaje retenido de MQTT. Para uso del sistema.
+     */
+    put: operations["NotificationsController_clearGlobalNotification"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/notifications/test/{userId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Enviar notificación de prueba
+     * @description Envía una notificación de prueba para testing. Solo disponible en desarrollo.
+     */
+    post: operations["NotificationsController_sendTestNotification"];
     delete?: never;
     options?: never;
     head?: never;
@@ -1024,6 +1221,26 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/dashboards/clients/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Resumen completo para dashboard de clientes (desde snapshot en BD)
+     * @description Obtiene métricas completas del dashboard incluyendo crecimiento trimestral, concentraciones y datos agregados desde snapshot persistido.
+     */
+    get: operations["ClientsDashboardController_getSummary_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1234,6 +1451,7 @@ export interface components {
        */
       priority?: "LOW" | "NORMAL" | "HIGH" | "URGENT";
     };
+    DashboardWebhookResponseDto: Record<string, never>;
     SetupProjectSystemDto: {
       /**
        * @description ID único del proyecto
@@ -1807,6 +2025,308 @@ export interface components {
        * @example 2024-01-15T10:30:00.000Z
        */
       timestamp: string;
+    };
+    ApiMetadataDto: Record<string, never>;
+    NotificationDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
+      /**
+       * @description Título de la notificación
+       * @example Entregable con retraso
+       */
+      title: string;
+      /**
+       * @description Mensaje de la notificación
+       * @example El entregable 'Manual de Procedimientos' está retrasado.
+       */
+      message: string;
+      /**
+       * @description Tipo de notificación
+       * @example error
+       * @enum {string}
+       */
+      type: "info" | "warning" | "success" | "error";
+      /**
+       * @description Categoría de la notificación
+       * @example deliverable
+       * @enum {string}
+       */
+      category: "project" | "milestone" | "deliverable" | "assignment" | "approval" | "system";
+      /**
+       * @description Prioridad de la notificación
+       * @example high
+       * @enum {string}
+       */
+      priority: "low" | "normal" | "high" | "urgent";
+      /**
+       * @description Indica si la notificación ha sido leída
+       * @example false
+       */
+      isRead: boolean;
+      /**
+       * @description Fecha de lectura
+       * @example 2024-08-19T12:00:00.000Z
+       */
+      readAt?: string;
+      /** @description Metadatos adicionales */
+      metadata?: components["schemas"]["ApiMetadataDto"];
+    };
+    GlobalNotificationDto: {
+      /**
+       * @description Identificador único de la entidad
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      id: string;
+      /**
+       * @description Indica si la entidad está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la entidad
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación (soft delete)
+       * @example null
+       */
+      deletedAt?: Record<string, never> | null;
+      /**
+       * @description Título de la notificación
+       * @example Mantenimiento programado
+       */
+      title: string;
+      /**
+       * @description Mensaje de la notificación
+       * @example El sistema estará en mantenimiento el día de mañana.
+       */
+      message: string;
+      /**
+       * @description Tipo de notificación
+       * @example warning
+       * @enum {string}
+       */
+      type: "info" | "warning" | "success" | "error";
+      /**
+       * @description Categoría de la notificación
+       * @example maintenance
+       * @enum {string}
+       */
+      category: "system" | "maintenance" | "alert";
+      /**
+       * @description Alcance de la notificación global
+       * @example maintenance
+       * @enum {string}
+       */
+      scope: "alerts" | "system" | "maintenance";
+      /**
+       * @description Prioridad de la notificación
+       * @example high
+       * @enum {string}
+       */
+      priority: "low" | "normal" | "high" | "urgent";
+      /** @description Metadatos adicionales */
+      metadata?: components["schemas"]["ApiMetadataDto"];
+    };
+    NotificationSnapshotMetadataDto: {
+      /**
+       * @description Total de notificaciones personales no leídas
+       * @example 5
+       */
+      totalUnread: number;
+      /**
+       * @description Total de notificaciones globales activas
+       * @example 1
+       */
+      globalActive: number;
+      /**
+       * @description Fecha de la última sincronización
+       * @example 2024-08-19T10:00:00.000Z
+       */
+      lastSyncAt: string;
+    };
+    NotificationSnapshotResponseDto: {
+      /**
+       * @description ID del cliente MQTT del usuario
+       * @example mqtt-client-12345
+       */
+      clientId: string;
+      /** @description Lista de notificaciones personales no leídas */
+      personal: components["schemas"]["NotificationDto"][];
+      /** @description Lista de notificaciones globales activas */
+      global: components["schemas"]["GlobalNotificationDto"][];
+      /** @description Metadatos del snapshot */
+      metadata: components["schemas"]["NotificationSnapshotMetadataDto"];
+    };
+    CreatePersonalNotificationRequestDto: {
+      /**
+       * @description Título de la notificación
+       * @example Nuevo entregable asignado
+       */
+      title: string;
+      /**
+       * @description Mensaje detallado de la notificación
+       * @example Se te ha asignado el entregable 'Documento de requisitos'.
+       */
+      message: string;
+      /**
+       * @description Tipo de notificación
+       * @example info
+       * @enum {string}
+       */
+      type: "info" | "warning" | "success" | "error";
+      /**
+       * @description Categoría de la notificación
+       * @example assignment
+       * @enum {string}
+       */
+      category: "project" | "milestone" | "deliverable" | "assignment" | "approval" | "system";
+      /**
+       * @description Prioridad de la notificación
+       * @example normal
+       * @enum {string}
+       */
+      priority?: "low" | "normal" | "high" | "urgent";
+      /**
+       * @description Metadatos adicionales en formato JSON
+       * @example {
+       *       "projectId": "proj-123",
+       *       "deliverableId": "del-456"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    NotificationOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description ID de la notificación creada o procesada
+       * @example 60d0fe4f5311236168a109ca
+       */
+      notificationId?: string;
+      /**
+       * @description Mensaje descriptivo de la operación
+       * @example Notificación enviada exitosamente
+       */
+      message: string;
+      /**
+       * @description Número de notificaciones afectadas (para operaciones en lote)
+       * @example 5
+       */
+      count?: number;
+    };
+    CreateGlobalNotificationRequestDto: {
+      /**
+       * @description Título de la notificación
+       * @example Actualización del sistema
+       */
+      title: string;
+      /**
+       * @description Mensaje detallado de la notificación
+       * @example El sistema se actualizará mañana a las 2 AM.
+       */
+      message: string;
+      /**
+       * @description Tipo de notificación
+       * @example warning
+       * @enum {string}
+       */
+      type: "info" | "warning" | "success" | "error";
+      /**
+       * @description Categoría de la notificación
+       * @example maintenance
+       * @enum {string}
+       */
+      category: "system" | "maintenance" | "alert";
+      /**
+       * @description Alcance de la notificación global
+       * @example maintenance
+       * @enum {string}
+       */
+      scope: "alerts" | "system" | "maintenance";
+      /**
+       * @description Prioridad de la notificación
+       * @example high
+       * @enum {string}
+       */
+      priority?: "low" | "normal" | "high" | "urgent";
+      /**
+       * @description Metadatos adicionales en formato JSON
+       * @example {
+       *       "version": "2.5.0",
+       *       "downtime": "5 minutes"
+       *     }
+       */
+      metadata?: Record<string, never>;
+    };
+    NotificationStatsResponseDto: {
+      /**
+       * @description Total de notificaciones no leídas
+       * @example 12
+       */
+      totalUnread: number;
+      /**
+       * @description Distribución por prioridad
+       * @example {
+       *       "high": 3,
+       *       "normal": 7,
+       *       "low": 2
+       *     }
+       */
+      byPriority: Record<string, never>;
+      /**
+       * @description Distribución por categoría
+       * @example {
+       *       "project": 5,
+       *       "system": 3,
+       *       "assignment": 4
+       *     }
+       */
+      byCategory: Record<string, never>;
+    };
+    SendTestNotificationRequestDto: {
+      /**
+       * @description Tipo de notificación de prueba a enviar
+       * @example personal
+       * @enum {string}
+       */
+      type?: "personal" | "global";
     };
     RoleResponseDto: {
       /**
@@ -3046,6 +3566,7 @@ export interface components {
        */
       combinations: string[];
     };
+    ClientsDashboardSummaryResponseDto: Record<string, never>;
   };
   responses: never;
   parameters: never;
@@ -3238,6 +3759,26 @@ export interface operations {
       };
     };
   };
+  DashboardWebhookController_clientUpdate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Actualización procesada exitosamente con métricas completas del dashboard */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DashboardWebhookResponseDto"];
+        };
+      };
+    };
+  };
   MqttManagementController_setupProjectSystem: {
     parameters: {
       query?: never;
@@ -3278,6 +3819,29 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ManagementErrorResponseDto"];
         };
+      };
+    };
+  };
+  MqttManagementController_simulateClientsDashboardPush: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description ViewModel opcional para publicar; si no se envía, se usa un mock por defecto */
+    requestBody?: {
+      content: {
+        "application/json": string;
+      };
+    };
+    responses: {
+      /** @description ViewModel publicado a clients/dashboard/stream */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -3727,6 +4291,200 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  NotificationsController_getSnapshot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del usuario para obtener el snapshot de notificaciones */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Snapshot de notificaciones obtenido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationSnapshotResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_createPersonalNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del usuario que recibirá la notificación */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos de la notificación personal a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePersonalNotificationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Notificación personal creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationOperationResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_createGlobalNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos de la notificación global a crear */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateGlobalNotificationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Notificación global creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationOperationResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_markAsRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la notificación a marcar como leída */
+        notificationId: string;
+        /** @description ID del usuario que marca la notificación como leída */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notificación marcada como leída exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationOperationResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_markAllAsRead: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del usuario cuyas notificaciones personales se marcarán como leídas */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notificaciones personales marcadas como leídas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_getStats: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del usuario para obtener estadísticas de notificaciones */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estadísticas obtenidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationStatsResponseDto"];
+        };
+      };
+    };
+  };
+  NotificationsController_clearGlobalNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID de la notificación global a limpiar */
+        notificationId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Notificación global limpiada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  NotificationsController_sendTestNotification: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del usuario que recibirá la notificación de prueba */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos de la notificación de prueba a enviar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SendTestNotificationRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Notificación de prueba enviada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["NotificationOperationResponseDto"];
+        };
       };
     };
   };
@@ -5652,6 +6410,26 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ClientsDashboardController_getSummary_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Resumen completo de clientes con métricas avanzadas desde snapshot persistido */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ClientsDashboardSummaryResponseDto"];
         };
       };
     };
