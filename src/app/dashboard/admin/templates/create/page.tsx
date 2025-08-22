@@ -15,8 +15,8 @@ export default function CreateTemplatesPage() {
   const [selectedMilestoneObjects, setSelectedMilestoneObjects] = useState<MilestoneTemplateResponseDto[]>([]);
 
   // Hook para el formulario del proyecto
-  const { form, onSubmit, updateMilestones, updateTags, isPending, isFormValid, hasChanges, handleCancel } =
-    useProjectTemplateForm({
+  const { form, onSubmit, updateMilestones, updateTags, isPending, isFormValid, handleCancel } = useProjectTemplateForm(
+    {
       onSuccess: () => {
         // Limpiar estados después de crear exitosamente
         setSelectedMilestones([]);
@@ -24,7 +24,8 @@ export default function CreateTemplatesPage() {
         setSelectedTags([]);
         setSelectedTagObjects([]);
       },
-    });
+    }
+  );
 
   const handleSave = () => {
     // El useEffect en CreateProjectTemplateForm ya maneja la sincronización correctamente
@@ -47,7 +48,6 @@ export default function CreateTemplatesPage() {
         handleCancel={handleCancel}
         isPending={isPending}
         isFormValid={isFormValid}
-        hasChanges={hasChanges}
         selectedMilestones={selectedMilestones}
         setSelectedMilestones={setSelectedMilestones}
         selectedMilestoneObjects={selectedMilestoneObjects}
