@@ -19,7 +19,7 @@ export function useMilestoneRefForm({ isUpdate = false, initialData }: UseMilest
     defaultValues: {
       milestoneTemplateId: "",
       isRequired: false,
-      customName: "",
+      customName: undefined,
       customizations: {},
     },
   });
@@ -29,20 +29,14 @@ export function useMilestoneRefForm({ isUpdate = false, initialData }: UseMilest
       form.reset({
         milestoneTemplateId: initialData.milestoneTemplateId || "",
         isRequired: initialData.isRequired ?? false,
-        customName: initialData.customName || "",
+        customName: initialData.customName, // Preservar null si es null
         customizations: initialData.customizations || {},
       });
     }
   }, [initialData, isUpdate, form]);
 
-  const onSubmit = (data: MilestoneRefFormData) => {
-    // Esta función ya no se usa directamente, se maneja en el componente
-    console.log("Form submitted:", data);
-  };
-
   return {
     form,
-    onSubmit,
     isPending: false,
   };
 }

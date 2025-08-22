@@ -40,8 +40,6 @@ export function PhaseDialog({
   });
 
   const handleSubmit = (data: PhaseFormData, selectedMilestoneId?: string) => {
-    console.log("Selected Milestone ID:", selectedMilestoneId);
-    console.log("Submitting deliverable data:", JSON.stringify(data, null, 2));
     if (isUpdate && onUpdate) {
       onUpdate(data);
     } else if (onAdd) {

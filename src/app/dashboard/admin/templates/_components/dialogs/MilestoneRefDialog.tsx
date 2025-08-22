@@ -28,7 +28,7 @@ export function MilestoneRefDialog({
 }: MilestoneRefDialogProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const { form, onSubmit, isPending } = useMilestoneRefForm({
+  const { form, isPending } = useMilestoneRefForm({
     isUpdate,
     initialData,
     onSuccess: () => {
@@ -43,7 +43,6 @@ export function MilestoneRefDialog({
     } else if (onAdd) {
       onAdd(data);
     }
-    onSubmit(data);
   };
 
   return (

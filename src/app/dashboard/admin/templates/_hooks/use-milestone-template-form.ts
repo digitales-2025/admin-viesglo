@@ -52,7 +52,6 @@ export function useMilestoneTemplateForm({ isUpdate = false, initialData, onSucc
     const submitData = getSubmitData(data);
 
     if (isUpdate && initialData) {
-      console.log("submitData", JSON.stringify(submitData, null, 2));
       updateMilestoneTemplate(
         {
           params: { path: { id: initialData.id } },

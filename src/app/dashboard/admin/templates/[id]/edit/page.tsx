@@ -22,7 +22,7 @@ export default function EditTemplatesPage() {
   const [selectedMilestoneObjects, setSelectedMilestoneObjects] = useState<MilestoneTemplateResponseDto[]>([]);
 
   // Obtener datos de la plantilla por ID con milestone templates completos
-  const { data: templateData, isLoading, error } = useTemplateDetailedById(id, true);
+  const { data: templateData, isLoading, error, refetch } = useTemplateDetailedById(id, true);
 
   // Hook para el formulario del proyecto en modo edición
   const { form, onSubmit, updateMilestones, updateTags, isPending, isFormValid, handleCancel } = useProjectTemplateForm(
@@ -30,6 +30,8 @@ export default function EditTemplatesPage() {
       isUpdate: true,
       initialData: templateData || undefined,
       onSuccess: () => {
+        // Hacer refetch para obtener los datos actualizados
+        refetch();
         // Limpiar estados después de actualizar exitosamente
         setSelectedMilestones([]);
         setSelectedMilestoneObjects([]);
@@ -47,13 +49,22 @@ export default function EditTemplatesPage() {
       setSelectedTags(tagIds);
       setSelectedTagObjects(templateData.tags || []);
 
-      // Cargar milestones seleccionados con datos completos
-      const milestoneIds = templateData.milestones?.map((milestone: any) => milestone.milestoneTemplateId) || [];
-      setSelectedMilestones(milestoneIds);
+      // Cargar milestones en el orden correcto basado en templateData.milestones
+      if (templateData.milestones && templateData.milestoneTemplates) {
+        const milestoneIds = templateData.milestones.map((milestone: any) => milestone.milestoneTemplateId);
+        setSelectedMilestones(milestoneIds);
 
-      // Cargar los objetos completos de milestone templates
-      if (templateData.milestoneTemplates) {
-        setSelectedMilestoneObjects(templateData.milestoneTemplates);
+        // Ordenar milestoneTemplates según el orden de milestones
+        const orderedMilestoneTemplates = templateData.milestones
+          .map((milestoneRef: any) => {
+            const milestoneTemplate = templateData.milestoneTemplates!.find(
+              (mt: any) => mt.id === milestoneRef.milestoneTemplateId
+            );
+            return milestoneTemplate;
+          })
+          .filter((mt): mt is any => mt !== undefined); // Filtrar en caso de que no se encuentre algún template
+
+        setSelectedMilestoneObjects(orderedMilestoneTemplates);
       }
     }
   }, [templateData]);

@@ -46,6 +46,7 @@ export default function TemplatesOverlays({
   updateMilestones,
 }: TemplatesOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
+
   // Constantes para módulos
   const PHASE_MODULE = "phase-templates";
   const DELIVERABLE_MODULE = "deliverable-templates";
@@ -67,7 +68,11 @@ export default function TemplatesOverlays({
           handleUpdateMilestoneRefConfig(data, form, updateMilestones);
           close();
         }}
-        initialData={isOpenForModule(MILESTONE_REF_MODULE, "edit") ? data : undefined}
+        initialData={
+          isOpenForModule(MILESTONE_REF_MODULE, "edit") && data?.milestoneTemplateId
+            ? (form.getValues().milestones?.find((ref) => ref.milestoneTemplateId === data.milestoneTemplateId) as any)
+            : undefined
+        }
         isUpdate={isOpenForModule(MILESTONE_REF_MODULE, "edit")}
         onSuccess={() => {
           onSuccess?.();

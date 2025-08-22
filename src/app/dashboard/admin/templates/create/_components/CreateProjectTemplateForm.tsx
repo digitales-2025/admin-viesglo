@@ -77,10 +77,24 @@ export default function CreateProjectTemplateForm({
       deliverables: extractedDeliverables,
     } = extractDataFromSelectedMilestones(selectedMilestoneObjects);
 
-    setMilestones(extractedMilestones);
+    // Preservar el orden actual de milestones si ya existen
+    if (milestones.length > 0) {
+      // Reordenar los milestones extraídos según el orden actual
+      const reorderedMilestones = extractedMilestones.sort((a, b) => {
+        const aIndex = milestones.findIndex((m) => m.id === a.id);
+        const bIndex = milestones.findIndex((m) => m.id === b.id);
+        if (aIndex === -1) return 1; // Si no existe en el orden actual, ponerlo al final
+        if (bIndex === -1) return -1;
+        return aIndex - bIndex;
+      });
+      setMilestones(reorderedMilestones);
+    } else {
+      setMilestones(extractedMilestones);
+    }
+
     setPhases(extractedPhases);
     setDeliverables(extractedDeliverables);
-  }, [selectedMilestoneObjects]);
+  }, [selectedMilestoneObjects, milestones.length]);
 
   // ===== GESTIÓN DE SELECCIÓN AUTOMÁTICA =====
   // Solo seleccionar automáticamente en la primera carga
@@ -112,31 +126,83 @@ export default function CreateProjectTemplateForm({
     updateTags(selectedTags);
   }, [selectedTags, updateTags]);
 
-  // Sincronizar milestones seleccionados con el formulario
+  // Sincronizar milestones seleccionados con el formulario (solo cuando se agregan nuevos)
   useEffect(() => {
     // Obtener las configuraciones actuales del formulario
     const currentMilestones = form.getValues().milestones || [];
 
-    const milestoneRefs: MilestoneTemplateRefRequestDto[] = selectedMilestoneObjects.map((milestone) => {
-      // Buscar si ya existe una configuración para este milestone
+    // Solo agregar milestones que no existen en el formulario
+    const newMilestones = selectedMilestoneObjects.filter(
+      (milestone) => !currentMilestones.some((ref) => ref.milestoneTemplateId === milestone.id)
+    );
+
+    if (newMilestones.length > 0) {
+      const newMilestoneRefs = newMilestones.map((milestone) => ({
+        milestoneTemplateId: milestone.id,
+        isRequired: false,
+        customName: undefined,
+        customizations: undefined,
+      }));
+
+      const updatedMilestones = [...currentMilestones, ...newMilestoneRefs] as any;
+      updateMilestones(updatedMilestones);
+    }
+  }, [selectedMilestoneObjects.map((m) => m.id).join(","), updateMilestones, form]);
+
+  // Reordenar milestones cuando cambia el orden visual (solo después de drag and drop)
+  useEffect(() => {
+    // Si el estado visual de milestones está vacío, no hacer nada
+    // (esto evita interferir durante la carga inicial)
+    if (milestones.length === 0) {
+      return;
+    }
+
+    // Obtener las configuraciones actuales del formulario
+    const currentMilestones = form.getValues().milestones || [];
+
+    // Si el formulario no tiene milestones, no hacer nada
+    if (currentMilestones.length === 0) {
+      return;
+    }
+
+    // Verificar si ya tenemos configuraciones personalizadas cargadas desde la API
+    const hasCustomConfigs = currentMilestones.some(
+      (ref) => ref.customName !== undefined || ref.customizations !== undefined || ref.isRequired !== false
+    );
+
+    // Si no hay configuraciones personalizadas, no hacer nada
+    if (!hasCustomConfigs) {
+      return;
+    }
+
+    // Solo reordenar si el orden de milestones es diferente al orden en el formulario
+    const currentOrder = currentMilestones.map((ref) => ref.milestoneTemplateId);
+    const newOrder = milestones.map((m) => m.id);
+
+    const orderChanged = JSON.stringify(currentOrder) !== JSON.stringify(newOrder);
+
+    if (!orderChanged) {
+      return;
+    }
+
+    // Reordenar las configuraciones existentes según el orden actual de milestones
+    const reorderedMilestoneRefs = milestones.map((milestone) => {
       const existingConfig = currentMilestones.find((ref) => ref.milestoneTemplateId === milestone.id);
 
       if (existingConfig) {
-        // Mantener la configuración existente
-        return existingConfig as MilestoneTemplateRefRequestDto;
+        return existingConfig;
       } else {
-        // Crear configuración por defecto
         return {
           milestoneTemplateId: milestone.id,
-          isRequired: false, // Por defecto
+          isRequired: false,
           customName: undefined,
           customizations: undefined,
         };
       }
     });
 
-    updateMilestones(milestoneRefs);
-  }, [selectedMilestoneObjects.map((m) => m.id).join(","), updateMilestones, form]);
+    updateMilestones(reorderedMilestoneRefs as any);
+  }, [milestones.map((m) => m.id).join(","), updateMilestones, form]);
 
   const addPhase = (data: PhaseFormData) => {
     const newPhase: PhaseTemplateResponseDto & { milestoneId: string } = {

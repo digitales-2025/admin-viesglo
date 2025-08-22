@@ -28,7 +28,9 @@ export const useCreateProjectTemplate = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("post", "/v1/project-templates", {
     onSuccess: () => {
+      // Invalidar la query de la lista paginada
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/project-templates/paginated"] });
+      // Invalidar la query de las plantillas activas
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/project-templates/active"] });
       toast.success("Plantilla creada correctamente");
     },
@@ -50,8 +52,11 @@ export const useUpdateProjectTemplate = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("put", "/v1/project-templates/{id}", {
     onSuccess: () => {
+      // Invalidar la query de la lista paginada
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/project-templates/paginated"] });
+      // Invalidar la query de las plantillas activas
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/project-templates/active"] });
+      // El refetch se manejará desde el formulario
       toast.success("Plantilla actualizada correctamente");
     },
     onError: (error) => {

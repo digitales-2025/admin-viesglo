@@ -50,11 +50,12 @@ export const useProjectTemplateForm = ({
           initialData.milestones?.map((milestone) => ({
             milestoneTemplateId: milestone.milestoneTemplateId,
             isRequired: milestone.isRequired ?? false,
-            customName: milestone.customName || undefined,
-            customizations: milestone.customizations || undefined,
+            customName: milestone.customName, // Preservar null si es null
+            customizations: milestone.customizations, // Preservar null si es null
           })) || [],
         tagIds: initialData.tags?.map((tag) => tag.id) || [],
       };
+
       form.reset(formData);
     }
   }, [initialData, isUpdate, form]);
