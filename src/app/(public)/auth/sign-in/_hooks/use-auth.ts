@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { usePrefetchQuery } from "@tanstack/react-query";
+import { usePrefetchQuery, useQueryClient } from "@tanstack/react-query";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -14,6 +14,7 @@ import { Credentials } from "../_types/login.types";
 export const useLogin = () => {
   const router = useRouter();
   const { showLogin, hide } = useAuthLoading();
+  const queryClient = useQueryClient();
   const form = useForm<LoginSchemaDto>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -25,6 +26,17 @@ export const useLogin = () => {
   const mutation = backend.useMutation("post", "/v1/auth/signin", {
     onSuccess: () => {
       showLogin();
+      // Prefetch/invalidar perfil para que el estado de autenticación se actualice inmediatamente
+      const profileOpts = backend.queryOptions("get", "/v1/auth/me");
+      // Invalidar errores anteriores y prefetch con cookies ya actualizadas
+      try {
+        queryClient.invalidateQueries({ queryKey: profileOpts.queryKey, exact: true });
+        queryClient.prefetchQuery(profileOpts);
+        // Intentar disparar reconexión MQTT inmediatamente si el provider ya está montado
+        if (typeof window !== "undefined" && (window as any).__mqttReconnectAfterTokenRefresh) {
+          (window as any).__mqttReconnectAfterTokenRefresh();
+        }
+      } catch {}
       router.replace("/");
     },
     onError: (error) => {
@@ -56,7 +68,7 @@ export const useLogout = () => {
   const mutation = backend.useMutation("post", "/v1/auth/signout", {
     onSuccess: () => {
       showLogout();
-      router.replace("/sign-in");
+      router.replace("/auth/sign-in");
       toast.success("Sesión cerrada correctamente");
     },
   });
@@ -71,9 +83,10 @@ export const useLogout = () => {
   };
 };
 
-export const useProfile = () => {
+export const useProfile = (options: { enabled?: boolean } = { enabled: true }) => {
   const query = backend.useQuery("get", "/v1/auth/me", {
-    enabled: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    ...options,
   });
 
   const isSuperAdmin = query.data?.role?.name === "GERENCIA" || false;

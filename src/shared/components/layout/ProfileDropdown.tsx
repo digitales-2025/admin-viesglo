@@ -16,12 +16,16 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
+import { useMqttConnectionStatus } from "@/shared/stores/mqtt-connection.store";
 import { firstLetterName } from "@/shared/utils/firstLetterName";
 import { Skeleton } from "../ui/skeleton";
 
 export function ProfileDropdown() {
   const { data: user, isLoading } = useProfile();
   const { onLogout } = useLogout();
+  const connectionStatus = useMqttConnectionStatus();
+
+  const dotColor = connectionStatus === "connected" ? "bg-green-500" : "bg-gray-400";
 
   return (
     <>
@@ -31,6 +35,7 @@ export function ProfileDropdown() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+              <span className={`absolute -right-1 -top-1 h-3 w-3 rounded-full ${dotColor} ring-2 ring-background`} />
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="rounded-lg uppercase font-bold">
                   {firstLetterName(user?.name || "")}
