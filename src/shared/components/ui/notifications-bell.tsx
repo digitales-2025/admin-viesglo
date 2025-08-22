@@ -155,7 +155,7 @@ export default function NotificationsBell() {
                             <h4
                               className={`text-sm font-medium truncate ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
                             >
-                              2 {notification.title}
+                              {notification.title}
                             </h4>
                             {isClickable && <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
                             <Badge
