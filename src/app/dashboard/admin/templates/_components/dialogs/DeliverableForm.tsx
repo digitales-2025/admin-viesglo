@@ -93,7 +93,7 @@ export default function DeliverableForm({
     return {
       ...d,
       phaseName: phase?.name || "Fase desconocida",
-      priority: d.priority || ("MEDIUM" as const),
+      priority: d.priority || DeliverablePriority.MEDIUM,
     };
   });
 

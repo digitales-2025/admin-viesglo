@@ -99,7 +99,7 @@ export default function EditTemplatesPage() {
         </ShellHeader>
         <AlertMessage
           variant="destructive"
-          title="Error al cargar clientes"
+          title="Error al cargar plantillas"
           description={error?.error?.message ?? "Ocurrió un error desconocido al cargar la plantilla."}
         />
       </>
