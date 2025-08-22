@@ -65,6 +65,15 @@ class BreadcrumbGenerator {
     );
   }
 
+  private isActionSegment(segment: string): boolean {
+    const actions = ["edit", "view", "details", "create", "new", "manage"];
+    return actions.includes(segment);
+  }
+
+  private shouldSkipIdInBreadcrumb(segment: string, nextSegment?: string): boolean {
+    return this.isIdSegment(segment) && !!nextSegment && this.isActionSegment(nextSegment);
+  }
+
   private generateIdTitle(segment: string, context?: string): string {
     const entityMap: Record<string, string> = {
       projects: "Proyecto",
@@ -75,6 +84,7 @@ class BreadcrumbGenerator {
       resources: "Recurso",
       tasks: "Tarea",
       subprojects: "Subproyecto",
+      templates: "Plantilla",
     };
 
     const entityName = context ? entityMap[context] : "Elemento";
@@ -166,10 +176,14 @@ class BreadcrumbGenerator {
     for (let i = 0; i < segments.length; i++) {
       const segment = segments[i];
       const previousSegment = segments[i - 1];
+      const nextSegment = segments[i + 1];
       currentPath += `/${segment}`;
 
       // Skip dashboard segment as it's already added
       if (i === 0 && segment === "dashboard") continue;
+
+      // Skip ID segments that are followed by action segments (but keep building currentPath)
+      if (this.shouldSkipIdInBreadcrumb(segment, nextSegment)) continue;
 
       const isLastSegment = i === segments.length - 1;
       const isId = this.isIdSegment(segment);

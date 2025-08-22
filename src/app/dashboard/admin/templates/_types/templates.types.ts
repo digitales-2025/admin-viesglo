@@ -10,6 +10,7 @@ export type DeliverableTemplateResponseDto = components["schemas"]["DeliverableT
 export type PhaseTemplateResponseDto = components["schemas"]["PhaseTemplateResponseDto"];
 export type MilestoneTemplateResponseDto = components["schemas"]["MilestoneTemplateResponseDto"];
 export type PaginatedProjectTemplateResponseDto = components["schemas"]["PaginatedProjectTemplateResponseDto"];
+export type ProjectTemplateDetailedResponseDto = components["schemas"]["ProjectTemplateDetailedResponseDto"];
 
 // Enum de prioridad de entregable (definido localmente)
 export enum DeliverablePriority {
