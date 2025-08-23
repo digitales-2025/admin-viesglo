@@ -27,17 +27,12 @@ import {
   calculateVisualOrder,
 } from "../../_utils/create-template.utils";
 import {
-  useHandleDeleteDeliverable,
   useHandleDeliverableDragEnd,
   useHandleEditDeliverable,
 } from "../../_utils/handlers/deliverable-template.handlers.utils";
 import { handleEditMilestoneRefConfig } from "../../_utils/handlers/milestone-ref-template.handlers.utils";
-import { handleDeleteMilestone, handleMilestoneDragEnd } from "../../_utils/handlers/milestone-template.handlers.utils";
-import {
-  useHandleDeletePhase,
-  useHandleEditPhase,
-  useHandlePhaseDragEnd,
-} from "../../_utils/handlers/phase-template.handlers.utils";
+import { handleMilestoneDragEnd } from "../../_utils/handlers/milestone-template.handlers.utils";
+import { useHandleEditPhase, useHandlePhaseDragEnd } from "../../_utils/handlers/phase-template.handlers.utils";
 import { deliverablePriorityConfig } from "../../_utils/templates.utils";
 
 interface AssignTemplatesColumnsProps {
@@ -49,9 +44,7 @@ interface AssignTemplatesColumnsProps {
   milestones: MilestoneTemplateResponseDto[];
   setMilestones: React.Dispatch<React.SetStateAction<MilestoneTemplateResponseDto[]>>;
   phases: (PhaseTemplateResponseDto & { milestoneId: string })[];
-  setPhases: React.Dispatch<React.SetStateAction<(PhaseTemplateResponseDto & { milestoneId: string })[]>>;
   deliverables: (DeliverableTemplateResponseDto & { phaseId: string })[];
-  setDeliverables: React.Dispatch<React.SetStateAction<(DeliverableTemplateResponseDto & { phaseId: string })[]>>;
   selectedMilestone: string | null;
   setSelectedMilestone: React.Dispatch<React.SetStateAction<string | null>>;
   selectedPhase: string | null;
@@ -72,9 +65,7 @@ export default function AssignTemplatesColumns({
   milestones,
   setMilestones,
   phases,
-  setPhases,
   deliverables,
-  setDeliverables,
   selectedMilestone,
   setSelectedMilestone,
   selectedPhase,
@@ -87,12 +78,10 @@ export default function AssignTemplatesColumns({
   const visibleDeliverables = selectedPhase ? deliverables.filter((d) => d.phaseId === selectedPhase) : [];
   // Hooks para manejar operaciones de fases
   const handleEditPhase = useHandleEditPhase();
-  const handleDeletePhase = useHandleDeletePhase();
   const handlePhaseDragEnd = useHandlePhaseDragEnd();
 
   // Hooks para manejar operaciones de entregables
   const handleEditDeliverable = useHandleEditDeliverable();
-  const handleDeleteDeliverable = useHandleDeleteDeliverable();
   const handleDeliverableDragEnd = useHandleDeliverableDragEnd();
   // Funciones para toggle de filtros
   const toggleMilestoneSelection = (milestoneId: string) => {
@@ -209,7 +198,27 @@ export default function AssignTemplatesColumns({
                                       className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeleteMilestone(milestone.id, milestones, setMilestones);
+                                        // Remover el milestone de la lista de seleccionados (sin mutación)
+                                        const updatedMilestones = milestones.filter((m) => m.id !== milestone.id);
+                                        setMilestones(updatedMilestones);
+
+                                        // También remover de selectedMilestoneObjects
+                                        const updatedSelectedMilestoneObjects = selectedMilestoneObjects.filter(
+                                          (m) => m.id !== milestone.id
+                                        );
+                                        setSelectedMilestoneObjects(updatedSelectedMilestoneObjects);
+
+                                        // También remover de selectedMilestones
+                                        const updatedSelectedMilestones = selectedMilestones.filter(
+                                          (id) => id !== milestone.id
+                                        );
+                                        setSelectedMilestones(updatedSelectedMilestones);
+
+                                        // Si el milestone eliminado era el seleccionado, deseleccionarlo
+                                        if (selectedMilestone === milestone.id) {
+                                          setSelectedMilestone(null);
+                                          setSelectedPhase(null);
+                                        }
                                       }}
                                     >
                                       Eliminar
@@ -333,7 +342,17 @@ export default function AssignTemplatesColumns({
                                       className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeletePhase(phase.id, phases, setPhases);
+                                        // Buscar el milestone template que contiene esta fase
+                                        const milestoneTemplate = selectedMilestoneObjects.find((mt) =>
+                                          mt.phases?.some((p) => p.id === phase.id)
+                                        );
+                                        if (milestoneTemplate) {
+                                          open("phase-delete", "delete", {
+                                            milestoneTemplateId: milestoneTemplate.id,
+                                            phaseId: phase.id,
+                                            phaseName: phase.name,
+                                          });
+                                        }
                                       }}
                                     >
                                       Eliminar
@@ -483,7 +502,21 @@ export default function AssignTemplatesColumns({
                                       className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        handleDeleteDeliverable(deliverable.id, deliverables, setDeliverables);
+                                        // Buscar el milestone template y fase que contiene este entregable
+                                        const milestoneTemplate = selectedMilestoneObjects.find((mt) =>
+                                          mt.phases?.some((p) => p.deliverables?.some((d) => d.id === deliverable.id))
+                                        );
+                                        const phase = milestoneTemplate?.phases?.find((p) =>
+                                          p.deliverables?.some((d) => d.id === deliverable.id)
+                                        );
+                                        if (milestoneTemplate && phase) {
+                                          open("deliverable-delete", "delete", {
+                                            milestoneTemplateId: milestoneTemplate.id,
+                                            phaseId: phase.id,
+                                            deliverableId: deliverable.id,
+                                            deliverableName: deliverable.name,
+                                          });
+                                        }
                                       }}
                                     >
                                       Eliminar

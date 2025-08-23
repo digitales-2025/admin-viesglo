@@ -259,6 +259,25 @@ export default function CreateProjectTemplateForm({
     }
   };
 
+  // Funciones para eliminar elementos
+  const deletePhase = (phaseId: string) => {
+    // Eliminar la fase del estado local
+    setPhases(phases.filter((p) => p.id !== phaseId));
+
+    // Si la fase eliminada era la seleccionada, deseleccionarla
+    if (selectedPhase === phaseId) {
+      setSelectedPhase(null);
+    }
+
+    // Eliminar todos los entregables asociados a esta fase
+    setDeliverables(deliverables.filter((d) => d.phaseId !== phaseId));
+  };
+
+  const deleteDeliverable = (deliverableId: string) => {
+    // Eliminar el entregable del estado local
+    setDeliverables(deliverables.filter((d) => d.id !== deliverableId));
+  };
+
   // Funciones para limpiar estados de edición
   const clearEditStates = () => {
     setMilestoneToEdit(null);
@@ -287,9 +306,7 @@ export default function CreateProjectTemplateForm({
         milestones={milestones}
         setMilestones={setMilestones}
         phases={phases}
-        setPhases={setPhases}
         deliverables={deliverables}
-        setDeliverables={setDeliverables}
         selectedMilestone={selectedMilestone}
         setSelectedMilestone={setSelectedMilestone}
         selectedPhase={selectedPhase}
@@ -333,6 +350,8 @@ export default function CreateProjectTemplateForm({
         onUpdatePhase={updatePhase}
         onAddDeliverable={addDeliverable}
         onUpdateDeliverable={updateDeliverable}
+        onDeletePhase={deletePhase}
+        onDeleteDeliverable={deleteDeliverable}
         onSuccess={clearEditStates}
       />
     </div>

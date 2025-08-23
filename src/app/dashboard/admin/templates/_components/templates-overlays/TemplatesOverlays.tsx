@@ -1,8 +1,11 @@
 "use client";
 
+import { Trash } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
+import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { useDeleteDeliverableOfPhase, useDeletePhaseOfMilestoneTemplate } from "../../_hooks/use-milestone-templates";
 import { CreateProjectTemplate, DeliverableFormData, PhaseFormData } from "../../_schemas/projectTemplates.schemas";
 import {
   DeliverableTemplateResponseDto,
@@ -29,6 +32,8 @@ interface TemplatesOverlaysProps {
   onUpdateDeliverable?: (data: DeliverableFormData) => void;
   onAddMilestoneRef?: (milestoneId: string) => void;
   onSuccess?: () => void;
+  onDeletePhase?: (phaseId: string) => void;
+  onDeleteDeliverable?: (deliverableId: string) => void;
   updateMilestones: (milestones: MilestoneTemplateRefRequestDto[]) => void;
 }
 
@@ -43,14 +48,20 @@ export default function TemplatesOverlays({
   onUpdateDeliverable,
   onAddMilestoneRef,
   onSuccess,
+  onDeletePhase,
+  onDeleteDeliverable,
   updateMilestones,
 }: TemplatesOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
+  const { mutate: deletePhase, isPending: isDeletingPhase } = useDeletePhaseOfMilestoneTemplate();
+  const { mutate: deleteDeliverable, isPending: isDeletingDeliverable } = useDeleteDeliverableOfPhase();
 
   // Constantes para módulos
   const PHASE_MODULE = "phase-templates";
   const DELIVERABLE_MODULE = "deliverable-templates";
   const MILESTONE_REF_MODULE = "milestone-ref-config";
+  const PHASE_DELETE_MODULE = "phase-delete";
+  const DELIVERABLE_DELETE_MODULE = "deliverable-delete";
 
   return (
     <>
@@ -127,6 +138,108 @@ export default function TemplatesOverlays({
           onSuccess?.();
           close();
         }}
+      />
+
+      {/* Confirm Dialog for Phase Deletion */}
+      <ConfirmDialog
+        key="phase-delete"
+        open={isOpenForModule(PHASE_DELETE_MODULE, "delete")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        handleConfirm={() => {
+          if (isDeletingPhase) return;
+          if (!data?.milestoneTemplateId || !data?.phaseId) {
+            return;
+          }
+          deletePhase(
+            {
+              params: {
+                path: {
+                  id: data.milestoneTemplateId,
+                  phaseId: data.phaseId,
+                },
+              },
+            },
+            {
+              onSuccess: () => {
+                close();
+                onSuccess?.();
+                // Actualizar el estado local después de eliminar la fase
+                if (data?.phaseId) {
+                  onDeletePhase?.(data.phaseId);
+                }
+              },
+            }
+          );
+        }}
+        isLoading={isDeletingPhase}
+        confirmText="Eliminar"
+        destructive
+        title={
+          <div className="flex items-center gap-2">
+            <Trash className="h-4 w-4 text-rose-500" />
+            Eliminar fase
+          </div>
+        }
+        desc={
+          <>
+            Estás a punto de eliminar la fase <strong className="uppercase text-wrap">{data?.phaseName}</strong>. <br />
+            Esta acción es irreversible y eliminará todos los entregables asociados.
+          </>
+        }
+      />
+
+      {/* Confirm Dialog for Deliverable Deletion */}
+      <ConfirmDialog
+        key="deliverable-delete"
+        open={isOpenForModule(DELIVERABLE_DELETE_MODULE, "delete")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        handleConfirm={() => {
+          if (isDeletingDeliverable) return;
+          if (!data?.milestoneTemplateId || !data?.phaseId || !data?.deliverableId) {
+            return;
+          }
+          deleteDeliverable(
+            {
+              params: {
+                path: {
+                  id: data.milestoneTemplateId,
+                  phaseId: data.phaseId,
+                  deliverableId: data.deliverableId,
+                },
+              },
+            },
+            {
+              onSuccess: () => {
+                close();
+                onSuccess?.();
+                // Actualizar el estado local después de eliminar el entregable
+                if (data?.deliverableId) {
+                  onDeleteDeliverable?.(data.deliverableId);
+                }
+              },
+            }
+          );
+        }}
+        isLoading={isDeletingDeliverable}
+        confirmText="Eliminar"
+        destructive
+        title={
+          <div className="flex items-center gap-2">
+            <Trash className="h-4 w-4 text-rose-500" />
+            Eliminar entregable
+          </div>
+        }
+        desc={
+          <>
+            Estás a punto de eliminar el entregable{" "}
+            <strong className="uppercase text-wrap">{data?.deliverableName}</strong>. <br />
+            Esta acción es irreversible.
+          </>
+        }
       />
     </>
   );

@@ -45,7 +45,13 @@ export default function DeliverableForm({
 
   // Función para encontrar el milestone al que pertenece una fase
   const findMilestoneForPhase = (phaseId: string): string => {
-    // Buscar en los milestones por el phaseId
+    // Primero buscar en las fases locales
+    const localPhase = phases.find((p) => p.id === phaseId);
+    if (localPhase) {
+      return localPhase.milestoneId;
+    }
+
+    // Si no se encuentra en las fases locales, buscar en los milestone templates
     for (const milestone of milestoneTemplates) {
       if (milestone.phases?.some((phase) => phase.id === phaseId)) {
         return milestone.id;
@@ -78,12 +84,28 @@ export default function DeliverableForm({
     }
   }, [isUpdate, initialData, selectedMilestoneTemplateId, selectedPhaseId, milestoneTemplates]);
 
-  // Obtener las fases del milestone seleccionado
+  // Obtener las fases del milestone seleccionado (combinando milestoneTemplates y phases locales)
   const getPhasesForSelectedMilestone = () => {
     if (!selectedMilestoneTemplateId) return [];
 
+    // Obtener fases del milestone template
     const selectedMilestone = milestoneTemplates.find((m) => m.id === selectedMilestoneTemplateId);
-    return selectedMilestone?.phases || [];
+    const templatePhases = selectedMilestone?.phases || [];
+
+    // Obtener fases locales que pertenecen a este milestone
+    const localPhases = phases.filter((p) => p.milestoneId === selectedMilestoneTemplateId);
+
+    // Combinar ambas listas, evitando duplicados por ID
+    const allPhases = [...templatePhases];
+
+    localPhases.forEach((localPhase) => {
+      const exists = allPhases.some((templatePhase) => templatePhase.id === localPhase.id);
+      if (!exists) {
+        allPhases.push(localPhase);
+      }
+    });
+
+    return allPhases;
   };
 
   const availablePhases = getPhasesForSelectedMilestone();
