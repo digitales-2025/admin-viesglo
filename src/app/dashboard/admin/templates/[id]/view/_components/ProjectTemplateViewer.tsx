@@ -254,9 +254,14 @@ export function ProjectTemplateViewer({ template }: ProjectTemplateViewerProps) 
                       </div>
                     </td>
                     <td className="p-4 text-center">
-                      <Badge variant={milestone.isRequired ? "default" : "secondary"} className="text-xs">
-                        {milestone.isRequired ? "Requerido" : "Opcional"}
-                      </Badge>
+                      <div className="flex items-center justify-center gap-1">
+                        {milestone.isRequired ? (
+                          <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-600 shrink-0" />
+                        )}
+                        <span className="text-xs font-medium">{milestone.isRequired ? "Requerido" : "Opcional"}</span>
+                      </div>
                     </td>
                     <td className="p-4">
                       <div className="relative h-6 bg-muted/30 rounded">
