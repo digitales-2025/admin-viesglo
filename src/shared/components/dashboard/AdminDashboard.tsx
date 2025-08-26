@@ -11,6 +11,7 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import ProjectsDashbaord from "./_components/_projects/ProjectsDashbaord";
 import ClientsDashboard from "./_components/clients/ClientsDashboard";
 
 // Los datos de salud se derivan dinámicamente de clientes
@@ -121,9 +122,10 @@ export default function Dashboard() {
 
         {/* Navigation Tabs */}
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 ">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="general">General</TabsTrigger>
             <TabsTrigger value="clientes">Clientes</TabsTrigger>
+            <TabsTrigger value="projects">Proyectos</TabsTrigger>
             <TabsTrigger value="analiticas">Analíticas</TabsTrigger>
             <TabsTrigger value="reportes">Reportes</TabsTrigger>
             <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
@@ -270,6 +272,10 @@ export default function Dashboard() {
 
           <TabsContent value="clientes">
             <ClientsDashboard />
+          </TabsContent>
+
+          <TabsContent value="projects" className="space-y-6">
+            <ProjectsDashbaord />
           </TabsContent>
 
           <TabsContent value="analiticas">
