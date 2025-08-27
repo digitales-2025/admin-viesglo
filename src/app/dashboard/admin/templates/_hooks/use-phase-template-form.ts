@@ -5,14 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { PhaseFormData, phaseSchema } from "../_schemas/projectTemplates.schemas";
-import { PhaseTemplateResponseDto } from "../_types/templates.types";
+import { MilestoneTemplateResponseDto, PhaseTemplateResponseDto } from "../_types/templates.types";
 import { useAddPhaseToMilestoneTemplate, useUpdatePhaseOfMilestoneTemplate } from "./use-milestone-templates";
 
 interface UsePhaseTemplateFormProps {
   isUpdate?: boolean;
   initialData?: PhaseTemplateResponseDto;
   milestoneTemplateId?: string;
-  onSuccess?: () => void;
+  onSuccess?: (response?: MilestoneTemplateResponseDto) => void;
 }
 
 export function usePhaseTemplateForm({
@@ -77,8 +77,8 @@ export function usePhaseTemplateForm({
           body: data,
         },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }
@@ -90,8 +90,8 @@ export function usePhaseTemplateForm({
           body: data,
         },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }

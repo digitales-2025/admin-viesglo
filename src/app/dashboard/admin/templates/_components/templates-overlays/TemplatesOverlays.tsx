@@ -26,15 +26,15 @@ interface TemplatesOverlaysProps {
   milestones: MilestoneTemplateResponseDto[];
   phases: (PhaseTemplateResponseDto & { milestoneId: string })[];
   deliverables: (DeliverableTemplateResponseDto & { phaseId: string })[];
-  onAddPhase?: (data: PhaseFormData) => void;
-  onUpdatePhase?: (data: PhaseFormData) => void;
-  onAddDeliverable?: (data: DeliverableFormData) => void;
+  onUpdatePhase?: (data: PhaseFormData, selectedMilestoneId?: string) => void;
   onUpdateDeliverable?: (data: DeliverableFormData) => void;
   onAddMilestoneRef?: (milestoneId: string) => void;
   onSuccess?: () => void;
   onDeletePhase?: (phaseId: string) => void;
   onDeleteDeliverable?: (deliverableId: string) => void;
   updateMilestones: (milestones: MilestoneTemplateRefRequestDto[]) => void;
+  onAddPhaseWithResponse?: (response: MilestoneTemplateResponseDto) => void;
+  onAddDeliverableWithResponse?: (response: MilestoneTemplateResponseDto) => void;
 }
 
 export default function TemplatesOverlays({
@@ -42,15 +42,15 @@ export default function TemplatesOverlays({
   milestones,
   phases,
   deliverables,
-  onAddPhase,
   onUpdatePhase,
-  onAddDeliverable,
   onUpdateDeliverable,
   onAddMilestoneRef,
   onSuccess,
   onDeletePhase,
   onDeleteDeliverable,
   updateMilestones,
+  onAddPhaseWithResponse,
+  onAddDeliverableWithResponse,
 }: TemplatesOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deletePhase, isPending: isDeletingPhase } = useDeletePhaseOfMilestoneTemplate();
@@ -97,18 +97,21 @@ export default function TemplatesOverlays({
         onOpenChange={(open) => {
           if (!open) close();
         }}
-        onAdd={(data) => {
-          onAddPhase?.(data);
+        onAdd={(_, __) => {
           close();
         }}
-        onUpdate={(data) => {
-          onUpdatePhase?.(data);
+        onUpdate={(data, selectedMilestoneId) => {
+          onUpdatePhase?.(data, selectedMilestoneId);
           close();
         }}
         milestones={milestones} // Pasar milestones disponibles
         initialData={isOpenForModule(PHASE_MODULE, "edit") ? data : undefined}
         isUpdate={isOpenForModule(PHASE_MODULE, "edit")}
-        onSuccess={() => {
+        onSuccess={(response) => {
+          // Si es una creación exitosa, usar la respuesta del backend
+          if (response && !isOpenForModule(PHASE_MODULE, "edit")) {
+            onAddPhaseWithResponse?.(response);
+          }
           onSuccess?.();
           close();
         }}
@@ -120,8 +123,7 @@ export default function TemplatesOverlays({
         onOpenChange={(open) => {
           if (!open) close();
         }}
-        onAdd={(data) => {
-          onAddDeliverable?.(data);
+        onAdd={() => {
           close();
         }}
         onUpdate={(data) => {
@@ -134,7 +136,11 @@ export default function TemplatesOverlays({
         initialData={isOpenForModule(DELIVERABLE_MODULE, "edit") ? data : undefined}
         isUpdate={isOpenForModule(DELIVERABLE_MODULE, "edit")}
         onAddMilestoneRef={onAddMilestoneRef} // Pasar la función para agregar milestone ref
-        onSuccess={() => {
+        onSuccess={(response) => {
+          // Si es una creación exitosa, usar la respuesta del backend
+          if (response && !isOpenForModule(DELIVERABLE_MODULE, "edit")) {
+            onAddDeliverableWithResponse?.(response);
+          }
           onSuccess?.();
           close();
         }}

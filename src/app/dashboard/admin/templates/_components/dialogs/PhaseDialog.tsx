@@ -10,12 +10,12 @@ import PhaseForm from "./PhaseForm";
 interface PhaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAdd?: (phase: PhaseFormData) => void;
-  onUpdate?: (phase: PhaseFormData) => void;
+  onAdd?: (phase: PhaseFormData, selectedMilestoneId?: string) => void;
+  onUpdate?: (phase: PhaseFormData, selectedMilestoneId?: string) => void;
   milestones: MilestoneTemplateResponseDto[];
   initialData?: PhaseTemplateResponseDto & { milestoneId?: string };
   isUpdate?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (response?: MilestoneTemplateResponseDto) => void;
 }
 
 export function PhaseDialog({
@@ -33,17 +33,17 @@ export function PhaseDialog({
   const { form, onSubmit, isPending } = usePhaseTemplateForm({
     isUpdate,
     initialData,
-    onSuccess: () => {
+    onSuccess: (response) => {
       onOpenChange(false);
-      onSuccess?.();
+      onSuccess?.(response);
     },
   });
 
   const handleSubmit = (data: PhaseFormData, selectedMilestoneId?: string) => {
     if (isUpdate && onUpdate) {
-      onUpdate(data);
+      onUpdate(data, selectedMilestoneId);
     } else if (onAdd) {
-      onAdd(data);
+      onAdd(data, selectedMilestoneId);
     }
     onSubmit(data, selectedMilestoneId);
   };
