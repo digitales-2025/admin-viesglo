@@ -5,7 +5,6 @@ import Cookies from "js-cookie";
 import { AppSidebar } from "@/shared/components/layout/AppSidebar";
 import { Shell } from "@/shared/components/layout/Shell";
 import SkipToMain from "@/shared/components/layout/SkipToMain";
-import { MqttConnectionStatus } from "@/shared/components/mqtt/MqttConnectionStatus";
 import { SidebarProvider } from "@/shared/components/ui/sidebar";
 import { SearchProvider } from "@/shared/context/search-context";
 import { ThemeProvider } from "@/shared/context/theme-provider";
@@ -32,10 +31,7 @@ export default function AdminRootLayout({ children }: { children: React.ReactNod
               "group-data-[scroll-locked=1]/body:has-[main.fixed-main]:h-svh"
             )}
           >
-            <Shell>
-              <MqttConnectionStatus />
-              {children}
-            </Shell>
+            <Shell>{children}</Shell>
           </div>
         </SidebarProvider>
       </SearchProvider>
