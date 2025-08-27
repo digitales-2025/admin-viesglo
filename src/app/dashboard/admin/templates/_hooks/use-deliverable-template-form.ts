@@ -6,7 +6,11 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { DeliverableFormData, deliverableSchema } from "../_schemas/projectTemplates.schemas";
-import { DeliverablePriority, DeliverableTemplateResponseDto } from "../_types/templates.types";
+import {
+  DeliverablePriority,
+  DeliverableTemplateResponseDto,
+  MilestoneTemplateResponseDto,
+} from "../_types/templates.types";
 import { useAddDeliverableToPhase, useUpdateDeliverableOfPhase } from "./use-milestone-templates";
 
 interface UseDeliverableTemplateFormProps {
@@ -14,7 +18,7 @@ interface UseDeliverableTemplateFormProps {
   initialData?: DeliverableTemplateResponseDto;
   milestoneTemplateId?: string;
   phaseId?: string;
-  onSuccess?: () => void;
+  onSuccess?: (response?: MilestoneTemplateResponseDto) => void;
 }
 
 export function useDeliverableTemplateForm({
@@ -89,8 +93,8 @@ export function useDeliverableTemplateForm({
           body: data,
         },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }
@@ -107,8 +111,8 @@ export function useDeliverableTemplateForm({
           body: data,
         },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }

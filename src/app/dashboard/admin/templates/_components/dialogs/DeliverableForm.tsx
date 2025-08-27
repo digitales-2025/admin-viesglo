@@ -95,12 +95,15 @@ export default function DeliverableForm({
     // Obtener fases locales que pertenecen a este milestone
     const localPhases = phases.filter((p) => p.milestoneId === selectedMilestoneTemplateId);
 
-    // Combinar ambas listas, evitando duplicados por ID
+    // Combinar ambas listas, evitando duplicados por ID y por nombre
     const allPhases = [...templatePhases];
 
     localPhases.forEach((localPhase) => {
-      const exists = allPhases.some((templatePhase) => templatePhase.id === localPhase.id);
-      if (!exists) {
+      // Verificar si ya existe una fase con el mismo ID o el mismo nombre
+      const existsById = allPhases.some((templatePhase) => templatePhase.id === localPhase.id);
+      const existsByName = allPhases.some((templatePhase) => templatePhase.name === localPhase.name);
+
+      if (!existsById && !existsByName) {
         allPhases.push(localPhase);
       }
     });
@@ -110,14 +113,22 @@ export default function DeliverableForm({
 
   const availablePhases = getPhasesForSelectedMilestone();
 
-  const enrichedDeliverables = deliverables.map((d) => {
-    const phase = phases.find((p) => p.id === d.id);
-    return {
-      ...d,
-      phaseName: phase?.name || "Fase desconocida",
-      priority: d.priority || DeliverablePriority.MEDIUM,
-    };
-  });
+  const enrichedDeliverables = deliverables
+    .filter((d) => {
+      // Si estamos en modo edición, excluir el entregable que se está editando
+      if (isUpdate && initialData && d.id === initialData.id) {
+        return false;
+      }
+      return true;
+    })
+    .map((d) => {
+      const phase = phases.find((p) => p.id === d.phaseId);
+      return {
+        ...d,
+        phaseName: phase?.name || "Fase desconocida",
+        priority: d.priority || DeliverablePriority.MEDIUM,
+      };
+    });
 
   const currentDeliverable = {
     id: "current",

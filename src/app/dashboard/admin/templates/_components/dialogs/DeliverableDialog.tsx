@@ -21,7 +21,7 @@ interface DeliverableDialogProps {
   milestoneTemplates: MilestoneTemplateResponseDto[];
   initialData?: DeliverableTemplateResponseDto & { phaseId?: string };
   isUpdate?: boolean;
-  onSuccess?: () => void;
+  onSuccess?: (response?: MilestoneTemplateResponseDto) => void;
   onAddMilestoneRef?: (milestoneId: string) => void; // Nueva prop para agregar milestone ref
 }
 
@@ -45,9 +45,9 @@ export function DeliverableDialog({
   const { form, onSubmit } = useDeliverableTemplateForm({
     isUpdate,
     initialData,
-    onSuccess: () => {
+    onSuccess: (response) => {
       onOpenChange(false);
-      onSuccess?.();
+      onSuccess?.(response);
     },
   });
 
@@ -55,8 +55,7 @@ export function DeliverableDialog({
     if (isUpdate && onUpdate) {
       onUpdate(data);
     } else if (onAdd) {
-      onAdd(data);
-
+      // NO llamar a onAdd aquí - esperar la respuesta del backend
       // Si es un nuevo deliverable y tenemos un milestone seleccionado, agregar automáticamente el milestone ref
       if (selectedMilestoneId && onAddMilestoneRef) {
         onAddMilestoneRef(selectedMilestoneId);
