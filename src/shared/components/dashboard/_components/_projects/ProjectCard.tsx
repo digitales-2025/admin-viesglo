@@ -23,13 +23,6 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  // Debug: Verificar que los datos se están pasando correctamente
-  console.log("ProjectCard render with project:", {
-    id: project.id,
-    progress: project.progress,
-    colors: project.colors,
-  });
-
   const getStatusIcon = (iconType: string) => {
     switch (iconType) {
       case "calendar":
