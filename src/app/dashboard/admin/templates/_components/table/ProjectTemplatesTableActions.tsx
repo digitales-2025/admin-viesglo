@@ -21,7 +21,7 @@ interface ProjectTemplatesTableActionsProps {
 export default function ProjectTemplatesTableActions({ projectTemplate }: ProjectTemplatesTableActionsProps) {
   const { open } = useDialogStore();
   const { mutate: reactivateClient, isPending: isReactivating } = useReactivateProjectTemplate();
-  const MODULE = "project-templates";
+  const MODULE = "templates";
 
   const router = useRouter();
   const handleDelete = () => open(MODULE, "delete", projectTemplate);

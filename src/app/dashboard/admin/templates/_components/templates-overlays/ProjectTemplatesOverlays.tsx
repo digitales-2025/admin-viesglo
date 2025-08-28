@@ -23,6 +23,7 @@ export default function ProjectTemplatesOverlays() {
         handleConfirm={() => {
           if (isDeleting) return;
           if (!data?.id) {
+            console.log("No se puede eliminar el cliente");
             return;
           }
           deleteProjectTemplate(
@@ -40,12 +41,13 @@ export default function ProjectTemplatesOverlays() {
         title={
           <div className="flex items-center gap-2">
             <Trash className="h-4 w-4 text-rose-500" />
-            Eliminar cliente
+            Eliminar plantilla
           </div>
         }
         desc={
           <>
-            Estás a punto de eliminar el cliente <strong className="uppercase text-wrap">{data?.name}</strong>. <br />
+            Estás a punto de eliminar la plantilla del proyecto{" "}
+            <strong className="uppercase text-wrap">{data?.name}</strong>. <br />
             Esta acción es irreversible.
           </>
         }
