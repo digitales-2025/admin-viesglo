@@ -82,6 +82,14 @@ export default function CreateProjectTemplateForm({
 
   const [selectedPhase, setSelectedPhase] = useState<string | null>(null);
   const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Resetear isSubmitting cuando la operación termine
+  useEffect(() => {
+    if (!isPending && isSubmitting) {
+      setIsSubmitting(false);
+    }
+  }, [isPending, isSubmitting]);
 
   // Actualizar estados cuando los milestones seleccionados cambien
   useEffect(() => {
@@ -483,11 +491,31 @@ export default function CreateProjectTemplateForm({
         <Button variant="outline" onClick={() => handleNavigationWithWarning?.("/dashboard/admin/templates")}>
           Cancelar
         </Button>
-        <Button onClick={handleSave} className="gap-2 bg-primary hover:bg-primary/90" disabled={isPending}>
-          {isPending ? (
+        <Button
+          onClick={(e) => {
+            // Bloqueo inmediato y directo
+            if (e.currentTarget.disabled) {
+              return;
+            }
+
+            // Deshabilitar el botón inmediatamente
+            e.currentTarget.disabled = true;
+
+            // Actualizar estado para UI
+            setIsSubmitting(true);
+
+            // Ejecutar guardado
+            handleSave();
+          }}
+          className={`gap-2 ${
+            isSubmitting || isPending ? "bg-gray-400 cursor-not-allowed" : "bg-primary hover:bg-primary/90"
+          }`}
+          disabled={false} // El bloqueo se maneja en onClick
+        >
+          {isSubmitting || isPending ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Guardando...
+              {isSubmitting ? "Procesando..." : "Guardando..."}
             </>
           ) : (
             <>
