@@ -23,7 +23,6 @@ import CreateHeaderProjectTemplateForm from "./CreateHeaderProjectTemplateForm";
 interface CreateProjectTemplateFormProps {
   form: UseFormReturn<CreateProjectTemplate>;
   handleSave: () => void;
-  handleCancel: () => void;
   isPending: boolean;
   selectedMilestones: string[];
   setSelectedMilestones: React.Dispatch<React.SetStateAction<string[]>>;
@@ -39,12 +38,14 @@ interface CreateProjectTemplateFormProps {
   draftData: TemplateDraftData | null;
   recoverDraft: (data: CreateProjectTemplate) => void;
   dismissDraft: () => void;
+  handleNavigationWithWarning?: (url: string) => void; // Prop para manejar navegación con advertencia
+  onNavigationWarningConfirm?: (targetUrl: string) => void; // Prop para confirmar navegación
+  onNavigationWarningCancel?: () => void; // Prop para cancelar navegación
 }
 
 export default function CreateProjectTemplateForm({
   form,
   handleSave,
-  handleCancel,
   isPending,
   selectedMilestones,
   selectedMilestoneObjects,
@@ -60,6 +61,9 @@ export default function CreateProjectTemplateForm({
   draftData,
   recoverDraft,
   dismissDraft,
+  handleNavigationWithWarning,
+  onNavigationWarningConfirm,
+  onNavigationWarningCancel,
 }: CreateProjectTemplateFormProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { open } = useDialogStore();
@@ -476,7 +480,7 @@ export default function CreateProjectTemplateForm({
       />
       {/* Save Button */}
       <div className="flex justify-end mt-6 gap-2">
-        <Button variant="outline" onClick={handleCancel}>
+        <Button variant="outline" onClick={() => handleNavigationWithWarning?.("/dashboard/admin/templates")}>
           Cancelar
         </Button>
         <Button onClick={handleSave} className="gap-2 bg-primary hover:bg-primary/90" disabled={isPending}>
@@ -508,6 +512,8 @@ export default function CreateProjectTemplateForm({
         onSuccess={clearEditStates}
         onAddPhaseWithResponse={addPhaseWithResponse}
         onAddDeliverableWithResponse={addDeliverableWithResponse}
+        onNavigationWarningConfirm={onNavigationWarningConfirm}
+        onNavigationWarningCancel={onNavigationWarningCancel}
       />
 
       {/* Recovery Dialog */}

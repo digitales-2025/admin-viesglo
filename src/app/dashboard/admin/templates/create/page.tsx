@@ -35,7 +35,7 @@ export default function CreateTemplatesPage() {
   });
 
   // Hook para el formulario del proyecto
-  const { form, onSubmit, updateMilestones, updateTags, isPending, handleCancel } = useProjectTemplateForm({
+  const { form, onSubmit, updateMilestones, updateTags, isPending } = useProjectTemplateForm({
     onSuccess: () => {
       // Limpiar estados después de crear exitosamente
       setSelectedMilestones([]);
@@ -81,7 +81,6 @@ export default function CreateTemplatesPage() {
       <CreateProjectTemplateForm
         form={form}
         handleSave={handleSave}
-        handleCancel={handleCancel}
         isPending={isPending}
         selectedMilestones={selectedMilestones}
         setSelectedMilestones={setSelectedMilestones}

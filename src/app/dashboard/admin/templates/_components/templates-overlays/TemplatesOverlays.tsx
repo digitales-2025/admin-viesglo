@@ -1,6 +1,6 @@
 "use client";
 
-import { Trash } from "lucide-react";
+import { AlertTriangle, Trash } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
@@ -35,6 +35,9 @@ interface TemplatesOverlaysProps {
   updateMilestones: (milestones: MilestoneTemplateRefRequestDto[]) => void;
   onAddPhaseWithResponse?: (response: MilestoneTemplateResponseDto) => void;
   onAddDeliverableWithResponse?: (response: MilestoneTemplateResponseDto) => void;
+  // Props para navegación
+  onNavigationWarningConfirm?: (targetUrl: string) => void;
+  onNavigationWarningCancel?: () => void;
 }
 
 export default function TemplatesOverlays({
@@ -51,6 +54,8 @@ export default function TemplatesOverlays({
   updateMilestones,
   onAddPhaseWithResponse,
   onAddDeliverableWithResponse,
+  onNavigationWarningConfirm,
+  onNavigationWarningCancel,
 }: TemplatesOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deletePhase, isPending: isDeletingPhase } = useDeletePhaseOfMilestoneTemplate();
@@ -62,6 +67,7 @@ export default function TemplatesOverlays({
   const MILESTONE_REF_MODULE = "milestone-ref-config";
   const PHASE_DELETE_MODULE = "phase-delete";
   const DELIVERABLE_DELETE_MODULE = "deliverable-delete";
+  const NAVIGATION_WARNING_MODULE = "navigation-warning";
 
   return (
     <>
@@ -244,6 +250,40 @@ export default function TemplatesOverlays({
             Estás a punto de eliminar el entregable{" "}
             <strong className="uppercase text-wrap">{data?.deliverableName}</strong>. <br />
             Esta acción es irreversible.
+          </>
+        }
+      />
+
+      {/* Navigation Warning Dialog */}
+      <ConfirmDialog
+        key="navigation-warning"
+        open={isOpenForModule(NAVIGATION_WARNING_MODULE, "delete")}
+        onOpenChange={(open) => {
+          if (!open) {
+            close();
+            onNavigationWarningCancel?.();
+          }
+        }}
+        handleConfirm={() => {
+          const data = useDialogStore.getState().data;
+          if (data?.targetUrl) {
+            onNavigationWarningConfirm?.(data.targetUrl);
+          }
+          close();
+        }}
+        confirmText="Salir sin guardar"
+        cancelBtnText="Cancelar"
+        destructive
+        title={
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            ¿Perder cambios?
+          </div>
+        }
+        desc={
+          <>
+            Tienes cambios sin guardar en tu plantilla. <br />
+            Si sales ahora, perderás todos los cambios no guardados.
           </>
         }
       />

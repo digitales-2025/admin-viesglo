@@ -45,7 +45,7 @@ export default function EditTemplatesPage() {
   const { data: templateData, isLoading, error, refetch } = useTemplateDetailedById(id, true);
 
   // Hook para el formulario del proyecto en modo edición
-  const { form, onSubmit, updateMilestones, updateTags, isPending, handleCancel } = useProjectTemplateForm({
+  const { form, onSubmit, updateMilestones, updateTags, isPending } = useProjectTemplateForm({
     isUpdate: true,
     initialData: templateData || undefined,
     onSuccess: () => {
@@ -174,7 +174,6 @@ export default function EditTemplatesPage() {
       <CreateProjectTemplateForm
         form={form}
         handleSave={handleSave}
-        handleCancel={handleCancel}
         isPending={isPending}
         selectedMilestones={selectedMilestones}
         setSelectedMilestones={setSelectedMilestones}
