@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
 import { DialogType } from "@/shared/stores/useDialogStore";
-import { MilestoneDialog } from "../../_components/dialogs/MilestoneDialog";
+import { MilestoneDialog } from "../../_components/dialogs/milestone-template/MilestoneDialog";
 import { CreateProjectTemplate } from "../../_schemas/projectTemplates.schemas";
 import {
   DeliverablePriority,
