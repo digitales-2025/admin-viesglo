@@ -29,7 +29,7 @@ export function useMilestoneRefForm({ isUpdate = false, initialData }: UseMilest
       form.reset({
         milestoneTemplateId: initialData.milestoneTemplateId || "",
         isRequired: initialData.isRequired ?? false,
-        customName: initialData.customName, // Preservar null si es null
+        customName: initialData.customName || "", // Convertir null/undefined a string vacío
         customizations: initialData.customizations || {},
       });
     }
