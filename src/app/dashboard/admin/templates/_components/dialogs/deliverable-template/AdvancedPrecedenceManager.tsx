@@ -227,9 +227,11 @@ export function AdvancedPrecedenceManager({
                               >
                                 {isSelected(deliverable.id) && <CheckCircle2 className="h-3 w-3 text-white" />}
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <div className="font-medium text-sm truncate">{deliverable.name}</div>
-                                <div className="text-xs text-muted-foreground">
+                              <div className="min-w-0 flex-1 max-w-[350px]">
+                                <div className="font-medium text-sm break-words leading-tight text-justify">
+                                  {deliverable.name}
+                                </div>
+                                <div className="text-xs text-muted-foreground mt-1">
                                   Orden:{" "}
                                   {calculateDeliverableVisualOrder(
                                     deliverable,
@@ -292,8 +294,8 @@ export function AdvancedPrecedenceManager({
                     <div key={deliverable.id} className="relative">
                       <div className="p-2 sm:p-3 bg-background rounded-lg border border-accent/20 shadow-sm">
                         <div className="flex items-start justify-between gap-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm truncate">{deliverable.name}</div>
+                          <div className="flex-1 max-w-[230px] ">
+                            <div className=" font-medium text-sm break-words leading-tight">{deliverable.name}</div>
                             <div className="text-xs text-muted-foreground mt-1">
                               {calculateDeliverableVisualOrder(deliverable, deliverables, phases, milestoneTemplates)}
                             </div>

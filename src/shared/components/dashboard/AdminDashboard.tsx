@@ -123,12 +123,24 @@ export default function Dashboard() {
         {/* Navigation Tabs */}
         <Tabs defaultValue="general" className="w-full">
           <TabsList className="grid w-full grid-cols-6">
-            <TabsTrigger value="general">General</TabsTrigger>
-            <TabsTrigger value="clientes">Clientes</TabsTrigger>
-            <TabsTrigger value="projects">Proyectos</TabsTrigger>
-            <TabsTrigger value="analiticas">Analíticas</TabsTrigger>
-            <TabsTrigger value="reportes">Reportes</TabsTrigger>
-            <TabsTrigger value="notificaciones">Notificaciones</TabsTrigger>
+            <TabsTrigger value="general">
+              <span className="truncate text-ellipsis font-medium">General</span>
+            </TabsTrigger>
+            <TabsTrigger value="clientes">
+              <span className="truncate text-ellipsis font-medium">Clientes</span>
+            </TabsTrigger>
+            <TabsTrigger value="projects">
+              <span className="truncate text-ellipsis font-medium">Proyectos</span>
+            </TabsTrigger>
+            <TabsTrigger value="analiticas">
+              <span className="truncate text-ellipsis font-medium">Analíticas</span>
+            </TabsTrigger>
+            <TabsTrigger value="reportes">
+              <span className="truncate text-ellipsis font-medium">Reportes</span>
+            </TabsTrigger>
+            <TabsTrigger value="notificaciones">
+              <span className="truncate text-ellipsis font-medium">Notificaciones</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="general" className="space-y-6">

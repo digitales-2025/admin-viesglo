@@ -60,9 +60,20 @@ export const MilestoneDialog = memo(function MilestoneDialog({
   } = useMilestoneTemplateForm({
     isUpdate: !!editingMilestone,
     initialData: editingMilestone || undefined,
-    onSuccess: () => {
+    onSuccess: (response) => {
       setEditingMilestone(null);
-      // Refrescar la búsqueda después de crear/editar
+
+      // Si es una actualización y tenemos respuesta, actualizar el estado local
+      if (response && editingMilestone) {
+        // Actualizar en selectedMilestoneObjects si está seleccionado
+        const isSelected = selectedMilestones.includes(editingMilestone.id);
+        if (isSelected) {
+          const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) =>
+            milestone.id === editingMilestone.id ? response : milestone
+          );
+          onMilestoneObjectsChange(updatedMilestoneObjects);
+        }
+      }
     },
   });
 

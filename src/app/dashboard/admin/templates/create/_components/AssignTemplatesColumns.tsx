@@ -176,7 +176,9 @@ export default function AssignTemplatesColumns({
                                     <Badge variant="secondary" className="text-xs">
                                       {calculateVisualOrder(milestones.findIndex((m) => m.id === milestone.id))}
                                     </Badge>
-                                    <span className="text-sm font-medium">{milestone.name}</span>
+                                    <span className="text-sm font-medium max-w-[370px] break-words">
+                                      {milestone.name}
+                                    </span>
                                   </div>
                                   {milestone.description && (
                                     <p className="text-xs text-muted-foreground">{milestone.description}</p>
@@ -255,7 +257,7 @@ export default function AssignTemplatesColumns({
               <div>
                 <CardTitle className="text-lg">Fases</CardTitle>
                 {selectedMilestone && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1 max-w-[270px] truncate">
                     Hito {calculateVisualOrder(milestones.findIndex((m) => m.id === selectedMilestone))} -{" "}
                     {milestones.find((m) => m.id === selectedMilestone)?.name}
                   </p>
@@ -320,7 +322,9 @@ export default function AssignTemplatesColumns({
                                     <Badge variant="secondary" className="text-xs">
                                       {phase ? calculatePhaseVisualOrder(phase, milestones, phases) : ""}
                                     </Badge>
-                                    <span className="text-sm font-medium">{phase?.name || ""}</span>
+                                    <span className="text-sm font-medium max-w-[370px] break-words">
+                                      {phase?.name || ""}
+                                    </span>
                                   </div>
                                   {phase.description && (
                                     <p className="text-xs text-muted-foreground">{phase.description}</p>
@@ -389,7 +393,7 @@ export default function AssignTemplatesColumns({
               <div>
                 <CardTitle className="text-lg">Entregables</CardTitle>
                 {selectedPhase && (
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1 max-w-[270px] truncate">
                     {(() => {
                       const phase = phases.find((p) => p.id === selectedPhase);
                       if (!phase) return "";
@@ -479,7 +483,9 @@ export default function AssignTemplatesColumns({
                                         deliverable.priority}
                                     </Badge>
                                   </div>
-                                  <span className="text-sm font-medium block mb-1">{deliverable?.name || ""}</span>
+                                  <span className="text-sm font-medium block mb-1 max-w-[400px] break-words">
+                                    {deliverable?.name || ""}
+                                  </span>
                                   {getPrecedenceDisplay(deliverable) && (
                                     <div className="text-xs text-muted-foreground">
                                       Depende de: {getPrecedenceDisplay(deliverable)}

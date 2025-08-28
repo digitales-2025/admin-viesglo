@@ -26,7 +26,7 @@ const mockProjects = [
     status: "Retraso: En riesgo",
     deliverables: "36/52 entregables",
     date: "01 de Agosto 2025",
-    progress: [60, 70, 100],
+    progress: [90, 70, 100],
     colors: ["#2196F3", "#4CAF50", "#E0E0E0"],
     statusIcon: "implemented",
     statusType: "implemented",
@@ -157,11 +157,6 @@ export default function ProjectsDashbaord() {
   return (
     <div className="p-6">
       <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Proyectos</h1>
-        </div>
-
         {/* Search and Filters */}
         <div className="flex items-center justify-between mb-6">
           <div className="relative w-80">
@@ -219,7 +214,7 @@ export default function ProjectsDashbaord() {
         </div>
 
         {/* Projects Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
           {mockProjects.map((project) => (
             <ProjectCard key={project.id} project={project} />
           ))}

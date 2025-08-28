@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Calendar, Clock, Eye, Files, FileText, Info, MonitorCog } from "lucide-react";
 
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import BulletChart from "./BulletChart";
+import BulletChartHighcharts from "./BulletChartHighcharts";
 
 interface Project {
   id: number;
@@ -23,6 +25,8 @@ interface ProjectCardProps {
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
+  const [showHighcharts, setShowHighcharts] = useState(false);
+
   const getStatusIcon = (iconType: string) => {
     switch (iconType) {
       case "calendar":
@@ -43,12 +47,33 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         <div className="flex items-center justify-between mb-3">
           <Info className="w-4 h-4" />
           <h3 className="font-semibold text-gray-900">{project.company}</h3>
-          <Eye className="w-4 h-4" />
+          <button
+            onClick={() => setShowHighcharts(!showHighcharts)}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+            title={showHighcharts ? "Ver gráfico simple" : "Ver gráfico avanzado"}
+          >
+            <Eye className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Bullet Chart */}
+        {/* Bullet Chart Toggle */}
         <div className="mb-4">
-          <BulletChart data={project.progress} colors={project.colors} />
+          {showHighcharts ? (
+            <BulletChartHighcharts
+              containerId={`chart-${project.id}`}
+              data={{ y: project.progress[0], target: project.progress[1], max: project.progress[2] }}
+              categories={`<span class="hc-cat-title">${project.company}</span><br/>Progreso (%)`}
+              plotBands={[
+                { from: 0, to: 30, color: "rgb(230, 230, 250)" },
+                { from: 30, to: 70, color: "rgb(230, 230, 250)" },
+                { from: 70, to: 100, color: "rgb(230, 230, 250)" },
+              ]}
+              color={project.colors[0]}
+              format="{value}%"
+            />
+          ) : (
+            <BulletChart data={project.progress} colors={project.colors} />
+          )}
         </div>
 
         {/* Consultant Info */}
