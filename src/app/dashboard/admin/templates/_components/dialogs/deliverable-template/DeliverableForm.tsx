@@ -321,7 +321,7 @@ export default function DeliverableForm({
           <Button
             type="submit"
             disabled={isPending || !selectedMilestoneTemplateId || !selectedPhaseId}
-            className="bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="transition-none"
           >
             {isPending ? "Guardando..." : "Guardar Entregable"}
           </Button>

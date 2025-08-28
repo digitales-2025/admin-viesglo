@@ -165,7 +165,7 @@ export default function PhaseForm({
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button type="submit" disabled={isPending}>
             {isPending ? "Guardando..." : "Guardar Fase"}
           </Button>
         </div>

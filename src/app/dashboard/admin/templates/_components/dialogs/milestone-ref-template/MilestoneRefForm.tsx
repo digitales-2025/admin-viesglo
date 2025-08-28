@@ -100,7 +100,7 @@ export default function MilestoneRefForm({
           <Button type="button" variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={isPending} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+          <Button type="submit" disabled={isPending}>
             {isPending ? "Guardando..." : isUpdate ? "Actualizar Configuración" : "Agregar a Plantilla"}
           </Button>
         </div>
