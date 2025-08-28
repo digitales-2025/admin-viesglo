@@ -6,9 +6,14 @@ import { useParams } from "next/navigation";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { Loading } from "@/shared/components/loading";
+import { AutoSaveStatus } from "../../_components/ui/AutoSaveStatus";
+import { useDraftRecovery } from "../../_hooks/use-draft-recovery";
+import { useActiveMilestoneTemplates } from "../../_hooks/use-milestone-templates";
 import { useProjectTemplateForm } from "../../_hooks/use-project-template-form";
 import { useTemplateDetailedById } from "../../_hooks/use-project-templates";
+import { useTemplateDraftZustand } from "../../_hooks/use-template-draft-zustand";
 import { MilestoneTemplateResponseDto } from "../../_types/templates.types";
+import { useTagsByName } from "../../../tags/_hooks/use-tags";
 import { TagResponseDto } from "../../../tags/_types/tags.types";
 import CreateProjectTemplateForm from "../../create/_components/CreateProjectTemplateForm";
 
@@ -21,53 +26,80 @@ export default function EditTemplatesPage() {
   const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
   const [selectedMilestoneObjects, setSelectedMilestoneObjects] = useState<MilestoneTemplateResponseDto[]>([]);
 
+  // Obtener datos disponibles para recuperación
+  const { data: allMilestones = [] } = useActiveMilestoneTemplates();
+  const { data: allTags = [] } = useTagsByName("", 1000, true); // Obtener todos los tags
+
+  // Hook para recuperación de borradores
+  const { recoverDraftData } = useDraftRecovery({
+    setSelectedTags,
+    setSelectedTagObjects,
+    setSelectedMilestones,
+    setSelectedMilestoneObjects,
+    allTags,
+    allMilestones,
+  });
+
   // Obtener datos de la plantilla por ID con milestone templates completos
   const { data: templateData, isLoading, error, refetch } = useTemplateDetailedById(id, true);
 
   // Hook para el formulario del proyecto en modo edición
-  const { form, onSubmit, updateMilestones, updateTags, isPending, isFormValid, handleCancel } = useProjectTemplateForm(
-    {
-      isUpdate: true,
-      initialData: templateData || undefined,
-      onSuccess: () => {
-        // Hacer refetch para obtener los datos actualizados
-        refetch();
-        // Limpiar estados después de actualizar exitosamente
-        setSelectedMilestones([]);
-        setSelectedMilestoneObjects([]);
-        setSelectedTags([]);
-        setSelectedTagObjects([]);
-      },
-    }
-  );
+  const { form, onSubmit, updateMilestones, updateTags, isPending, handleCancel } = useProjectTemplateForm({
+    isUpdate: true,
+    initialData: templateData || undefined,
+    onSuccess: () => {
+      // Hacer refetch para obtener los datos actualizados
+      refetch();
+      // Limpiar estados después de actualizar exitosamente
+      setSelectedMilestones([]);
+      setSelectedMilestoneObjects([]);
+      setSelectedTags([]);
+      setSelectedTagObjects([]);
+    },
+  });
 
-  // Cargar datos iniciales cuando se obtenga la plantilla
+  // Hook de auto-save con Zustand
+  const { isAutoSaving, lastSaved, hasValidDraft, showRecoveryDialog, draftData, recoverDraft, dismissDraft } =
+    useTemplateDraftZustand({
+      form,
+      templateId: id,
+      isUpdate: true,
+      selectedTags,
+      selectedMilestones,
+      onRecoverDraft: recoverDraftData,
+    });
+
+  // Cargar datos iniciales cuando se obtenga la plantilla (solo si no hay draft)
   useEffect(() => {
     if (templateData) {
-      // Cargar tags seleccionados
-      const tagIds = templateData.tags?.map((tag: any) => tag.id) || [];
-      setSelectedTags(tagIds);
-      setSelectedTagObjects(templateData.tags || []);
+      const hasDraft = hasValidDraft(id, true);
 
-      // Cargar milestones en el orden correcto basado en templateData.milestones
-      if (templateData.milestones && templateData.milestoneTemplates) {
-        const milestoneIds = templateData.milestones.map((milestone: any) => milestone.milestoneTemplateId);
-        setSelectedMilestones(milestoneIds);
+      if (!hasDraft) {
+        // Cargar tags seleccionados
+        const tagIds = templateData.tags?.map((tag: any) => tag.id) || [];
+        setSelectedTags(tagIds);
+        setSelectedTagObjects(templateData.tags || []);
 
-        // Ordenar milestoneTemplates según el orden de milestones
-        const orderedMilestoneTemplates = templateData.milestones
-          .map((milestoneRef: any) => {
-            const milestoneTemplate = templateData.milestoneTemplates!.find(
-              (mt: any) => mt.id === milestoneRef.milestoneTemplateId
-            );
-            return milestoneTemplate;
-          })
-          .filter((mt): mt is any => mt !== undefined); // Filtrar en caso de que no se encuentre algún template
+        // Cargar milestones en el orden correcto basado en templateData.milestones
+        if (templateData.milestones && templateData.milestoneTemplates) {
+          const milestoneIds = templateData.milestones.map((milestone: any) => milestone.milestoneTemplateId);
+          setSelectedMilestones(milestoneIds);
 
-        setSelectedMilestoneObjects(orderedMilestoneTemplates);
+          // Ordenar milestoneTemplates según el orden de milestones
+          const orderedMilestoneTemplates = templateData.milestones
+            .map((milestoneRef: any) => {
+              const milestoneTemplate = templateData.milestoneTemplates!.find(
+                (mt: any) => mt.id === milestoneRef.milestoneTemplateId
+              );
+              return milestoneTemplate;
+            })
+            .filter((mt): mt is any => mt !== undefined); // Filtrar en caso de que no se encuentre algún template
+
+          setSelectedMilestoneObjects(orderedMilestoneTemplates);
+        }
       }
     }
-  }, [templateData]);
+  }, [templateData, id]); // Removido hasValidDraft de las dependencias
 
   const handleSave = () => {
     // El useEffect en CreateProjectTemplateForm ya maneja la sincronización correctamente
@@ -109,7 +141,10 @@ export default function EditTemplatesPage() {
   return (
     <>
       <ShellHeader>
-        <ShellTitle title="Editar plantilla" description={`Editando: ${templateData.name}`} />
+        <div className="flex items-center justify-between w-full">
+          <ShellTitle title="Editar plantilla" description={`Editando: ${templateData.name}`} />
+          <AutoSaveStatus isAutoSaving={isAutoSaving} lastSaved={lastSaved} className="ml-4" />
+        </div>
       </ShellHeader>
 
       <CreateProjectTemplateForm
@@ -117,7 +152,6 @@ export default function EditTemplatesPage() {
         handleSave={handleSave}
         handleCancel={handleCancel}
         isPending={isPending}
-        isFormValid={isFormValid}
         selectedMilestones={selectedMilestones}
         setSelectedMilestones={setSelectedMilestones}
         selectedMilestoneObjects={selectedMilestoneObjects}
@@ -128,6 +162,10 @@ export default function EditTemplatesPage() {
         setSelectedTags={setSelectedTags}
         selectedTagObjects={selectedTagObjects}
         setSelectedTagObjects={setSelectedTagObjects}
+        draftData={draftData}
+        showRecoveryDialog={showRecoveryDialog}
+        recoverDraft={recoverDraft}
+        dismissDraft={dismissDraft}
       />
     </>
   );
