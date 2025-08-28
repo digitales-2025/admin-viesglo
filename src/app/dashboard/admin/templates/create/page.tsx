@@ -6,6 +6,7 @@ import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { AutoSaveStatus } from "../_components/ui/AutoSaveStatus";
 import { useDraftRecovery } from "../_hooks/use-draft-recovery";
 import { useActiveMilestoneTemplates } from "../_hooks/use-milestone-templates";
+import { useNavigationWarning } from "../_hooks/use-navigation-warning";
 import { useProjectTemplateForm } from "../_hooks/use-project-template-form";
 import { useTemplateDraftZustand } from "../_hooks/use-template-draft-zustand";
 import { MilestoneTemplateResponseDto } from "../_types/templates.types";
@@ -45,14 +46,19 @@ export default function CreateTemplatesPage() {
   });
 
   // Hook de auto-save con Zustand
-  const { isAutoSaving, lastSaved, showRecoveryDialog, draftData, recoverDraft, dismissDraft } =
+  const { isAutoSaving, lastSaved, showRecoveryDialog, draftData, recoverDraft, dismissDraft, hasUnsavedChanges } =
     useTemplateDraftZustand({
       form,
       isUpdate: false, // Modo crear
       selectedTags,
-      selectedMilestones,
       onRecoverDraft: recoverDraftData,
     });
+
+  // Hook para interceptar navegación
+  const { handleNavigationWithWarning, handleNavigationConfirm } = useNavigationWarning({
+    hasUnsavedChanges: hasUnsavedChanges, // Usar la función del hook
+    isUpdate: false,
+  });
 
   const handleSave = () => {
     // El useEffect en CreateProjectTemplateForm ya maneja la sincronización correctamente
@@ -91,6 +97,9 @@ export default function CreateTemplatesPage() {
         recoverDraft={recoverDraft}
         dismissDraft={dismissDraft}
         draftData={draftData}
+        handleNavigationWithWarning={handleNavigationWithWarning}
+        onNavigationWarningConfirm={handleNavigationConfirm}
+        onNavigationWarningCancel={() => {}}
       />
     </>
   );

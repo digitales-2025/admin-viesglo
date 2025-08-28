@@ -9,6 +9,7 @@ import { Loading } from "@/shared/components/loading";
 import { AutoSaveStatus } from "../../_components/ui/AutoSaveStatus";
 import { useDraftRecovery } from "../../_hooks/use-draft-recovery";
 import { useActiveMilestoneTemplates } from "../../_hooks/use-milestone-templates";
+import { useNavigationWarning } from "../../_hooks/use-navigation-warning";
 import { useProjectTemplateForm } from "../../_hooks/use-project-template-form";
 import { useTemplateDetailedById } from "../../_hooks/use-project-templates";
 import { useTemplateDraftZustand } from "../../_hooks/use-template-draft-zustand";
@@ -59,15 +60,29 @@ export default function EditTemplatesPage() {
   });
 
   // Hook de auto-save con Zustand
-  const { isAutoSaving, lastSaved, hasValidDraft, showRecoveryDialog, draftData, recoverDraft, dismissDraft } =
-    useTemplateDraftZustand({
-      form,
-      templateId: id,
-      isUpdate: true,
-      selectedTags,
-      selectedMilestones,
-      onRecoverDraft: recoverDraftData,
-    });
+  const {
+    isAutoSaving,
+    lastSaved,
+    hasValidDraft,
+    showRecoveryDialog,
+    draftData,
+    recoverDraft,
+    dismissDraft,
+    hasUnsavedChanges,
+  } = useTemplateDraftZustand({
+    form,
+    templateId: id,
+    isUpdate: true,
+    selectedTags,
+    onRecoverDraft: recoverDraftData,
+  });
+
+  // Hook para interceptar navegación
+  const { handleNavigationWithWarning, handleNavigationConfirm } = useNavigationWarning({
+    hasUnsavedChanges: hasUnsavedChanges, // Usar la función del hook
+    templateId: id,
+    isUpdate: true,
+  });
 
   // Cargar datos iniciales cuando se obtenga la plantilla (solo si no hay draft)
   useEffect(() => {
@@ -108,6 +123,15 @@ export default function EditTemplatesPage() {
 
     // Enviar el formulario
     form.handleSubmit(onSubmit)();
+  };
+
+  // Callbacks para el diálogo de navegación
+  const handleNavigationWarningConfirm = (targetUrl: string) => {
+    handleNavigationConfirm(targetUrl);
+  };
+
+  const handleNavigationWarningCancel = () => {
+    // No hacer nada, solo cerrar el diálogo
   };
 
   // Mostrar loading mientras se cargan los datos
@@ -166,6 +190,9 @@ export default function EditTemplatesPage() {
         showRecoveryDialog={showRecoveryDialog}
         recoverDraft={recoverDraft}
         dismissDraft={dismissDraft}
+        handleNavigationWithWarning={handleNavigationWithWarning}
+        onNavigationWarningConfirm={handleNavigationWarningConfirm}
+        onNavigationWarningCancel={handleNavigationWarningCancel}
       />
     </>
   );

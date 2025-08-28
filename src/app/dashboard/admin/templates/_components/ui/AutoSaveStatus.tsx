@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { CheckCircle } from "lucide-react";
 
 import { cn } from "@/shared/lib/utils";
@@ -11,6 +12,17 @@ interface AutoSaveStatusProps {
 }
 
 export function AutoSaveStatus({ isAutoSaving, lastSaved, className }: AutoSaveStatusProps) {
+  const [mounted, setMounted] = useState(false);
+  const [formattedTime, setFormattedTime] = useState<string>("");
+
+  // Evitar hydration error renderizando el tiempo solo en el cliente
+  useEffect(() => {
+    setMounted(true);
+    if (lastSaved) {
+      setFormattedTime(lastSaved.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" }));
+    }
+  }, [lastSaved]);
+
   if (!isAutoSaving && !lastSaved) return null;
 
   return (
@@ -31,7 +43,7 @@ export function AutoSaveStatus({ isAutoSaving, lastSaved, className }: AutoSaveS
       ) : (
         <>
           <CheckCircle className="h-3 w-3 text-green-600 shrink-0" />
-          <span>Guardado {lastSaved?.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })}</span>
+          <span>Guardado {mounted ? formattedTime : "..."}</span>
         </>
       )}
     </div>
