@@ -3,9 +3,12 @@ import { Save } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { Button } from "@/shared/components/ui/button";
+import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import { RecoveryDialog } from "../../_components/dialogs/RecoveryDialog";
 import TemplatesOverlays from "../../_components/templates-overlays/TemplatesOverlays";
 import { CreateProjectTemplate, DeliverableFormData, PhaseFormData } from "../../_schemas/projectTemplates.schemas";
+import { TemplateDraftData } from "../../_stores/template-draft.store";
 import {
   DeliverableTemplateResponseDto,
   MilestoneTemplateRefRequestDto,
@@ -22,7 +25,6 @@ interface CreateProjectTemplateFormProps {
   handleSave: () => void;
   handleCancel: () => void;
   isPending: boolean;
-  isFormValid?: boolean;
   selectedMilestones: string[];
   setSelectedMilestones: React.Dispatch<React.SetStateAction<string[]>>;
   selectedMilestoneObjects: MilestoneTemplateResponseDto[];
@@ -33,6 +35,10 @@ interface CreateProjectTemplateFormProps {
   setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>;
   selectedTagObjects: TagResponseDto[];
   setSelectedTagObjects: React.Dispatch<React.SetStateAction<TagResponseDto[]>>;
+  showRecoveryDialog: boolean;
+  draftData: TemplateDraftData | null;
+  recoverDraft: (data: CreateProjectTemplate) => void;
+  dismissDraft: () => void;
 }
 
 export default function CreateProjectTemplateForm({
@@ -40,7 +46,6 @@ export default function CreateProjectTemplateForm({
   handleSave,
   handleCancel,
   isPending,
-  isFormValid = true,
   selectedMilestones,
   selectedMilestoneObjects,
   setSelectedMilestones,
@@ -51,7 +56,12 @@ export default function CreateProjectTemplateForm({
   setSelectedTags,
   selectedTagObjects,
   setSelectedTagObjects,
+  showRecoveryDialog,
+  draftData,
+  recoverDraft,
+  dismissDraft,
 }: CreateProjectTemplateFormProps) {
+  const isDesktop = useMediaQuery("(min-width: 768px)");
   const { open } = useDialogStore();
 
   // Estados para manejar edición
@@ -92,8 +102,55 @@ export default function CreateProjectTemplateForm({
       setMilestones(extractedMilestones);
     }
 
-    setPhases(extractedPhases);
-    setDeliverables(extractedDeliverables);
+    // Combinar fases extraídas con fases locales existentes
+    const existingLocalPhases = phases.filter((p) => p.id.startsWith("phase-"));
+    const combinedPhases = [...extractedPhases];
+
+    existingLocalPhases.forEach((localPhase) => {
+      const exists = combinedPhases.some((extractedPhase) => extractedPhase.id === localPhase.id);
+      if (!exists) {
+        combinedPhases.push(localPhase);
+      }
+    });
+
+    // Verificar duplicados antes de setear
+    const phaseIds = combinedPhases.map((p) => p.id);
+    const duplicates = phaseIds.filter((id, index) => phaseIds.indexOf(id) !== index);
+    if (duplicates.length > 0) {
+      // Eliminar duplicados antes de setear
+      const uniquePhases = combinedPhases.filter(
+        (phase, index, self) => index === self.findIndex((p) => p.id === phase.id)
+      );
+      setPhases(uniquePhases);
+    } else {
+      setPhases(combinedPhases);
+    }
+
+    // Combinar deliverables extraídos con deliverables locales existentes
+    const existingLocalDeliverables = deliverables.filter((d) => d.id.startsWith("deliverable-"));
+    const combinedDeliverables = [...extractedDeliverables];
+
+    existingLocalDeliverables.forEach((localDeliverable) => {
+      const exists = combinedDeliverables.some(
+        (extractedDeliverable) => extractedDeliverable.id === localDeliverable.id
+      );
+      if (!exists) {
+        combinedDeliverables.push(localDeliverable);
+      }
+    });
+
+    // Verificar duplicados antes de setear deliverables
+    const deliverableIds = combinedDeliverables.map((d) => d.id);
+    const deliverableDuplicates = deliverableIds.filter((id, index) => deliverableIds.indexOf(id) !== index);
+    if (deliverableDuplicates.length > 0) {
+      // Eliminar duplicados antes de setear
+      const uniqueDeliverables = combinedDeliverables.filter(
+        (deliverable, index, self) => index === self.findIndex((d) => d.id === deliverable.id)
+      );
+      setDeliverables(uniqueDeliverables);
+    } else {
+      setDeliverables(combinedDeliverables);
+    }
   }, [selectedMilestoneObjects, milestones.length]);
 
   // ===== GESTIÓN DE SELECCIÓN AUTOMÁTICA =====
@@ -204,14 +261,28 @@ export default function CreateProjectTemplateForm({
     updateMilestones(reorderedMilestoneRefs as any);
   }, [milestones.map((m) => m.id).join(","), updateMilestones, form]);
 
-  const addPhase = (data: PhaseFormData) => {
-    const newPhase: PhaseTemplateResponseDto & { milestoneId: string } = {
-      id: `phase-${Date.now()}`,
-      name: data.name,
-      description: data.description,
-      milestoneId: selectedMilestone ?? "",
-    };
-    setPhases([...phases, newPhase]);
+  // Nueva función que recibe la respuesta del backend con el ID real
+  const addPhaseWithResponse = (response: MilestoneTemplateResponseDto) => {
+    // Extraer la nueva fase de la respuesta del backend
+    const newPhaseFromBackend = response.phases?.[response.phases.length - 1];
+
+    if (newPhaseFromBackend) {
+      const phaseWithMilestoneId: PhaseTemplateResponseDto & { milestoneId: string } = {
+        ...newPhaseFromBackend,
+        milestoneId: response.id,
+      };
+
+      setPhases([...phases, phaseWithMilestoneId]);
+
+      // ACTUALIZAR selectedMilestoneObjects con la respuesta completa del backend
+      const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+        if (milestone.id === response.id) {
+          return response; // Usar la respuesta completa del backend
+        }
+        return milestone;
+      });
+      setSelectedMilestoneObjects(updatedMilestoneObjects);
+    }
   };
 
   const updatePhase = (data: PhaseFormData) => {
@@ -224,24 +295,63 @@ export default function CreateProjectTemplateForm({
         ...phaseToEdit,
         name: data.name,
         description: data.description,
-        // Mantener el milestoneId original de la fase
         milestoneId: currentMilestoneId,
       };
+
       setPhases(phases.map((p) => (p.id === phaseToEdit.id ? updatedPhase : p)));
+
+      // ACTUALIZAR selectedMilestoneObjects para reflejar los cambios
+      const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+        if (milestone.id === currentMilestoneId) {
+          return {
+            ...milestone,
+            phases: milestone.phases?.map((phase) => (phase.id === phaseToEdit.id ? updatedPhase : phase)) || [],
+          };
+        }
+        return milestone;
+      });
+      setSelectedMilestoneObjects(updatedMilestoneObjects);
+
       setPhaseToEdit(null);
     }
   };
 
-  const addDeliverable = (data: DeliverableFormData) => {
-    const newDeliverable: DeliverableTemplateResponseDto & { phaseId: string } = {
-      id: `deliverable-${Date.now()}`,
-      name: data.name,
-      description: data.description,
-      priority: data.priority,
-      precedence: data.precedence,
-      phaseId: selectedPhase ?? "",
-    };
-    setDeliverables([...deliverables, newDeliverable]);
+  // Nueva función que recibe la respuesta del backend con el ID real
+  const addDeliverableWithResponse = (response: MilestoneTemplateResponseDto) => {
+    // Extraer el nuevo entregable de la respuesta del backend
+    // Buscar en todas las fases del milestone para encontrar el entregable más reciente
+    let newDeliverableFromBackend: DeliverableTemplateResponseDto | undefined;
+    let phaseId: string | undefined;
+
+    for (const phase of response.phases || []) {
+      if (phase.deliverables && phase.deliverables.length > 0) {
+        // Tomar el último entregable de la fase (el más reciente)
+        const lastDeliverable = phase.deliverables[phase.deliverables.length - 1];
+        if (lastDeliverable) {
+          newDeliverableFromBackend = lastDeliverable;
+          phaseId = phase.id;
+          break;
+        }
+      }
+    }
+
+    if (newDeliverableFromBackend && phaseId) {
+      const deliverableWithPhaseId: DeliverableTemplateResponseDto & { phaseId: string } = {
+        ...newDeliverableFromBackend,
+        phaseId: phaseId,
+      };
+
+      setDeliverables([...deliverables, deliverableWithPhaseId]);
+
+      // ACTUALIZAR selectedMilestoneObjects con la respuesta completa del backend
+      const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+        if (milestone.id === response.id) {
+          return response; // Usar la respuesta completa del backend
+        }
+        return milestone;
+      });
+      setSelectedMilestoneObjects(updatedMilestoneObjects);
+    }
   };
 
   const updateDeliverable = (data: DeliverableFormData) => {
@@ -255,6 +365,28 @@ export default function CreateProjectTemplateForm({
         phaseId: selectedPhase ?? "",
       };
       setDeliverables(deliverables.map((d) => (d.id === deliverableToEdit.id ? updatedDeliverable : d)));
+
+      // ACTUALIZAR selectedMilestoneObjects para reflejar los cambios
+      const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+        return {
+          ...milestone,
+          phases:
+            milestone.phases?.map((phase) => {
+              if (phase.id === selectedPhase) {
+                return {
+                  ...phase,
+                  deliverables:
+                    phase.deliverables?.map((deliverable) =>
+                      deliverable.id === deliverableToEdit.id ? updatedDeliverable : deliverable
+                    ) || [],
+                };
+              }
+              return phase;
+            }) || [],
+        };
+      });
+      setSelectedMilestoneObjects(updatedMilestoneObjects);
+
       setDeliverableToEdit(null);
     }
   };
@@ -271,11 +403,38 @@ export default function CreateProjectTemplateForm({
 
     // Eliminar todos los entregables asociados a esta fase
     setDeliverables(deliverables.filter((d) => d.phaseId !== phaseId));
+
+    // ACTUALIZAR selectedMilestoneObjects para reflejar la eliminación
+    const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+      if (milestone.phases?.some((phase) => phase.id === phaseId)) {
+        return {
+          ...milestone,
+          phases: milestone.phases?.filter((phase) => phase.id !== phaseId) || [],
+        };
+      }
+      return milestone;
+    });
+    setSelectedMilestoneObjects(updatedMilestoneObjects);
   };
 
   const deleteDeliverable = (deliverableId: string) => {
     // Eliminar el entregable del estado local
     setDeliverables(deliverables.filter((d) => d.id !== deliverableId));
+
+    // ACTUALIZAR selectedMilestoneObjects para reflejar la eliminación
+    const updatedMilestoneObjects = selectedMilestoneObjects.map((milestone) => {
+      return {
+        ...milestone,
+        phases:
+          milestone.phases?.map((phase) => {
+            return {
+              ...phase,
+              deliverables: phase.deliverables?.filter((deliverable) => deliverable.id !== deliverableId) || [],
+            };
+          }) || [],
+      };
+    });
+    setSelectedMilestoneObjects(updatedMilestoneObjects);
   };
 
   // Funciones para limpiar estados de edición
@@ -320,11 +479,7 @@ export default function CreateProjectTemplateForm({
         <Button variant="outline" onClick={handleCancel}>
           Cancelar
         </Button>
-        <Button
-          onClick={handleSave}
-          className="gap-2 bg-primary hover:bg-primary/90"
-          disabled={isPending || !isFormValid}
-        >
+        <Button onClick={handleSave} className="gap-2 bg-primary hover:bg-primary/90" disabled={isPending}>
           {isPending ? (
             <>
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -346,14 +501,25 @@ export default function CreateProjectTemplateForm({
         milestones={milestones}
         phases={phases}
         deliverables={deliverables}
-        onAddPhase={addPhase}
         onUpdatePhase={updatePhase}
-        onAddDeliverable={addDeliverable}
         onUpdateDeliverable={updateDeliverable}
         onDeletePhase={deletePhase}
         onDeleteDeliverable={deleteDeliverable}
         onSuccess={clearEditStates}
+        onAddPhaseWithResponse={addPhaseWithResponse}
+        onAddDeliverableWithResponse={addDeliverableWithResponse}
       />
+
+      {/* Recovery Dialog */}
+      {draftData && (
+        <RecoveryDialog
+          isOpen={showRecoveryDialog}
+          onConfirm={recoverDraft}
+          onDismiss={dismissDraft}
+          draftData={draftData}
+          isDesktop={isDesktop}
+        />
+      )}
     </div>
   );
 }
