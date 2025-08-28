@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { CreateProjectTemplate, CreateProjectTemplateSchema } from "../_schemas/projectTemplates.schemas";
+import { useTemplateDraftStore } from "../_stores/template-draft.store";
 import { MilestoneTemplateRefRequestDto, ProjectTemplateResponseDto } from "../_types/templates.types";
 import { useCreateProjectTemplate, useUpdateProjectTemplate } from "./use-project-templates";
 
@@ -27,6 +28,10 @@ export const useProjectTemplateForm = ({
   const { mutate: updateProjectTemplate, isPending: isUpdating } = useUpdateProjectTemplate();
   const isPending = isCreating || isUpdating;
 
+  // Zustand store para limpiar drafts
+  const { clearDraft } = useTemplateDraftStore();
+
+  // Formulario
   const form = useForm<CreateProjectTemplate>({
     resolver: zodResolver(CreateProjectTemplateSchema),
     defaultValues: {
@@ -58,7 +63,7 @@ export const useProjectTemplateForm = ({
 
       form.reset(formData);
     }
-  }, [initialData, isUpdate, form]);
+  }, [initialData, isUpdate]);
 
   // Función para obtener los datos finales con isActive manejado automáticamente
   const getSubmitData = (data: CreateProjectTemplate) => {
@@ -83,6 +88,8 @@ export const useProjectTemplateForm = ({
           onSuccess: () => {
             onSuccess?.();
             form.reset();
+            // Limpiar borrador después de guardar exitosamente
+            clearDraft(initialData.id, true);
             // Redirigir a la lista de plantillas
             router.push("/dashboard/admin/templates");
           },
@@ -96,6 +103,8 @@ export const useProjectTemplateForm = ({
           onSuccess: () => {
             onSuccess?.();
             form.reset();
+            // Limpiar borrador después de guardar exitosamente
+            clearDraft(undefined, false);
             // Redirigir a la lista de plantillas
             router.push("/dashboard/admin/templates");
           },

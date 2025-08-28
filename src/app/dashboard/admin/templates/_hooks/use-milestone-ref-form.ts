@@ -20,7 +20,7 @@ export function useMilestoneRefForm({ isUpdate = false, initialData }: UseMilest
       milestoneTemplateId: "",
       isRequired: false,
       customName: "",
-      customizations: {},
+      customizations: undefined,
     },
   });
 
