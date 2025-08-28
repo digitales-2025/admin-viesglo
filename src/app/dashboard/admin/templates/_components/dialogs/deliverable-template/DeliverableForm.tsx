@@ -7,14 +7,14 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { DeliverableFormData } from "../../_schemas/projectTemplates.schemas";
+import { DeliverableFormData } from "../../../_schemas/projectTemplates.schemas";
 import {
   DeliverablePriority,
   DeliverableTemplateResponseDto,
   MilestoneTemplateResponseDto,
   PhaseTemplateResponseDto,
-} from "../../_types/templates.types";
-import { deliverablePriorityConfig } from "../../_utils/templates.utils";
+} from "../../../_types/templates.types";
+import { deliverablePriorityConfig } from "../../../_utils/templates.utils";
 import { AdvancedPrecedenceManager } from "./AdvancedPrecedenceManager";
 
 interface DeliverableFormProps {

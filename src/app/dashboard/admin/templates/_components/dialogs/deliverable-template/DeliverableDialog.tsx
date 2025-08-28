@@ -2,13 +2,13 @@
 
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { useDeliverableTemplateForm } from "../../_hooks/use-deliverable-template-form";
-import { DeliverableFormData } from "../../_schemas/projectTemplates.schemas";
+import { useDeliverableTemplateForm } from "../../../_hooks/use-deliverable-template-form";
+import { DeliverableFormData } from "../../../_schemas/projectTemplates.schemas";
 import {
   DeliverableTemplateResponseDto,
   MilestoneTemplateResponseDto,
   PhaseTemplateResponseDto,
-} from "../../_types/templates.types";
+} from "../../../_types/templates.types";
 import DeliverableForm from "./DeliverableForm";
 
 interface DeliverableDialogProps {
@@ -78,9 +78,10 @@ export function DeliverableDialog({
       }
       dialogContentClassName="sm:max-w-4xl max-h-[90vh] px-0"
       dialogScrollAreaClassName="h-full max-h-[80vh] px-0"
-      drawerScrollAreaClassName="h-[40vh] px-0"
+      drawerContentClassName="max-h-[80vh]"
+      drawerScrollAreaClassName="h-full px-0"
     >
-      <div className="pt-2">
+      <div className="pt-2 pb-4">
         <DeliverableForm
           form={form}
           onSubmit={handleSubmit}

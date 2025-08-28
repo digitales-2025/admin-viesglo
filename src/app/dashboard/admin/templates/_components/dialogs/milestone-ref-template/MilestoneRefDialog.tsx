@@ -2,9 +2,9 @@
 
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { useMilestoneRefForm } from "../../_hooks/use-milestone-ref-form";
-import { MilestoneRefFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateRefRequestDto } from "../../_types/templates.types";
+import { useMilestoneRefForm } from "../../../_hooks/use-milestone-ref-form";
+import { MilestoneRefFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateRefRequestDto } from "../../../_types/templates.types";
 import MilestoneRefForm from "./MilestoneRefForm";
 
 interface MilestoneRefDialogProps {

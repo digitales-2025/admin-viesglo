@@ -6,11 +6,11 @@ import { Plus } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { useMilestoneTemplateForm } from "../../_hooks/use-milestone-template-form";
-import { useDeleteMilestoneTemplate, useMilestoneTemplatesByName } from "../../_hooks/use-milestone-templates";
-import { MilestoneFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateResponseDto } from "../../_types/templates.types";
-import { handleAddMilestoneRef } from "../../_utils/handlers/milestone-ref-template.handlers.utils";
+import { useMilestoneTemplateForm } from "../../../_hooks/use-milestone-template-form";
+import { useDeleteMilestoneTemplate, useMilestoneTemplatesByName } from "../../../_hooks/use-milestone-templates";
+import { MilestoneFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateResponseDto } from "../../../_types/templates.types";
+import { handleAddMilestoneRef } from "../../../_utils/handlers/milestone-ref-template.handlers.utils";
 import { MilestoneForm } from "./MilestoneForm";
 
 interface MilestoneDialogProps {

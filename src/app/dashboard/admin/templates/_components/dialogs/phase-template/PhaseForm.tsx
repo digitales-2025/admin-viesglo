@@ -9,8 +9,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { PhaseFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateResponseDto, PhaseTemplateResponseDto } from "../../_types/templates.types";
+import { PhaseFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateResponseDto, PhaseTemplateResponseDto } from "../../../_types/templates.types";
 
 interface PhaseFormProps {
   form: UseFormReturn<PhaseFormData>;

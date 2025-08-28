@@ -2,9 +2,9 @@
 
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
-import { usePhaseTemplateForm } from "../../_hooks/use-phase-template-form";
-import { PhaseFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateResponseDto, PhaseTemplateResponseDto } from "../../_types/templates.types";
+import { usePhaseTemplateForm } from "../../../_hooks/use-phase-template-form";
+import { PhaseFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateResponseDto, PhaseTemplateResponseDto } from "../../../_types/templates.types";
 import PhaseForm from "./PhaseForm";
 
 interface PhaseDialogProps {
@@ -60,9 +60,10 @@ export function PhaseDialog({
       }
       dialogContentClassName="sm:max-w-md px-0"
       dialogScrollAreaClassName="h-full max-h-[80vh] px-0"
-      drawerScrollAreaClassName="h-[40vh] px-0"
+      drawerContentClassName="max-h-[60vh]"
+      drawerScrollAreaClassName="h-full px-0"
     >
-      <div className="pt-2">
+      <div className="pt-2 pb-4">
         <PhaseForm
           form={form}
           onSubmit={handleSubmit}

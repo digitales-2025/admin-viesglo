@@ -10,9 +10,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/shared/components/ui/input";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { MilestoneFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateResponseDto } from "../../_types/templates.types";
-import { handleAddMilestoneRef } from "../../_utils/handlers/milestone-ref-template.handlers.utils";
+import { MilestoneFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateResponseDto } from "../../../_types/templates.types";
+import { handleAddMilestoneRef } from "../../../_utils/handlers/milestone-ref-template.handlers.utils";
 
 interface MilestoneFormProps {
   searchTerm: string;
@@ -117,38 +117,40 @@ export const MilestoneForm = memo(function MilestoneForm({
               filteredMilestones.map((milestone) => (
                 <div
                   key={milestone.id}
-                  className={`group flex items-center justify-between px-4 py-2 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
+                  className={`group flex items-center justify-between px-3 sm:px-4 py-2 rounded-xl border-2 cursor-pointer transition-all duration-300 hover:shadow-lg ${
                     selectedMilestones.includes(milestone.id)
                       ? "border-primary bg-primary/10 shadow-primary/20"
                       : "border-border hover:border-primary/30 hover:bg-muted/30"
                   }`}
                   onClick={() => handleMilestoneClick(milestone.id)}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
                     <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 mt-0.5 ${
                         selectedMilestones.includes(milestone.id)
                           ? "border-primary bg-primary scale-110"
                           : "border-muted-foreground group-hover:border-primary/50"
                       }`}
                     >
-                      {selectedMilestones.includes(milestone.id) && <Check className="w-3 h-3 text-white" />}
+                      {selectedMilestones.includes(milestone.id) && (
+                        <Check className="w-2 h-2 sm:w-3 sm:h-3 text-white" />
+                      )}
                     </div>
-                    <Target className="w-5 h-5 text-muted-foreground" />
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{milestone.name}</span>
+                    <Target className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+                    <div className="flex flex-col min-w-0 flex-1">
+                      <span className="font-medium text-sm leading-tight">{milestone.name}</span>
                       {milestone.description && (
-                        <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                        <span className="text-xs text-muted-foreground leading-relaxed mt-0.5 line-clamp-2">
                           {milestone.description}
                         </span>
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1 flex-shrink-0 ml-2">
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-8 w-8 p-0 hover:bg-primary/10"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-primary/10"
                       onClick={(e) => handleEditClick(e, milestone)}
                     >
                       <Edit2 className="w-3 h-3" />
@@ -156,7 +158,7 @@ export const MilestoneForm = memo(function MilestoneForm({
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="h-8 w-8 p-0 hover:bg-destructive/10"
+                      className="h-7 w-7 sm:h-8 sm:w-8 p-0 hover:bg-destructive/10"
                       onClick={(e) => handleDeleteClick(e, milestone.id)}
                       disabled={isDeleting}
                     >

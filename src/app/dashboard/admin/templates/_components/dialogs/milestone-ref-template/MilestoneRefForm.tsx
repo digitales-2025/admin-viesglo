@@ -7,8 +7,8 @@ import { Button } from "@/shared/components/ui/button";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { MilestoneRefFormData } from "../../_schemas/projectTemplates.schemas";
-import { MilestoneTemplateRefRequestDto } from "../../_types/templates.types";
+import { MilestoneRefFormData } from "../../../_schemas/projectTemplates.schemas";
+import { MilestoneTemplateRefRequestDto } from "../../../_types/templates.types";
 
 interface MilestoneRefFormProps {
   form: UseFormReturn<MilestoneRefFormData>;
