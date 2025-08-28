@@ -26,7 +26,7 @@ interface TemplatesOverlaysProps {
   milestones: MilestoneTemplateResponseDto[];
   phases: (PhaseTemplateResponseDto & { milestoneId: string })[];
   deliverables: (DeliverableTemplateResponseDto & { phaseId: string })[];
-  onUpdatePhase?: (data: PhaseFormData, selectedMilestoneId?: string) => void;
+  onUpdatePhase?: (data: PhaseFormData) => void;
   onUpdateDeliverable?: (data: DeliverableFormData) => void;
   onAddMilestoneRef?: (milestoneId: string) => void;
   onSuccess?: () => void;
@@ -100,8 +100,8 @@ export default function TemplatesOverlays({
         onAdd={(_, __) => {
           close();
         }}
-        onUpdate={(data, selectedMilestoneId) => {
-          onUpdatePhase?.(data, selectedMilestoneId);
+        onUpdate={(data) => {
+          onUpdatePhase?.(data);
           close();
         }}
         milestones={milestones} // Pasar milestones disponibles

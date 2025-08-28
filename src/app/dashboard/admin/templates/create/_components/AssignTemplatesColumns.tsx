@@ -74,8 +74,14 @@ export default function AssignTemplatesColumns({
   setPhaseToEdit,
   setDeliverableToEdit,
 }: AssignTemplatesColumnsProps) {
-  const visiblePhases = selectedMilestone ? phases.filter((p) => p.milestoneId === selectedMilestone) : [];
-  const visibleDeliverables = selectedPhase ? deliverables.filter((d) => d.phaseId === selectedPhase) : [];
+  // Eliminar duplicados temporalmente para evitar el error de React
+  const uniquePhases = phases.filter((phase, index, self) => index === self.findIndex((p) => p.id === phase.id));
+  const uniqueDeliverables = deliverables.filter(
+    (deliverable, index, self) => index === self.findIndex((d) => d.id === deliverable.id)
+  );
+
+  const visiblePhases = selectedMilestone ? uniquePhases.filter((p) => p.milestoneId === selectedMilestone) : [];
+  const visibleDeliverables = selectedPhase ? uniqueDeliverables.filter((d) => d.phaseId === selectedPhase) : [];
   // Hooks para manejar operaciones de fases
   const handleEditPhase = useHandleEditPhase();
   const handlePhaseDragEnd = useHandlePhaseDragEnd();

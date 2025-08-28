@@ -11,7 +11,7 @@ interface PhaseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAdd?: (phase: PhaseFormData, selectedMilestoneId?: string) => void;
-  onUpdate?: (phase: PhaseFormData, selectedMilestoneId?: string) => void;
+  onUpdate?: (phase: PhaseFormData) => void;
   milestones: MilestoneTemplateResponseDto[];
   initialData?: PhaseTemplateResponseDto & { milestoneId?: string };
   isUpdate?: boolean;
@@ -41,7 +41,7 @@ export function PhaseDialog({
 
   const handleSubmit = (data: PhaseFormData, selectedMilestoneId?: string) => {
     if (isUpdate && onUpdate) {
-      onUpdate(data, selectedMilestoneId);
+      onUpdate(data);
     } else if (onAdd) {
       onAdd(data, selectedMilestoneId);
     }
@@ -55,6 +55,9 @@ export function PhaseDialog({
       isDesktop={isDesktop}
       showTrigger={false}
       title={isUpdate ? "Editar Fase" : "Crear Nueva Fase"}
+      description={
+        isUpdate ? "Completa los campos para actualizar la fase" : "Completa los campos para crear una nueva fase"
+      }
       dialogContentClassName="sm:max-w-md px-0"
       dialogScrollAreaClassName="h-full max-h-[80vh] px-0"
       drawerScrollAreaClassName="h-[40vh] px-0"

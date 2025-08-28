@@ -18,8 +18,8 @@ import { calculateDeliverableVisualOrder } from "../../_utils/create-template.ut
 import { deliverablePriorityConfig } from "../../_utils/templates.utils";
 
 interface AdvancedPrecedenceManagerProps {
-  currentDeliverable: DeliverableTemplateResponseDto;
-  allDeliverables: DeliverableTemplateResponseDto[];
+  currentDeliverable: DeliverableTemplateResponseDto & { phaseId?: string };
+  allDeliverables: (DeliverableTemplateResponseDto & { phaseId: string; phaseName?: string })[];
   selectedPrecedences: DeliverablePrecedenceResponseDto[];
   onPrecedencesChange: (precedences: DeliverablePrecedenceResponseDto[]) => void;
   deliverables: (DeliverableTemplateResponseDto & { phaseId: string })[];
@@ -41,14 +41,22 @@ export function AdvancedPrecedenceManager({
 
   // Filter available deliverables (exclude current and logically invalid ones)
   const availableDeliverables = useMemo(() => {
-    return allDeliverables.filter((deliverable) => {
+    // Eliminar duplicados primero
+    const uniqueDeliverables = allDeliverables.filter(
+      (deliverable, index, self) => index === self.findIndex((d) => d.id === deliverable.id)
+    );
+
+    return uniqueDeliverables.filter((deliverable) => {
       // Exclude current deliverable
       if (deliverable.id === currentDeliverable.id) return false;
 
       // Allow cross-phase dependencies
       return true;
     });
-  }, [allDeliverables, currentDeliverable.id]);
+  }, [allDeliverables, currentDeliverable.id]) as (DeliverableTemplateResponseDto & {
+    phaseId: string;
+    phaseName?: string;
+  })[];
 
   // Filter deliverables based on search and phase
   const filteredDeliverables = useMemo(() => {
@@ -56,7 +64,7 @@ export function AdvancedPrecedenceManager({
       const matchesSearch =
         deliverable.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         calculateDeliverableVisualOrder(deliverable, deliverables, phases, milestoneTemplates).includes(searchTerm);
-      const matchesPhase = selectedPhaseFilter === "all" || deliverable.id === selectedPhaseFilter;
+      const matchesPhase = selectedPhaseFilter === "all" || deliverable.phaseId === selectedPhaseFilter;
       return matchesSearch && matchesPhase;
     });
   }, [availableDeliverables, searchTerm, selectedPhaseFilter]);
@@ -65,13 +73,17 @@ export function AdvancedPrecedenceManager({
   const deliverablesByPhase = useMemo(() => {
     const grouped = filteredDeliverables.reduce(
       (acc, deliverable) => {
-        if (!acc[deliverable.id]) {
-          acc[deliverable.id] = {
-            phaseName: deliverable.name,
+        // Usar phaseId para agrupar correctamente
+        const phaseId = deliverable.phaseId || deliverable.id;
+        if (!acc[phaseId]) {
+          // Buscar el nombre de la fase
+          const phase = phases.find((p) => p.id === phaseId);
+          acc[phaseId] = {
+            phaseName: phase?.name || "Fase desconocida",
             deliverables: [],
           };
         }
-        acc[deliverable.id].deliverables.push(deliverable);
+        acc[phaseId].deliverables.push(deliverable);
         return acc;
       },
       {} as Record<string, { phaseName: string; deliverables: DeliverableTemplateResponseDto[] }>
@@ -87,18 +99,22 @@ export function AdvancedPrecedenceManager({
     });
 
     return grouped;
-  }, [filteredDeliverables]);
+  }, [filteredDeliverables, phases]);
 
   const uniquePhases = useMemo(() => {
-    const phases = availableDeliverables.reduce(
+    const phaseMap = availableDeliverables.reduce(
       (acc, deliverable) => {
-        acc[deliverable.id] = deliverable.name;
+        const phaseId = deliverable.phaseId || deliverable.id;
+        const phase = phases.find((p) => p.id === phaseId);
+        if (phase && !acc[phaseId]) {
+          acc[phaseId] = phase.name;
+        }
         return acc;
       },
       {} as Record<string, string>
     );
-    return Object.entries(phases);
-  }, [availableDeliverables]);
+    return Object.entries(phaseMap);
+  }, [availableDeliverables, phases]);
 
   const isSelected = (deliverableId: string) => {
     return selectedPrecedences.some((p) => p.deliverableId === deliverableId);
