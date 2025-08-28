@@ -66,9 +66,9 @@ export default function CreateTemplatesPage() {
   return (
     <>
       <ShellHeader>
-        <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
           <ShellTitle title="Nueva plantilla" description="Crea una nueva plantilla de proyecto." />
-          <AutoSaveStatus isAutoSaving={isAutoSaving} lastSaved={lastSaved} className="ml-4" />
+          <AutoSaveStatus isAutoSaving={isAutoSaving} lastSaved={lastSaved} />
         </div>
       </ShellHeader>
 

@@ -17,9 +17,9 @@ import {
   handleAddMilestoneRefConfig,
   handleUpdateMilestoneRefConfig,
 } from "../../_utils/handlers/milestone-ref-template.handlers.utils";
-import { DeliverableDialog } from "../dialogs/DeliverableDialog";
-import { MilestoneRefDialog } from "../dialogs/MilestoneRefDialog";
-import { PhaseDialog } from "../dialogs/PhaseDialog";
+import { DeliverableDialog } from "../dialogs/deliverable-template/DeliverableDialog";
+import { MilestoneRefDialog } from "../dialogs/milestone-ref-template/MilestoneRefDialog";
+import { PhaseDialog } from "../dialogs/phase-template/PhaseDialog";
 
 interface TemplatesOverlaysProps {
   form: UseFormReturn<CreateProjectTemplate>;
