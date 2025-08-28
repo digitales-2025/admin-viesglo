@@ -35,7 +35,9 @@ export function ProfileDropdown() {
         <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <span className={`absolute -right-1 -top-1 h-3 w-3 rounded-full ${dotColor} ring-2 ring-background`} />
+              <span
+                className={`absolute -right-1 -top-0.5 h-3 w-3 rounded-full ${dotColor} ring-2 ring-background z-10`}
+              />
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="rounded-lg uppercase font-bold">
                   {firstLetterName(user?.name || "")}

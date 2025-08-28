@@ -1221,6 +1221,403 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/project-templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva plantilla de proyecto */
+    post: operations["ProjectTemplatesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-templates/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantilla de proyecto por ID */
+    get: operations["ProjectTemplatesController_findById_v1"];
+    /** Actualizar una plantilla de proyecto existente */
+    put: operations["ProjectTemplatesController_update_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-templates/{id}/delete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Eliminar (borrado lógico) una plantilla de proyecto */
+    patch: operations["ProjectTemplatesController_delete_v1"];
+    trace?: never;
+  };
+  "/v1/project-templates/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar una plantilla de proyecto */
+    patch: operations["ProjectTemplatesController_reactivate_v1"];
+    trace?: never;
+  };
+  "/v1/project-templates/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantillas de proyecto con filtros y paginación */
+    get: operations["ProjectTemplatesController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-templates/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantillas de proyecto activas */
+    get: operations["ProjectTemplatesController_findActive_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-templates/{id}/detailed": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantilla de proyecto por ID con milestone templates completos */
+    get: operations["ProjectTemplatesController_findDetailedById_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tags": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva etiqueta */
+    post: operations["TagController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tags/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar etiqueta por ID */
+    get: operations["TagController_findById_v1"];
+    /** Actualizar una etiqueta existente */
+    put: operations["TagController_update_v1"];
+    post?: never;
+    /** Eliminar una etiqueta */
+    delete: operations["TagController_delete_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/tags/search": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar etiquetas por nombre (autocomplete) */
+    get: operations["TagController_findByName_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Crear una nueva plantilla de hito */
+    post: operations["MilestoneTemplatesController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantilla de hito por ID */
+    get: operations["MilestoneTemplatesController_findById_v1"];
+    /** Actualizar una plantilla de hito existente */
+    put: operations["MilestoneTemplatesController_update_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/delete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Eliminar (borrado lógico) una plantilla de hito */
+    patch: operations["MilestoneTemplatesController_delete_v1"];
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar una plantilla de hito */
+    patch: operations["MilestoneTemplatesController_reactivate_v1"];
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/toggle-active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Alternar estado activo de una plantilla de hito */
+    patch: operations["MilestoneTemplatesController_toggleActive_v1"];
+    trace?: never;
+  };
+  "/v1/milestone-templates/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantillas de hito con filtros y paginación */
+    get: operations["MilestoneTemplatesController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/active": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantillas de hito activas */
+    get: operations["MilestoneTemplatesController_findActive_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/by-name": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar plantillas de hito por nombre (autocomplete) */
+    get: operations["MilestoneTemplatesController_findByName_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/phases": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar fase a una plantilla de hito */
+    post: operations["MilestoneTemplatesController_addPhase_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/phases/{phaseId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar una fase de una plantilla de hito */
+    put: operations["MilestoneTemplatesController_updatePhase_v1"];
+    post?: never;
+    /** Eliminar una fase de una plantilla de hito */
+    delete: operations["MilestoneTemplatesController_deletePhase_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/phases/{phaseId}/deliverables": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Agregar entregable a una fase */
+    post: operations["MilestoneTemplatesController_addDeliverable_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/phases/{phaseId}/deliverables/{deliverableId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Actualizar un entregable de una fase */
+    put: operations["MilestoneTemplatesController_updateDeliverable_v1"];
+    post?: never;
+    /** Eliminar un entregable de una fase */
+    delete: operations["MilestoneTemplatesController_deleteDeliverable_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/milestone-templates/change-position": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Cambiar posición de un elemento (fase o entregable) */
+    patch: operations["MilestoneTemplatesController_changePosition_v1"];
+    trace?: never;
+  };
   "/v1/dashboards/clients/summary": {
     parameters: {
       query?: never;
@@ -3565,6 +3962,626 @@ export interface components {
        *     ]
        */
       combinations: string[];
+    };
+    MilestoneTemplateRefRequestDto: {
+      /**
+       * @description ID único del hito de plantilla
+       * @example milestone-uuid-123
+       */
+      milestoneTemplateId: string;
+      /**
+       * @description Indica si el hito es requerido
+       * @default false
+       * @example true
+       */
+      isRequired: boolean;
+      /**
+       * @description Nombre personalizado del hito
+       * @example Hito personalizado
+       */
+      customName?: string;
+      /**
+       * @description Customizaciones del hito (objeto JSON)
+       * @example {
+       *       "campo": "valor"
+       *     }
+       */
+      customizations?: Record<string, never>;
+    };
+    CreateProjectTemplateRequestDto: {
+      /**
+       * @description Nombre de la plantilla de proyecto
+       * @example Plantilla Estándar
+       */
+      name: string;
+      /**
+       * @description Descripción de la plantilla
+       * @example Plantilla para proyectos estándar
+       */
+      description?: string;
+      /**
+       * @description Indica si la plantilla está activa
+       * @default true
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Lista de hitos de la plantilla
+       * @example [
+       *       {
+       *         "milestoneTemplateId": "milestone-uuid-123",
+       *         "isRequired": true,
+       *         "customName": "Inicio",
+       *         "customizations": {
+       *           "campo": "valor"
+       *         }
+       *       }
+       *     ]
+       */
+      milestones?: components["schemas"]["MilestoneTemplateRefRequestDto"][];
+      /**
+       * @description IDs de etiquetas asociadas
+       * @example [
+       *       "tagid1",
+       *       "tagid2"
+       *     ]
+       */
+      tagIds?: string[];
+    };
+    MilestoneTemplateRefResponseDto: {
+      /**
+       * @description ID único del hito
+       * @example milestone-uuid-123
+       */
+      milestoneTemplateId: string;
+      /**
+       * @description Si el hito es requerido
+       * @example true
+       */
+      isRequired?: boolean;
+      /**
+       * @description Nombre personalizado del hito
+       * @example Inicio
+       */
+      customName?: string;
+      /**
+       * @description Customizaciones del hito (objeto JSON)
+       * @example {
+       *       "campo": "valor"
+       *     }
+       */
+      customizations?: Record<string, never>;
+    };
+    TagResponseDto: {
+      /**
+       * @description ID único de la etiqueta
+       * @example tag-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre de la etiqueta
+       * @example Urgente
+       */
+      name: string;
+      /**
+       * @description Color hexadecimal de la etiqueta
+       * @example #FF0000
+       */
+      color?: string;
+      /**
+       * @description Indica si la etiqueta está activa
+       * @example true
+       */
+      isActive: boolean;
+    };
+    ProjectTemplateResponseDto: {
+      /**
+       * @description ID de la plantilla
+       * @example template-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre de la plantilla
+       * @example Plantilla Estándar
+       */
+      name: string;
+      /**
+       * @description Descripción de la plantilla
+       * @example Plantilla para proyectos estándar
+       */
+      description?: string;
+      /**
+       * @description Si la plantilla está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación
+       * @example 2024-02-01T10:30:00.000Z
+       */
+      deletedAt?: Record<string, never>;
+      /** @description Lista de hitos de la plantilla */
+      milestones?: components["schemas"]["MilestoneTemplateRefResponseDto"][];
+      /** @description Lista de etiquetas de la plantilla */
+      tags?: components["schemas"]["TagResponseDto"][];
+      /**
+       * @description IDs de etiquetas asociadas
+       * @example [
+       *       "tagid1",
+       *       "tagid2"
+       *     ]
+       */
+      tagIds?: string[];
+    };
+    UpdateProjectTemplateRequestDto: {
+      /**
+       * @description Nombre de la plantilla de proyecto
+       * @example Plantilla Estándar
+       */
+      name?: string;
+      /**
+       * @description Descripción de la plantilla
+       * @example Plantilla para proyectos estándar
+       */
+      description?: string;
+      /**
+       * @description Indica si la plantilla está activa
+       * @default true
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Lista de hitos de la plantilla
+       * @example [
+       *       {
+       *         "milestoneTemplateId": "milestone-uuid-123",
+       *         "isRequired": true,
+       *         "customName": "Inicio",
+       *         "customizations": {
+       *           "campo": "valor"
+       *         }
+       *       }
+       *     ]
+       */
+      milestones?: components["schemas"]["MilestoneTemplateRefRequestDto"][];
+      /**
+       * @description IDs de etiquetas asociadas
+       * @example [
+       *       "tagid1",
+       *       "tagid2"
+       *     ]
+       */
+      tagIds?: string[];
+    };
+    PaginatedProjectTemplateResponseDto: {
+      /** @description Lista de plantillas de proyecto paginadas */
+      data: components["schemas"]["ProjectTemplateResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    DeliverablePrecedenceResponseDto: {
+      /**
+       * @description ID único del entregable del cual depende este entregable.
+       * @example deliverable-uuid-456
+       */
+      deliverableId: string;
+    };
+    DeliverableTemplateResponseDto: {
+      /**
+       * @description ID único del entregable
+       * @example deliverable-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre del entregable
+       * @example Documento final
+       */
+      name: string;
+      /**
+       * @description Descripción del entregable
+       * @example Debe entregarse firmado por el cliente.
+       */
+      description?: string;
+      /**
+       * @description Prioridad del entregable
+       * @example HIGH
+       * @enum {string}
+       */
+      priority: "HIGH" | "MEDIUM" | "LOW";
+      /**
+       * @description Lista de precedencias de este entregable (dependencias)
+       * @example [
+       *       {
+       *         "deliverableId": "deliverable-uuid-456"
+       *       }
+       *     ]
+       */
+      precedence?: components["schemas"]["DeliverablePrecedenceResponseDto"][];
+    };
+    PhaseTemplateResponseDto: {
+      /**
+       * @description ID único de la fase
+       * @example phase-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre de la fase
+       * @example Planeación
+       */
+      name: string;
+      /**
+       * @description Descripción de la fase
+       * @example Fase inicial donde se planifican los entregables y actividades.
+       */
+      description?: string;
+      /** @description Lista de entregables asociados a la fase */
+      deliverables?: components["schemas"]["DeliverableTemplateResponseDto"][];
+    };
+    MilestoneTemplateResponseDto: {
+      /**
+       * @description ID único de la plantilla de hito
+       * @example milestone-template-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre de la plantilla de hito
+       * @example Hito Estándar
+       */
+      name: string;
+      /**
+       * @description Descripción de la plantilla de hito
+       * @example Plantilla para hitos estándar de proyectos de consultoría.
+       */
+      description?: string;
+      /**
+       * @description Indica si la plantilla está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la plantilla
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización de la plantilla
+       * @example 2024-01-20T12:00:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación lógica (si aplica)
+       * @example 2024-02-01T10:30:00.000Z
+       */
+      deletedAt?: Record<string, never>;
+      /** @description Lista de fases que componen la plantilla de hito */
+      phases?: components["schemas"]["PhaseTemplateResponseDto"][];
+    };
+    ProjectTemplateDetailedResponseDto: {
+      /**
+       * @description ID de la plantilla
+       * @example template-uuid-123
+       */
+      id: string;
+      /**
+       * @description Nombre de la plantilla
+       * @example Plantilla Estándar
+       */
+      name: string;
+      /**
+       * @description Descripción de la plantilla
+       * @example Plantilla para proyectos estándar
+       */
+      description?: string;
+      /**
+       * @description Si la plantilla está activa
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de actualización
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Fecha de eliminación
+       * @example 2024-02-01T10:30:00.000Z
+       */
+      deletedAt?: Record<string, never>;
+      /** @description Lista de hitos de la plantilla con referencias */
+      milestones?: components["schemas"]["MilestoneTemplateRefResponseDto"][];
+      /** @description Lista de milestone templates completos expandidos */
+      milestoneTemplates?: components["schemas"]["MilestoneTemplateResponseDto"][];
+      /** @description Lista de etiquetas de la plantilla */
+      tags?: components["schemas"]["TagResponseDto"][];
+      /**
+       * @description IDs de etiquetas asociadas
+       * @example [
+       *       "tagid1",
+       *       "tagid2"
+       *     ]
+       */
+      tagIds?: string[];
+    };
+    CreateTagRequestDto: {
+      /**
+       * @description Nombre de la etiqueta
+       * @example Urgente
+       */
+      name: string;
+      /**
+       * @description Color hexadecimal de la etiqueta
+       * @example #FF0000
+       */
+      color?: string;
+      /**
+       * @description Indica si la etiqueta está activa
+       * @default true
+       * @example true
+       */
+      isActive: boolean;
+    };
+    UpdateTagRequestDto: {
+      /**
+       * @description Nombre de la etiqueta
+       * @example Urgente
+       */
+      name?: string;
+      /**
+       * @description Color hexadecimal de la etiqueta
+       * @example #FF0000
+       */
+      color?: string;
+      /**
+       * @description Indica si la etiqueta está activa
+       * @default true
+       * @example true
+       */
+      isActive: boolean;
+    };
+    DeliverablePrecedenceRequestDto: {
+      /**
+       * @description ID único del entregable del cual depende este entregable. Permite definir precedencias entre entregables dentro de la misma fase.
+       * @example deliverable-uuid-123
+       */
+      deliverableId: string;
+    };
+    DeliverableTemplateRequestDto: {
+      /**
+       * @description Nombre único y descriptivo del entregable dentro de la fase.
+       *     Debe ser claro y no repetirse en otros entregables de la misma fase.
+       * @example Documento final
+       */
+      name: string;
+      /**
+       * @description Descripción opcional del entregable, detallando su contenido o requisitos.
+       * @example Debe entregarse firmado por el cliente.
+       */
+      description?: string;
+      /**
+       * @description Prioridad del entregable según su importancia o urgencia.
+       * @example HIGH
+       * @enum {string}
+       */
+      priority: "HIGH" | "MEDIUM" | "LOW";
+      /**
+       * @description Lista de precedencias de este entregable.
+       *     Permite definir dependencias con otros entregables de la misma fase.
+       *     Por ejemplo, un entregable puede requerir que otro entregable esté completado antes.
+       * @example [
+       *       {
+       *         "deliverableId": "deliverable-uuid-456"
+       *       },
+       *       {
+       *         "deliverableId": "deliverable-uuid-789"
+       *       }
+       *     ]
+       */
+      precedence?: components["schemas"]["DeliverablePrecedenceRequestDto"][];
+    };
+    PhaseTemplateRequestDto: {
+      /**
+       * @description Nombre único y descriptivo de la fase dentro de la plantilla de hito.
+       *     Debe ser claro y no repetirse en otras fases de la misma plantilla.
+       * @example Planeación
+       */
+      name: string;
+      /**
+       * @description Descripción opcional de la fase, explicando su propósito o actividades principales.
+       * @example Fase inicial donde se planifican los entregables y actividades.
+       */
+      description?: string;
+      /**
+       * @description Lista de entregables asociados a la fase.
+       *     Cada entregable debe tener un nombre, orden y prioridad únicos dentro de la fase.
+       *     Puedes incluir el campo "id" para actualizar un entregable existente.
+       * @example [
+       *       {
+       *         "id": "deliverable-uuid-123",
+       *         "name": "Documento final",
+       *         "priority": "HIGH",
+       *         "description": "Documento firmado por el cliente.",
+       *         "precedence": [
+       *           {
+       *             "deliverableId": "deliverable-uuid-456"
+       *           }
+       *         ]
+       *       },
+       *       {
+       *         "id": "deliverable-uuid-456",
+       *         "name": "Checklist de inicio",
+       *         "priority": "MEDIUM",
+       *         "description": "Lista de verificación para el arranque."
+       *       }
+       *     ]
+       */
+      deliverables?: components["schemas"]["DeliverableTemplateRequestDto"][];
+    };
+    CreateMilestoneTemplateRequestDto: {
+      /**
+       * @description Nombre único y descriptivo de la plantilla de hito. Debe ser claro para identificar el propósito de la plantilla.
+       * @example Hito Estándar
+       */
+      name: string;
+      /**
+       * @description Descripción opcional que explique el objetivo o uso de la plantilla de hito.
+       * @example Plantilla para hitos estándar de proyectos de consultoría.
+       */
+      description?: string;
+      /**
+       * @description Indica si la plantilla está activa y disponible para ser usada en nuevos proyectos.
+       * @default true
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Lista de fases que componen la plantilla de hito. Cada fase puede tener entregables asociados.
+       *     - El orden de las fases debe ser único y seguir el formato "1.1", "2.1", etc.
+       *     - El nombre de cada fase debe ser único dentro de la plantilla.
+       * @example [
+       *       {
+       *         "name": "Planeación",
+       *         "description": "Fase de planeación inicial del proyecto.",
+       *         "deliverables": [
+       *           {
+       *             "name": "Documento final",
+       *             "priority": "HIGH",
+       *             "description": "Documento firmado por el cliente.",
+       *             "precedence": [
+       *               {
+       *                 "deliverableId": "deliverable-uuid-456"
+       *               }
+       *             ]
+       *           },
+       *           {
+       *             "name": "Checklist de inicio",
+       *             "priority": "MEDIUM",
+       *             "description": "Lista de verificación para el arranque."
+       *           }
+       *         ]
+       *       },
+       *       {
+       *         "name": "Ejecución",
+       *         "description": "Fase de ejecución de actividades.",
+       *         "deliverables": [
+       *           {
+       *             "name": "Reporte de avance",
+       *             "priority": "MEDIUM",
+       *             "description": "Reporte semanal de avance."
+       *           }
+       *         ]
+       *       }
+       *     ]
+       */
+      phases?: components["schemas"]["PhaseTemplateRequestDto"][];
+    };
+    UpdateMilestoneTemplateRequestDto: {
+      /**
+       * @description Nombre único y descriptivo de la plantilla de hito. Debe ser claro para identificar el propósito de la plantilla.
+       * @example Hito Estándar Actualizado
+       */
+      name?: string;
+      /**
+       * @description Descripción opcional que explique el objetivo o uso de la plantilla de hito.
+       * @example Plantilla actualizada para hitos estándar de proyectos de consultoría.
+       */
+      description?: string;
+      /**
+       * @description Indica si la plantilla está activa y disponible para ser usada en nuevos proyectos.
+       * @default true
+       * @example false
+       */
+      isActive: boolean;
+      /**
+       * @description Lista de fases que componen la plantilla de hito. Cada fase puede tener entregables asociados.
+       *     - El orden de las fases debe ser único y seguir el formato "1.1", "2.1", etc.
+       *     - El nombre de cada fase debe ser único dentro de la plantilla.
+       *     - Para actualizar una fase o entregable, incluye su ID.
+       * @example [
+       *       {
+       *         "id": "phase-uuid-123",
+       *         "name": "Planeación",
+       *         "description": "Fase de planeación inicial del proyecto.",
+       *         "deliverables": [
+       *           {
+       *             "id": "deliverable-uuid-123",
+       *             "name": "Documento final actualizado",
+       *             "priority": "HIGH",
+       *             "description": "Documento firmado y revisado por el cliente.",
+       *             "precedence": [
+       *               {
+       *                 "deliverableId": "deliverable-uuid-456"
+       *               }
+       *             ]
+       *           },
+       *           {
+       *             "id": "deliverable-uuid-456",
+       *             "name": "Checklist de inicio actualizado",
+       *             "priority": "MEDIUM",
+       *             "description": "Lista de verificación para el arranque revisada."
+       *           }
+       *         ]
+       *       },
+       *       {
+       *         "id": "phase-uuid-456",
+       *         "name": "Ejecución",
+       *         "description": "Fase de ejecución de actividades actualizada.",
+       *         "deliverables": [
+       *           {
+       *             "id": "deliverable-uuid-789",
+       *             "name": "Reporte de avance actualizado",
+       *             "priority": "MEDIUM",
+       *             "description": "Reporte semanal de avance actualizado."
+       *           }
+       *         ]
+       *       }
+       *     ]
+       */
+      phases?: components["schemas"]["PhaseTemplateRequestDto"][];
+    };
+    PaginatedMilestoneTemplateResponseDto: {
+      /** @description Lista de plantillas de hito paginadas */
+      data: components["schemas"]["MilestoneTemplateResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    ChangePositionRequestDto: {
+      /**
+       * @description ID del elemento cuya posición se va a cambiar
+       * @example 68a4de9558f2907dcec74e9e
+       */
+      positionId: string;
+      /**
+       * @description Tipo de elemento cuya posición se va a cambiar
+       * @example phase
+       * @enum {string}
+       */
+      type: "milestone" | "phase" | "deliverable";
+      /**
+       * @description Nueva posición del elemento (índice basado en 0)
+       * @example 2
+       */
+      newPosition: number;
     };
     ClientsDashboardSummaryResponseDto: Record<string, never>;
   };
@@ -6405,6 +7422,1504 @@ export interface operations {
       };
       /** @description Sin permisos suficientes */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Plantilla creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla ya existe */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Plantilla actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla reactivada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantillas paginadas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedProjectTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_findActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantillas activas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_findDetailedById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla encontrada con milestone templates expandidos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectTemplateDetailedResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateTagRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Etiqueta creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TagResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Etiqueta ya existe */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Etiqueta encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TagResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Etiqueta no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateTagRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Etiqueta actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TagResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Etiqueta no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Etiqueta eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TagResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Etiqueta no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Etiqueta relacionada con proyectos/plantillas */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_findByName_v1: {
+    parameters: {
+      query?: {
+        name?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Etiquetas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["TagResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMilestoneTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Plantilla de hito creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla ya existe */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla de hito encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMilestoneTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Plantilla de hito actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla de hito eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantilla de hito reactivada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_toggleActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado de la plantilla de hito alternado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantillas de hito paginadas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedMilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_findActive_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantillas de hito activas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_findByName_v1: {
+    parameters: {
+      query?: {
+        name?: string;
+        limit?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Plantillas de hito encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_addPhase_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PhaseTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Fase agregada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_updatePhase_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        phaseId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["PhaseTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Fase actualizada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito o fase no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_deletePhase_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        phaseId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Fase eliminada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito o fase no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_addDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        phaseId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeliverableTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito o fase no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_updateDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        phaseId: string;
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["DeliverableTemplateRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito, fase o entregable no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_deleteDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+        phaseId: string;
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Entregable eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla de hito, fase o entregable no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  MilestoneTemplatesController_changePosition_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["ChangePositionRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Posición cambiada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Elemento no encontrado */
+      404: {
         headers: {
           [name: string]: unknown;
         };
