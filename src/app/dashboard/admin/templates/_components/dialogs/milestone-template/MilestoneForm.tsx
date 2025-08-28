@@ -138,7 +138,9 @@ export const MilestoneForm = memo(function MilestoneForm({
                     </div>
                     <Target className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
                     <div className="flex flex-col min-w-0 flex-1">
-                      <span className="font-medium text-sm leading-tight">{milestone.name}</span>
+                      <span className="font-medium text-sm leading-tight max-w-[190px] break-words">
+                        {milestone.name}
+                      </span>
                       {milestone.description && (
                         <span className="text-xs text-muted-foreground leading-relaxed mt-0.5 line-clamp-2">
                           {milestone.description}

@@ -11,7 +11,7 @@ import { useCreateMilestoneTemplate, useUpdateMilestoneTemplate } from "./use-mi
 interface UseMilestoneTemplateFormProps {
   isUpdate?: boolean;
   initialData?: MilestoneTemplateResponseDto;
-  onSuccess?: () => void;
+  onSuccess?: (response?: MilestoneTemplateResponseDto) => void;
 }
 
 export function useMilestoneTemplateForm({ isUpdate = false, initialData, onSuccess }: UseMilestoneTemplateFormProps) {
@@ -58,8 +58,8 @@ export function useMilestoneTemplateForm({ isUpdate = false, initialData, onSucc
           body: submitData,
         },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }
@@ -68,8 +68,8 @@ export function useMilestoneTemplateForm({ isUpdate = false, initialData, onSucc
       createMilestoneTemplate(
         { body: submitData },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            onSuccess?.(response);
             form.reset();
           },
         }
