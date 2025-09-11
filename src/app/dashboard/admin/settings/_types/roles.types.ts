@@ -14,6 +14,7 @@ export enum EnumResource {
   projects = "projects",
   clients = "clients",
   milestones = "milestones",
+  resources = "resources",
   phases = "phases",
   deliverables = "deliverables",
   activities = "activities",
