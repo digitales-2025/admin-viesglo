@@ -62,7 +62,7 @@ export const sidebarData: SidebarData = {
             {
               title: "Gestión de Recursos",
               icon: ClipboardCheck,
-              url: "/dashboard/resources",
+              url: "/dashboard/admin/resources",
               permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
             },
           ],

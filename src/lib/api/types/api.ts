@@ -1638,6 +1638,131 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/resources": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Listar recursos activos */
+    get: operations["ResourceController_list_v1"];
+    put?: never;
+    /** Crear un nuevo recurso */
+    post: operations["ResourceController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/resources/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar recursos con filtros y paginación */
+    get: operations["ResourceController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/resources/{resourceId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener recurso por ID */
+    get: operations["ResourceController_findOne_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar recurso */
+    delete: operations["ResourceController_delete_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar recurso */
+    patch: operations["ResourceController_update_v1"];
+    trace?: never;
+  };
+  "/v1/resources/{resourceId}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar recurso eliminado */
+    patch: operations["ResourceController_reactivate_v1"];
+    trace?: never;
+  };
+  "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Listar recursos de hito */
+    get: operations["ProjectResourceController_findByMilestone_v1"];
+    put?: never;
+    /** Crear recurso en hito */
+    post: operations["ProjectResourceController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources/total-cost": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener costo total del hito */
+    get: operations["ProjectResourceController_getTotalCost_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener recurso de proyecto por ID */
+    get: operations["ProjectResourceController_findById_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar recurso de proyecto */
+    delete: operations["ProjectResourceController_delete_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar recurso de proyecto */
+    patch: operations["ProjectResourceController_update_v1"];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -4584,6 +4709,145 @@ export interface components {
       newPosition: number;
     };
     ClientsDashboardSummaryResponseDto: Record<string, never>;
+    CreateResourceRequestDto: {
+      /**
+       * @description Nombre del recurso
+       * @example Material de oficina
+       */
+      name: string;
+      /**
+       * @description Descripción del recurso
+       * @example Materiales necesarios para la oficina
+       */
+      description?: string;
+      /**
+       * @description Categoría del recurso
+       * @example DIRECT_COSTS
+       * @enum {string}
+       */
+      category: "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
+    };
+    ResourceResponseDto: {
+      /** @description ID único del recurso */
+      id: string;
+      /** @description Nombre del recurso */
+      name: string;
+      /** @description Descripción del recurso */
+      description?: string;
+      /**
+       * @description Categoría del recurso
+       * @example DIRECT_COSTS
+       * @enum {string}
+       */
+      category: "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
+      /** @description Estado activo del recurso */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       */
+      updatedAt: string;
+    };
+    PaginatedResourceResponseDto: {
+      /** @description Lista de recursos paginados */
+      data: components["schemas"]["ResourceResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
+    UpdateResourceRequestDto: {
+      /**
+       * @description Nombre del recurso
+       * @example Material de oficina actualizado
+       */
+      name?: string;
+      /**
+       * @description Descripción del recurso
+       * @example Materiales necesarios para la oficina actualizados
+       */
+      description?: string;
+      /**
+       * @description Categoría del recurso
+       * @example INDIRECT_COSTS
+       * @enum {string}
+       */
+      category?: "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
+      /**
+       * @description Estado activo del recurso
+       * @example true
+       */
+      isActive?: boolean;
+    };
+    CreateProjectResourceRequestDto: {
+      /** @description ID del recurso del catálogo a asignar */
+      resourceId: string;
+      /**
+       * @description Monto del recurso
+       * @example 150.5
+       */
+      amount: number;
+      /**
+       * @description Fecha del recurso (ISO)
+       * @example 2025-05-15T00:00:00.000Z
+       */
+      date: string;
+      /** @description Detalle del recurso */
+      details?: string;
+    };
+    ProjectResourceResponseDto: {
+      /** @description ID del recurso de proyecto */
+      id: string;
+      /** @description ID del proyecto */
+      projectId: string;
+      /** @description ID del hito */
+      milestoneId: string;
+      /** @description ID del recurso (catálogo) */
+      resourceId: string;
+      /** @description Nombre del recurso (catálogo) */
+      resourceName: string;
+      /** @description Categoría del recurso (catálogo) */
+      resourceCategory: string;
+      /** @description Monto */
+      amount: number;
+      /**
+       * Format: date-time
+       * @description Fecha
+       */
+      date: string;
+      /** @description Detalle */
+      details?: string;
+      /** @description Activo */
+      isActive: boolean;
+      /**
+       * Format: date-time
+       * @description Creación
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Actualización
+       */
+      updatedAt: string;
+    };
+    UpdateProjectResourceRequestDto: {
+      /** @description ID del recurso del catálogo */
+      resourceId?: string;
+      /**
+       * @description Monto del recurso
+       * @example 200
+       */
+      amount?: number;
+      /** @description Fecha (ISO) */
+      date?: string;
+      /** @description Detalle */
+      details?: string;
+      /** @description Estado activo */
+      isActive?: boolean;
+    };
   };
   responses: never;
   parameters: never;
@@ -8946,6 +9210,503 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ClientsDashboardSummaryResponseDto"];
         };
+      };
+    };
+  };
+  ResourceController_list_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Listado de recursos activos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ResourceController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateResourceRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Recurso creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Recurso ya existe */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ResourceController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recursos paginados encontrados */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedResourceResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ResourceController_findOne_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        resourceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso encontrado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Recurso no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ResourceController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        resourceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Recurso no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ResourceController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        resourceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateResourceRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Recurso actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Recurso no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ResourceController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        resourceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso reactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ResourceResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Recurso no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectResourceController_findByMilestone_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Listado de recursos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"][];
+        };
+      };
+    };
+  };
+  ProjectResourceController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectResourceRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Recurso de proyecto creado */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"];
+        };
+      };
+    };
+  };
+  ProjectResourceController_getTotalCost_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Costo total */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectResourceController_findById_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso de proyecto */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"];
+        };
+      };
+      /** @description No encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectResourceController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso eliminado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"];
+        };
+      };
+      /** @description No encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectResourceController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectResourceRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Recurso actualizado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"];
+        };
+      };
+      /** @description No encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
