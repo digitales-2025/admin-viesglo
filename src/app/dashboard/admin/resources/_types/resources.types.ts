@@ -1,43 +1,7 @@
-/**
- * Tipos para la gestión de recursos
- */
+import { components } from "@/lib/api/types/api";
 
 export type ResourceCategory = "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
-
-export interface ResourceResponseDto {
-  id: string;
-  name: string;
-  category: ResourceCategory;
-  description?: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateResourceRequestDto {
-  name: string;
-  category: ResourceCategory;
-  description?: string;
-}
-
-export interface UpdateResourceRequestDto {
-  name?: string;
-  category?: ResourceCategory;
-  description?: string;
-}
-
-export interface PaginatedResourceResponseDto {
-  data: ResourceResponseDto[];
-  meta: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-export interface ResourceFilters {
-  search?: string;
-  category?: string;
-  isActive?: boolean;
-}
+export type ResourceResponseDto = components["schemas"]["ResourceResponseDto"];
+export type CreateResourceRequestDto = components["schemas"]["CreateResourceRequestDto"];
+export type UpdateResourceRequestDto = components["schemas"]["UpdateResourceRequestDto"];
+export type PaginatedResourceResponseDto = components["schemas"]["PaginatedResourceResponseDto"];
