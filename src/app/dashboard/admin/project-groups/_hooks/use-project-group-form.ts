@@ -16,12 +16,15 @@ import { useCreateProjectGroup, useUpdateProjectGroup } from "./use-project-grou
 const STATUS_ENUM = ["activo", "inactivo"] as const;
 
 const projectGroupSchema = z.object({
-  name: z.string().min(1, "El nombre es requerido").max(100, "El nombre no puede exceder 100 caracteres"),
+  name: z
+    .string()
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .max(100, "El nombre no puede exceder 100 caracteres"),
   description: z.string().optional(),
   status: z.enum(STATUS_ENUM, {
     required_error: "El estado es requerido",
   }),
-  period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "El período debe tener el formato YYYY-MM"),
+  period: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "El período debe tener el formato YYYY-MM (ej: 2024-01)"),
 });
 
 export type ProjectGroupFormData = z.infer<typeof projectGroupSchema>;
@@ -81,8 +84,10 @@ export function useProjectGroupForm({ isUpdate = false, initialData, onSuccess }
       };
       updateProjectGroup(
         {
-          id: initialData.id,
-          data: updateData,
+          params: {
+            path: { id: initialData.id },
+          },
+          body: updateData,
         },
         {
           onSuccess: () => {
@@ -98,12 +103,18 @@ export function useProjectGroupForm({ isUpdate = false, initialData, onSuccess }
         status: submitData.status,
         period: submitData.period,
       };
-      createProjectGroup(createData, {
-        onSuccess: () => {
-          onSuccess?.();
-          form.reset();
+      console.log("Creating project group with data:", createData);
+      createProjectGroup(
+        {
+          body: createData,
         },
-      });
+        {
+          onSuccess: () => {
+            onSuccess?.();
+            form.reset();
+          },
+        }
+      );
     }
   };
 

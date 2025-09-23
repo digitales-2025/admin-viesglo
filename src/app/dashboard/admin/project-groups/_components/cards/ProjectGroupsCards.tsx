@@ -1,18 +1,11 @@
 "use client";
 
 import React from "react";
-import { Check, ChevronsUpDown, MoreHorizontal, Plus } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 
+import { DataTableFacetedFilter } from "@/shared/components/data-table/data-table-faceted-filter";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/shared/components/ui/command";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,36 +15,30 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shared/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { useProjectGroups } from "../../_hooks/use-project-groups";
+import { useProjectGroupsInfinite } from "../../_hooks/use-project-groups";
 import { ProjectGroupResponseDto } from "../../_types/project-groups.types";
 
 // Opciones para los filtros
 const STATUS_OPTIONS = [
-  { value: "all", label: "Todos los estados" },
   { value: "activo", label: "Activo" },
   { value: "inactivo", label: "Inactivo" },
 ];
 
-// Generar opciones de período dinámicamente (años 2022-2050, meses 01-02)
-const generatePeriodOptions = () => {
-  const options = [{ value: "all", label: "Todos los períodos" }];
-  const startYear = 2022; // Año de inicio 2022
+// Generar opciones de período (2022-01 al 2050-02)
+const generateAllPeriodOptions = () => {
+  const options: { value: string; label: string }[] = [];
+  const startYear = 2022;
   const endYear = 2050;
-
   for (let year = startYear; year <= endYear; year++) {
     for (let month = 1; month <= 2; month++) {
       const value = `${year}-${month.toString().padStart(2, "0")}`;
-      const label = `${year}-${month.toString().padStart(2, "0")}`;
-      options.push({ value, label });
+      options.push({ value, label: value });
     }
   }
-
   return options;
 };
-
-const PERIOD_OPTIONS = generatePeriodOptions();
+const PERIOD_OPTIONS = generateAllPeriodOptions();
 
 interface ProjectGroupsCardsProps {
   onCreateNew?: () => void;
@@ -71,25 +58,32 @@ interface ProjectGroupsCardsProps {
  * - Filtros de estado y período con combobox
  */
 export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDelete }: ProjectGroupsCardsProps) {
-  const { query, setPagination, size } = useProjectGroups();
-  const { data, isLoading, error } = query as any;
+  const { query, allGroups } = useProjectGroupsInfinite();
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = query as any;
 
   // Estado local para el término de búsqueda (no dispara consultas al backend)
   const [localSearch, setLocalSearch] = React.useState<string>("");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [periodFilter, setPeriodFilter] = React.useState<string>("all");
-  const [statusOpen, setStatusOpen] = React.useState(false);
-  const [periodOpen, setPeriodOpen] = React.useState(false);
+  const [statusFilters, setStatusFilters] = React.useState<string[]>([]);
+  const [periodFilters, setPeriodFilters] = React.useState<string[]>([]);
 
   const handleChangeSearch = (value: string) => {
     setLocalSearch(value);
   };
 
+  // IntersectionObserver para scroll infinito
+  const sentinelRef = React.useRef<HTMLDivElement | null>(null);
+
   React.useEffect(() => {
-    // Establecer un tamaño inicial moderado para evitar sobrecarga
-    setPagination({ newPage: 1, newSize: 80 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+        fetchNextPage();
+      }
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Función para calcular el progreso basado en proyectos completados
   const calculateProgress = (projectGroup: ProjectGroupResponseDto) => {
@@ -118,7 +112,7 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
     return "stroke-red-600";
   };
 
-  const projectGroups = data?.data || [];
+  const projectGroups = React.useMemo(() => allGroups || [], [allGroups]);
   const normalizedFilter = localSearch.trim().toLowerCase();
 
   // Filtrado optimizado: solo recalcula cuando cambian los datos o los filtros
@@ -135,20 +129,20 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
       filtered = filtered.filter(byName);
     }
 
-    // Filtro por estado
-    if (statusFilter !== "all") {
-      const byStatus = (pg: ProjectGroupResponseDto) => pg.status === statusFilter;
+    // Filtro por estado (múltiple)
+    if (statusFilters.length > 0) {
+      const byStatus = (pg: ProjectGroupResponseDto) => statusFilters.includes(pg.status);
       filtered = filtered.filter(byStatus);
     }
 
-    // Filtro por período
-    if (periodFilter !== "all") {
-      const byPeriod = (pg: ProjectGroupResponseDto) => pg.period === periodFilter;
+    // Filtro por período (múltiple)
+    if (periodFilters.length > 0) {
+      const byPeriod = (pg: ProjectGroupResponseDto) => !!pg.period && periodFilters.includes(pg.period);
       filtered = filtered.filter(byPeriod);
     }
 
     return filtered;
-  }, [projectGroups, normalizedFilter, statusFilter, periodFilter]);
+  }, [projectGroups, normalizedFilter, statusFilters, periodFilters]);
 
   if (error) {
     return (
@@ -196,100 +190,27 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
             {/* Filtros posicionados debajo del botón a la derecha */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Popover open={statusOpen} onOpenChange={setStatusOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={statusOpen}
-                      className="w-full sm:w-[160px] justify-between"
-                    >
-                      <span className="truncate">
-                        {STATUS_OPTIONS.find((option) => option.value === statusFilter)?.label || "Estado"}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[160px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Buscar estado..." />
-                      <CommandList>
-                        <CommandEmpty>No se encontraron estados.</CommandEmpty>
-                        <CommandGroup>
-                          {STATUS_OPTIONS.map((option) => (
-                            <CommandItem
-                              key={option.value}
-                              value={option.value}
-                              onSelect={(currentValue) => {
-                                setStatusFilter(currentValue === statusFilter ? "all" : currentValue);
-                                setStatusOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={`mr-2 h-4 w-4 ${
-                                  statusFilter === option.value ? "opacity-100" : "opacity-0"
-                                }`}
-                              />
-                              {option.label}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-
-                <Popover open={periodOpen} onOpenChange={setPeriodOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      role="combobox"
-                      aria-expanded={periodOpen}
-                      className="w-full sm:w-[160px] justify-between"
-                    >
-                      <span className="truncate">
-                        {PERIOD_OPTIONS.find((option) => option.value === periodFilter)?.label || "Período"}
-                      </span>
-                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[160px] p-0">
-                    <Command>
-                      <CommandInput placeholder="Buscar período..." />
-                      <CommandList>
-                        <CommandEmpty>No se encontraron períodos.</CommandEmpty>
-                        <CommandGroup>
-                          {PERIOD_OPTIONS.map((option) => (
-                            <CommandItem
-                              key={option.value}
-                              value={option.value}
-                              onSelect={(currentValue) => {
-                                setPeriodFilter(currentValue === periodFilter ? "all" : currentValue);
-                                setPeriodOpen(false);
-                              }}
-                            >
-                              <Check
-                                className={`mr-2 h-4 w-4 ${
-                                  periodFilter === option.value ? "opacity-100" : "opacity-0"
-                                }`}
-                              />
-                              {option.label}
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
+                <DataTableFacetedFilter
+                  title="Estado"
+                  options={STATUS_OPTIONS}
+                  selectedValues={statusFilters}
+                  onSelectedValuesChange={(vals) => setStatusFilters((vals as string[]) || [])}
+                />
+                <DataTableFacetedFilter
+                  title="Período"
+                  options={PERIOD_OPTIONS}
+                  selectedValues={periodFilters}
+                  onSelectedValuesChange={(vals) => setPeriodFilters((vals as string[]) || [])}
+                />
               </div>
 
-              {(statusFilter !== "all" || periodFilter !== "all") && (
+              {(statusFilters.length > 0 || periodFilters.length > 0) && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    setStatusFilter("all");
-                    setPeriodFilter("all");
+                    setStatusFilters([]);
+                    setPeriodFilters([]);
                   }}
                   className="w-full sm:w-auto"
                 >
@@ -351,8 +272,11 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
                           <DropdownMenuLabel className="font-bold">Acciones</DropdownMenuLabel>
                           <DropdownMenuSeparator />
                           <DropdownMenuGroup>
-                            <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
+                            {/* <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
                               Ver Proyectos
+                            </DropdownMenuItem> */}
+                            <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
+                              Registrar Recursos
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onEdit?.(projectGroup)}>Editar</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => onDelete?.(projectGroup)}>Eliminar</DropdownMenuItem>
@@ -400,14 +324,15 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
           </div>
         )}
 
-        {/* Cargar más: aumenta el tamaño de página para traer más datos en una sola consulta */}
-        {data && data.meta && data.meta.hasNext && (
+        {/* Sentinel para scroll infinito y botón fallback */}
+        <div ref={sentinelRef} />
+        {/* {hasNextPage && (
           <div className="flex justify-center mt-2">
-            <Button variant="secondary" onClick={() => setPagination({ newPage: 1, newSize: size + 40 })}>
-              Cargar más
+            <Button variant="secondary" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
+              {isFetchingNextPage ? "Cargando..." : "Cargar más"}
             </Button>
           </div>
-        )}
+        )} */}
 
         {/* Empty State */}
         {projectGroups.length === 0 && (

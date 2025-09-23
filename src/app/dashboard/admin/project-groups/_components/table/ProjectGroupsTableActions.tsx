@@ -32,7 +32,9 @@ export function ProjectGroupsTableActions({ projectGroup, onEdit }: ProjectGroup
 
   const handleDelete = async () => {
     try {
-      await deleteMutation.mutateAsync(projectGroup.id);
+      await deleteMutation.mutateAsync({
+        params: { path: { id: projectGroup.id } },
+      });
       setShowDeleteDialog(false);
     } catch (_error) {
       // Error handling is done in the mutation hook
@@ -41,7 +43,9 @@ export function ProjectGroupsTableActions({ projectGroup, onEdit }: ProjectGroup
 
   const handleReactivate = async () => {
     try {
-      await reactivateMutation.mutateAsync(projectGroup.id);
+      await reactivateMutation.mutateAsync({
+        params: { path: { id: projectGroup.id } },
+      });
       setShowReactivateDialog(false);
     } catch (_error) {
       // Error handling is done in the mutation hook

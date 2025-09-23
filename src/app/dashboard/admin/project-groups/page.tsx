@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Grid, Plus, Table } from "lucide-react";
-import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -61,17 +60,11 @@ export default function PageProjectGroups() {
 
   const confirmDelete = () => {
     if (projectGroupToDelete) {
-      deleteProjectGroup(projectGroupToDelete.id, {
-        onSuccess: () => {
-          toast.success("Grupo de proyectos eliminado correctamente");
-          setDeleteDialogOpen(false);
-          setProjectGroupToDelete(null);
-        },
-        onError: (error) => {
-          toast.error("Error al eliminar el grupo de proyectos");
-          console.error("Error al eliminar:", error);
-        },
+      deleteProjectGroup({
+        params: { path: { id: projectGroupToDelete.id } },
       });
+      setDeleteDialogOpen(false);
+      setProjectGroupToDelete(null);
     }
   };
 
@@ -115,7 +108,7 @@ export default function PageProjectGroups() {
           <TabsList>
             <TabsTrigger value="cards" className="flex items-center gap-2">
               <Grid className="h-4 w-4" />
-              Vista de Cards
+              Vista de Cartas
             </TabsTrigger>
             <TabsTrigger value="table" className="flex items-center gap-2">
               <Table className="h-4 w-4" />
@@ -144,7 +137,7 @@ export default function PageProjectGroups() {
               Nuevo Grupo de Proyectos
             </Button>
           </div>
-          <ProjectGroupsTable />
+          <ProjectGroupsTable onEdit={handleEdit} />
         </TabsContent>
       </Tabs>
     </div>

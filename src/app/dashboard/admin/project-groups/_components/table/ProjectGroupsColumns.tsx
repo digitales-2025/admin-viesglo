@@ -117,21 +117,6 @@ export const columnsProjectGroups: ColumnDef<ProjectGroupResponseDto>[] = [
     },
   },
   {
-    accessorKey: "isActive",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-    cell: ({ row }) => {
-      const isActive = row.getValue("isActive") as boolean;
-      return (
-        <div className="flex justify-center">
-          <Badge variant={isActive ? "default" : "secondary"}>{isActive ? "Activo" : "Inactivo"}</Badge>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
     id: "actions",
     cell: ({ row }) => <ProjectGroupsTableActions projectGroup={row.original} />,
   },

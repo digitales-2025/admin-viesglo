@@ -201,7 +201,7 @@ export async function getProjectsByFilters(
 export async function getProjectsPaginated(
   filters: ProjectFilters,
   page: number = 1,
-  limit: number = 10
+  limit: number = 20
 ): Promise<{
   data: ProjectPaginationResponse | null;
   success: boolean;
