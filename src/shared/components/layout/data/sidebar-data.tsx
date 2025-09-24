@@ -40,7 +40,7 @@ export const sidebarData: SidebarData = {
             {
               title: "Seguimiento",
               icon: Target,
-              url: "/dashboard/admin/tracking",
+              url: "/dashboard/admin/project-groups",
               permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
             },
             {

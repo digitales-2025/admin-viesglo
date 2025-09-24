@@ -25,15 +25,20 @@ interface DataTableFacetedFilterProps<TData, TValue> {
     value: TValue; // Usamos TValue directamente
     icon?: React.ComponentType<{ className?: string }>;
   }[];
+  // Soporte controlado (cuando no usamos tabla):
+  selectedValues?: TValue[] | undefined;
+  onSelectedValuesChange?: (values: TValue[] | undefined) => void;
 }
 
 export function DataTableFacetedFilter<TData, TValue>({
   column,
   title,
   options,
+  selectedValues: controlledSelectedValues,
+  onSelectedValuesChange,
 }: DataTableFacetedFilterProps<TData, TValue>) {
-  // Modificamos esta parte para manejar diferentes tipos de valores
-  const filterValue = column?.getFilterValue(); // Extraemos esto fuera del useMemo
+  // Modo no controlado (tabla) usa column.getFilterValue; modo controlado usa prop
+  const filterValue = controlledSelectedValues !== undefined ? controlledSelectedValues : column?.getFilterValue();
 
   const selectedValues = React.useMemo(() => {
     // Si no hay valor de filtro
@@ -100,12 +105,18 @@ export function DataTableFacetedFilter<TData, TValue>({
                         filterValues.add(option.value);
                       }
 
-                      // Si solo hay un valor booleano seleccionado, enviamos el valor directamente
-                      // en lugar de un array, para que funcione mejor con el filtro booleano
+                      const next = filterValues.size ? Array.from(filterValues) : undefined;
+
+                      if (onSelectedValuesChange) {
+                        onSelectedValuesChange(next as TValue[] | undefined);
+                        return;
+                      }
+
+                      // Modo no controlado (tabla): setFilterValue
                       if (filterValues.size === 1 && typeof Array.from(filterValues)[0] === "boolean") {
                         column?.setFilterValue(Array.from(filterValues)[0]);
                       } else {
-                        column?.setFilterValue(filterValues.size ? Array.from(filterValues) : undefined);
+                        column?.setFilterValue(next);
                       }
                     }}
                   >
