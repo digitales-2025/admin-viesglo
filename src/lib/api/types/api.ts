@@ -1100,6 +1100,454 @@ export interface paths {
     patch: operations["ClientsController_toggleActiveAddress_v1"];
     trace?: never;
   };
+  "/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Crear proyecto
+     * @description Crea un nuevo proyecto con la información proporcionada. Puede incluir selección granular de plantillas de hitos, fases y entregables.
+     */
+    post: operations["ProjectsController_createProject"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Buscar proyecto por ID
+     * @description Obtiene la información completa de un proyecto por su ID
+     */
+    get: operations["ProjectsController_findProjectById"];
+    /**
+     * Actualizar proyecto
+     * @description Actualiza un proyecto existente con la información proporcionada
+     */
+    put: operations["ProjectsController_updateProject"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{id}/delete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Eliminar proyecto
+     * @description Elimina un proyecto de forma lógica (soft delete)
+     */
+    patch: operations["ProjectsController_deleteProject"];
+    trace?: never;
+  };
+  "/projects/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Reactivar proyecto
+     * @description Reactiva un proyecto que fue eliminado previamente
+     */
+    patch: operations["ProjectsController_reactivateProject"];
+    trace?: never;
+  };
+  "/projects/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar proyectos paginado
+     * @description Obtiene una lista paginada de proyectos con filtros opcionales
+     */
+    get: operations["ProjectsController_findProjectsPaginated"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/status/{status}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Buscar proyectos por estado
+     * @description Obtiene una lista de proyectos filtrados por estado específico
+     */
+    get: operations["ProjectsController_findProjectsByStatus"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/type/{type}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Buscar proyectos por tipo
+     * @description Obtiene una lista de proyectos filtrados por tipo específico
+     */
+    get: operations["ProjectsController_findProjectsByType"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{id}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Cambiar estado de proyecto
+     * @description Cambia el estado de un proyecto con validaciones de transición
+     */
+    patch: operations["ProjectsController_updateProjectStatus"];
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/deliverables": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Agregar entregable a hito
+     * @description Agrega un nuevo entregable a un hito existente
+     */
+    post: operations["ProjectDeliverablesController_addDeliverable"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar entregable
+     * @description Actualiza un entregable existente en un hito
+     */
+    put: operations["ProjectDeliverablesController_updateDeliverable"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/assign": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Asignar entregable
+     * @description Asigna un entregable a un usuario específico
+     */
+    patch: operations["ProjectDeliverablesController_assignDeliverable"];
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/progress": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Actualizar progreso de entregable
+     * @description Actualiza el progreso de un entregable (0-100%)
+     */
+    patch: operations["ProjectDeliverablesController_updateDeliverableProgress"];
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/complete": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Completar entregable
+     * @description Marca un entregable como completado (progreso 100%)
+     */
+    patch: operations["ProjectDeliverablesController_completeDeliverable"];
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Agregar hito a proyecto
+     * @description Agrega un nuevo hito a un proyecto existente
+     */
+    post: operations["ProjectMilestonesController_addMilestone"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar hito
+     * @description Actualiza un hito existente en un proyecto
+     */
+    put: operations["ProjectMilestonesController_updateMilestone"];
+    post?: never;
+    /**
+     * Remover hito
+     * @description Remueve un hito de un proyecto (solo si no tiene entregables activos)
+     */
+    delete: operations["ProjectMilestonesController_removeMilestone"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Cambiar estado de hito
+     * @description Cambia el estado de un hito con validaciones de transición
+     */
+    patch: operations["ProjectMilestonesController_updateMilestoneStatus"];
+    trace?: never;
+  };
+  "/projects/{projectId}/milestones/{milestoneId}/assign": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Asignar hito
+     * @description Asigna un hito a un consultor interno
+     */
+    patch: operations["ProjectMilestonesController_assignMilestone"];
+    trace?: never;
+  };
+  "/v1/dashboards/projects/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Resumen general del dashboard de proyectos
+     * @description Obtiene métricas completas del dashboard de proyectos incluyendo estadísticas de proyectos, hitos, entregables y asignaciones.
+     */
+    get: operations["ProjectsDashboardController_getSummary_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/projects/status": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Distribución de proyectos por estado
+     * @description Obtiene la distribución de proyectos agrupados por estado con conteos y porcentajes.
+     */
+    get: operations["ProjectsDashboardController_getStatusDistribution_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/projects/type": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Distribución de proyectos por tipo
+     * @description Obtiene la distribución de proyectos agrupados por tipo con conteos, porcentajes y progreso promedio.
+     */
+    get: operations["ProjectsDashboardController_getTypeDistribution_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/projects/progress": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Progreso general de proyectos
+     * @description Obtiene métricas de progreso general incluyendo distribución por rangos y tendencias temporales.
+     */
+    get: operations["ProjectsDashboardController_getProgress_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/projects/performance": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Métricas de rendimiento de proyectos
+     * @description Obtiene métricas de rendimiento incluyendo tasa de finalización, entrega a tiempo y utilización de recursos.
+     */
+    get: operations["ProjectsDashboardController_getPerformance_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/roles/paginated": {
     parameters: {
       query?: never;
@@ -1761,6 +2209,94 @@ export interface paths {
     head?: never;
     /** Actualizar recurso de proyecto */
     patch: operations["ProjectResourceController_update_v1"];
+    trace?: never;
+  };
+  "/v1/project-groups": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Listar grupos activos */
+    get: operations["ProjectGroupsController_list_v1"];
+    put?: never;
+    /** Crear grupo de proyectos */
+    post: operations["ProjectGroupsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-groups/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar grupos con filtros y paginación */
+    get: operations["ProjectGroupsController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-groups/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener grupo por ID */
+    get: operations["ProjectGroupsController_findOne_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar grupo (soft delete) */
+    delete: operations["ProjectGroupsController_delete_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar grupo */
+    patch: operations["ProjectGroupsController_update_v1"];
+    trace?: never;
+  };
+  "/v1/project-groups/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar grupo */
+    patch: operations["ProjectGroupsController_reactivate_v1"];
+    trace?: never;
+  };
+  "/v1/project-groups/{id}/projects": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Listar proyectos asociados a un grupo */
+    get: operations["ProjectGroupsController_listProjectsOfGroup_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
 }
@@ -3791,6 +4327,633 @@ export interface components {
        */
       isActive: boolean;
     };
+    SelectedPhaseDto: {
+      /**
+       * @description ID de la plantilla de la fase
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      phaseTemplateId: string;
+      /**
+       * @description IDs de las plantillas de entregables seleccionados
+       * @example [
+       *       "64a1b2c3d4e5f6789abcdef0",
+       *       "64a1b2c3d4e5f6789abcdef2"
+       *     ]
+       */
+      selectedDeliverables: string[];
+    };
+    SelectedMilestoneDto: {
+      /**
+       * @description ID de la plantilla del hito
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      milestoneTemplateId: string;
+      /** @description Fases seleccionadas de la plantilla del hito */
+      selectedPhases: components["schemas"]["SelectedPhaseDto"][];
+    };
+    CreateProjectRequestDto: {
+      /**
+       * @description Nombre del proyecto
+       * @example Sistema de Gestión de Inventarios
+       */
+      name: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Sistema completo para la gestión de inventarios de la empresa
+       */
+      description?: string;
+      /**
+       * @description Tipo de proyecto
+       * @example DOCUMENTADO
+       * @enum {string}
+       */
+      projectType: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+      /**
+       * @description Estado inicial del proyecto
+       * @example CREATED
+       * @enum {string}
+       */
+      status?:
+        | "CREATED"
+        | "PLANNING"
+        | "IN_PROGRESS"
+        | "OPERATIONALLY_COMPLETED"
+        | "OFFICIALLY_COMPLETED"
+        | "CANCELLED";
+      /**
+       * @description IDs de etiquetas del proyecto
+       * @example [
+       *       "64a1b2c3d4e5f6789abcdef0",
+       *       "64a1b2c3d4e5f6789abcdef1"
+       *     ]
+       */
+      projectTagIds?: string[];
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2024-01-15T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2024-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del cliente
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      clientId: string;
+      /**
+       * @description ID de la plantilla del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      projectTemplateId?: string;
+      /** @description Hitos seleccionados de las plantillas para crear el proyecto */
+      selectedMilestones?: components["schemas"]["SelectedMilestoneDto"][];
+      /**
+       * @description ID del grupo del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      projectGroupId?: string;
+      /**
+       * @description ID del coordinador del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      coordinatorId: string;
+      /**
+       * @description Ejecutivo comercial del proyecto
+       * @example Juan Pérez
+       */
+      commercialExecutive?: string;
+      /**
+       * @description Empresa implementadora del proyecto
+       * @example Empresa ABC S.A.C.
+       */
+      implementingCompany?: string;
+      /**
+       * @description Revisor externo del proyecto
+       * @example María García
+       */
+      externalReviewer?: string;
+    };
+    ProjectOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje de la operación
+       * @example Proyecto creado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description Datos adicionales de la operación
+       * @example {
+       *       "status": "CREATED",
+       *       "progress": 0
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    UpdateProjectRequestDto: {
+      /**
+       * @description Nombre del proyecto
+       * @example Sistema de Gestión de Inventarios - Actualizado
+       */
+      name?: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Sistema completo para la gestión de inventarios de la empresa - Versión 2.0
+       */
+      description?: string;
+      /**
+       * @description Tipo de proyecto
+       * @example HIBRIDO
+       * @enum {string}
+       */
+      projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+      /**
+       * @description Estado del proyecto
+       * @example IN_PROGRESS
+       * @enum {string}
+       */
+      status?:
+        | "CREATED"
+        | "PLANNING"
+        | "IN_PROGRESS"
+        | "OPERATIONALLY_COMPLETED"
+        | "OFFICIALLY_COMPLETED"
+        | "CANCELLED";
+      /**
+       * @description IDs de etiquetas del proyecto
+       * @example [
+       *       "64a1b2c3d4e5f6789abcdef0",
+       *       "64a1b2c3d4e5f6789abcdef1"
+       *     ]
+       */
+      projectTagIds?: string[];
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2024-01-15T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2024-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del coordinador del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      coordinatorId?: string;
+      /**
+       * @description ID del propietario del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef4
+       */
+      ownerId?: string;
+      /**
+       * @description Ejecutivo comercial del proyecto
+       * @example Juan Pérez
+       */
+      commercialExecutive?: string;
+      /**
+       * @description Empresa implementadora del proyecto
+       * @example Empresa ABC S.A.C.
+       */
+      implementingCompany?: string;
+      /**
+       * @description Revisor externo del proyecto
+       * @example María García
+       */
+      externalReviewer?: string;
+      /**
+       * @description Habilitar MQTT para el proyecto
+       * @example true
+       */
+      mqttEnabled?: boolean;
+      /**
+       * @description Prefijo del tema MQTT
+       * @example viesglo/project/123
+       */
+      mqttTopicPrefix?: string;
+      /**
+       * @description Días de retención MQTT
+       * @example 30
+       */
+      mqttRetentionDays?: number;
+    };
+    ProjectResponseDto: {
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      id: string;
+      /**
+       * @description Nombre del proyecto
+       * @example Sistema de Gestión de Inventarios
+       */
+      name: string;
+      /**
+       * @description Descripción del proyecto
+       * @example Sistema completo para la gestión de inventarios de la empresa
+       */
+      description?: string;
+      /**
+       * @description Tipo de proyecto
+       * @example DOCUMENTADO
+       * @enum {string}
+       */
+      projectType: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+      /**
+       * @description Estado del proyecto
+       * @example CREATED
+       * @enum {string}
+       */
+      status: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED" | "CANCELLED";
+      /**
+       * @description IDs de etiquetas del proyecto
+       * @example [
+       *       "64a1b2c3d4e5f6789abcdef0",
+       *       "64a1b2c3d4e5f6789abcdef1"
+       *     ]
+       */
+      projectTagIds?: string[];
+      /**
+       * @description Fecha de inicio del proyecto
+       * @example 2024-01-15T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del proyecto
+       * @example 2024-12-31T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description Progreso general del proyecto (0-100)
+       * @example 25
+       */
+      overallProgress: number;
+      /**
+       * @description ID del cliente
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      clientId: string;
+      /**
+       * @description ID de la plantilla del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      projectTemplateId?: string;
+      /**
+       * @description ID del grupo del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      projectGroupId?: string;
+      /**
+       * @description ID del coordinador del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      coordinatorId: string;
+      /**
+       * @description ID del propietario del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef4
+       */
+      ownerId: string;
+      /**
+       * @description Ejecutivo comercial del proyecto
+       * @example Juan Pérez
+       */
+      commercialExecutive?: string;
+      /**
+       * @description Empresa implementadora del proyecto
+       * @example Empresa ABC S.A.C.
+       */
+      implementingCompany?: string;
+      /**
+       * @description Revisor externo del proyecto
+       * @example María García
+       */
+      externalReviewer?: string;
+      /**
+       * @description Indica si el proyecto está activo
+       * @example true
+       */
+      isActive: boolean;
+      /**
+       * @description Fecha de eliminación del proyecto
+       * @example null
+       */
+      deletedAt?: string;
+      /**
+       * @description Fecha de creación del proyecto
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      createdAt: string;
+      /**
+       * @description Fecha de última actualización del proyecto
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      updatedAt: string;
+      /**
+       * @description Habilitar MQTT para el proyecto
+       * @example true
+       */
+      mqttEnabled?: boolean;
+      /**
+       * @description Prefijo del tema MQTT
+       * @example viesglo/project/123
+       */
+      mqttTopicPrefix?: string;
+      /**
+       * @description Días de retención MQTT
+       * @example 30
+       */
+      mqttRetentionDays?: number;
+      /**
+       * @description Número de hitos en el proyecto
+       * @example 5
+       */
+      milestonesCount: number;
+      /**
+       * @description Número de hitos completados
+       * @example 2
+       */
+      completedMilestonesCount: number;
+    };
+    ProjectPaginatedResponseDto: {
+      /** @description Lista de proyectos */
+      data: components["schemas"]["ProjectResponseDto"][];
+      /**
+       * @description Metadatos de paginación
+       * @example {
+       *       "total": 50,
+       *       "page": 1,
+       *       "pageSize": 10,
+       *       "totalPages": 5,
+       *       "hasNext": true,
+       *       "hasPrevious": false
+       *     }
+       */
+      meta: Record<string, never>;
+    };
+    UpdateProjectStatusRequestDto: {
+      /**
+       * @description Nuevo estado del proyecto
+       * @example IN_PROGRESS
+       * @enum {string}
+       */
+      status: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED" | "CANCELLED";
+    };
+    AddDeliverableRequestDto: {
+      /**
+       * @description Nombre del entregable
+       * @example Documento de Análisis de Requerimientos
+       */
+      name: string;
+      /**
+       * @description Descripción del entregable
+       * @example Documento detallado con todos los requerimientos del sistema
+       */
+      description?: string;
+      /**
+       * @description Fecha de inicio del entregable
+       * @example 2024-01-15T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del entregable
+       * @example 2024-01-30T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del usuario asignado
+       * @example 64a1b2c3d4e5f6789abcdef7
+       */
+      assignedTo?: string;
+      /**
+       * @description Peso del entregable (0-100)
+       * @example 25
+       */
+      weight?: number;
+      /**
+       * @description Prioridad del entregable
+       * @example MEDIUM
+       * @enum {string}
+       */
+      priority?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    };
+    DeliverableOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje de la operación
+       * @example Entregable agregado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID del hito
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      milestoneId: string;
+      /**
+       * @description ID de la fase
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      deliverableId: string;
+      /**
+       * @description Datos adicionales de la operación
+       * @example {
+       *       "status": "REGISTERED",
+       *       "progress": 0
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    UpdateDeliverableRequestDto: {
+      /**
+       * @description Nombre del entregable
+       * @example Documento de Análisis de Requerimientos - V2
+       */
+      name?: string;
+      /**
+       * @description Descripción del entregable
+       * @example Documento detallado con todos los requerimientos del sistema - Actualizado
+       */
+      description?: string;
+      /**
+       * @description Fecha de inicio del entregable
+       * @example 2024-01-20T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del entregable
+       * @example 2024-02-05T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del usuario asignado
+       * @example 64a1b2c3d4e5f6789abcdef7
+       */
+      assignedTo?: string;
+      /**
+       * @description Peso del entregable (0-100)
+       * @example 30
+       */
+      weight?: number;
+      /**
+       * @description Prioridad del entregable
+       * @example HIGH
+       * @enum {string}
+       */
+      priority?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+    };
+    AssignDeliverableRequestDto: {
+      /**
+       * @description ID del usuario a asignar
+       * @example 64a1b2c3d4e5f6789abcdef7
+       */
+      userId: string;
+    };
+    UpdateProgressRequestDto: {
+      /**
+       * @description Nuevo progreso del entregable (0-100)
+       * @example 75
+       */
+      progress: number;
+    };
+    AddMilestoneRequestDto: {
+      /**
+       * @description Nombre del hito
+       * @example Análisis de Requerimientos
+       */
+      name: string;
+      /**
+       * @description Orden del hito en el proyecto
+       * @example 1
+       */
+      order?: number;
+      /**
+       * @description Fecha de inicio del hito
+       * @example 2024-01-15T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del hito
+       * @example 2024-02-15T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del consultor interno asignado
+       * @example 64a1b2c3d4e5f6789abcdef5
+       */
+      assignedTo?: string;
+      /**
+       * @description ID de la plantilla de origen
+       * @example 64a1b2c3d4e5f6789abcdef6
+       */
+      sourceTemplateId?: string;
+      /**
+       * @description Indica si es un hito personalizado
+       * @example false
+       */
+      isCustom?: boolean;
+    };
+    MilestoneOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje de la operación
+       * @example Hito agregado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID del hito
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      milestoneId: string;
+      /**
+       * @description Datos adicionales de la operación
+       * @example {
+       *       "status": "PLANNING",
+       *       "progress": 0
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    UpdateMilestoneRequestDto: {
+      /**
+       * @description Nombre del hito
+       * @example Análisis de Requerimientos - Actualizado
+       */
+      name?: string;
+      /**
+       * @description Orden del hito en el proyecto
+       * @example 2
+       */
+      order?: number;
+      /**
+       * @description Fecha de inicio del hito
+       * @example 2024-01-20T00:00:00.000Z
+       */
+      startDate?: string;
+      /**
+       * @description Fecha de fin del hito
+       * @example 2024-02-20T23:59:59.999Z
+       */
+      endDate?: string;
+      /**
+       * @description ID del consultor interno asignado
+       * @example 64a1b2c3d4e5f6789abcdef5
+       */
+      assignedTo?: string;
+    };
+    UpdateMilestoneStatusRequestDto: {
+      /**
+       * @description Nuevo estado del hito
+       * @example IN_PROGRESS
+       * @enum {string}
+       */
+      status: "PLANNING" | "VALIDATED" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_APPROVED";
+    };
+    AssignMilestoneRequestDto: {
+      /**
+       * @description ID del consultor interno a asignar
+       * @example 64a1b2c3d4e5f6789abcdef5
+       */
+      consultantId: string;
+    };
+    ProjectsDashboardSummaryResponseDto: Record<string, never>;
+    ProjectsStatusDistributionResponseDto: Record<string, never>;
+    ProjectsTypeDistributionResponseDto: Record<string, never>;
+    ProjectsProgressResponseDto: Record<string, never>;
+    ProjectsPerformanceResponseDto: Record<string, never>;
     RoleListItemDto: {
       /**
        * @description Identificador único de la entidad
@@ -4846,6 +6009,40 @@ export interface components {
       /** @description Detalle */
       details?: string;
       /** @description Estado activo */
+      isActive?: boolean;
+    };
+    CreateProjectGroupRequestDto: {
+      name: string;
+      description?: string;
+      /** @enum {string} */
+      status: "activo" | "inactivo";
+      /** @description Periodo YYYY-MM */
+      period: string;
+    };
+    ProjectGroupResponseDto: {
+      id: string;
+      name: string;
+      description?: string;
+      status: string;
+      /** @description Periodo YYYY-MM */
+      period: string;
+      isActive: boolean;
+      /** Format: date-time */
+      createdAt?: string;
+      /** Format: date-time */
+      updatedAt?: string;
+    };
+    PaginatedProjectGroupResponseDto: {
+      data: components["schemas"]["ProjectGroupResponseDto"][];
+      meta: Record<string, never>;
+    };
+    UpdateProjectGroupRequestDto: {
+      name?: string;
+      description?: string;
+      /** @enum {string} */
+      status?: "activo" | "inactivo";
+      /** @description Periodo YYYY-MM */
+      period?: string;
       isActive?: boolean;
     };
   };
@@ -7329,6 +8526,1152 @@ export interface operations {
       };
     };
   };
+  ProjectsController_createProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** @description Datos del proyecto a crear, incluyendo selección opcional de plantillas */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Proyecto creado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_findProjectById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto a buscar */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyecto encontrado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_updateProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto a actualizar */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del proyecto a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Proyecto actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_deleteProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto a eliminar */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyecto eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectOperationResponseDto"];
+        };
+      };
+      /** @description El proyecto no puede ser eliminado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_reactivateProject: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto a reactivar */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Proyecto reactivado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectOperationResponseDto"];
+        };
+      };
+      /** @description El proyecto no puede ser reactivado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_findProjectsPaginated: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Tamaño de página */
+        pageSize?: number;
+        /** @description Término de búsqueda por nombre */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación (asc o desc) */
+        sortOrder?: "asc" | "desc";
+        /** @description Filtrar por ID del cliente */
+        clientId?: string;
+        /** @description Filtrar por ID del grupo de proyectos */
+        projectGroupId?: string;
+        /** @description Campo por el cual ordenar */
+        sortBy?: unknown;
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: unknown;
+        /** @description Filtrar por estado del proyecto */
+        status?: unknown;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista paginada de proyectos obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectPaginatedResponseDto"];
+        };
+      };
+      /** @description Parámetros de consulta inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_findProjectsByStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Estado del proyecto a buscar */
+        status: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de proyectos encontrada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"][];
+        };
+      };
+      /** @description Estado inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_findProjectsByType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Tipo de proyecto a buscar */
+        type: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de proyectos encontrada exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResponseDto"][];
+        };
+      };
+      /** @description Tipo inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsController_updateProjectStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Nuevo estado del proyecto */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectStatusRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Estado del proyecto actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectOperationResponseDto"];
+        };
+      };
+      /** @description Transición de estado inválida */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_addDeliverable: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del entregable a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o hito no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_updateDeliverable: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID del entregable a actualizar */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del entregable a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, hito o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_assignDeliverable: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description ID del usuario a asignar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable asignado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, hito o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_updateDeliverableProgress: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Nuevo progreso del entregable */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProgressRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Progreso del entregable actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Progreso inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, hito o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_completeDeliverable: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Entregable completado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableOperationResponseDto"];
+        };
+      };
+      /** @description El entregable no puede ser completado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, hito o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectMilestonesController_addMilestone: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del hito a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddMilestoneRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Hito agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectMilestonesController_updateMilestone: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito a actualizar */
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del hito a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMilestoneRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Hito actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o hito no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectMilestonesController_removeMilestone: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito a remover */
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Hito removido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneOperationResponseDto"];
+        };
+      };
+      /** @description El hito no puede ser removido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o hito no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectMilestonesController_updateMilestoneStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Nuevo estado del hito */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateMilestoneStatusRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Estado del hito actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneOperationResponseDto"];
+        };
+      };
+      /** @description Transición de estado inválida */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o hito no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectMilestonesController_assignMilestone: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+      };
+      cookie?: never;
+    };
+    /** @description ID del consultor a asignar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AssignMilestoneRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Hito asignado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o hito no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsDashboardController_getSummary_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Resumen completo del dashboard de proyectos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectsDashboardSummaryResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsDashboardController_getStatusDistribution_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribución de proyectos por estado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectsStatusDistributionResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsDashboardController_getTypeDistribution_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Distribución de proyectos por tipo */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectsTypeDistributionResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsDashboardController_getProgress_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Progreso general de proyectos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectsProgressResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectsDashboardController_getPerformance_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Métricas de rendimiento de proyectos */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectsPerformanceResponseDto"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
   RolesController_getRolesPaginated_v1: {
     parameters: {
       query?: {
@@ -9707,6 +12050,338 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ProjectGroupsController_list_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateProjectGroupRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Creado */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        period?: string;
+        status?: string;
+        search?: string;
+        pageSize?: number;
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_findOne_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ProjectGroupsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateProjectGroupRequestDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectGroupResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectGroupsController_listProjectsOfGroup_v1: {
+    parameters: {
+      query?: {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+      };
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectPaginatedResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
