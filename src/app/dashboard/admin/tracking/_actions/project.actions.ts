@@ -1,13 +1,7 @@
 "use server";
 
 import { http } from "@/lib/http/serverFetch";
-import {
-  CreateProject,
-  ProjectFilters,
-  ProjectPaginationResponse,
-  ProjectResponse,
-  UpdateProjectWithoutServices,
-} from "../_types/tracking.types";
+import { CreateProject, ProjectFilters, ProjectResponse, UpdateProjectWithoutServices } from "../_types/tracking.types";
 
 const API_ENDPOINT = "/projects";
 
@@ -146,21 +140,13 @@ export async function getProjectsByFilters(
 
     // Procesar tipos de contrato y proyecto (string)
     if (filters.typeContract) processedFilters.typeContract = filters.typeContract;
-    if (filters.typeProject) processedFilters.typeProject = filters.typeProject;
 
-    // Procesar fechas de inicio
-    const startDateFrom = processDate(filters.startDateFrom, "startDateFrom");
-    const startDateTo = processDate(filters.startDateTo, "startDateTo");
+    // Procesar rango de fechas (from/to)
+    const from = processDate(filters.from, "from");
+    const to = processDate(filters.to, "to");
 
-    if (startDateFrom) processedFilters.startDateFrom = startDateFrom;
-    if (startDateTo) processedFilters.startDateTo = startDateTo;
-
-    // Procesar fechas de finalización
-    const endDateFrom = processDate(filters.endDateFrom, "endDateFrom");
-    const endDateTo = processDate(filters.endDateTo, "endDateTo");
-
-    if (endDateFrom) processedFilters.endDateFrom = endDateFrom;
-    if (endDateTo) processedFilters.endDateTo = endDateTo;
+    if (from) processedFilters.from = from;
+    if (to) processedFilters.to = to;
 
     // Procesar estado (string)
     if (filters.status) processedFilters.status = filters.status;
@@ -172,9 +158,9 @@ export async function getProjectsByFilters(
     if (filters.clientId) processedFilters.clientId = filters.clientId;
 
     // Procesar isActive (boolean)
-    if (filters.isActive !== undefined && filters.isActive !== null && filters.isActive !== "") {
+    if (filters.status !== undefined && filters.status !== null && filters.status !== "") {
       // Convertir a boolean explícitamente
-      const isActiveBoolean = filters.isActive === "true";
+      const isActiveBoolean = filters.status === "true";
       processedFilters.isActive = isActiveBoolean.toString();
     }
 
@@ -198,118 +184,110 @@ export async function getProjectsByFilters(
 /**
  * Obtiene proyectos paginados según filtros
  */
-export async function getProjectsPaginated(
-  filters: ProjectFilters,
-  page: number = 1,
-  limit: number = 10
-): Promise<{
-  data: ProjectPaginationResponse | null;
-  success: boolean;
-  error?: string;
-}> {
-  try {
-    // URL base
-    const baseUrl = `${API_ENDPOINT}/search/paginated`;
+// export async function getProjectsPaginated(
+//   filters: ProjectFilters,
+//   page: number = 1,
+//   limit: number = 10
+// ): Promise<{
+//   data: ProjectPaginationResponse | null;
+//   success: boolean;
+//   error?: string;
+// }> {
+//   try {
+//     // URL base
+//     const baseUrl = `${API_ENDPOINT}/search/paginated`;
 
-    // Crear la URL con los parámetros de consulta específicos
-    const queryParams = [];
+//     // Crear la URL con los parámetros de consulta específicos
+//     const queryParams = [];
 
-    // Primero añadimos los parámetros de paginación
-    queryParams.push(`page=${encodeURIComponent(page)}`);
-    queryParams.push(`limit=${encodeURIComponent(limit)}`);
+//     // Primero añadimos los parámetros de paginación
+//     queryParams.push(`page=${encodeURIComponent(page)}`);
+//     queryParams.push(`limit=${encodeURIComponent(limit)}`);
 
-    // Procesar y validar los filtros antes de añadirlos a la URL
-    // Solo enviaremos los filtros que tengan un valor y estén correctamente formateados
-    const processedFilters: Record<string, string> = {};
+//     // Procesar y validar los filtros antes de añadirlos a la URL
+//     // Solo enviaremos los filtros que tengan un valor y estén correctamente formateados
+//     const processedFilters: Record<string, string> = {};
 
-    // Función auxiliar para procesar y validar fechas
-    const processDate = (dateStr: string | undefined, fieldName: string): string | null => {
-      if (!dateStr) return null;
+//     // Función auxiliar para procesar y validar fechas
+//     const processDate = (dateStr: string | undefined, fieldName: string): string | null => {
+//       if (!dateStr) return null;
 
-      try {
-        // Intentar parsear la fecha
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) {
-          console.warn(`Invalid ${fieldName} format:`, dateStr);
-          return null;
-        }
+//       try {
+//         // Intentar parsear la fecha
+//         const date = new Date(dateStr);
+//         if (isNaN(date.getTime())) {
+//           console.warn(`Invalid ${fieldName} format:`, dateStr);
+//           return null;
+//         }
 
-        // Devolver en formato YYYY-MM-DD
-        return date.toISOString().split("T")[0];
-      } catch (e) {
-        console.warn(`Error processing ${fieldName}:`, e);
-        return null;
-      }
-    };
+//         // Devolver en formato YYYY-MM-DD
+//         return date.toISOString().split("T")[0];
+//       } catch (e) {
+//         console.warn(`Error processing ${fieldName}:`, e);
+//         return null;
+//       }
+//     };
 
-    // Procesar tipos de contrato y proyecto (string)
-    if (filters.typeContract) processedFilters.typeContract = filters.typeContract;
-    if (filters.typeProject) processedFilters.typeProject = filters.typeProject;
+//     // Procesar tipos de contrato y proyecto (string)
+//     if (filters.typeContract) processedFilters.typeContract = filters.typeContract;
 
-    // Procesar fechas de inicio
-    const startDateFrom = processDate(filters.startDateFrom, "startDateFrom");
-    const startDateTo = processDate(filters.startDateTo, "startDateTo");
+//     // Procesar rango de fechas (from/to)
+//     const from = processDate(filters.from, "from");
+//     const to = processDate(filters.to, "to");
 
-    if (startDateFrom) processedFilters.startDateFrom = startDateFrom;
-    if (startDateTo) processedFilters.startDateTo = startDateTo;
+//     if (from) processedFilters.from = from;
+//     if (to) processedFilters.to = to;
 
-    // Procesar fechas de finalización
-    const endDateFrom = processDate(filters.endDateFrom, "endDateFrom");
-    const endDateTo = processDate(filters.endDateTo, "endDateTo");
+//     // Procesar estado (string)
+//     if (filters.status) processedFilters.status = filters.status;
 
-    if (endDateFrom) processedFilters.endDateFrom = endDateFrom;
-    if (endDateTo) processedFilters.endDateTo = endDateTo;
+//     // Procesar búsqueda (string)
+//     if (filters.search) processedFilters.search = filters.search;
 
-    // Procesar estado (string)
-    if (filters.status) processedFilters.status = filters.status;
+//     // Procesar ID de cliente (string)
+//     if (filters.clientId) processedFilters.clientId = filters.clientId;
 
-    // Procesar búsqueda (string)
-    if (filters.search) processedFilters.search = filters.search;
+//     // Procesar isActive (boolean)
+//     if (filters.status !== undefined && filters.status !== null && filters.status !== "") {
+//       // Convertir a boolean explícitamente
+//       const isActiveBoolean = filters.status === "true";
+//       processedFilters.isActive = isActiveBoolean.toString();
+//     }
 
-    // Procesar ID de cliente (string)
-    if (filters.clientId) processedFilters.clientId = filters.clientId;
+//     // Añadir los filtros procesados a los parámetros de consulta
+//     Object.entries(processedFilters).forEach(([key, value]) => {
+//       if (value !== undefined && value !== null && value !== "") {
+//         queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+//       }
+//     });
 
-    // Procesar isActive (boolean)
-    if (filters.isActive !== undefined && filters.isActive !== null && filters.isActive !== "") {
-      // Convertir a boolean explícitamente
-      const isActiveBoolean = filters.isActive === "true";
-      processedFilters.isActive = isActiveBoolean.toString();
-    }
+//     // URL final
+//     const url = `${baseUrl}?${queryParams.join("&")}`;
 
-    // Añadir los filtros procesados a los parámetros de consulta
-    Object.entries(processedFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== "") {
-        queryParams.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
-      }
-    });
+//     // Realizar la petición
+//     const [data, err] = await http.get<ProjectPaginationResponse>(url);
 
-    // URL final
-    const url = `${baseUrl}?${queryParams.join("&")}`;
+//     if (err !== null) {
+//       return {
+//         data: null,
+//         success: false,
+//         error: err.message || "Error al obtener proyectos paginados",
+//       };
+//     }
 
-    // Realizar la petición
-    const [data, err] = await http.get<ProjectPaginationResponse>(url);
-
-    if (err !== null) {
-      return {
-        data: null,
-        success: false,
-        error: err.message || "Error al obtener proyectos paginados",
-      };
-    }
-
-    return {
-      data,
-      success: true,
-    };
-  } catch (error) {
-    console.error("Error al obtener proyectos paginados", error);
-    return {
-      data: null,
-      success: false,
-      error: "Error al obtener proyectos paginados",
-    };
-  }
-}
+//     return {
+//       data,
+//       success: true,
+//     };
+//   } catch (error) {
+//     console.error("Error al obtener proyectos paginados", error);
+//     return {
+//       data: null,
+//       success: false,
+//       error: "Error al obtener proyectos paginados",
+//     };
+//   }
+// }
 
 /**
  * Descarga proyectos en formato XLS
@@ -341,21 +319,13 @@ export async function downloadProjectsXls(filters: ProjectFilters): Promise<Blob
 
     // Procesar tipos de contrato y proyecto (string)
     if (filters.typeContract) processedFilters.typeContract = filters.typeContract;
-    if (filters.typeProject) processedFilters.typeProject = filters.typeProject;
 
-    // Procesar fechas de inicio
-    const startDateFrom = processDate(filters.startDateFrom, "startDateFrom");
-    const startDateTo = processDate(filters.startDateTo, "startDateTo");
+    // Procesar rango de fechas (from/to)
+    const from = processDate(filters.from, "from");
+    const to = processDate(filters.to, "to");
 
-    if (startDateFrom) processedFilters.startDateFrom = startDateFrom;
-    if (startDateTo) processedFilters.startDateTo = startDateTo;
-
-    // Procesar fechas de finalización
-    const endDateFrom = processDate(filters.endDateFrom, "endDateFrom");
-    const endDateTo = processDate(filters.endDateTo, "endDateTo");
-
-    if (endDateFrom) processedFilters.endDateFrom = endDateFrom;
-    if (endDateTo) processedFilters.endDateTo = endDateTo;
+    if (from) processedFilters.from = from;
+    if (to) processedFilters.to = to;
 
     // Procesar estado (string)
     if (filters.status) processedFilters.status = filters.status;
@@ -367,9 +337,9 @@ export async function downloadProjectsXls(filters: ProjectFilters): Promise<Blob
     if (filters.clientId) processedFilters.clientId = filters.clientId;
 
     // Procesar isActive (boolean)
-    if (filters.isActive !== undefined && filters.isActive !== null && filters.isActive !== "") {
+    if (filters.status !== undefined && filters.status !== null && filters.status !== "") {
       // Convertir a boolean explícitamente
-      const isActiveBoolean = filters.isActive === "true";
+      const isActiveBoolean = filters.status === "true";
       processedFilters.isActive = isActiveBoolean.toString();
     }
 
