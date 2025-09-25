@@ -70,13 +70,24 @@ class BreadcrumbGenerator {
     return actions.includes(segment);
   }
 
-  private shouldSkipIdInBreadcrumb(segment: string, nextSegment?: string): boolean {
-    return this.isIdSegment(segment) && !!nextSegment && this.isActionSegment(nextSegment);
+  private shouldSkipIdInBreadcrumb(segment: string, nextSegment?: string, previousSegment?: string): boolean {
+    // Skip ID segments that are followed by action segments
+    if (this.isIdSegment(segment) && !!nextSegment && this.isActionSegment(nextSegment)) {
+      return true;
+    }
+
+    // Skip ID segments in project-groups routes (e.g., /project-groups/[id]/projects)
+    if (this.isIdSegment(segment) && previousSegment === "project-groups" && nextSegment === "projects") {
+      return true;
+    }
+
+    return false;
   }
 
   private generateIdTitle(segment: string, context?: string): string {
     const entityMap: Record<string, string> = {
       projects: "Proyecto",
+      "project-groups": "Grupo de Proyectos",
       users: "Usuario",
       clients: "Cliente",
       roles: "Rol",
@@ -183,7 +194,7 @@ class BreadcrumbGenerator {
       if (i === 0 && segment === "dashboard") continue;
 
       // Skip ID segments that are followed by action segments (but keep building currentPath)
-      if (this.shouldSkipIdInBreadcrumb(segment, nextSegment)) continue;
+      if (this.shouldSkipIdInBreadcrumb(segment, nextSegment, previousSegment)) continue;
 
       const isLastSegment = i === segments.length - 1;
       const isId = this.isIdSegment(segment);
