@@ -252,3 +252,15 @@ export const useToggleActiveAddress = () => {
     },
   });
 };
+
+/**
+ * Hook para obtener cliente por ID
+ */
+export const useClientById = (id: string) => {
+  const query = backend.useQuery("get", "/v1/clients/{id}", {
+    params: { path: { id } },
+    enabled: !!id,
+  });
+
+  return { query };
+};
