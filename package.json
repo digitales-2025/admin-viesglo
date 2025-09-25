@@ -1,5 +1,5 @@
 {
-  "name": "admin-msm-consulting",
+  "name": "admin-viesglo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -71,6 +71,7 @@
     "react-resizable-panels": "2.1.7",
     "react-simple-maps": "^3.0.0",
     "react-window": "1.8.11",
+    "use-debounce": "^10.0.4",
     "react-window-infinite-loader": "1.0.10",
     "recharts": "2.15.1",
     "sonner": "2.0.1",
