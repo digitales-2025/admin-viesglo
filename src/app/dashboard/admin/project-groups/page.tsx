@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Grid, Plus, Table } from "lucide-react";
 
 import {
@@ -30,6 +31,7 @@ import { ProjectGroupResponseDto } from "./_types/project-groups.types";
  * - Navegación futura a proyectos por grupo
  */
 export default function PageProjectGroups() {
+  const router = useRouter();
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
   const [editorOpen, setEditorOpen] = useState(false);
   const [currentProjectGroup, setCurrentProjectGroup] = useState<ProjectGroupResponseDto | null>(null);
@@ -49,8 +51,8 @@ export default function PageProjectGroups() {
   };
 
   const handleViewProjects = (projectGroup: ProjectGroupResponseDto) => {
-    // TODO: Navegar a la vista de proyectos del grupo
-    console.log("Ver proyectos del grupo:", projectGroup.id);
+    // Navegar a la vista de proyectos del grupo
+    router.push(`/dashboard/admin/project-groups/${projectGroup.id}/projects`);
   };
 
   const handleDelete = (projectGroup: ProjectGroupResponseDto) => {
