@@ -7,16 +7,24 @@ import { SearchIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { cn } from "@/shared/lib/utils";
 
-function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
+function Command({
+  className,
+  label = "Command Menu",
+  children,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive>) {
   return (
     <CommandPrimitive
       data-slot="command"
+      label={label}
       className={cn(
         "bg-popover text-popover-foreground flex h-full w-full flex-col overflow-hidden rounded-md",
         className
       )}
       {...props}
-    />
+    >
+      {children ?? null}
+    </CommandPrimitive>
   );
 }
 

@@ -264,6 +264,8 @@ export function AutoComplete<T = unknown>({
           className={cn("h-10", commandInputClassName)}
           showBorder
         />
+        {/* Hidden list to initialize cmdk internal list ref and avoid Array.from(undefined) */}
+        <CommandList className="hidden" />
       </Command>
     );
   };
