@@ -280,3 +280,6 @@ export const useUpdateProjectStatus = () => {
     isSuccess: mutation.isSuccess,
   };
 };
+
+// ===== EXPORTACIÓN DEL HOOK DE FORMULARIO =====
+export { useProjectForm } from "./use-project-form";
