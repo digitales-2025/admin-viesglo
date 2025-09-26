@@ -244,6 +244,7 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
                 <Card
                   key={projectGroup.id}
                   className="bg-card rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-border"
+                  onClick={() => onViewProjects?.(projectGroup)}
                 >
                   <CardContent className="px-6">
                     {/* Header con título y menú */}
@@ -264,6 +265,7 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
                             variant="ghost"
                             size="sm"
                             className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
@@ -275,11 +277,30 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
                             {/* <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
                               Ver Proyectos
                             </DropdownMenuItem> */}
-                            <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onViewProjects?.(projectGroup);
+                              }}
+                            >
                               Registrar Recursos
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit?.(projectGroup)}>Editar</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDelete?.(projectGroup)}>Eliminar</DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit?.(projectGroup);
+                              }}
+                            >
+                              Editar
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete?.(projectGroup);
+                              }}
+                            >
+                              Eliminar
+                            </DropdownMenuItem>
                           </DropdownMenuGroup>
                         </DropdownMenuContent>
                       </DropdownMenu>
