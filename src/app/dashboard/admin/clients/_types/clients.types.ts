@@ -34,3 +34,16 @@ export enum ClientCondition {
   PENDIENTE = "PENDIENTE",
   OTRO = "OTRO",
 }
+
+// DTOs de Filtros para búsqueda paginada
+export type ClientPaginatedFilterDto = {
+  page?: number;
+  pageSize?: number;
+  search?: string;
+  sortField?: "name" | "ruc" | "email" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  clientId?: string;
+  state?: string;
+  condition?: string;
+  isActive?: boolean;
+};
