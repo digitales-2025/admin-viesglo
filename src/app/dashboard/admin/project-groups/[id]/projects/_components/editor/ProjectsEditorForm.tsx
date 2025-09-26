@@ -1,12 +1,13 @@
 import { UseFormReturn } from "react-hook-form";
 
-import { ClientSearch } from "@/app/dashboard/admin/clients/search/client-search";
-import { UserSearch } from "@/app/dashboard/admin/users/search/user-search";
+import { ClientSearch } from "@/app/dashboard/admin/clients/search/ClientSearch";
+import { UserSearch } from "@/app/dashboard/admin/users/search/UserSearch";
 import { cn } from "@/lib/utils";
 import { DatePicker } from "@/shared/components/ui/date-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Textarea } from "@/shared/components/ui/textarea";
 import { ProjectsForm } from "../../_schemas/projects.schemas";
 import { projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
 import SelectProjectTemplates from "./SelectProjectTemplates";
@@ -43,7 +44,7 @@ export default function ProjectsEditorForm({ form, onSubmit, isUpdate, isPending
             <FormItem className="space-y-1">
               <FormLabel>Descripción</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="Ingrese una descripción del proyecto" disabled={isPending} />
+                <Textarea {...field} placeholder="Ingrese una descripción del proyecto" disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -187,6 +188,48 @@ export default function ProjectsEditorForm({ form, onSubmit, isUpdate, isPending
                   filterBySystemRolePosition={3}
                   disabled={isPending}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="commercialExecutive"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel>Ejecutivo comercial</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Ingrese el nombre del ejecutivo comercial" disabled={isPending} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="implementingCompany"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel>Empresa implementadora</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Ingrese el nombre de la empresa implementadora" disabled={isPending} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="externalReviewer"
+          render={({ field }) => (
+            <FormItem className="space-y-1">
+              <FormLabel>Revisor externo</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Ingrese el nombre del revisor externo" disabled={isPending} />
               </FormControl>
               <FormMessage />
             </FormItem>

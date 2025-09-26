@@ -11,9 +11,15 @@ interface ProjectsEditorSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   currentRow?: ProjectResponseDto;
+  projectGroupId: string;
 }
 
-export default function ProjectsEditorSheet({ open, onOpenChange, currentRow }: ProjectsEditorSheetProps) {
+export default function ProjectsEditorSheet({
+  open,
+  onOpenChange,
+  currentRow,
+  projectGroupId,
+}: ProjectsEditorSheetProps) {
   const isUpdate = !!currentRow?.id;
 
   // Usar el hook centralizado de formulario
@@ -21,6 +27,7 @@ export default function ProjectsEditorSheet({ open, onOpenChange, currentRow }: 
     isUpdate,
     initialData: currentRow,
     onSuccess: () => onOpenChange(false),
+    projectGroupId,
   });
 
   return (
