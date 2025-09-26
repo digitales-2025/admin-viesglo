@@ -3,7 +3,7 @@ import { Send } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { GenericSheet } from "@/shared/components/ui/generic-responsive-sheet";
 import { SheetClose, SheetFooter } from "@/shared/components/ui/sheet";
-import { useProjectForm } from "../../_hooks/use-project";
+import { useProjectForm } from "../../_hooks/use-project-form";
 import { ProjectResponseDto } from "../../_types";
 import ProjectsEditorForm from "./ProjectsEditorForm";
 
