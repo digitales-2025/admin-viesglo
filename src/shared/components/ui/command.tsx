@@ -44,14 +44,23 @@ function CommandDialog({
   );
 }
 
-function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
+function CommandInput({
+  className,
+  showBorder = false, // Prop con valor predeterminado false
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  showBorder?: boolean;
+}) {
   return (
-    <div data-slot="command-input-wrapper" className="flex h-9 items-center gap-2 border-b rounded-md px-3">
+    <div
+      data-slot="command-input-wrapper"
+      className={cn("flex h-9 items-center gap-2 px-3", showBorder ? "border-input border rounded-md" : "border-b")}
+    >
       <SearchIcon className="size-4 shrink-0 opacity-50" />
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 outline-hidden disabled:cursor-not-allowed disabled:opacity-50 text-base",
+          "placeholder:text-muted-foreground flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         {...props}
@@ -59,7 +68,6 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
     </div>
   );
 }
-
 function CommandList({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.List>) {
   return (
     <CommandPrimitive.List
