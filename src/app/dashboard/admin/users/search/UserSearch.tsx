@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
+import { CheckCircle, XCircle } from "lucide-react";
 import { toast } from "sonner";
 
-import { cn } from "@/lib/utils";
 import { AutoComplete, Option } from "@/shared/components/ui/autocomplete";
 import { Badge } from "@/shared/components/ui/badge";
 import { useSearchUsers } from "../_hooks/use-users";
@@ -80,20 +80,16 @@ export function UserSearch({
           </div>
           <div className="flex flex-col gap-1 items-end">
             <Badge
-              className={cn(
-                "text-xs font-semibold",
-                user.isActive
-                  ? "bg-green-100 text-green-800 border-green-200"
-                  : "bg-red-100 text-red-800 border-red-200"
-              )}
+              variant={user.isActive ? "default" : "destructive"}
+              className="flex items-center gap-1 w-fit text-xs"
             >
+              {user.isActive ? (
+                <CheckCircle className="h-3 w-3 text-white" />
+              ) : (
+                <XCircle className="h-3 w-3 text-white" />
+              )}
               {user.isActive ? "Activo" : "Inactivo"}
             </Badge>
-            {user.role && (
-              <Badge variant="outline" className="text-xs">
-                {user.role.name}
-              </Badge>
-            )}
           </div>
         </div>
       ),
@@ -112,17 +108,6 @@ export function UserSearch({
               <span className="text-sm font-medium">
                 {selectedUser.entity.name} {selectedUser.entity.lastName}
               </span>
-              <Badge
-                variant="outline"
-                className={cn(
-                  "text-xs",
-                  selectedUser.entity.isActive
-                    ? "bg-green-100 text-green-800 border-green-200"
-                    : "bg-red-100 text-red-800 border-red-200"
-                )}
-              >
-                {selectedUser.entity.isActive ? "Activo" : "Inactivo"}
-              </Badge>
             </div>
           ),
         }
@@ -167,7 +152,6 @@ export function UserSearch({
       regexInput={/^[a-zA-Z0-9\s\-.@]*$/}
       className="w-full"
       commandContentClassName="min-w-[400px]"
-      variant="outline"
       disabled={disabled}
     />
   );
