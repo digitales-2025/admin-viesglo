@@ -610,8 +610,8 @@ export interface paths {
       cookie?: never;
     };
     /**
-     * Obtener usuarios con paginación
-     * @description Obtiene una lista paginada de usuarios. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos.
+     * Obtener usuarios con paginación y filtros
+     * @description Obtiene una lista paginada de usuarios con filtros opcionales. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos. Permite filtrar por estado activo, por rol específico (roleId) o por posición de rol del sistema (systemRolePosition: 1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT).
      */
     get: operations["UsersController_getUsersPaginated_v1"];
     put?: never;
@@ -1844,6 +1844,23 @@ export interface paths {
     };
     /** Buscar plantillas de proyecto activas */
     get: operations["ProjectTemplatesController_findActive_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-templates/test-filter": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Endpoint de prueba para filtros */
+    get: operations["ProjectTemplatesController_testFilter_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -7508,18 +7525,22 @@ export interface operations {
   UsersController_getUsersPaginated_v1: {
     parameters: {
       query?: {
-        /** @description Número de página (comenzando desde 1) */
+        /** @description Número de página */
         page?: number;
-        /** @description Cantidad de elementos por página */
-        size?: number;
-        /** @description Filtrar por ID de rol específico */
-        roleId?: string;
-        /** @description Término de búsqueda para nombre, apellido o email */
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
         search?: string;
         /** @description Campo para ordenamiento */
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description Filtrar por estado activo/inactivo del usuario */
+        isActive?: boolean;
+        /** @description ID del rol para filtrar usuarios por rol específico */
+        roleId?: string;
+        /** @description Posición del rol del sistema para filtrar usuarios (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT) */
+        systemRolePosition?: 1 | 2 | 3;
       };
       header?: never;
       path?: never;
@@ -8637,6 +8658,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description Filtrar por estado activo/inactivo del cliente */
+        isActive?: boolean;
       };
       header?: never;
       path?: never;
@@ -11042,6 +11065,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description Filtrar por estado activo/inactivo de la plantilla */
+        isActive?: boolean;
       };
       header?: never;
       path?: never;
@@ -11095,6 +11120,41 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["ProjectTemplateResponseDto"][];
         };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectTemplatesController_testFilter_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
       /** @description No autenticado */
       401: {
