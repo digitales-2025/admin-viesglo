@@ -3,6 +3,8 @@ import { create } from "zustand";
 export type DialogType =
   | "create"
   | "edit"
+  | "edit-fields"
+  | "progress"
   | "delete"
   | "view"
   | "import"
