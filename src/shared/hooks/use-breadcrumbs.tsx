@@ -84,7 +84,7 @@ class BreadcrumbGenerator {
     return false;
   }
 
-  private generateIdTitle(segment: string, context?: string): string {
+  private generateIdTitle(context?: string): string {
     const entityMap: Record<string, string> = {
       projects: "Proyecto",
       "project-groups": "Grupo de Proyectos",
@@ -99,13 +99,12 @@ class BreadcrumbGenerator {
     };
 
     const entityName = context ? entityMap[context] : "Elemento";
-    const shortId = segment.length > 8 ? `${segment.slice(0, 8)}...` : segment;
-    return `${entityName} #${shortId}`;
+    return `${entityName}`;
   }
 
   private generateSegmentTitle(segment: string, previousSegment?: string): string {
     if (this.isIdSegment(segment)) {
-      return this.generateIdTitle(segment, previousSegment);
+      return this.generateIdTitle(previousSegment);
     }
 
     return this.segmentTitleMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
