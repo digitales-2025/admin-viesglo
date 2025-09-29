@@ -1,22 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { Calendar, Eye, Info } from "lucide-react";
 
 import HoverCardClient from "@/app/dashboard/admin/project-groups/[id]/projects/_components/view/HoverCardClient";
 import HoverCardResponsible from "@/app/dashboard/admin/project-groups/[id]/projects/_components/view/HoverCardCoordinator";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { cn } from "@/shared/lib/utils";
+import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectResponseDto } from "../../_types";
 import { projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
-import BulletChart from "../../../../../../../../shared/components/dashboard/_components/_projects/BulletChart";
+import BulletChart from "./BulletChart";
 
 interface ProjectCardProps {
   project: ProjectResponseDto;
 }
 
 export default function ProjectCard({ project }: ProjectCardProps) {
-  const [showHighcharts, setShowHighcharts] = useState(false);
+  const { open } = useDialogStore();
+  const router = useRouter();
+  const params = useParams();
+  const projectGroupId = params.id as string;
+
+  // Función para navegar al proyecto
+  const handleCardClick = () => {
+    router.push(`/dashboard/admin/project-groups/${projectGroupId}/projects/${project.id}`);
+  };
 
   // Función para formatear la fecha
   const formatDate = (dateString: string) => {
@@ -33,18 +42,30 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   return (
-    <Card>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow duration-200" onClick={handleCardClick}>
       <CardContent>
         {/* Company Header */}
         <div className="flex items-center justify-between mb-3 gap-4">
-          <Info className="w-4 h-4 shrink-0" />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              open("projects", "edit-fields", project);
+            }}
+            className="p-1 hover:bg-gray-100 rounded transition-colors"
+            title="Editar información de empresa"
+          >
+            <Info className="w-4 h-4 shrink-0" />
+          </button>
 
           <h3 className="font-bold text-gray-900 flex-1 truncate capitalize text-center">{project.name}</h3>
 
           <button
-            onClick={() => setShowHighcharts(!showHighcharts)}
+            onClick={(e) => {
+              e.stopPropagation();
+              open("projects", "progress", project);
+            }}
             className="p-1 hover:bg-gray-100 rounded transition-colors"
-            title={showHighcharts ? "Ver gráfico simple" : "Ver gráfico avanzado"}
+            title="Ver dashboard de progreso"
           >
             <Eye className="w-4 h-4 shrink-0" />
           </button>
