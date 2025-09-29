@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   FileCheck,
@@ -29,9 +29,19 @@ import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/shared/components/ui/button";
 import { DeliverableDetailedResponseDto, MilestoneDetailedResponseDto, PhaseDetailedResponseDto } from "../_types";
 import { ProjectProvider, useProjectContext } from "./_context/ProjectContext";
+import { useOpenMilestoneStore } from "./_stores/useOpenMilestoneStore";
 
 function ProjectHeader() {
   const { projectData, isLoading: isProjectLoading } = useProjectContext();
+  const router = useRouter();
+  const params = useParams();
+
+  // Función para navegar a la página principal del proyecto
+  const handleProjectClick = () => {
+    const groupId = params.id as string;
+    const projectId = params.projectId as string;
+    router.push(`/dashboard/admin/project-groups/${groupId}/projects/${projectId}`);
+  };
 
   if (isProjectLoading) {
     return (
@@ -65,15 +75,25 @@ function ProjectHeader() {
   return (
     <div className="px-4 py-4 border-b bg-muted/30">
       <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+        <div
+          className="flex items-center gap-3 cursor-pointer hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors group pb-4"
+          onClick={handleProjectClick}
+          title="Click para ir a la página principal del proyecto"
+        >
+          <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
             <Folder className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="font-bold text-foreground truncate" title={projectData.name}>
+            <h2
+              className="font-bold text-foreground truncate group-hover:text-primary transition-colors"
+              title={projectData.name}
+            >
               {projectData.name}
             </h2>
-            <p className="text-xs text-muted-foreground line-clamp-2" title={projectData.description}>
+            <p
+              className="text-xs text-muted-foreground line-clamp-2 group-hover:text-foreground/80 transition-colors"
+              title={projectData.description}
+            >
               {projectData.description || "Proyecto sin descripción"}
             </p>
           </div>
@@ -145,14 +165,37 @@ function CurrentProjectTree() {
 function MilestoneNode({ milestone }: { milestone: MilestoneDetailedResponseDto }) {
   const totalPhases = milestone.phases?.length || 0;
   const totalDeliverables = milestone.phases?.reduce((acc, phase) => acc + (phase.deliverables?.length || 0), 0) || 0;
+  const { openMilestoneId, toggleMilestone } = useOpenMilestoneStore();
+
+  // Detectar si este milestone está seleccionado
+  const isSelectedMilestone = openMilestoneId === milestone.id;
+
+  // Función para manejar el click en el milestone
+  const handleMilestoneClick = () => {
+    toggleMilestone(milestone.id);
+  };
 
   return (
     <TreeNode key={milestone.id} nodeId={milestone.id} level={1} className="mt-0.5">
-      <TreeNodeTrigger className="group hover:bg-muted/50 transition-colors">
+      <TreeNodeTrigger
+        className={`group hover:bg-muted/50 transition-colors cursor-pointer ${
+          isSelectedMilestone ? "bg-primary/10 border-l-2 border-primary" : ""
+        }`}
+        onClick={handleMilestoneClick}
+      >
         <TreeExpander hasChildren={totalPhases > 0} />
-        <TreeIcon icon={<Flag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />} />
+        <TreeIcon
+          icon={
+            <Flag
+              className={`h-4 w-4 ${isSelectedMilestone ? "text-primary" : "text-emerald-600 dark:text-emerald-400"}`}
+            />
+          }
+        />
         <div className="flex-1 flex items-center justify-between min-w-0">
-          <TreeLabel title={milestone.name ?? "Hito"} className="truncate">
+          <TreeLabel
+            title={milestone.name ?? "Hito"}
+            className={`truncate ${isSelectedMilestone ? "font-semibold text-primary" : ""}`}
+          >
             {milestone.name ?? "Hito"}
           </TreeLabel>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
@@ -172,20 +215,48 @@ function MilestoneNode({ milestone }: { milestone: MilestoneDetailedResponseDto 
 function PhaseNode({ phase }: { phase: PhaseDetailedResponseDto }) {
   const totalDeliverables = phase.deliverables?.length || 0;
   const progress = phase.progress || 0;
+  const router = useRouter();
+  const params = useParams();
+  const pathname = usePathname();
+
+  // Detectar si esta fase está activa
+  const isActivePhase = pathname.includes(`/phase/${phase.id}`);
+
+  // Función para navegar a la fase
+  const handlePhaseClick = () => {
+    const groupId = params.id as string;
+    const projectId = params.projectId as string;
+    router.push(`/dashboard/admin/project-groups/${groupId}/projects/${projectId}/phase/${phase.id}`);
+  };
 
   return (
     <TreeNode key={phase.id} nodeId={phase.id} level={2} className="mt-0.5">
-      <TreeNodeTrigger className="group hover:bg-muted/50 transition-colors">
+      <TreeNodeTrigger
+        className={`group hover:bg-muted/50 transition-colors cursor-pointer ${
+          isActivePhase ? "bg-primary/10 border-l-2 border-primary" : ""
+        }`}
+        onClick={handlePhaseClick}
+      >
         <TreeExpander hasChildren={totalDeliverables > 0} />
-        <TreeIcon icon={<GitBranch className="h-4 w-4 text-slate-600 dark:text-slate-400" />} />
+        <TreeIcon
+          icon={
+            <GitBranch className={`h-4 w-4 ${isActivePhase ? "text-primary" : "text-slate-600 dark:text-slate-400"}`} />
+          }
+        />
         <div className="flex-1 flex items-center justify-between min-w-0">
-          <TreeLabel title={phase.name ?? "Fase"} className="truncate">
+          <TreeLabel
+            title={phase.name ?? "Fase"}
+            className={`truncate ${isActivePhase ? "font-semibold text-primary" : ""}`}
+          >
             {phase.name ?? "Fase"}
           </TreeLabel>
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground ml-2">
             <div className="flex items-center gap-1">
               <div className="w-8 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div className="h-full bg-slate-500 transition-all duration-300" style={{ width: `${progress}%` }} />
+                <div
+                  className={`h-full transition-all duration-300 ${isActivePhase ? "bg-primary" : "bg-slate-500"}`}
+                  style={{ width: `${progress}%` }}
+                />
               </div>
               <span className="hidden group-hover:inline">{progress}%</span>
             </div>
