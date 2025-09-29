@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -16,6 +17,7 @@ interface UseProjectFormProps {
 }
 
 export function useProjectForm({ isUpdate = false, initialData, onSuccess, projectGroupId }: UseProjectFormProps) {
+  const router = useRouter();
   const { mutate: createProject, isPending: isCreating } = useCreateProject();
   const { mutate: updateProject, isPending: isUpdating } = useUpdateProject();
   const isPending = isCreating || isUpdating;
@@ -98,8 +100,29 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
       createProject(
         { body: submitData },
         {
-          onSuccess: () => {
-            onSuccess?.();
+          onSuccess: (response) => {
+            // Intentar diferentes estructuras posibles de la respuesta
+            let projectId = null;
+
+            // Estructura 1: response.data.projectId
+            if (response?.data?.projectId) {
+              projectId = response.data.projectId;
+            }
+            // Estructura 2: response.projectId (directo)
+            else if (response?.projectId) {
+              projectId = response.projectId;
+            }
+            // Estructura 3: response.data.id
+            else if (response?.data?.id) {
+              projectId = response.data.id;
+            }
+
+            if (projectId) {
+              router.push(`/dashboard/admin/project-groups/${projectGroupId}/projects/${projectId}`);
+            } else {
+              // Fallback: ejecutar onSuccess si no hay projectId
+              onSuccess?.();
+            }
             form.reset();
           },
         }

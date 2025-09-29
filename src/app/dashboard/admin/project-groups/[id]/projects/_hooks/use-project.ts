@@ -280,3 +280,38 @@ export const useUpdateProjectStatus = () => {
     isSuccess: mutation.isSuccess,
   };
 };
+
+/**
+ * Hook para obtener hitos de un proyecto
+ */
+export const useProjectMilestones = (projectId: string) => {
+  const query = backend.useQuery("get", "/v1/projects/{projectId}/milestones", {
+    params: { path: { projectId } },
+    enabled: !!projectId,
+  });
+
+  return { query };
+};
+
+/**
+ * Hook para actualizar campos del proyecto (requeridos y opcionales)
+ */
+export const useUpdateProjectFields = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation("patch", "/v1/projects/{projectId}/fields", {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      toast.success("Campos del proyecto actualizados correctamente");
+    },
+    onError: (error) => {
+      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado al actualizar campos");
+    },
+  });
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
