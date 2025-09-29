@@ -1,6 +1,8 @@
 "use client";
 
 import { useDialogStore } from "@/shared/stores/useDialogStore";
+import ProjectFieldsEditorDialog from "../dialog/ProjectFieldsEditorDialog";
+import ProjectProgressDialog from "../dialog/ProjectProgressDialog";
 import ProjectsEditorSheet from "../editor/ProjectsEditorSheet";
 
 interface ProjectsOverlaysProps {
@@ -21,6 +23,24 @@ export default function ProjectsOverlays({ projectGroupId }: ProjectsOverlaysPro
         }}
         currentRow={isOpenForModule(MODULE, "edit") ? data : undefined}
         projectGroupId={projectGroupId}
+      />
+
+      <ProjectFieldsEditorDialog
+        key="project-fields-edit"
+        open={isOpenForModule(MODULE, "edit-fields")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        project={data}
+      />
+
+      <ProjectProgressDialog
+        key="project-progress"
+        open={isOpenForModule(MODULE, "progress")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        project={data}
       />
     </>
   );
