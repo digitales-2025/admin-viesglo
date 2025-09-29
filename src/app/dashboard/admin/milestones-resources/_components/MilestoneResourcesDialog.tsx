@@ -3,32 +3,49 @@
 import React from "react";
 import { Plus, Trash2 } from "lucide-react";
 
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import {
   useActiveResources,
   useCreateMilestoneResource,
   useDeleteMilestoneResource,
   useMilestoneResources,
-} from "@/shared/hooks/resources/use-milestone-resources";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+} from "@/app/dashboard/admin/milestones-resources/_hooks/use-milestone-resources";
+import { Button } from "@/shared/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";
+import { Input } from "@/shared/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 
-type MilestoneResourcesDialogProps = {
+interface MilestoneRowContext {
   projectId: string;
   milestoneId: string;
+}
+
+type MilestoneResourcesDialogProps = {
+  currentRow: MilestoneRowContext;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 };
 
-export function MilestoneResourcesDialog({ projectId, milestoneId, trigger }: MilestoneResourcesDialogProps) {
-  const [open, setOpen] = React.useState(false);
+// Ejemplo de implementación
+{
+  /* <MilestoneResourcesDialog
+  currentRow={{ projectId, milestoneId }}
+  open={isOpenForModule("milestones", "resources")}
+  onOpenChange={(o) => (o ? open() : close())}
+/> */
+}
+
+export function MilestoneResourcesDialog({ currentRow, trigger, open, onOpenChange }: MilestoneResourcesDialogProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const isOpen = open !== undefined ? open : internalOpen;
+  const setIsOpen = onOpenChange || setInternalOpen;
   const [resourceId, setResourceId] = React.useState<string>("");
   const [amount, setAmount] = React.useState<string>("");
   const [date, setDate] = React.useState<string>("");
   const [detail, setDetail] = React.useState<string>("");
 
   const activeResources = useActiveResources();
-  const list = useMilestoneResources(projectId, milestoneId, open);
+  const list = useMilestoneResources(currentRow.projectId, currentRow.milestoneId, isOpen);
   const createMutation = useCreateMilestoneResource();
   const deleteMutation = useDeleteMilestoneResource();
 
@@ -36,7 +53,7 @@ export function MilestoneResourcesDialog({ projectId, milestoneId, trigger }: Mi
     if (!resourceId || !amount || !date) return;
     const numeric = Number(String(amount).replace(/[^0-9.]/g, ""));
     await createMutation.mutateAsync({
-      params: { path: { projectId, milestoneId } },
+      params: { path: { projectId: currentRow.projectId, milestoneId: currentRow.milestoneId } },
       body: { resourceId, amount: numeric, date, detail },
     } as any);
     setResourceId("");
@@ -46,11 +63,23 @@ export function MilestoneResourcesDialog({ projectId, milestoneId, trigger }: Mi
   };
 
   const handleRemove = async (id: string) => {
-    await deleteMutation.mutateAsync({ params: { path: { projectId, milestoneId, id } } } as any);
+    await deleteMutation.mutateAsync({
+      params: { path: { projectId: currentRow.projectId, milestoneId: currentRow.milestoneId, id } },
+    } as any);
   };
 
+  // Limpiar formulario al cerrar
+  React.useEffect(() => {
+    if (!isOpen) {
+      setResourceId("");
+      setAmount("");
+      setDate("");
+      setDetail("");
+    }
+  }, [isOpen]);
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger ?? <Button variant="secondary">Recursos</Button>}</DialogTrigger>
       <DialogContent className="max-w-3xl">
         <DialogHeader>
