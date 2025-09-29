@@ -38,3 +38,9 @@ export enum DeliverablePriorityEnum {
   HIGH = "HIGH",
   CRITICAL = "CRITICAL",
 }
+
+// Enums
+export enum BondTypeEnum {
+  INTERNAL = "INTERNAL",
+  EXTERNAL = "EXTERNAL",
+}

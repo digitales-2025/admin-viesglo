@@ -23,8 +23,15 @@ export type ProjectPaginatedFilterDto = {
 
 // DTOs de Response (del project-response.dto.ts)
 export type ProjectResponseDto = components["schemas"]["ProjectResponseDto"];
+export type ProjectDetailedResponseDto = components["schemas"]["ProjectDetailedResponseDto"];
+export type MilestoneDetailedResponseDto = components["schemas"]["MilestoneDetailedResponseDto"];
+export type PhaseDetailedResponseDto = components["schemas"]["PhaseDetailedResponseDto"];
 export type ProjectOperationResponseDto = components["schemas"]["ProjectOperationResponseDto"];
 export type ProjectPaginatedResponseDto = components["schemas"]["ProjectPaginatedResponseDto"];
+
+// DTOs para campos del proyecto (del project-detailed-response.dto.ts)
+export type ProjectRequiredFieldsResponseDto = components["schemas"]["ProjectRequiredFieldsResponseDto"];
+export type ProjectOptionalFieldsResponseDto = components["schemas"]["ProjectOptionalFieldsResponseDto"];
 
 export interface SelectedProjectData {
   milestoneTemplateId: string;

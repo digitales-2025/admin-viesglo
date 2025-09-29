@@ -11,12 +11,14 @@ import {
   GitBranch,
   Loader2,
   Play,
+  Shield,
   Target,
   X,
   Zap,
 } from "lucide-react";
 
 import {
+  BondTypeEnum,
   DeliverablePriorityEnum,
   DeliverableStatusEnum,
   MilestoneStatusEnum,
@@ -272,5 +274,31 @@ export const deliverablePriorityConfig = {
     icon: Zap,
     badge: "danger",
     iconClass: "text-red-600 dark:text-red-300",
+  },
+};
+
+// Configuración para BondTypeEnum
+export const bondTypeConfig = {
+  [BondTypeEnum.INTERNAL]: {
+    label: "Interna",
+    description: "Aval interno de la empresa",
+    className: "bg-blue-200 dark:bg-blue-800/40",
+    textClass: "text-blue-900 dark:text-blue-200",
+    borderColor: "border-blue-400 dark:border-blue-700",
+    hoverClass: "hover:bg-blue-300 dark:hover:bg-blue-700/60",
+    icon: Shield,
+    badge: "info",
+    iconClass: "text-blue-600 dark:text-blue-300",
+  },
+  [BondTypeEnum.EXTERNAL]: {
+    label: "Externa",
+    description: "Aval externo de entidad financiera",
+    className: "bg-green-200 dark:bg-green-800/40",
+    textClass: "text-green-900 dark:text-green-200",
+    borderColor: "border-green-400 dark:border-green-700",
+    hoverClass: "hover:bg-green-300 dark:hover:bg-green-700/60",
+    icon: Shield,
+    badge: "success",
+    iconClass: "text-green-600 dark:text-green-300",
   },
 };
