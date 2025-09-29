@@ -246,7 +246,7 @@ function TrackingLayoutContent({ children }: { children: React.ReactNode }) {
   const groupId = params.id as string;
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-4rem)] border relative">
+    <div className="flex h-full min-h-[calc(100vh-4rem)] relative">
       <aside className={`${sidebarOpen ? "block" : "hidden"} w-80 shrink-0 border-r bg-background/95 backdrop-blur-sm`}>
         <div className="h-full flex flex-col">
           {/* Header con navegación */}
@@ -276,15 +276,23 @@ function TrackingLayoutContent({ children }: { children: React.ReactNode }) {
       </aside>
 
       <main className="flex-1 overflow-y-auto relative">
-        <button
-          type="button"
-          aria-label={sidebarOpen ? "Ocultar sidebar" : "Mostrar sidebar"}
-          className="absolute top-3 left-2 inline-flex items-center justify-center rounded-md p-2 hover:bg-accent z-40 border bg-background/95 backdrop-blur-sm shadow-sm transition-all duration-200"
-          onClick={() => setSidebarOpen((prev) => !prev)}
-        >
-          {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-        </button>
-        <div className="p-6">{children}</div>
+        <div className="relative">
+          {/* Botón toggle integrado con el header */}
+          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b">
+            <div className="flex items-center justify-between px-4 py-3">
+              <button
+                type="button"
+                aria-label={sidebarOpen ? "Ocultar sidebar" : "Mostrar sidebar"}
+                className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent transition-colors"
+                onClick={() => setSidebarOpen((prev) => !prev)}
+              >
+                {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+              </button>
+              <div className="flex-1" />
+            </div>
+          </div>
+          <div>{children}</div>
+        </div>
       </main>
     </div>
   );
