@@ -22,7 +22,13 @@ export default function ClientsTable() {
   if (isLoading) return <Loading text="Cargando clientes..." variant="spinner" />;
 
   if (error) {
-    return <AlertMessage variant="destructive" title="Error al cargar clientes" description={error.error?.message} />;
+    return (
+      <AlertMessage
+        variant="destructive"
+        title="Error al cargar clientes"
+        description={error.error?.userMessage ?? ""}
+      />
+    );
   }
 
   if (!data) return <EmptyData />;
