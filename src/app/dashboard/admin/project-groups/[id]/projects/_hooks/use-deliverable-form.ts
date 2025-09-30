@@ -32,8 +32,6 @@ export function useDeliverableForm({
     defaultValues: {
       name: "",
       description: "",
-      startDate: undefined,
-      endDate: undefined,
       weight: undefined,
       priority: undefined,
     },
