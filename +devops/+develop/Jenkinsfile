@@ -43,11 +43,11 @@ pipeline {
                             steps {
                                 script {
                                     def buildVariables = [
-                                        NEXT_PUBLIC_BACKEND_URL: "https://viesglo-develop-backend.acide.win"
+                                        NEXT_PUBLIC_BACKEND_URL: "https://viesglo-develop-backend.acide.win",
                                         // FIXME: setup when eqmx is ready
-                                        NEXT_PUBLIC_MQTT_BROKER_URL: "ws://localhost:8083/mqtt"
-                                        NEXT_PUBLIC_MQTT_USERNAME: "management@viesglo.test"
-                                        NEXT_PUBLIC_MQTT_PASSWORD: "Management123!"
+                                        NEXT_PUBLIC_MQTT_BROKER_URL: "ws://localhost:8083/mqtt",
+                                        NEXT_PUBLIC_MQTT_USERNAME: "management@viesglo.test",
+                                        NEXT_PUBLIC_MQTT_PASSWORD: "Management123!",
                                     ]
 
                                     def dockerBuildArgs = new StringBuilder()
