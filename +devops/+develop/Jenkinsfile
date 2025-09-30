@@ -38,15 +38,28 @@ pipeline {
         stage("Build & Push") {
             parallel {
                 stage("frontend") {
-                    environment {
-                        NEXT_PUBLIC_BACKEND_URL = "https://viesglo-frontend-develop.acide.win"
-                    }
                     stages {
                         stage("Build & Push") {
                             steps {
                                 script {
+                                    def buildVariables = [
+                                        NEXT_PUBLIC_BACKEND_URL: "https://viesglo-develop-backend.acide.win"
+                                        // FIXME: setup when eqmx is ready
+                                        NEXT_PUBLIC_MQTT_BROKER_URL: "ws://localhost:8083/mqtt"
+                                        NEXT_PUBLIC_MQTT_USERNAME: "management@viesglo.test"
+                                        NEXT_PUBLIC_MQTT_PASSWORD: "Management123!"
+                                    ]
+
+                                    def dockerBuildArgs = new StringBuilder()
+                                    buildVariables.each { key, value ->
+                                        dockerBuildArgs.append("--build-arg ${key}=\"${value}\" ")
+                                    }
+
+                                    def finalDockerArgs = dockerBuildArgs.toString().trim()
+                                    echo "Generated Docker Build Args: '${finalDockerArgs}'"
+
                                     withDockerRegistry(credentialsId: "${REGISTRY_CREDENTIALS}") {
-                                        def image = docker.build("${FULL_REGISTRY_URL}:${BUILD_REF}", "--build-arg NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL} -f +devops/docker/Dockerfile .")
+                                        def image = docker.build("${FULL_REGISTRY_URL}:${BUILD_REF}", "${finalDockerArgs} -f +devops/docker/Dockerfile .")
                                         image.push()
                                     }
                                 }
