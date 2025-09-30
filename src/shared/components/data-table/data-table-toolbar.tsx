@@ -1,5 +1,8 @@
+import * as React from "react";
+import { useCallback, useState } from "react";
 import { Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
+import { useDebouncedCallback } from "use-debounce";
 
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -27,15 +30,49 @@ export function DataTableToolbar<TData, TValue>({
   const currentFilterValue = externalFilterValue ?? table.getState().globalFilter ?? "";
   const isFiltered = table.getState().columnFilters.length > 0 || currentFilterValue !== "";
 
-  const handleFilterChange = (value: string) => {
-    if (onGlobalFilterChange) {
-      onGlobalFilterChange(value);
-    } else {
-      table.setGlobalFilter(value);
-    }
-  };
+  // Estado local para el input (para mostrar cambios inmediatos)
+  const [inputValue, setInputValue] = useState(currentFilterValue);
+
+  // Sincronizar inputValue con externalFilterValue cuando cambie externamente
+  React.useEffect(() => {
+    setInputValue(currentFilterValue);
+  }, [currentFilterValue]);
+
+  // Función interna para actualizar el filtro (sin debounce)
+  const updateFilter = useCallback(
+    (value: string) => {
+      if (onGlobalFilterChange) {
+        onGlobalFilterChange(value);
+      } else {
+        table.setGlobalFilter(value);
+      }
+    },
+    [onGlobalFilterChange, table]
+  );
+
+  // Función con debounce para filtrado externo (server-side)
+  const debouncedFilter = useDebouncedCallback((value: string) => {
+    updateFilter(value);
+  }, 300);
+
+  // Función para manejar cambios en el input
+  const handleFilterChange = useCallback(
+    (value: string) => {
+      setInputValue(value); // Actualizar inmediatamente el input
+
+      if (onGlobalFilterChange) {
+        // Si hay filtrado externo, usar debounce
+        debouncedFilter(value);
+      } else {
+        // Si es filtrado local, actualizar inmediatamente
+        table.setGlobalFilter(value);
+      }
+    },
+    [onGlobalFilterChange, debouncedFilter, table]
+  );
 
   const handleClearFilters = () => {
+    setInputValue(""); // Limpiar input inmediatamente
     table.resetColumnFilters();
     if (onGlobalFilterChange) {
       onGlobalFilterChange("");
@@ -49,7 +86,7 @@ export function DataTableToolbar<TData, TValue>({
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
         <Input
           placeholder={filterPlaceholder}
-          value={currentFilterValue}
+          value={inputValue}
           onChange={(event) => handleFilterChange(event.target.value)}
           className="h-8 w-[150px] lg:w-[250px]"
         />
