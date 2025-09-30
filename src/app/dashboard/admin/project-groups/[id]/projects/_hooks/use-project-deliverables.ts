@@ -1,7 +1,10 @@
+import { useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { useDebouncedCallback } from "use-debounce";
 
 import { backend } from "@/lib/api/types/backend";
+import { usePagination } from "@/shared/hooks/use-pagination";
 
 /**
  * Hook para obtener entregables por fase
@@ -21,6 +24,145 @@ export const usePhaseDeliverables = (projectId: string, phaseId: string) => {
 };
 
 /**
+ * Hook para obtener entregables por fase con paginación y filtros
+ */
+export const usePhaseDeliverablesPaginated = (projectId: string, phaseId: string) => {
+  const [search, setSearch] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<"REGISTERED" | "IN_PROCESS" | "FINISHED" | undefined>(undefined);
+  const [priority, setPriority] = useState<"LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | undefined>(undefined);
+  const [assignedToId, setAssignedToId] = useState<string | undefined>(undefined);
+  const [hasDocuments, setHasDocuments] = useState<boolean | undefined>(undefined);
+  const [isCompleted, setIsCompleted] = useState<boolean | undefined>(undefined);
+  const [sortField, setSortField] = useState<"name" | "lastName" | "email" | "createdAt" | "updatedAt" | undefined>(
+    undefined
+  );
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc" | undefined>(undefined);
+  const { page, size, setPagination, resetPagination } = usePagination();
+
+  const query = backend.useQuery(
+    "get",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated",
+    {
+      params: {
+        path: {
+          projectId,
+          phaseId,
+        },
+        query: {
+          page,
+          pageSize: size,
+          search,
+          status,
+          priority,
+          assignedToId,
+          hasDocuments,
+          isCompleted,
+          sortField,
+          sortOrder,
+        },
+      },
+      enabled: !!projectId && !!phaseId,
+    }
+  );
+
+  // Función interna para actualizar el search (sin debounce)
+  const updateSearch = useCallback((value: string) => {
+    if (value !== "None" && value !== null && value !== undefined) {
+      setSearch(value.trim());
+    }
+  }, []);
+
+  // Función con debounce para el search (igual que en AutoComplete)
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    updateSearch(value);
+  }, 300);
+
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      debouncedSearch(value);
+    },
+    [debouncedSearch]
+  );
+
+  const handleStatusFilter = useCallback((status: "REGISTERED" | "IN_PROCESS" | "FINISHED" | undefined) => {
+    setStatus(status);
+  }, []);
+
+  const handlePriorityFilter = useCallback((priority: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" | undefined) => {
+    setPriority(priority);
+  }, []);
+
+  const handleAssignedToFilter = useCallback((assignedToId: string | undefined) => {
+    setAssignedToId(assignedToId);
+  }, []);
+
+  const handleHasDocumentsFilter = useCallback((hasDocuments: boolean | undefined) => {
+    setHasDocuments(hasDocuments);
+  }, []);
+
+  const handleIsCompletedFilter = useCallback((isCompleted: boolean | undefined) => {
+    setIsCompleted(isCompleted);
+  }, []);
+
+  const handleSortChange = useCallback(
+    (
+      field: "name" | "lastName" | "email" | "createdAt" | "updatedAt" | undefined,
+      order: "asc" | "desc" | undefined
+    ) => {
+      setSortField(field);
+      setSortOrder(order);
+    },
+    []
+  );
+
+  const clearFilters = useCallback(() => {
+    setSearch(undefined);
+    setStatus(undefined);
+    setPriority(undefined);
+    setAssignedToId(undefined);
+    setHasDocuments(undefined);
+    setIsCompleted(undefined);
+    setSortField(undefined);
+    setSortOrder(undefined);
+  }, []);
+
+  return {
+    query,
+    setPagination,
+    resetPagination,
+    phase: query.data?.phase,
+    deliverables: query.data?.deliverables || [],
+    meta: query.data?.meta,
+    // Funciones de filtrado
+    handleSearchChange,
+    handleStatusFilter,
+    handlePriorityFilter,
+    handleAssignedToFilter,
+    handleHasDocumentsFilter,
+    handleIsCompletedFilter,
+    handleSortChange,
+    clearFilters,
+    // Estados de filtros
+    search,
+    setSearch,
+    status,
+    setStatus,
+    priority,
+    setPriority,
+    assignedToId,
+    setAssignedToId,
+    hasDocuments,
+    setHasDocuments,
+    isCompleted,
+    setIsCompleted,
+    sortField,
+    setSortField,
+    sortOrder,
+    setSortOrder,
+  };
+};
+
+/**
  * Hook para agregar entregable a una fase
  */
 export const useAddDeliverable = () => {
@@ -33,6 +175,9 @@ export const useAddDeliverable = () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
         });
         toast.success("Entregable agregado correctamente");
       },
@@ -62,6 +207,9 @@ export const useUpdateDeliverable = () => {
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
         toast.success("Entregable actualizado correctamente");
       },
       onError: (error) => {
@@ -89,6 +237,9 @@ export const useAssignDeliverable = () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
         });
         toast.success("Entregable asignado correctamente");
       },
@@ -118,6 +269,9 @@ export const useUpdateDeliverableProgress = () => {
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
         toast.success("Progreso del entregable actualizado correctamente");
       },
       onError: (error) => {
@@ -146,6 +300,9 @@ export const useCompleteDeliverable = () => {
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
         });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
         toast.success("Entregable completado correctamente");
       },
       onError: (error) => {
@@ -172,6 +329,9 @@ export const useDeleteDeliverable = () => {
       onSuccess: () => {
         queryClient.invalidateQueries({
           queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
         });
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
         toast.success("Entregable eliminado correctamente");
