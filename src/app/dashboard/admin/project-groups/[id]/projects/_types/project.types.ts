@@ -26,6 +26,7 @@ export type ProjectResponseDto = components["schemas"]["ProjectResponseDto"];
 export type ProjectDetailedResponseDto = components["schemas"]["ProjectDetailedResponseDto"];
 export type MilestoneDetailedResponseDto = components["schemas"]["MilestoneDetailedResponseDto"];
 export type PhaseDetailedResponseDto = components["schemas"]["PhaseDetailedResponseDto"];
+export type DeliverableDetailedResponseDto = components["schemas"]["DeliverableDetailedResponseDto"];
 export type ProjectOperationResponseDto = components["schemas"]["ProjectOperationResponseDto"];
 export type ProjectPaginatedResponseDto = components["schemas"]["ProjectPaginatedResponseDto"];
 

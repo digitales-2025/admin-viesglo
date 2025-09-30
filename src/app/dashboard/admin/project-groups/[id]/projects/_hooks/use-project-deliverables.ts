@@ -21,13 +21,13 @@ export const usePhaseDeliverables = (projectId: string, phaseId: string) => {
 };
 
 /**
- * Hook para agregar entregable a un hito
+ * Hook para agregar entregable a una fase
  */
 export const useAddDeliverable = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation(
     "post",
-    "/v1/project-deliverables/projects/{projectId}/milestones/{milestoneId}/deliverables",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables",
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
@@ -55,7 +55,7 @@ export const useUpdateDeliverable = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation(
     "put",
-    "/v1/project-deliverables/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}",
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
@@ -83,7 +83,7 @@ export const useAssignDeliverable = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation(
     "patch",
-    "/v1/project-deliverables/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/assign",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/assign",
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
@@ -111,7 +111,7 @@ export const useUpdateDeliverableProgress = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation(
     "patch",
-    "/v1/project-deliverables/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/progress",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/progress",
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
@@ -139,7 +139,7 @@ export const useCompleteDeliverable = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation(
     "patch",
-    "/v1/project-deliverables/projects/{projectId}/milestones/{milestoneId}/deliverables/{deliverableId}/complete",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/complete",
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
@@ -158,4 +158,27 @@ export const useCompleteDeliverable = () => {
     ...mutation,
     isSuccess: mutation.isSuccess,
   };
+};
+
+/**
+ * Hook para eliminar entregable
+ */
+export const useDeleteDeliverable = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation(
+    "delete",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}",
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+        toast.success("Entregable eliminado correctamente");
+      },
+      onError: (error: any) => {
+        toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+      },
+    }
+  );
 };
