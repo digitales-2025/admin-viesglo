@@ -15,7 +15,7 @@ services:
       - {{ project_name }}-network-{{ project_stage}}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.rule=Host(`{{ project_name }}-frontend-{{ project_stage }}.acide.win`)"
+      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.rule=Host(`{{ project_name }}-{{ project_stage }}-frontend.acide.win`)"
       - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.entrypoints=websecure"
       - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls=true"
       - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls.certresolver=dns-cloudflare"
