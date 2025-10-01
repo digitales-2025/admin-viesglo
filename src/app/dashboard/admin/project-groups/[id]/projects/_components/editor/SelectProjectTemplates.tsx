@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { X } from "lucide-react";
+import { FileText, X } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { useTemplateDetailedById } from "@/app/dashboard/admin/templates/_hooks";
@@ -57,7 +57,11 @@ export default function SelectProjectTemplates({ form, className }: SelectProjec
       name="selectedMilestones"
       render={() => (
         <FormItem className={cn("w-full", className)}>
-          <FormLabel>Plantillas de proyecto</FormLabel>
+          <FormLabel className="text-sm font-medium flex items-center gap-2">
+            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+            Plantillas de proyecto
+            <span className="text-red-500">*</span>
+          </FormLabel>
           <FormControl>
             <div className="space-y-4">
               {/* Selector de plantilla */}
