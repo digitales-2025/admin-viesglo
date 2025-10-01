@@ -9,3 +9,6 @@ export * from "./milestone.types";
 
 // ===== EXPORTACIONES DE TIPOS DE DELIVERABLE =====
 export * from "./deliverable.types";
+
+// ===== EXPORTACIONES DE TIPOS DE PHASE =====
+export * from "./phase.types";
