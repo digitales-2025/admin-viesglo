@@ -2,12 +2,14 @@
 
 import React, { createContext, ReactNode, useContext } from "react";
 
-import { useProjectById } from "@/app/dashboard/admin/tracking/_hooks/useProject";
+import { BaseErrorResponse } from "@/lib/api/types/common";
+import { useProjectById } from "../../_hooks/use-project";
+import { ProjectDetailedResponseDto } from "../../_types";
 
 interface ProjectContextType {
-  projectData: any; // Reemplaza 'any' con el tipo correcto de tu proyecto
+  projectData: ProjectDetailedResponseDto | undefined;
   isLoading: boolean;
-  error: any;
+  error: BaseErrorResponse | null;
   refetch: () => void;
 }
 
