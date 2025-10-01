@@ -17,6 +17,11 @@ export default function BulletChart({
   animationDuration = 1500,
   tolerance = 5,
 }: BulletChartProps) {
+  console.log("current", current);
+  console.log("target", target);
+  console.log("tolerance", tolerance);
+  console.log("showTooltip", showTooltip);
+  console.log("animationDuration", animationDuration);
   const max = 100;
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -155,6 +160,45 @@ export default function BulletChart({
 
   const tooltipContent = getTooltipContent();
 
+  // Función para evitar superposición de labels
+  const getLabelPositions = () => {
+    const targetPos = animatedTarget;
+    const currentPos = animatedCurrent;
+    const maxPos = 100;
+
+    // Distancia mínima entre labels (en porcentaje)
+    const minDistance = 8;
+
+    let targetLabelPos = targetPos;
+    let currentLabelPos = currentPos;
+
+    // Si target y current están muy cerca, reposicionar
+    if (Math.abs(targetPos - currentPos) < minDistance) {
+      if (targetPos < currentPos) {
+        // Target a la izquierda, current a la derecha
+        targetLabelPos = Math.max(0, targetPos - minDistance / 2);
+        currentLabelPos = Math.min(100, currentPos + minDistance / 2);
+      } else {
+        // Current a la izquierda, target a la derecha
+        currentLabelPos = Math.max(0, currentPos - minDistance / 2);
+        targetLabelPos = Math.min(100, targetPos + minDistance / 2);
+      }
+    }
+
+    // Si current está muy cerca del final, moverlo un poco hacia la izquierda
+    if (currentLabelPos > 95) {
+      currentLabelPos = 95;
+    }
+
+    return {
+      target: targetLabelPos,
+      current: currentLabelPos,
+      max: maxPos,
+    };
+  };
+
+  const labelPositions = getLabelPositions();
+
   return (
     <div className="w-full relative">
       {/* Bullet Chart Container */}
@@ -254,17 +298,39 @@ export default function BulletChart({
         )}
       </div>
 
-      {/* Percentage labels */}
-      <div className="flex justify-between text-xs text-gray-700 mt-3">
-        <span className="font-medium transition-colors duration-200 hover:text-gray-900">
+      {/* Percentage labels positioned correctly */}
+      <div className="relative w-full mt-3 pb-4">
+        {/* Target label positioned at target position */}
+        <div
+          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+          style={{
+            left: `${labelPositions.target}%`,
+            transform: "translateX(-50%)",
+          }}
+        >
+          {Math.round((animatedTarget / 100) * max) || 0}%
+        </div>
+
+        {/* Current label positioned at current position */}
+        <div
+          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+          style={{
+            left: `${labelPositions.current}%`,
+            transform: "translateX(-50%)",
+          }}
+        >
           {Math.round((animatedCurrent / 100) * max) || 0}%
-        </span>
-        {target && (
-          <span className="font-medium transition-colors duration-200 hover:text-gray-900">
-            {Math.round((animatedTarget / 100) * max) || 0}%
-          </span>
-        )}
-        <span className="font-medium transition-colors duration-200 hover:text-gray-900">{max || 100}%</span>
+        </div>
+
+        {/* Max label positioned at the end */}
+        <div
+          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+          style={{
+            right: "0%",
+          }}
+        >
+          {max || 100}%
+        </div>
       </div>
 
       {/* Tooltip Card */}
