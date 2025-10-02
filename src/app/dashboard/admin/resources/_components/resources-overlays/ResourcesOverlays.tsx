@@ -56,7 +56,6 @@ export default function ResourcesOverlays() {
         desc={
           <>
             Estás a punto de eliminar el recurso <strong className="uppercase text-wrap">{data?.name}</strong>. <br />
-            Esta acción es irreversible.
           </>
         }
       />
