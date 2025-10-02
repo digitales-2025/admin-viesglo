@@ -5,12 +5,13 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar, Plus, Trash2 } from "lucide-react";
 
+import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import {
   useCreateIncident,
   useDeleteIncident,
   useIncidentsByDeliverable,
 } from "@/app/dashboard/admin/incidents/_hooks/use-incidents";
-import { CreateIncidentRequestDto } from "@/app/dashboard/admin/incidents/_types/incidents.types";
+import { CreateIncidentRequestDto, IncidentResponseDto } from "@/app/dashboard/admin/incidents/_types/incidents.types";
 import { Button } from "@/shared/components/ui/button";
 import { Calendar as CalendarComponent } from "@/shared/components/ui/calendar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/shared/components/ui/dialog";
@@ -60,6 +61,7 @@ export function IncidentDialog({ currentRow, trigger, open, onOpenChange }: Inci
   const { data: incidentsData, isLoading, error } = useIncidentsByDeliverable(currentRow.deliverableId);
   const createMutation = useCreateIncident();
   const deleteMutation = useDeleteIncident();
+  const profile = useProfile();
 
   // Estado interno del diálogo si no se proporciona externamente
   const [internalOpen, setInternalOpen] = React.useState(false);
@@ -75,7 +77,6 @@ export function IncidentDialog({ currentRow, trigger, open, onOpenChange }: Inci
     }
 
     const incidentData: CreateIncidentRequestDto = {
-      // El API de creación solo requiere estos campos
       projectId: currentRow.projectId,
       milestoneId: currentRow.milestoneId,
       phaseId: currentRow.phaseId,
@@ -85,7 +86,18 @@ export function IncidentDialog({ currentRow, trigger, open, onOpenChange }: Inci
     };
 
     try {
-      await createMutation.mutateAsync({ body: incidentData });
+      const createdById = typeof profile.data?.id === "string" ? profile.data.id : "";
+      await createMutation.mutateAsync({
+        body: {
+          description: incidentData.description,
+          date: incidentData.date,
+          projectId: currentRow.projectId,
+          milestoneId: currentRow.milestoneId,
+          phaseId: currentRow.phaseId,
+          deliverableId: currentRow.deliverableId,
+          createdById,
+        },
+      });
       // Limpiar formulario después de crear
       setDate(undefined);
       setDescription("");
@@ -117,7 +129,19 @@ export function IncidentDialog({ currentRow, trigger, open, onOpenChange }: Inci
     }
   };
 
-  const incidents = incidentsData?.data || [];
+  // Normalizar data cuando openapi devuelve por content-type {"application/json": ...}
+  const incidents: IncidentResponseDto[] = React.useMemo(() => {
+    if (!incidentsData) return [];
+    const maybeWrapper = incidentsData as unknown;
+    const payload =
+      typeof maybeWrapper === "object" &&
+      maybeWrapper !== null &&
+      Object.prototype.hasOwnProperty.call(maybeWrapper, "application/json")
+        ? (maybeWrapper as Record<string, unknown>)["application/json"]
+        : incidentsData;
+    const data = (payload as { data?: unknown }).data;
+    return Array.isArray(data) ? (data as IncidentResponseDto[]) : [];
+  }, [incidentsData]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

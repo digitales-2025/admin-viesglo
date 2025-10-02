@@ -11,7 +11,7 @@ export const useActiveResources = () => {
 export const useMilestoneResources = (projectId: string, milestoneId: string, enabled = true) => {
   return backend.useQuery(
     "get",
-    "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources",
+    "/v1/projects/{projectId}/milestones/{milestoneId}/milestone-resources",
     {
       params: { path: { projectId, milestoneId } },
     },
@@ -22,7 +22,7 @@ export const useMilestoneResources = (projectId: string, milestoneId: string, en
 // Crear recurso por hito
 export const useCreateMilestoneResource = () => {
   const qc = useQueryClient();
-  return backend.useMutation("post", "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources", {
+  return backend.useMutation("post", "/v1/projects/{projectId}/milestones/{milestoneId}/milestone-resources", {
     onSuccess: (_data, variables: any) => {
       const { projectId, milestoneId } = variables?.params?.path ?? {};
       qc.invalidateQueries();
@@ -36,7 +36,7 @@ export const useCreateMilestoneResource = () => {
 // Actualizar recurso por hito
 export const useUpdateMilestoneResource = () => {
   const qc = useQueryClient();
-  return backend.useMutation("patch", "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources/{id}", {
+  return backend.useMutation("patch", "/v1/projects/{projectId}/milestones/{milestoneId}/milestone-resources/{id}", {
     onSuccess: (_data, variables: any) => {
       const { projectId, milestoneId } = variables?.params?.path ?? {};
       qc.invalidateQueries();
@@ -50,7 +50,7 @@ export const useUpdateMilestoneResource = () => {
 // Eliminar recurso por hito
 export const useDeleteMilestoneResource = () => {
   const qc = useQueryClient();
-  return backend.useMutation("delete", "/v1/projects/{projectId}/milestones/{milestoneId}/project-resources/{id}", {
+  return backend.useMutation("delete", "/v1/projects/{projectId}/milestones/{milestoneId}/milestone-resources/{id}", {
     onSuccess: (_data, variables: any) => {
       const { projectId, milestoneId } = variables?.params?.path ?? {};
       qc.invalidateQueries();

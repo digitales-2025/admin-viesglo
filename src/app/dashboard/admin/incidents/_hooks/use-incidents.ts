@@ -19,6 +19,12 @@ export const INCIDENTS_KEYS = {
  * Hook para obtener incidencias paginadas
  */
 export function useIncidents(filters: IncidentPaginatedFilterDto = {}) {
+  // Asegurar compatibilidad con tipos de OpenAPI para sortField
+  const allowedSortFields = ["email", "name", "lastName", "createdAt", "updatedAt"] as const;
+  const sortFieldParam = allowedSortFields.includes(filters.sortField as any)
+    ? (filters.sortField as (typeof allowedSortFields)[number])
+    : undefined;
+
   return backend.useQuery(
     "get",
     "/v1/incidents",
@@ -35,7 +41,7 @@ export function useIncidents(filters: IncidentPaginatedFilterDto = {}) {
           isResolved: filters.isResolved,
           createdById: filters.createdById,
           resolvedById: filters.resolvedById,
-          sortField: filters.sortField,
+          sortField: sortFieldParam,
           sortOrder: filters.sortOrder,
         },
       },
