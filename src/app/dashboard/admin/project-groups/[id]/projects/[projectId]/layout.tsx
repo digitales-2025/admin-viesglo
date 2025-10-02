@@ -166,21 +166,29 @@ function MilestoneNode({ milestone }: { milestone: MilestoneDetailedResponseDto 
   const totalPhases = milestone.phases?.length || 0;
   const totalDeliverables = milestone.phases?.reduce((acc, phase) => acc + (phase.deliverables?.length || 0), 0) || 0;
   const { openMilestoneId, toggleMilestone } = useOpenMilestoneStore();
+  const pathname = usePathname();
 
   // Detectar si este milestone está seleccionado
   const isSelectedMilestone = openMilestoneId === milestone.id;
 
+  // Detectar si estamos en una fase específica (no en la página principal del proyecto)
+  const isInSpecificPhase = pathname.includes("/phase/");
+
   // Función para manejar el click en el milestone
   const handleMilestoneClick = () => {
+    // Si estamos en una fase específica, no permitir cambiar de milestone
+    if (isInSpecificPhase) {
+      return;
+    }
     toggleMilestone(milestone.id);
   };
 
   return (
     <TreeNode key={milestone.id} nodeId={milestone.id} level={1} className="mt-0.5">
       <TreeNodeTrigger
-        className={`group hover:bg-muted/50 transition-colors cursor-pointer ${
-          isSelectedMilestone ? "bg-primary/10 border-l-2 border-primary" : ""
-        }`}
+        className={`group transition-colors ${
+          isInSpecificPhase ? "cursor-default opacity-60" : "cursor-pointer hover:bg-muted/50"
+        } ${isSelectedMilestone ? "bg-primary/10 border-l-2 border-primary" : ""}`}
         onClick={handleMilestoneClick}
       >
         <TreeExpander hasChildren={totalPhases > 0} />
