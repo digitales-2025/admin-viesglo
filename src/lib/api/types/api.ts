@@ -2359,6 +2359,23 @@ export interface paths {
     patch: operations["MilestoneResourceController_update_v1"];
     trace?: never;
   };
+  "/v1/projects/{projectId}/milestones/{milestoneId}/milestone-resources/{id}/reactivate": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reactivar recurso por hito */
+    patch: operations["MilestoneResourceController_reactivate_v1"];
+    trace?: never;
+  };
   "/v1/project-groups": {
     parameters: {
       query?: never;
@@ -2384,7 +2401,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Buscar grupos con filtros y paginación */
+    /**
+     * Buscar grupos con filtros y paginación
+     * @description Obtiene una lista paginada de grupos de proyectos con filtros opcionales y búsqueda en datos embebidos
+     */
     get: operations["ProjectGroupsController_findPaginated_v1"];
     put?: never;
     post?: never;
@@ -2512,6 +2532,80 @@ export interface paths {
      * @description Asigna una fase a un consultor
      */
     patch: operations["ProjectPhaseController_assignPhase_v1"];
+    trace?: never;
+  };
+  "/v1/incidents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar incidencias paginadas
+     * @description Obtiene una lista paginada de incidencias con filtros opcionales y búsqueda en datos embebidos
+     */
+    get: operations["IncidentsController_findPaginated_v1"];
+    put?: never;
+    /** Crear incidencia */
+    post: operations["IncidentsController_create_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/incidents/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Obtener incidencia por ID */
+    get: operations["IncidentsController_findOne_v1"];
+    put?: never;
+    post?: never;
+    /** Eliminar incidencia */
+    delete: operations["IncidentsController_delete_v1"];
+    options?: never;
+    head?: never;
+    /** Actualizar incidencia */
+    patch: operations["IncidentsController_update_v1"];
+    trace?: never;
+  };
+  "/v1/incidents/{id}/resolve": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Resolver incidencia */
+    patch: operations["IncidentsController_resolve_v1"];
+    trace?: never;
+  };
+  "/v1/incidents/{id}/reopen": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Reabrir incidencia */
+    patch: operations["IncidentsController_reopen_v1"];
     trace?: never;
   };
 }
@@ -7488,6 +7582,109 @@ export interface components {
        * @example 64a1b2c3d4e5f6789abcdef0
        */
       consultantId: string;
+    };
+    CreateIncidentRequestDto: {
+      /**
+       * @description Descripción de la incidencia
+       * @example Cliente reporta error en módulo X
+       */
+      description: string;
+      /**
+       * @description Fecha de ocurrencia de la incidencia (ISO)
+       * @example 2025-09-24T10:30:00.000Z
+       */
+      date: string;
+      /**
+       * @description ID del proyecto
+       * @example 66f2c7f9e7d6b2d9a1c3f4e5
+       */
+      projectId: string;
+      /**
+       * @description ID del hito
+       * @example 66f2c7f9e7d6b2d9a1c3f4e6
+       */
+      milestoneId: string;
+      /**
+       * @description ID de la fase
+       * @example 66f2c7f9e7d6b2d9a1c3f4e7
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable
+       * @example 66f2c7f9e7d6b2d9a1c3f4e8
+       */
+      deliverableId: string;
+      /**
+       * @description ID del usuario que crea la incidencia
+       * @example 66f2c7f9e7d6b2d9a1c3f4aa
+       */
+      createdById: string;
+    };
+    IncidentResponseDto: {
+      /** @description ID único de la incidencia */
+      id: string;
+      /** @description Descripción de la incidencia */
+      description: string;
+      /**
+       * Format: date-time
+       * @description Fecha de la incidencia
+       */
+      date: string;
+      /** @description ID del proyecto asociado */
+      projectId: string;
+      /** @description ID del hito asociado */
+      milestoneId: string;
+      /** @description ID de la fase asociada */
+      phaseId: string;
+      /** @description ID del entregable asociado */
+      deliverableId: string;
+      /** @description Si la incidencia está resuelta */
+      isResolved: boolean;
+      /**
+       * Format: date-time
+       * @description Fecha de resolución
+       */
+      resolvedAt?: string;
+      /** @description ID del usuario que resolvió la incidencia */
+      resolvedById?: string;
+      /** @description ID del usuario que creó la incidencia */
+      createdById: string;
+      /** @description Tópico MQTT */
+      mqttTopic?: string;
+      /** @description Payload MQTT */
+      mqttPayload?: string;
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       */
+      updatedAt: string;
+    };
+    PaginatedIncidentResponseDto: {
+      /** @description Lista de incidencias */
+      data: components["schemas"]["IncidentResponseDto"][];
+      /**
+       * @description Metadatos de paginación
+       * @example {
+       *       "total": 100,
+       *       "page": 1,
+       *       "pageSize": 10,
+       *       "totalPages": 10,
+       *       "hasNext": true,
+       *       "hasPrevious": false
+       *     }
+       */
+      meta: Record<string, never>;
+    };
+    UpdateIncidentRequestDto: {
+      /** @description Descripción de la incidencia */
+      description?: string;
+      /** @description Fecha de ocurrencia (ISO) */
+      date?: string;
     };
   };
   responses: never;
@@ -14001,6 +14198,35 @@ export interface operations {
       };
     };
   };
+  MilestoneResourceController_reactivate_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Recurso por hito reactivado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ProjectResourceResponseDto"];
+        };
+      };
+      /** @description No encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ProjectGroupsController_list_v1: {
     parameters: {
       query?: {
@@ -14086,11 +14312,24 @@ export interface operations {
   ProjectGroupsController_findPaginated_v1: {
     parameters: {
       query?: {
-        period?: string;
-        status?: string;
-        search?: string;
-        pageSize?: number;
+        /** @description Número de página */
         page?: number;
+        /** @description Tamaño de página */
+        pageSize?: number;
+        /** @description Término de búsqueda por nombre, descripción, estado o período */
+        search?: string;
+        /** @description Campo por el cual ordenar */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación (asc o desc) */
+        sortOrder?: "asc" | "desc";
+        /** @description Filtrar por estado del grupo */
+        status?: string;
+        /** @description Filtrar por período del grupo */
+        period?: string;
+        /** @description Filtrar por estado activo */
+        isActive?: boolean;
+        /** @description Modo de vista para el frontend (table o cards) */
+        viewMode?: "table" | "cards";
       };
       header?: never;
       path?: never;
@@ -14098,12 +14337,22 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
+      /** @description Lista paginada de grupos obtenida exitosamente */
       200: {
         headers: {
           [name: string]: unknown;
         };
         content: {
           "application/json": components["schemas"]["PaginatedProjectGroupResponseDto"];
+        };
+      };
+      /** @description Parámetros de consulta inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
       /** @description No autenticado */
@@ -14117,6 +14366,15 @@ export interface operations {
       };
       /** @description Sin permisos */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
         headers: {
           [name: string]: unknown;
         };
@@ -14574,6 +14832,321 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Tamaño de página */
+        pageSize?: number;
+        /** @description Término de búsqueda por descripción, proyecto, hito, fase o entregable */
+        search?: string;
+        /** @description Campo por el cual ordenar */
+        sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación (asc o desc) */
+        sortOrder?: "asc" | "desc";
+        /** @description Filtrar por ID del proyecto */
+        projectId?: string;
+        /** @description Filtrar por ID del hito */
+        milestoneId?: string;
+        /** @description Filtrar por ID de la fase */
+        phaseId?: string;
+        /** @description Filtrar por ID del entregable */
+        deliverableId?: string;
+        /** @description Filtrar por estado de resolución */
+        isResolved?: boolean;
+        /** @description Filtrar por ID del usuario que creó la incidencia */
+        createdById?: string;
+        /** @description Filtrar por ID del usuario que resolvió la incidencia */
+        resolvedById?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista paginada de incidencias obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedIncidentResponseDto"];
+        };
+      };
+      /** @description Parámetros de consulta inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_create_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateIncidentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Incidencia creada */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["IncidentResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_findOne_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Incidencia encontrada */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["IncidentResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_delete_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_update_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateIncidentRequestDto"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_resolve_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_reopen_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
         headers: {
           [name: string]: unknown;
         };
