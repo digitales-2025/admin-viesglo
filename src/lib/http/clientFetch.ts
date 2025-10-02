@@ -21,11 +21,6 @@ const api: AxiosInstance = axios.create({
 // Interceptores para logs
 api.interceptors.request.use(
   (config) => {
-    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
-      console.log(`🚀❌ [${config.method?.toUpperCase()}] ${config.url}`, {
-        body: config.data,
-      });
-    }
     return config;
   },
   (error) => {
@@ -36,15 +31,6 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   (response) => {
-    if (typeof window !== "undefined" && process.env.NODE_ENV !== "production") {
-      // Solo registramos datos relevantes y seguros para JSON
-      console.log(`✅objeto de respuesta usuario en ClientFetch:🚀 [${response.status}] ${response.config.url}`, {
-        data: response.data,
-        headers: {
-          "set-cookie": response.headers["set-cookie"],
-        },
-      });
-    }
     return response;
   },
   (error) => {

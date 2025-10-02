@@ -36,6 +36,11 @@ class BreadcrumbGenerator {
       roles: "Roles y Permisos",
       clients: "Clientes",
       projects: "Proyectos",
+      "project-groups": "Grupos de Proyectos",
+      phase: "Fase",
+      phases: "Fases",
+      milestones: "Hitos",
+      deliverables: "Entregables",
       tracking: "Seguimiento",
       templates: "Plantillas",
       resources: "Recursos",
@@ -70,13 +75,33 @@ class BreadcrumbGenerator {
     return actions.includes(segment);
   }
 
-  private shouldSkipIdInBreadcrumb(segment: string, nextSegment?: string): boolean {
-    return this.isIdSegment(segment) && !!nextSegment && this.isActionSegment(nextSegment);
+  private shouldSkipIdInBreadcrumb(segment: string, nextSegment?: string, previousSegment?: string): boolean {
+    // Skip ID segments that are followed by action segments
+    if (this.isIdSegment(segment) && !!nextSegment && this.isActionSegment(nextSegment)) {
+      return true;
+    }
+
+    // Skip ID segments in project-groups routes (e.g., /project-groups/[id]/projects)
+    if (this.isIdSegment(segment) && previousSegment === "project-groups" && nextSegment === "projects") {
+      return true;
+    }
+
+    // Skip ID segments in projects routes (e.g., /projects/[id]/phase)
+    if (this.isIdSegment(segment) && previousSegment === "projects" && nextSegment === "phase") {
+      return true;
+    }
+
+    return false;
   }
 
-  private generateIdTitle(segment: string, context?: string): string {
+  private generateIdTitle(context?: string): string {
     const entityMap: Record<string, string> = {
       projects: "Proyecto",
+      "project-groups": "Grupo de Proyectos",
+      phase: "Fase",
+      phases: "Fase",
+      milestones: "Hito",
+      deliverables: "Entregable",
       users: "Usuario",
       clients: "Cliente",
       roles: "Rol",
@@ -88,13 +113,12 @@ class BreadcrumbGenerator {
     };
 
     const entityName = context ? entityMap[context] : "Elemento";
-    const shortId = segment.length > 8 ? `${segment.slice(0, 8)}...` : segment;
-    return `${entityName} #${shortId}`;
+    return `${entityName}`;
   }
 
   private generateSegmentTitle(segment: string, previousSegment?: string): string {
     if (this.isIdSegment(segment)) {
-      return this.generateIdTitle(segment, previousSegment);
+      return this.generateIdTitle(previousSegment);
     }
 
     return this.segmentTitleMap[segment] || segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " ");
@@ -183,7 +207,7 @@ class BreadcrumbGenerator {
       if (i === 0 && segment === "dashboard") continue;
 
       // Skip ID segments that are followed by action segments (but keep building currentPath)
-      if (this.shouldSkipIdInBreadcrumb(segment, nextSegment)) continue;
+      if (this.shouldSkipIdInBreadcrumb(segment, nextSegment, previousSegment)) continue;
 
       const isLastSegment = i === segments.length - 1;
       const isId = this.isIdSegment(segment);

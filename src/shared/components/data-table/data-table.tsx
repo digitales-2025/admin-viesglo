@@ -16,8 +16,11 @@ import {
   useReactTable,
   VisibilityState,
 } from "@tanstack/react-table";
+import { X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "../ui/resizable";
 import { Skeleton } from "../ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { DataTablePagination } from "./data-table-pagination";
@@ -57,6 +60,19 @@ interface DataTableProps<TData, TValue> {
   loadingRowsCount?: number;
   // Prop para mostrar valor en input sin filtrar (server-side filtering)
   externalFilterValue?: string;
+  // Props para funcionalidad expandible
+  expandable?: boolean;
+  renderDetailsPanel?: (item: TData) => React.ReactNode;
+  getItemId?: (item: TData) => string;
+  getItemTitle?: (item: TData) => string;
+  // Configuración del panel resizable
+  defaultPanelSize?: number;
+  minPanelSize?: number;
+  maxPanelSize?: number;
+  // Configuración de la tabla cuando está expandida
+  defaultTableSize?: number;
+  minTableSize?: number;
+  maxTableSize?: number;
 }
 
 export function DataTable<TData, TValue>({
@@ -77,6 +93,17 @@ export function DataTable<TData, TValue>({
   isLoading = false,
   loadingRowsCount = 5,
   externalFilterValue,
+  // Props para funcionalidad expandible
+  expandable = false,
+  renderDetailsPanel,
+  getItemId,
+  getItemTitle,
+  defaultPanelSize = 40,
+  minPanelSize = 20,
+  maxPanelSize = 60,
+  defaultTableSize = 60,
+  minTableSize = 40,
+  maxTableSize = 80,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
@@ -85,6 +112,9 @@ export function DataTable<TData, TValue>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = React.useState(externalGlobalFilter || "");
   const [sorting, setSorting] = React.useState<SortingState>([]);
+
+  // Estado para funcionalidad expandible
+  const [selectedItem, setSelectedItem] = React.useState<TData | null>(null);
 
   // Sincronizar filtro global externo con estado interno
   React.useEffect(() => {
@@ -103,6 +133,23 @@ export function DataTable<TData, TValue>({
     },
     [onGlobalFilterChange]
   );
+
+  // Handlers para funcionalidad expandible
+  const handleRowClick = React.useCallback(
+    (item: TData) => {
+      if (expandable && renderDetailsPanel) {
+        setSelectedItem(item);
+      }
+      if (onClickRow) {
+        onClickRow(item);
+      }
+    },
+    [expandable, renderDetailsPanel, onClickRow]
+  );
+
+  const handleClosePanel = React.useCallback(() => {
+    setSelectedItem(null);
+  }, []);
 
   // Estado de paginación local o del servidor
   const [pagination, setPagination] = React.useState<PaginationState>({
@@ -182,7 +229,8 @@ export function DataTable<TData, TValue>({
     ));
   };
 
-  return (
+  // Componente de tabla base
+  const TableComponent = () => (
     <div className="space-y-4">
       <DataTableToolbar
         table={table}
@@ -213,8 +261,15 @@ export function DataTable<TData, TValue>({
                 <React.Fragment key={row.id}>
                   <TableRow
                     data-state={row.getIsSelected() && "selected"}
-                    onClick={() => onClickRow?.(row.original)}
-                    className={cn(row.getIsExpanded() && "bg-muted", "cursor-pointer")}
+                    onClick={() => handleRowClick(row.original)}
+                    className={cn(
+                      row.getIsExpanded() && "bg-muted",
+                      expandable && "cursor-pointer hover:bg-muted/50",
+                      selectedItem &&
+                        getItemId &&
+                        getItemId(selectedItem) === getItemId(row.original) &&
+                        "bg-muted/30 border-l-2 border-l-primary"
+                    )}
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
@@ -243,5 +298,37 @@ export function DataTable<TData, TValue>({
       </div>
       <DataTablePagination table={table} serverPagination={serverPagination} />
     </div>
+  );
+
+  // Si no es expandible o no hay item seleccionado, mostrar solo la tabla
+  if (!expandable || !selectedItem || !renderDetailsPanel || !getItemTitle) {
+    return <TableComponent />;
+  }
+
+  // Si es expandible y hay item seleccionado, mostrar layout resizable
+  return (
+    <ResizablePanelGroup direction="horizontal" className="h-full">
+      {/* Panel de tabla */}
+      <ResizablePanel defaultSize={defaultTableSize} minSize={minTableSize} maxSize={maxTableSize} className="pr-2">
+        <TableComponent />
+      </ResizablePanel>
+
+      {/* Panel de detalles */}
+      <ResizableHandle withHandle />
+      <ResizablePanel defaultSize={defaultPanelSize} minSize={minPanelSize} maxSize={maxPanelSize}>
+        <div className="h-full flex flex-col bg-background border border-l-0">
+          {/* Header con botón cerrar */}
+          <div className="flex items-center justify-between p-4 border-b bg-muted/30">
+            <h3 className="text-lg font-semibold truncate">{getItemTitle(selectedItem)}</h3>
+            <Button variant="ghost" size="sm" onClick={handleClosePanel} className="h-8 w-8 p-0 flex-shrink-0">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {/* Contenido con scroll */}
+          <div className="flex-1 overflow-y-auto p-4">{renderDetailsPanel(selectedItem)}</div>
+        </div>
+      </ResizablePanel>
+    </ResizablePanelGroup>
   );
 }

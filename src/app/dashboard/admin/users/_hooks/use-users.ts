@@ -1,3 +1,4 @@
+import { useCallback, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
@@ -5,7 +6,7 @@ import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 
 /**
- * Hook para obtener usuarios paginados
+ * Hook para obtener usuarios paginados (versión simple)
  */
 export const useUsers = () => {
   const { page, size, setPagination, resetPagination } = usePagination();
@@ -13,13 +14,119 @@ export const useUsers = () => {
     params: {
       query: {
         page,
-        size,
-        // Puedes agregar search, roleId, sortField, sortOrder si lo necesitas
+        pageSize: size,
       },
     },
   });
 
   return { query, setPagination, resetPagination };
+};
+
+/**
+ * Hook para búsqueda paginada de usuarios con filtros
+ */
+export const useSearchUsers = () => {
+  const [search, setSearch] = useState<string | undefined>(undefined);
+  const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
+  const [roleId, setRoleId] = useState<string | undefined>(undefined);
+  const [systemRolePosition, setSystemRolePosition] = useState<1 | 2 | 3 | undefined>(undefined);
+  const { size } = usePagination();
+
+  const query = backend.useInfiniteQuery(
+    "get",
+    "/v1/users/paginated",
+    {
+      params: {
+        query: {
+          search,
+          page: 1, // Este valor será reemplazado automáticamente por pageParam
+          pageSize: size,
+          isActive,
+          roleId,
+          systemRolePosition,
+        },
+      },
+    },
+    {
+      getNextPageParam: (lastPage) => {
+        // Si hay más páginas disponibles, devolver el siguiente número de página
+        if (lastPage.meta.page < lastPage.meta.totalPages) {
+          return lastPage.meta.page + 1;
+        }
+        return undefined; // No hay más páginas
+      },
+      getPreviousPageParam: (firstPage) => {
+        // Si no estamos en la primera página, devolver la página anterior
+        if (firstPage.meta.page > 1) {
+          return firstPage.meta.page - 1;
+        }
+        return undefined; // No hay páginas anteriores
+      },
+      initialPageParam: 1,
+      pageParamName: "page", // Esto le dice a openapi-react-query que use "page" como parámetro de paginación
+    }
+  );
+
+  // Obtener todos los usuarios de todas las páginas de forma plana
+  const allUsers = query.data?.pages.flatMap((page) => page.data) || [];
+
+  const handleSearchChange = useCallback((value: string) => {
+    if (value !== "None" && value !== null && value !== undefined) {
+      setSearch(value.trim());
+    }
+  }, []);
+
+  const handleIsActiveFilter = useCallback((isActive: boolean | undefined) => {
+    setIsActive(isActive);
+  }, []);
+
+  const handleRoleIdFilter = useCallback((roleId: string | undefined) => {
+    setRoleId(roleId);
+  }, []);
+
+  const handleSystemRolePositionFilter = useCallback((position: 1 | 2 | 3 | undefined) => {
+    setSystemRolePosition(position);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearch(undefined);
+    setIsActive(undefined);
+    setRoleId(undefined);
+    setSystemRolePosition(undefined);
+  }, []);
+
+  const handleScrollEnd = useCallback(() => {
+    if (query.hasNextPage) {
+      query.fetchNextPage();
+    }
+  }, [query]);
+
+  return {
+    query,
+    allUsers, // Todos los usuarios acumulados
+    fetchNextPage: query.fetchNextPage,
+    hasNextPage: query.hasNextPage,
+    isFetchingNextPage: query.isFetchingNextPage,
+    isLoading: query.isLoading,
+    isError: query.isError,
+    // Funciones de filtrado
+    handleSearchChange,
+    handleIsActiveFilter,
+    handleRoleIdFilter,
+    handleSystemRolePositionFilter,
+    clearFilters,
+    // Estados de filtros
+    search,
+    setSearch,
+    isActive,
+    setIsActive,
+    roleId,
+    setRoleId,
+    systemRolePosition,
+    setSystemRolePosition,
+    // Scroll infinito
+    handleScrollEnd,
+  };
 };
 
 /**
