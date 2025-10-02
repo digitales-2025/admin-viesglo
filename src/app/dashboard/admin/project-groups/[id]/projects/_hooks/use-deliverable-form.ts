@@ -32,7 +32,7 @@ export function useDeliverableForm({
     defaultValues: {
       name: "",
       description: "",
-      weight: undefined,
+      weight: 0,
       priority: undefined,
     },
     mode: "onChange",
