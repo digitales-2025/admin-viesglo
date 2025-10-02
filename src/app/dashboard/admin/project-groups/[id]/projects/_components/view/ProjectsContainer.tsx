@@ -128,7 +128,7 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
             </div>
 
             {/* Overall Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-7 flex items-center justify-center">
+            <div className="w-full bg-gray-200 rounded-full h-7 flex items-center">
               <div
                 className="bg-primary h-8 rounded-full transition-all duration-300"
                 style={{ width: `${overallProgress}%` }}
