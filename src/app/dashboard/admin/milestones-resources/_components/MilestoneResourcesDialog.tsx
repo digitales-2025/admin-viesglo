@@ -54,8 +54,8 @@ export function MilestoneResourcesDialog({ currentRow, trigger, open, onOpenChan
     const numeric = Number(String(amount).replace(/[^0-9.]/g, ""));
     await createMutation.mutateAsync({
       params: { path: { projectId: currentRow.projectId, milestoneId: currentRow.milestoneId } },
-      body: { resourceId, amount: numeric, date, detail },
-    } as any);
+      body: { resourceId, amount: numeric, date, details: detail || undefined },
+    });
     setResourceId("");
     setAmount("");
     setDate("");
@@ -64,8 +64,8 @@ export function MilestoneResourcesDialog({ currentRow, trigger, open, onOpenChan
 
   const handleRemove = async (id: string) => {
     await deleteMutation.mutateAsync({
-      params: { path: { projectId: currentRow.projectId, milestoneId: currentRow.milestoneId, id } },
-    } as any);
+      params: { path: { id } },
+    });
   };
 
   // Limpiar formulario al cerrar
@@ -94,11 +94,19 @@ export function MilestoneResourcesDialog({ currentRow, trigger, open, onOpenChan
                 <SelectValue placeholder="Recurso" />
               </SelectTrigger>
               <SelectContent>
-                {(activeResources.data ?? []).map((r: any) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    {r.name}
-                  </SelectItem>
-                ))}
+                {(() => {
+                  const raw = activeResources.data as unknown;
+                  const payload =
+                    raw && typeof raw === "object" && Object.prototype.hasOwnProperty.call(raw, "application/json")
+                      ? (raw as Record<string, unknown>)["application/json"]
+                      : activeResources.data;
+                  const items = Array.isArray(payload) ? (payload as { id: string; name: string }[]) : [];
+                  return items.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ));
+                })()}
               </SelectContent>
             </Select>
           </div>
@@ -137,24 +145,42 @@ export function MilestoneResourcesDialog({ currentRow, trigger, open, onOpenChan
               </tr>
             </thead>
             <tbody>
-              {(list.data ?? []).map((item: any) => (
-                <tr key={item.id} className="border-t">
-                  <td className="p-3">{item.resourceName ?? item.resource?.name}</td>
-                  <td className="p-3">S/{item.amount?.toFixed ? item.amount.toFixed(2) : item.amount}</td>
-                  <td className="p-3">{item.date?.slice(0, 10)}</td>
-                  <td className="p-3">{item.detail}</td>
-                  <td className="p-3 text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleRemove(item.id)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {(() => {
+                const raw = list.data as unknown;
+                const payload =
+                  raw && typeof raw === "object" && Object.prototype.hasOwnProperty.call(raw, "application/json")
+                    ? (raw as Record<string, unknown>)["application/json"]
+                    : list.data;
+                type Row = {
+                  id: string;
+                  resourceName?: string;
+                  resource?: { name?: string };
+                  amount: number;
+                  date: string;
+                  detail?: string;
+                };
+                const rows = Array.isArray(payload) ? (payload as Row[]) : [];
+                return rows.map((item) => (
+                  <tr key={item.id} className="border-t">
+                    <td className="p-3">{item.resourceName ?? item.resource?.name}</td>
+                    <td className="p-3">
+                      S/{typeof item.amount === "number" ? item.amount.toFixed(2) : String(item.amount)}
+                    </td>
+                    <td className="p-3">{typeof item.date === "string" ? item.date.slice(0, 10) : ""}</td>
+                    <td className="p-3">{item.detail ?? ""}</td>
+                    <td className="p-3 text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleRemove(item.id)}
+                        disabled={deleteMutation.isPending}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ));
+              })()}
             </tbody>
           </table>
         </div>
