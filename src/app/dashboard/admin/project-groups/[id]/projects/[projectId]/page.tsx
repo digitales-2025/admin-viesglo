@@ -7,6 +7,7 @@ import MilestonesProjectOverlays from "@/app/dashboard/admin/project-groups/[id]
 import MilestonesProjectPrimaryButtons from "@/app/dashboard/admin/project-groups/[id]/projects/[projectId]/_components/MilestonesProjectPrimaryButtons";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { ListMilestonesProject } from "./_components/ListMilestonesProject";
+import PhasesProjectOverlays from "./_components/phases-project-overlays/PhasesProjectOverlays";
 
 export default function ViewProjectPage() {
   const params = useParams();
@@ -25,6 +26,7 @@ export default function ViewProjectPage() {
       </div>
       <ListMilestonesProject />
       <MilestonesProjectOverlays projectId={projectId as string} />
+      <PhasesProjectOverlays projectId={projectId as string} />
     </>
   );
 }
