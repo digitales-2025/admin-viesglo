@@ -2,8 +2,7 @@ import {
   Briefcase,
   Building2,
   ClipboardCheck,
-  FolderKanban,
-  GraduationCap,
+  FolderKanban /*   GraduationCap, */,
   Hash,
   KeyRound,
   Lock,
@@ -91,7 +90,7 @@ export const sidebarData: SidebarData = {
       ],
     },
 
-    {
+    /*     {
       title: "Gestión de Capacitaciones",
       items: [
         {
@@ -101,7 +100,7 @@ export const sidebarData: SidebarData = {
           permissions: [{ resource: EnumResource.clients, action: EnumAction.read }],
         },
       ],
-    },
+    }, */
     {
       title: "Gestión de Usuarios",
       items: [
