@@ -51,7 +51,7 @@ export default function PhasesEditorSheet({
         });
       }
     }
-  }, [open, isUpdate, form]);
+  }, [open, isUpdate]);
 
   return (
     <GenericSheet
