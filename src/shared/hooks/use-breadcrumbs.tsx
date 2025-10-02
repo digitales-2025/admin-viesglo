@@ -36,6 +36,11 @@ class BreadcrumbGenerator {
       roles: "Roles y Permisos",
       clients: "Clientes",
       projects: "Proyectos",
+      "project-groups": "Grupos de Proyectos",
+      phase: "Fase",
+      phases: "Fases",
+      milestones: "Hitos",
+      deliverables: "Entregables",
       tracking: "Seguimiento",
       templates: "Plantillas",
       resources: "Recursos",
@@ -81,6 +86,11 @@ class BreadcrumbGenerator {
       return true;
     }
 
+    // Skip ID segments in projects routes (e.g., /projects/[id]/phase)
+    if (this.isIdSegment(segment) && previousSegment === "projects" && nextSegment === "phase") {
+      return true;
+    }
+
     return false;
   }
 
@@ -88,6 +98,10 @@ class BreadcrumbGenerator {
     const entityMap: Record<string, string> = {
       projects: "Proyecto",
       "project-groups": "Grupo de Proyectos",
+      phase: "Fase",
+      phases: "Fase",
+      milestones: "Hito",
+      deliverables: "Entregable",
       users: "Usuario",
       clients: "Cliente",
       roles: "Rol",
