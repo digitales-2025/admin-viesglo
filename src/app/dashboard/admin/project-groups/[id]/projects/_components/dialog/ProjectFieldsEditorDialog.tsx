@@ -27,8 +27,6 @@ export default function ProjectFieldsEditorDialog({ open, onOpenChange, project 
     onSuccess: () => onOpenChange(false),
   });
 
-  console.log(JSON.stringify(project, null, 2));
-
   const { handleSubmit } = form;
 
   // No renderizar si no hay proyecto

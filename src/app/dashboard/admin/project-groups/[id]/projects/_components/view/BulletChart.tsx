@@ -17,11 +17,6 @@ export default function BulletChart({
   animationDuration = 1500,
   tolerance = 5,
 }: BulletChartProps) {
-  console.log("current", current);
-  console.log("target", target);
-  console.log("tolerance", tolerance);
-  console.log("showTooltip", showTooltip);
-  console.log("animationDuration", animationDuration);
   const max = 100;
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });

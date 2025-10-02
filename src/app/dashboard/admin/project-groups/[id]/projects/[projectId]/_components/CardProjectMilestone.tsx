@@ -56,25 +56,23 @@ function CardProjectMilestoneBase({ milestone, projectId }: Props) {
   };
 
   return (
-    <div className={cn("flex flex-col border-b", expanded && "bg-muted/50")}>
+    <div className={cn("flex flex-col border rounded-lg", expanded && "bg-muted/20")}>
       <Card
         key={milestone.id}
-        className={cn(
-          "p-4 rounded-none border-none transition-colors cursor-pointer bg-background w-full hover:border-primary/40"
-        )}
+        className={cn("p-4 border-none transition-colors cursor-pointer bg-background w-full hover:bg-muted/10")}
         onClick={() => toggleMilestone(milestone.id)}
       >
         <CardHeader className="p-0">
           <CardTitle className="grid grid-cols-[auto_auto_auto] w-full grid-rows-3 lg:grid-cols-[auto_1fr_auto_auto] xl:grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 xl:grid-rows-1 md:grid-rows-2">
             <div className="inline-flex justify-start items-start xl:order-1 ">
               {expanded ? (
-                <ChevronUp className="shrink-0 w-4 h-4 text-primary" />
+                <ChevronUp className="shrink-0 w-4 h-4 text-muted-foreground" />
               ) : (
-                <ChevronDown className="shrink-0 w-4 h-4" />
+                <ChevronDown className="shrink-0 w-4 h-4 text-muted-foreground" />
               )}
             </div>
             <div className="inline-flex gap-2 items-center lg:order-2 col-span-3 order-4 lg:col-span-1">
-              <span className="first-letter:capitalize">{milestone.name}</span>
+              <span className="first-letter:capitalize font-medium">{milestone.name}</span>
             </div>
             <div className="inline-flex justify-end items-center gap-2 xl:order-5 order-3 lg:order-4 ">
               <div onClick={(e) => e.stopPropagation()}>
@@ -146,7 +144,7 @@ function CardProjectMilestoneBase({ milestone, projectId }: Props) {
       </Card>
 
       {expanded && (
-        <div className="p-4">
+        <div className="p-4 border-t">
           <TablePhasesProject milestone={milestone} projectId={projectId} />
         </div>
       )}

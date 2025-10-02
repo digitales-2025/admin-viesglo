@@ -12,14 +12,12 @@ export const ListMilestonesProject = () => {
   const { projectData, isLoading: isProjectDataLoading } = useProjectContext();
   const milestones = projectData?.milestones;
 
-  console.log(JSON.stringify(projectData, null, 2));
-
   if (!projectData || milestones?.length === 0) {
     return <NoInfoSection message="No hay hitos aún. Crea el primero para comenzar a gestionar el proyecto." />;
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2 pl-2">
       {isProjectDataLoading ? (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, idx) => (

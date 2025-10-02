@@ -1,10 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Clock, FileText } from "lucide-react";
 
-import { Badge } from "@/shared/components/ui/badge";
 import { ContextMenuTable } from "@/shared/components/ui/context-menu-table";
 import { Input } from "@/shared/components/ui/input";
 import { useUpdatePhase } from "../../_hooks/use-phase";
@@ -32,28 +30,31 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
   };
 
   // Función para manejar la actualización del período de la fase
-  const handleDateUpdate = (phaseId: string, startDate?: Date, endDate?: Date) => {
-    updatePhase(
-      {
-        params: {
-          path: {
-            projectId,
-            milestoneId: milestone.id,
-            phaseId,
+  const handleDateUpdate = useCallback(
+    (phaseId: string, startDate?: Date, endDate?: Date) => {
+      updatePhase(
+        {
+          params: {
+            path: {
+              projectId,
+              milestoneId: milestone.id,
+              phaseId,
+            },
+          },
+          body: {
+            startDate: startDate?.toISOString(),
+            endDate: endDate?.toISOString(),
           },
         },
-        body: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-        },
-      },
-      {
-        onError: (error: any) => {
-          console.error("Error al actualizar período de fase:", error);
-        },
-      }
-    );
-  };
+        {
+          onError: (error: any) => {
+            console.error("Error al actualizar período de fase:", error);
+          },
+        }
+      );
+    },
+    [updatePhase, projectId, milestone.id]
+  );
 
   // Filtrar fases basado en el término de búsqueda
   const filteredPhases = useMemo(() => {
@@ -66,33 +67,13 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <Input
-            value={searchTerm}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar fase..."
-            className="h-8 w-64 bg-white dark:bg-background"
-          />
-          <Badge variant="outline" className="text-xs">
-            {filteredPhases.length} de {milestone.phases.length} fases
-          </Badge>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary" className="text-xs">
-            <Clock className="w-3 h-3 mr-1" />
-            {milestone.phases.reduce((total, phase) => total + phase.deliverablesCount, 0)} entregables
-          </Badge>
-          <Badge variant="secondary" className="text-xs">
-            <FileText className="w-3 h-3 mr-1" />
-            {milestone.phases.reduce(
-              (total, phase) => total + phase.deliverables.filter((d) => d.assignedTo).length,
-              0
-            )}{" "}
-            asignados
-          </Badge>
-        </div>
+      <div className="flex items-center gap-2">
+        <Input
+          value={searchTerm}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar fases..."
+          className="h-8 w-64"
+        />
       </div>
 
       <ContextMenuTable<PhaseDetailedResponseDto>
@@ -100,7 +81,6 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
         data={filteredPhases}
         getRowId={(phase) => phase.id}
         onRowClick={handlePhaseClick}
-        className="bg-white dark:bg-background"
         emptyMessage={searchTerm ? "No se encontraron fases" : "No hay fases en este hito"}
       />
     </div>
