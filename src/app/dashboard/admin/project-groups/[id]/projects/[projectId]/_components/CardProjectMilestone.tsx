@@ -16,6 +16,7 @@ import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useUpdateMilestone } from "../_hooks/use-project-milestones";
 import { useOpenMilestoneStore } from "../_stores/useOpenMilestoneStore";
 import { MilestoneDetailedResponseDto } from "../../_types";
+import { MilestoneAssigneeSelector } from "./MilestoneAssigneeSelector";
 import { MODULE_MILESTONES_PROJECT } from "./milestones-project-overlays/MilestonesProjectOverlays";
 import { MODULE_PHASES_PROJECT } from "./phases-project-overlays/PhasesProjectOverlays";
 import TablePhasesProject from "./TablePhasesProject";
@@ -63,7 +64,7 @@ function CardProjectMilestoneBase({ milestone, projectId }: Props) {
         onClick={() => toggleMilestone(milestone.id)}
       >
         <CardHeader className="p-0">
-          <CardTitle className="grid grid-cols-[auto_auto_auto] w-full grid-rows-3 lg:grid-cols-[auto_1fr_auto_auto] xl:grid-cols-[auto_1fr_auto] items-center gap-x-4 gap-y-1 xl:grid-rows-1 md:grid-rows-2">
+          <CardTitle className="grid grid-cols-[auto_auto_auto_auto] w-full grid-rows-4 lg:grid-cols-[auto_1fr_auto_auto_auto] xl:grid-cols-[auto_1fr_auto_auto] items-center gap-x-4 gap-y-1 xl:grid-rows-1 md:grid-rows-2">
             <div className="inline-flex justify-start items-start xl:order-1 ">
               {expanded ? (
                 <ChevronUp className="shrink-0 w-4 h-4 text-muted-foreground" />
@@ -74,7 +75,21 @@ function CardProjectMilestoneBase({ milestone, projectId }: Props) {
             <div className="inline-flex gap-2 items-center lg:order-2 col-span-3 order-4 lg:col-span-1">
               <span className="first-letter:capitalize font-medium">{milestone.name}</span>
             </div>
-            <div className="inline-flex justify-end items-center gap-2 xl:order-5 order-3 lg:order-4 ">
+            <div
+              className="inline-flex items-center gap-2 xl:order-3 order-5 lg:order-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MilestoneAssigneeSelector
+                projectId={projectId}
+                milestoneId={milestone.id}
+                currentAssignee={milestone.internalConsultant}
+                filterBySystemRolePosition={3}
+                filterByActive={true}
+                avatarSize="md"
+                align="center"
+              />
+            </div>
+            <div className="inline-flex justify-end items-center gap-2 xl:order-4 order-3 lg:order-4 ">
               <div onClick={(e) => e.stopPropagation()}>
                 <DatePickerWithRange
                   initialValue={
@@ -160,7 +175,13 @@ const CardProjectMilestone = memo(CardProjectMilestoneBase, (prev, next) => {
     prev.milestone.progress === next.milestone.progress &&
     prev.milestone.completedDeliverablesCount === next.milestone.completedDeliverablesCount &&
     prev.milestone.phasesCount === next.milestone.phasesCount &&
-    prev.milestone.phases.length === next.milestone.phases.length
+    prev.milestone.phases.length === next.milestone.phases.length &&
+    // Comparar internalConsultant para detectar cambios en la asignación
+    prev.milestone.internalConsultant?.userId === next.milestone.internalConsultant?.userId &&
+    prev.milestone.internalConsultant?.name === next.milestone.internalConsultant?.name &&
+    prev.milestone.internalConsultant?.lastName === next.milestone.internalConsultant?.lastName &&
+    prev.milestone.internalConsultant?.email === next.milestone.internalConsultant?.email &&
+    prev.milestone.internalConsultant?.role === next.milestone.internalConsultant?.role
   );
 });
 
