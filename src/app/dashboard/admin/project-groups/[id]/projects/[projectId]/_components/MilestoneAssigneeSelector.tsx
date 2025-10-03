@@ -272,11 +272,35 @@ export function MilestoneAssigneeSelector({
 
     const selectedUser = option.entity;
 
-    // Si no hay usuario seleccionado (Sin asignar o Automático), no hacer nada
+    // Si no hay usuario seleccionado (Sin asignar), desasignar
     if (!selectedUser) {
+      // Actualizar UI inmediatamente
       onAssignmentChange?.(null);
-      setOpen(false);
-      setInputValue("");
+
+      // Llamar al backend con consultantId vacío para desasignar
+      assignMilestone(
+        {
+          params: {
+            path: {
+              projectId,
+              milestoneId,
+            },
+          },
+          body: {
+            consultantId: "", // Enviar string vacío para desasignar
+          },
+        },
+        {
+          onError: () => {
+            // Revertir cambio en caso de error
+            onAssignmentChange?.(currentAssignee || null);
+          },
+          onSuccess: () => {
+            setOpen(false);
+            setInputValue("");
+          },
+        }
+      );
       return;
     }
 
@@ -292,7 +316,7 @@ export function MilestoneAssigneeSelector({
     // Actualizar UI inmediatamente
     onAssignmentChange?.(userSummary);
 
-    // Llamar al backend solo si hay un usuario válido
+    // Llamar al backend para asignar usuario
     assignMilestone(
       {
         params: {
