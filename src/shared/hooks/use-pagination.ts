@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export const usePagination = () => {
-  const defaultSize = 20; // Default page size
+  const defaultSize = 10; // Default page size
   const [resetSize, setResetSize] = useState(defaultSize); //MODIFICACION MECANICA DE EL TAMAÑO DE LA PAGINACION SI QUEREMOS UN NUMERO MENOR DE 10
   const [page, setPage] = useState(1);
   const [size, setSize] = useState(defaultSize);

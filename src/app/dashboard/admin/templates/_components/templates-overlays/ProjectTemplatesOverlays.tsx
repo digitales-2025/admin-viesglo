@@ -23,7 +23,6 @@ export default function ProjectTemplatesOverlays() {
         handleConfirm={() => {
           if (isDeleting) return;
           if (!data?.id) {
-            console.log("No se puede eliminar el cliente");
             return;
           }
           deleteProjectTemplate(

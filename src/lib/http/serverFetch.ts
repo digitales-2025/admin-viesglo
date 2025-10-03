@@ -250,8 +250,7 @@ async function processResponse<T>(response: Response): Promise<[T | null, Server
         },
         null,
       ];
-    } catch (error) {
-      console.log("X ~ Error al procesar la respuesta", error);
+    } catch (_error) {
       return [
         null,
         {
@@ -276,8 +275,7 @@ async function processResponse<T>(response: Response): Promise<[T | null, Server
   try {
     const data = await response.json();
     return [data as T, null, null];
-  } catch (error) {
-    console.log("X ~ Error al procesar la respuesta", error);
+  } catch (_error) {
     // Si la respuesta no es JSON, devolvemos la respuesta completa
     return [null, null, response];
   }

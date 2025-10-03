@@ -25,8 +25,6 @@ export const useDraftRecovery = ({
 }: UseDraftRecoveryProps) => {
   const recoverDraftData = useCallback(
     (formData: CreateProjectTemplate) => {
-      console.log("🔄 Recuperando datos del borrador:", formData);
-
       // Recuperar tags
       if (formData.tagIds && formData.tagIds.length > 0) {
         setSelectedTags(formData.tagIds);
@@ -34,8 +32,6 @@ export const useDraftRecovery = ({
         // Encontrar los objetos completos de tags
         const tagObjects = allTags.filter((tag) => formData.tagIds!.includes(tag.id));
         setSelectedTagObjects(tagObjects);
-
-        console.log("🏷️ Tags recuperados:", formData.tagIds, tagObjects.length);
       } else {
         setSelectedTags([]);
         setSelectedTagObjects([]);
@@ -49,8 +45,6 @@ export const useDraftRecovery = ({
         // Encontrar los objetos completos de milestones
         const milestoneObjects = allMilestones.filter((milestone) => milestoneIds.includes(milestone.id));
         setSelectedMilestoneObjects(milestoneObjects);
-
-        console.log("🎯 Milestones recuperados:", milestoneIds, milestoneObjects.length);
       } else {
         setSelectedMilestones([]);
         setSelectedMilestoneObjects([]);

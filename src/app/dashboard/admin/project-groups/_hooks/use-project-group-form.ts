@@ -103,7 +103,6 @@ export function useProjectGroupForm({ isUpdate = false, initialData, onSuccess }
         status: submitData.status,
         period: submitData.period,
       };
-      console.log("Creating project group with data:", createData);
       createProjectGroup(
         {
           body: createData,

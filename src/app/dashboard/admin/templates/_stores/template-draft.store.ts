@@ -71,12 +71,10 @@ const migrateOldDraft = () => {
 
         // Guardar en el nuevo formato
         localStorage.setItem("project_template_drafts", JSON.stringify(newState));
-        console.log("🔄 Draft antiguo migrado al nuevo formato");
       }
 
       // Eliminar el draft antiguo
       localStorage.removeItem("project_template_draft");
-      console.log("🗑️ Draft antiguo eliminado");
     }
   } catch (error) {
     console.error("❌ Error al migrar draft antiguo:", error);

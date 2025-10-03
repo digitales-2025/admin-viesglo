@@ -63,27 +63,12 @@ export const columnsProjectGroups: ColumnDef<ProjectGroupResponseDto>[] = [
     },
   },
   {
-    accessorKey: "status",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
-    cell: ({ row }) => {
-      const status = row.getValue("status") as string;
-      return (
-        <div className="flex justify-center">
-          <Badge variant={getStatusVariant(status)}>{getStatusLabel(status)}</Badge>
-        </div>
-      );
-    },
-    filterFn: (row, id, value) => {
-      return value.includes(row.getValue(id));
-    },
-  },
-  {
     accessorKey: "period",
     header: ({ column }) => <DataTableColumnHeader column={column} title="Período" />,
     cell: ({ row }) => {
       const period = row.getValue("period") as string;
       return (
-        <div className="flex justify-center">
+        <div>
           <span className="text-sm font-medium">{getPeriodLabel(period)}</span>
         </div>
       );
@@ -98,7 +83,7 @@ export const columnsProjectGroups: ColumnDef<ProjectGroupResponseDto>[] = [
     cell: ({ row }) => {
       const progress = row.getValue("progressPercentage") as number | undefined;
       return (
-        <div className="flex justify-center">
+        <div>
           <div className="text-sm font-medium">{progress !== undefined ? `${progress}%` : "N/A"}</div>
         </div>
       );
@@ -110,10 +95,25 @@ export const columnsProjectGroups: ColumnDef<ProjectGroupResponseDto>[] = [
     cell: ({ row }) => {
       const total = row.getValue("totalProjects") as number | undefined;
       return (
-        <div className="flex justify-center">
+        <div>
           <div className="text-sm font-medium">{total !== undefined ? total : "N/A"}</div>
         </div>
       );
+    },
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => <DataTableColumnHeader column={column} title="Estado" />,
+    cell: ({ row }) => {
+      const status = row.getValue("status") as string;
+      return (
+        <div>
+          <Badge variant={getStatusVariant(status)}>{getStatusLabel(status)}</Badge>
+        </div>
+      );
+    },
+    filterFn: (row, id, value) => {
+      return value.includes(row.getValue(id));
     },
   },
   {
