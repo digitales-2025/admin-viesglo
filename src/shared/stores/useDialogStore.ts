@@ -13,6 +13,8 @@ export type DialogType =
   | "concrete"
   | "update"
   | "togleActive"
+  | "create-resource"
+  | "create-incident"
   | null;
 
 interface DialogState<T = any> {

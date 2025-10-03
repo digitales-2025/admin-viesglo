@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
@@ -70,28 +70,31 @@ export function TableDeliverablesPhase({
   const { mutate: updateDeliverable } = useUpdateDeliverable();
 
   // Función para manejar la actualización del período completo
-  const handleDateUpdate = (deliverableId: string, startDate?: Date, endDate?: Date) => {
-    updateDeliverable(
-      {
-        params: {
-          path: {
-            projectId,
-            phaseId,
-            deliverableId,
+  const handleDateUpdate = React.useCallback(
+    (deliverableId: string, startDate?: Date, endDate?: Date) => {
+      updateDeliverable(
+        {
+          params: {
+            path: {
+              projectId,
+              phaseId,
+              deliverableId,
+            },
+          },
+          body: {
+            startDate: startDate?.toISOString(),
+            endDate: endDate?.toISOString(),
           },
         },
-        body: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-        },
-      },
-      {
-        onError: (error) => {
-          console.error("Error al actualizar período:", error);
-        },
-      }
-    );
-  };
+        {
+          onError: (error) => {
+            console.error("Error al actualizar período:", error);
+          },
+        }
+      );
+    },
+    [updateDeliverable, projectId, phaseId]
+  );
 
   // Definir las columnas
   const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
@@ -193,6 +196,10 @@ export function TableDeliverablesPhase({
                   <Edit className="w-4 h-4 mr-2" />
                   Editar
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Agregar incidencias
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
                   <Trash className="w-4 h-4 mr-2" />
                   Eliminar
@@ -203,7 +210,7 @@ export function TableDeliverablesPhase({
         },
       }),
     ],
-    [projectId, phaseId, updateDeliverable, open]
+    [handleDateUpdate, open]
   );
 
   // Configuración de paginación del servidor

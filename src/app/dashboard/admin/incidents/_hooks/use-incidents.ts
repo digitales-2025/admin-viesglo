@@ -18,37 +18,41 @@ export const INCIDENTS_KEYS = {
 /**
  * Hook para obtener incidencias paginadas
  */
-export function useIncidents(filters: IncidentPaginatedFilterDto = {}) {
+export function useIncidents(filters: IncidentPaginatedFilterDto = {}, options: { enabled?: boolean } = {}) {
   // Asegurar compatibilidad con tipos de OpenAPI para sortField
   const allowedSortFields = ["email", "name", "lastName", "createdAt", "updatedAt"] as const;
   const sortFieldParam = allowedSortFields.includes(filters.sortField as any)
     ? (filters.sortField as (typeof allowedSortFields)[number])
     : undefined;
 
+  // Construimos el query object de forma incremental para satisfacer el tipado de OpenAPI
+  const queryParams: Record<string, unknown> = {
+    page: filters.page,
+    pageSize: filters.pageSize,
+    search: filters.search,
+    isResolved: filters.isResolved,
+    createdById: filters.createdById,
+    resolvedById: filters.resolvedById,
+    sortField: sortFieldParam,
+    sortOrder: filters.sortOrder,
+  };
+  if (filters.projectId) queryParams.projectId = filters.projectId;
+  if (filters.milestoneId) queryParams.milestoneId = filters.milestoneId;
+  if (filters.phaseId) queryParams.phaseId = filters.phaseId;
+  if (filters.deliverableId) queryParams.deliverableId = filters.deliverableId;
+
   return backend.useQuery(
     "get",
     "/v1/incidents",
     {
       params: {
-        query: {
-          page: filters.page,
-          pageSize: filters.pageSize,
-          search: filters.search,
-          projectId: filters.projectId,
-          milestoneId: filters.milestoneId,
-          phaseId: filters.phaseId,
-          deliverableId: filters.deliverableId,
-          isResolved: filters.isResolved,
-          createdById: filters.createdById,
-          resolvedById: filters.resolvedById,
-          sortField: sortFieldParam,
-          sortOrder: filters.sortOrder,
-        },
+        query: queryParams as any,
       },
     },
     {
       staleTime: 30000,
       refetchOnWindowFocus: false,
+      ...options,
     }
   );
 }
@@ -56,14 +60,28 @@ export function useIncidents(filters: IncidentPaginatedFilterDto = {}) {
 /**
  * Hook para obtener incidencias por entregable
  */
-export function useIncidentsByDeliverable(deliverableId: string) {
-  return useIncidents({
-    deliverableId,
-    page: 1,
-    pageSize: 100, // Obtener todas las incidencias del entregable
-    sortField: "date",
-    sortOrder: "desc",
-  });
+export function useIncidentsByDeliverable(
+  deliverableId: string,
+  projectId?: string,
+  milestoneId?: string,
+  phaseId?: string,
+  enabled: boolean = true
+) {
+  // Solo habilitar cuando tengamos todos los IDs requeridos
+  const shouldEnable = Boolean(enabled && deliverableId && projectId && milestoneId && phaseId);
+  return useIncidents(
+    {
+      deliverableId,
+      projectId,
+      milestoneId,
+      phaseId,
+      page: 1,
+      pageSize: 100, // Obtener todas las incidencias del entregable
+      sortField: "date",
+      sortOrder: "desc",
+    },
+    { enabled: shouldEnable }
+  );
 }
 
 /**
