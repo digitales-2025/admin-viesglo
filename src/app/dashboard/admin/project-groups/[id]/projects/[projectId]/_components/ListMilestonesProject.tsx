@@ -17,7 +17,7 @@ export const ListMilestonesProject = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 pl-2">
+    <div className="flex flex-col gap-2 pl-4">
       {isProjectDataLoading ? (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, idx) => (
