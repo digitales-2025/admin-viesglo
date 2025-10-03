@@ -26,18 +26,38 @@ export const useLogin = () => {
   const mutation = backend.useMutation("post", "/v1/auth/signin", {
     onSuccess: () => {
       showLogin();
+
       // Prefetch/invalidar perfil para que el estado de autenticación se actualice inmediatamente
       const profileOpts = backend.queryOptions("get", "/v1/auth/me");
       // Invalidar errores anteriores y prefetch con cookies ya actualizadas
       try {
         queryClient.invalidateQueries({ queryKey: profileOpts.queryKey, exact: true });
         queryClient.prefetchQuery(profileOpts);
-        // Intentar disparar reconexión MQTT inmediatamente si el provider ya está montado
-        if (typeof window !== "undefined" && (window as any).__mqttReconnectAfterTokenRefresh) {
-          (window as any).__mqttReconnectAfterTokenRefresh();
-        }
       } catch {}
+
+      // Navigate immediately - don't wait for MQTT
       router.replace("/");
+
+      // Handle MQTT reconnection as background promise with timeout fallback
+      const handleMqttReconnection = async () => {
+        try {
+          if (typeof window !== "undefined" && (window as any).__mqttReconnectAfterTokenRefresh) {
+            await (window as any).__mqttReconnectAfterTokenRefresh();
+          }
+        } catch (error) {
+          console.warn("MQTT reconnection failed in background:", error);
+          // MQTT failure shouldn't block the login flow
+        }
+      };
+
+      // Start MQTT reconnection in background
+      handleMqttReconnection();
+
+      // Fallback timeout to hide loading if route-based hiding fails
+      // This ensures loading overlay doesn't hang forever
+      setTimeout(() => {
+        hide();
+      }, 3000); // 3 second fallback
     },
     onError: (error) => {
       hide();
