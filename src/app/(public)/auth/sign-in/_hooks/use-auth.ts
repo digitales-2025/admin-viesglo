@@ -34,7 +34,7 @@ export const useLogin = () => {
         queryClient.invalidateQueries({ queryKey: profileOpts.queryKey, exact: true });
         queryClient.prefetchQuery(profileOpts);
       } catch (e) {
-        console.error("Error invalidating previous errors/prefetch")
+        console.error("Error invalidating previous errors/prefetch");
       }
 
       // Navigate immediately - don't wait for MQTT
