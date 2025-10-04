@@ -6,7 +6,7 @@ pipeline {
         PROJECT_NAME    = "viesglo"
         PROJECT_SERVICE   = "frontend"
         PROJECT_STAGE   = "develop"
-        PROJECT_TRIPLET   = "${PROJECT_NAME}-${PROJECT_SERVICE}-${PROJECT_STAGE}"
+        PROJECT_TRIPLET   = "${PROJECT_NAME}-${PROJECT_STAGE}-${PROJECT_SERVICE}"
 
         REMOTE_USER   = "docker_admin"
         REMOTE_IP     = "116.203.105.37"
@@ -44,10 +44,6 @@ pipeline {
                                 script {
                                     def buildVariables = [
                                         NEXT_PUBLIC_BACKEND_URL: "https://viesglo-develop-backend.acide.win",
-                                        // FIXME: setup when eqmx is ready
-                                        NEXT_PUBLIC_MQTT_BROKER_URL: "wss://viesglo-develop-emqx.acide.win/mqtt",
-                                        NEXT_PUBLIC_MQTT_USERNAME: "management@viesglo.test",
-                                        NEXT_PUBLIC_MQTT_PASSWORD: "Management123!",
                                     ]
 
                                     def dockerBuildArgs = new StringBuilder()

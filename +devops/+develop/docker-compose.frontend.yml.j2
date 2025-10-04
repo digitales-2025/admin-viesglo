@@ -1,10 +1,10 @@
 services:
-  {{ project_name }}-frontend-{{ project_stage }}:
+  {{ project_name }}-{{ project_stage }}-frontend:
     image: ${{ project_name | upper }}_FRONTEND_REGISTRY_URL:${{ project_name | upper }}_FRONTEND_VERSION
-    container_name: {{ project_name }}-frontend-{{ project_stage }}
+    container_name: {{ project_name }}-{{ project_stage }}-frontend
     restart: unless-stopped
     depends_on:
-      {{ project_name }}-backend-{{ project_stage }}:
+      {{ project_name }}-{{ project_stage }}-backend:
         condition: service_healthy
     environment:
       - TZ=America/Lima
@@ -12,16 +12,16 @@ services:
       - .env.frontend
     networks:
       - traefik3_proxy
-      - {{ project_name }}-network-{{ project_stage}}
+      - {{ project_name }}-{{ project_stage }}-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.rule=Host(`{{ project_name }}-{{ project_stage }}-frontend.acide.win`)"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.entrypoints=websecure"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls=true"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls.certresolver=dns-cloudflare"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls.domains[0].main=acide.win"
-      - "traefik.http.routers.{{ project_name }}-frontend-{{ project_stage}}.tls.domains[0].sans=*.acide.win"
-      - "traefik.http.services.{{ project_name }}-frontend-{{ project_stage}}.loadbalancer.server.port=3000"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.rule=Host(`{{ project_name }}-{{ project_stage }}-frontend.acide.win`)"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.entrypoints=websecure"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.tls=true"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.tls.certresolver=dns-cloudflare"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.tls.domains[0].main=acide.win"
+      - "traefik.http.routers.{{ project_name }}-{{ project_stage}}-frontend.tls.domains[0].sans=*.acide.win"
+      - "traefik.http.services.{{ project_name }}-{{ project_stage}}-frontend.loadbalancer.server.port=3000"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:3000 || exit 1"]
       interval: 5s

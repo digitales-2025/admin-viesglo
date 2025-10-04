@@ -33,10 +33,12 @@ export const useLogin = () => {
       try {
         queryClient.invalidateQueries({ queryKey: profileOpts.queryKey, exact: true });
         queryClient.prefetchQuery(profileOpts);
-      } catch {}
+      } catch (e) {
+        console.error("Error invalidating previous errors/prefetch")
+      }
 
       // Navigate immediately - don't wait for MQTT
-      router.replace("/");
+      router.push("/");
 
       // Handle MQTT reconnection as background promise with timeout fallback
       const handleMqttReconnection = async () => {
@@ -46,6 +48,7 @@ export const useLogin = () => {
           }
         } catch (error) {
           console.warn("MQTT reconnection failed in background:", error);
+          toast.error("Ocurrió un error al intentar reconectar MQTT");
           // MQTT failure shouldn't block the login flow
         }
       };
