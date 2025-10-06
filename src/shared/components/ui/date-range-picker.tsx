@@ -9,6 +9,7 @@ import { DateRange, DayContentProps } from "react-day-picker";
 import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useCurrentYearHolidays } from "@/shared/hooks/use-holidays";
 import { cn } from "@/shared/lib/utils";
 import type { HolidayResponseDto } from "@/shared/types/holidays.types";
@@ -94,12 +95,23 @@ export function DatePickerWithRange({
   const DayContentComponent = React.useCallback(
     (props: DayContentProps) => {
       const holidayInfo = getHolidayInfo(props.date);
-      const title = holidayInfo ? `${holidayInfo.name} (${holidayInfo.scope})` : undefined;
+
+      if (!holidayInfo) {
+        return <span className="relative">{props.date.getDate()}</span>;
+      }
 
       return (
-        <span title={title} className="relative">
-          {props.date.getDate()}
-        </span>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="relative cursor-help">{props.date.getDate()}</span>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[200px]">
+              <p className="font-semibold">{holidayInfo.name}</p>
+              <p className="text-xs text-muted-foreground capitalize">{holidayInfo.scope}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
     [getHolidayInfo]
@@ -175,7 +187,7 @@ export function DatePickerWithRange({
                 showHolidays
                   ? {
                       holiday:
-                        "relative after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:w-1.5 after:h-1.5 after:bg-orange-400 after:rounded-full",
+                        "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold border border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors",
                     }
                   : undefined
               }
