@@ -4,12 +4,14 @@ import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import { DateRange } from "react-day-picker";
+import { DateRange, DayContentProps } from "react-day-picker";
 
 import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
+import { useCurrentYearHolidays } from "@/shared/hooks/use-holidays";
 import { cn } from "@/shared/lib/utils";
+import type { HolidayResponseDto } from "@/shared/types/holidays.types";
 
 interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange"> {
   onChange?: (date: DateRange | undefined) => void;
@@ -21,6 +23,7 @@ interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElem
   clearText?: string;
   cancelText?: string;
   size?: "default" | "sm" | "lg" | "icon";
+  showHolidays?: boolean;
 }
 
 export function DatePickerWithRange({
@@ -34,6 +37,7 @@ export function DatePickerWithRange({
   cancelText = "Cancelar",
   clearText = "Limpiar",
   size = "default",
+  showHolidays = true,
   ...props
 }: DatePickerWithRangeProps) {
   // Estado principal para almacenar el valor final seleccionado
@@ -42,6 +46,9 @@ export function DatePickerWithRange({
   const [tempDate, setTempDate] = React.useState<DateRange | undefined>(date);
   // Estado para controlar la apertura del popover
   const [open, setOpen] = React.useState(false);
+
+  // Hook para obtener feriados del año actual
+  const { data: currentYearHolidays } = useCurrentYearHolidays();
 
   // Actualizar cuando initialValue cambie (importante para cuando se limpia el filtro)
   React.useEffect(() => {
@@ -62,6 +69,41 @@ export function DatePickerWithRange({
       setTempDate(date);
     }
   }, [open, date]);
+
+  // Función para verificar si una fecha es feriado
+  const isHoliday = React.useCallback(
+    (date: Date): boolean => {
+      if (!showHolidays || !currentYearHolidays) return false;
+      const dateString = format(date, "yyyy-MM-dd");
+      return currentYearHolidays.some((holiday) => holiday.date === dateString);
+    },
+    [showHolidays, currentYearHolidays]
+  );
+
+  // Función para obtener información del feriado
+  const getHolidayInfo = React.useCallback(
+    (date: Date): HolidayResponseDto | null => {
+      if (!showHolidays || !currentYearHolidays) return null;
+      const dateString = format(date, "yyyy-MM-dd");
+      return currentYearHolidays.find((holiday) => holiday.date === dateString) || null;
+    },
+    [showHolidays, currentYearHolidays]
+  );
+
+  // Componente DayContent personalizado para mostrar tooltips en feriados
+  const DayContentComponent = React.useCallback(
+    (props: DayContentProps) => {
+      const holidayInfo = getHolidayInfo(props.date);
+      const title = holidayInfo ? `${holidayInfo.name} (${holidayInfo.scope})` : undefined;
+
+      return (
+        <span title={title} className="relative">
+          {props.date.getDate()}
+        </span>
+      );
+    },
+    [getHolidayInfo]
+  );
 
   const handleSelect = (selectedDate: DateRange | undefined) => {
     setTempDate(selectedDate);
@@ -128,6 +170,22 @@ export function DatePickerWithRange({
               onSelect={handleSelect}
               numberOfMonths={2}
               locale={es}
+              modifiers={showHolidays ? { holiday: isHoliday } : undefined}
+              modifiersClassNames={
+                showHolidays
+                  ? {
+                      holiday:
+                        "relative after:content-[''] after:absolute after:top-0.5 after:right-0.5 after:w-1.5 after:h-1.5 after:bg-orange-400 after:rounded-full",
+                    }
+                  : undefined
+              }
+              components={
+                showHolidays
+                  ? {
+                      DayContent: DayContentComponent,
+                    }
+                  : undefined
+              }
             />
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
               <Button variant="outline" size="sm" onClick={handleCancel}>
