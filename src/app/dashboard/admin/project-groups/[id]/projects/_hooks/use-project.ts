@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 import { ProjectPaginatedFilterDto } from "../_types";
+import { ProjectStatusEnum, ProjectTypeEnum } from "../_types/project.enums";
 
 /**
  * Hook para obtener proyectos paginados con filtros
@@ -31,8 +32,8 @@ export const useSearchProjects = () => {
   const [search, setSearch] = useState<string | undefined>(undefined);
   const [clientId, setClientId] = useState<string | undefined>(undefined);
   const [projectGroupId, setProjectGroupId] = useState<string | undefined>(undefined);
-  const [status, setStatus] = useState<string | undefined>(undefined);
-  const [projectType, setProjectType] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<ProjectStatusEnum[]>([]);
+  const [projectType, setProjectType] = useState<ProjectTypeEnum[]>([]);
   const { size } = usePagination();
   const [ids, setIds] = useState<string[] | undefined>(undefined);
 
@@ -47,8 +48,8 @@ export const useSearchProjects = () => {
           pageSize: size,
           clientId,
           projectGroupId,
-          status,
-          projectType,
+          status: status.length > 0 ? status : undefined,
+          projectType: projectType.length > 0 ? projectType : undefined,
           ids,
         },
       },
@@ -100,20 +101,20 @@ export const useSearchProjects = () => {
     setProjectGroupId(projectGroupId);
   }, []);
 
-  const handleStatusFilter = useCallback((status: string | undefined) => {
-    setStatus(status);
+  const handleStatusFilter = useCallback((statuses: ProjectStatusEnum[]) => {
+    setStatus(statuses);
   }, []);
 
-  const handleProjectTypeFilter = useCallback((projectType: string | undefined) => {
-    setProjectType(projectType);
+  const handleProjectTypeFilter = useCallback((projectTypes: ProjectTypeEnum[]) => {
+    setProjectType(projectTypes);
   }, []);
 
   const clearFilters = useCallback(() => {
     setSearch(undefined);
     setClientId(undefined);
     setProjectGroupId(undefined);
-    setStatus(undefined);
-    setProjectType(undefined);
+    setStatus([]);
+    setProjectType([]);
     setIds(undefined);
   }, []);
 
@@ -140,6 +141,9 @@ export const useSearchProjects = () => {
     projectGroupId,
     status,
     projectType,
+    // Estados de filtros para arrays
+    selectedStatuses: status,
+    selectedProjectTypes: projectType,
     // Scroll infinito
     handleScrollEnd,
   };
