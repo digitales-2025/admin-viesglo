@@ -3,12 +3,12 @@ import { Loader2, SearchIcon } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 import { Loading } from "@/shared/components/loading";
-import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useSearchProjects } from "../../_hooks/use-project";
 import { useProjectGroupById } from "../../../../_hooks/use-project-groups";
 import ProjectCard from "./ProjectCard";
+import ProjectsFilters from "./ProjectsFilters";
 
 interface ProjectsContainerProps {
   projectGroupId: string;
@@ -32,7 +32,11 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
     isError,
     handleSearchChange,
     handleProjectGroupFilter,
+    handleStatusFilter,
+    handleProjectTypeFilter,
     handleScrollEnd,
+    selectedStatuses,
+    selectedProjectTypes,
   } = useSearchProjects();
 
   // Configurar filtro por grupo de proyectos
@@ -93,28 +97,12 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
             />
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <Button variant="ghost" className="text-sm">
-              A-Z ↑
-            </Button>
-            <Button variant="ghost" className="text-sm">
-              Fecha de finalización ↑
-            </Button>
-            <div className="flex items-center gap-2">
-              <Badge variant="outline" className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                Tipo de proyecto
-              </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                Período
-              </Badge>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                Nivel de retraso
-              </Badge>
-            </div>
-          </div>
+          <ProjectsFilters
+            selectedProjectTypes={selectedProjectTypes}
+            selectedProjectStatuses={selectedStatuses}
+            onProjectTypesChange={handleProjectTypeFilter}
+            onProjectStatusesChange={handleStatusFilter}
+          />
         </div>
 
         <div className="border border-gray-200 rounded-lg p-4">
