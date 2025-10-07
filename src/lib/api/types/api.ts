@@ -2608,6 +2608,46 @@ export interface paths {
     patch: operations["IncidentsController_reopen_v1"];
     trace?: never;
   };
+  "/v1/holidays/year": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener feriados por año
+     * @description Obtiene todos los feriados nacionales peruanos de un año específico. Usa web scraping como fuente primaria y feriados hardcoded como fallback.
+     */
+    get: operations["HolidaysController_getHolidaysForYear_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/holidays/range": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener feriados por rango de fechas
+     * @description Obtiene todos los feriados nacionales peruanos dentro de un rango de fechas específico. Útil para calcular días laborables en períodos específicos.
+     */
+    get: operations["HolidaysController_getHolidaysInRange_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6353,22 +6393,22 @@ export interface components {
     };
     AssignMilestoneRequestDto: {
       /**
-       * @description ID del consultor interno a asignar
+       * @description ID del consultor interno a asignar (vacío para desasignar)
        * @example 64a1b2c3d4e5f6789abcdef5
        */
-      consultantId: string;
+      consultantId?: string;
     };
     SetDeliverableActualDatesRequestDto: {
       /**
-       * @description Fecha real de inicio del entregable
+       * @description Fecha real de inicio del entregable (opcional)
        * @example 2024-01-20T08:00:00.000Z
        */
-      actualStartDate: string;
+      actualStartDate?: string;
       /**
-       * @description Fecha real de fin del entregable
+       * @description Fecha real de fin del entregable (opcional)
        * @example 2024-02-05T17:00:00.000Z
        */
-      actualEndDate: string;
+      actualEndDate?: string;
     };
     DeliverableActualDatesResponseDto: {
       /**
@@ -7685,6 +7725,23 @@ export interface components {
       description?: string;
       /** @description Fecha de ocurrencia (ISO) */
       date?: string;
+    };
+    HolidayResponseDto: {
+      /**
+       * @description Fecha del feriado en formato YYYY-MM-DD
+       * @example 2025-01-01
+       */
+      date: string;
+      /**
+       * @description Nombre del feriado
+       * @example Año Nuevo
+       */
+      name: string;
+      /**
+       * @description Alcance del feriado (nacional, regional, etc.)
+       * @example Nacional
+       */
+      scope: string;
     };
   };
   responses: never;
@@ -10429,10 +10486,10 @@ export interface operations {
         clientId?: string;
         /** @description Filtrar por ID del grupo de proyectos */
         projectGroupId?: string;
-        /** @description Filtrar por estado del proyecto */
-        status?: string;
-        /** @description Filtrar por tipo de proyecto */
-        projectType?: string;
+        /** @description Filtrar por estados del proyecto */
+        status?: string[];
+        /** @description Filtrar por tipos de proyecto */
+        projectType?: string[];
         /** @description Campo por el cual ordenar */
         sortBy?: unknown;
       };
@@ -15153,6 +15210,68 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["BaseErrorResponse"];
         };
+      };
+    };
+  };
+  HolidaysController_getHolidaysForYear_v1: {
+    parameters: {
+      query: {
+        /** @description Año para obtener los feriados (ej: 2025) */
+        year: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de feriados del año especificado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HolidayResponseDto"][];
+        };
+      };
+      /** @description Año inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  HolidaysController_getHolidaysInRange_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del rango (formato: YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del rango (formato: YYYY-MM-DD) */
+        endDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de feriados en el rango especificado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HolidayResponseDto"][];
+        };
+      };
+      /** @description Fechas inválidas */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
