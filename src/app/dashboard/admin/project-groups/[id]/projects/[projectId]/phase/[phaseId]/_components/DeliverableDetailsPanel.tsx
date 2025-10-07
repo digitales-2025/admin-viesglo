@@ -186,7 +186,7 @@ export function DeliverableDetailsPanel({ deliverable }: DeliverableDetailsPanel
           <div className="flex items-center gap-2 text-sm">
             <Weight className="h-4 w-4 text-muted-foreground" />
             <span className="text-muted-foreground">Peso del entregable:</span>
-            <span className="font-medium">{deliverable.weight}%</span>
+            <span className="font-medium">{deliverable.weight} horas</span>
           </div>
         </div>
       </div>
