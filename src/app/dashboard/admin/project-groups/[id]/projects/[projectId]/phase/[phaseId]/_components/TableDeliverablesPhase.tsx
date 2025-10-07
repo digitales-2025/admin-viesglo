@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
@@ -68,6 +68,21 @@ export function TableDeliverablesPhase({
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
   const { mutate: updateDeliverable } = useUpdateDeliverable();
+
+  // Estado para controlar los dropdowns de precedencias
+  const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
+
+  // Función para manejar la selección de precedente
+  const handlePrecedentSelect = (deliverableId: string, selectedPrecedentId: string) => {
+    console.log(`Entregable ${deliverableId} -> Precedente seleccionado:`, selectedPrecedentId);
+    setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
+    // TODO: lógica para actualizar en backend
+  };
+
+  // Función para encontrar el entregable precedente por ID
+  const findPrecedentDeliverable = (id: string) => {
+    return deliverables.find((deliverable) => deliverable.id === id);
+  };
 
   // Función para manejar la actualización del período completo
   const handleDateUpdate = (deliverableId: string, startDate?: Date, endDate?: Date) => {
@@ -143,6 +158,148 @@ export function TableDeliverablesPhase({
         },
       }),
       columnHelper.display({
+        id: "precedences",
+        header: "Precedencias",
+        cell: ({ row }) => {
+          const precedentId = (row.original as any).precedentId;
+          const rowIndex = row.index;
+          const currentDeliverableId = row.original.id;
+
+          // Si es el primer elemento (índice 0)
+          if (rowIndex === 0) {
+            return (
+              <Badge variant="outline" className="text-xs text-green-700 border-green-500 h-8 px-3">
+                No requiere precedente
+              </Badge>
+            );
+          }
+
+          // Si no tiene precedente - mostrar opción para asignar
+          if (!precedentId) {
+            return (
+              <DropdownMenu
+                open={openDropdowns[currentDeliverableId]}
+                onOpenChange={(open) => setOpenDropdowns((prev) => ({ ...prev, [currentDeliverableId]: open }))}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 text-xs cursor-pointer hover:bg-muted transition-colors"
+                  >
+                    Asignar precedente
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
+                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Seleccionar precedente
+                  </div>
+
+                  {deliverables
+                    .filter((deliverable) => deliverable.id !== currentDeliverableId)
+                    .map((deliverable) => {
+                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1; // +1 para usuario
+                      return (
+                        <DropdownMenuItem
+                          key={deliverable.id}
+                          onClick={() => handlePrecedentSelect(currentDeliverableId, deliverable.id)}
+                          className="cursor-pointer flex items-start gap-2 py-2"
+                        >
+                          {/* Índice mostrado desde 1 */}
+                          <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
+                            {globalIndex}
+                          </span>
+
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm leading-tight truncate">
+                              {deliverable.name || "Sin nombre"}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {deliverable.description || "Sin descripción"}
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            );
+          }
+
+          // Si tiene precedente
+          const precedentDeliverable = findPrecedentDeliverable(precedentId);
+          const precedentIndex = deliverables.findIndex((d) => d.id === precedentDeliverable?.id) + 1; // también +1 aquí
+
+          return (
+            <div className="relative flex items-center space-x-2">
+              <Badge variant="secondary" className="text-xs h-8 px-3">
+                #{precedentIndex} {precedentDeliverable?.name || `ID: ${precedentId}`}
+              </Badge>
+
+              <DropdownMenu
+                open={openDropdowns[currentDeliverableId]}
+                onOpenChange={(open) => setOpenDropdowns((prev) => ({ ...prev, [currentDeliverableId]: open }))}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0 hover:bg-muted transition-colors"
+                    title="Editar precedente"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
+                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Cambiar precedente
+                  </div>
+
+                  {deliverables
+                    .filter((d) => d.id !== currentDeliverableId)
+                    .map((deliverable) => {
+                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1;
+                      return (
+                        <DropdownMenuItem
+                          key={deliverable.id}
+                          onClick={() => handlePrecedentSelect(currentDeliverableId, deliverable.id)}
+                          className="cursor-pointer flex items-start gap-2 py-2"
+                        >
+                          <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
+                            {globalIndex}
+                          </span>
+
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm leading-tight truncate">
+                              {deliverable.name || "Sin nombre"}
+                            </span>
+                            <span className="text-xs text-muted-foreground truncate">
+                              {deliverable.description || "Sin descripción"}
+                            </span>
+                          </div>
+                        </DropdownMenuItem>
+                      );
+                    })}
+
+                  <div className="border-t my-1" />
+
+                  <DropdownMenuItem
+                    onClick={() => handlePrecedentSelect(currentDeliverableId, "")}
+                    className="cursor-pointer flex items-center gap-2 py-2 hover:bg-muted"
+                  >
+                    <Trash className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">Quitar precedente</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      }),
+
+      columnHelper.display({
         id: "dateRange",
         header: "Período",
         cell: ({ row }) => {
@@ -203,7 +360,17 @@ export function TableDeliverablesPhase({
         },
       }),
     ],
-    [projectId, phaseId, updateDeliverable, open]
+    [
+      projectId,
+      phaseId,
+      updateDeliverable,
+      open,
+      deliverables,
+      handleDateUpdate,
+      openDropdowns,
+      handlePrecedentSelect,
+      findPrecedentDeliverable,
+    ]
   );
 
   // Configuración de paginación del servidor
