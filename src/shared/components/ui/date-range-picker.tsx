@@ -3,14 +3,14 @@
 import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ChevronLeft, ChevronRight, Flag, Globe } from "lucide-react";
 import { DateRange, DayContentProps } from "react-day-picker";
 
 import { Button } from "@/shared/components/ui/button";
 import { Calendar } from "@/shared/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
-import { useCurrentYearHolidays } from "@/shared/hooks/use-holidays";
+import { useHolidaysByYear } from "@/shared/hooks/use-holidays";
 import { cn } from "@/shared/lib/utils";
 import type { HolidayResponseDto } from "@/shared/types/holidays.types";
 
@@ -25,6 +25,12 @@ interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElem
   cancelText?: string;
   size?: "default" | "sm" | "lg" | "icon";
   showHolidays?: boolean;
+  classNameButton?: string;
+  // Limitadores de fechas
+  disabled?: (date: Date) => boolean;
+  fromDate?: Date;
+  toDate?: Date;
+  disabledDates?: Date[];
 }
 
 export function DatePickerWithRange({
@@ -39,6 +45,12 @@ export function DatePickerWithRange({
   clearText = "Limpiar",
   size = "default",
   showHolidays = true,
+  classNameButton,
+  // Limitadores de fechas
+  disabled,
+  fromDate,
+  toDate,
+  disabledDates,
   ...props
 }: DatePickerWithRangeProps) {
   // Estado principal para almacenar el valor final seleccionado
@@ -48,8 +60,96 @@ export function DatePickerWithRange({
   // Estado para controlar la apertura del popover
   const [open, setOpen] = React.useState(false);
 
-  // Hook para obtener feriados del año actual
-  const { data: currentYearHolidays } = useCurrentYearHolidays();
+  // Estado para rastrear el mes/año que se está visualizando en el calendario
+  const [currentDisplayMonth, setCurrentDisplayMonth] = React.useState<Date>(tempDate?.from || new Date());
+
+  // Hook para obtener feriados del año que se está visualizando
+  const currentDisplayYear = currentDisplayMonth.getFullYear();
+  const { data: currentYearHolidays } = useHolidaysByYear(currentDisplayYear);
+
+  // Función para verificar si una fecha está deshabilitada
+  const isDateDisabled = React.useCallback(
+    (date: Date): boolean => {
+      // Verificar fecha mínima (fromDate)
+      if (fromDate && date < fromDate) {
+        return true;
+      }
+
+      // Verificar fecha máxima (toDate)
+      if (toDate && date > toDate) {
+        return true;
+      }
+
+      // Verificar fechas específicas deshabilitadas
+      if (disabledDates) {
+        const dateString = format(date, "yyyy-MM-dd");
+        const isDisabled = disabledDates.some((disabledDate) => {
+          const disabledDateString = format(disabledDate, "yyyy-MM-dd");
+          return dateString === disabledDateString;
+        });
+        if (isDisabled) {
+          return true;
+        }
+      }
+
+      // Verificar función personalizada de deshabilitación
+      if (disabled && disabled(date)) {
+        return true;
+      }
+
+      return false;
+    },
+    [fromDate, toDate, disabledDates, disabled]
+  );
+
+  // Componentes personalizados para detectar navegación
+  const CustomIconLeft = React.useCallback(
+    ({ className, ...props }: any) => {
+      const handleClick = () => {
+        const newDate = new Date(currentDisplayMonth);
+        newDate.setMonth(newDate.getMonth() - 1);
+        setCurrentDisplayMonth(newDate);
+      };
+
+      return (
+        <div
+          onClick={handleClick}
+          className={cn(
+            "size-7 bg-transparent p-0 opacity-50 hover:opacity-100 cursor-pointer flex items-center justify-center",
+            className
+          )}
+          {...props}
+        >
+          <ChevronLeft className="size-4" />
+        </div>
+      );
+    },
+    [currentDisplayMonth]
+  );
+
+  const CustomIconRight = React.useCallback(
+    ({ className, ...props }: any) => {
+      const handleClick = () => {
+        const newDate = new Date(currentDisplayMonth);
+        newDate.setMonth(newDate.getMonth() + 1);
+        setCurrentDisplayMonth(newDate);
+      };
+
+      return (
+        <div
+          onClick={handleClick}
+          className={cn(
+            "size-7 bg-transparent p-0 opacity-50 hover:opacity-100 cursor-pointer flex items-center justify-center",
+            className
+          )}
+          {...props}
+        >
+          <ChevronRight className="size-4" />
+        </div>
+      );
+    },
+    [currentDisplayMonth]
+  );
 
   // Actualizar cuando initialValue cambie (importante para cuando se limpia el filtro)
   React.useEffect(() => {
@@ -68,6 +168,8 @@ export function DatePickerWithRange({
   React.useEffect(() => {
     if (open) {
       setTempDate(date);
+      // Sincronizar el mes de visualización con la fecha actual
+      setCurrentDisplayMonth(date?.from || new Date());
     }
   }, [open, date]);
 
@@ -101,14 +203,40 @@ export function DatePickerWithRange({
       }
 
       return (
-        <TooltipProvider delayDuration={0}>
+        <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <span className="relative cursor-help">{props.date.getDate()}</span>
+              <span className="relative cursor-help font-bold group">
+                {props.date.getDate()}
+                <div className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+              </span>
             </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[200px]">
-              <p className="font-semibold">{holidayInfo.name}</p>
-              <p className="text-xs text-muted-foreground capitalize">{holidayInfo.scope}</p>
+            <TooltipContent
+              side="top"
+              className="max-w-[280px] p-0 bg-card border border-orange-200 dark:border-orange-800 rounded-lg overflow-hidden"
+            >
+              <div className="bg-orange-50 dark:bg-orange-950/50 px-4 py-3 border-b border-orange-200 dark:border-orange-800">
+                <div className="flex items-center gap-3">
+                  {holidayInfo.scope === "nacional" ? (
+                    <Flag className="w-3 h-3 text-orange-600 dark:text-orange-400" />
+                  ) : (
+                    <Globe className="w-3 h-3 text-orange-600 dark:text-orange-400" />
+                  )}
+                  <div>
+                    <p className="font-bold text-sm text-orange-900 dark:text-orange-100">{holidayInfo.name}</p>
+                    <div className="flex items-center gap-1">
+                      <p className="text-xs text-orange-600 dark:text-orange-400 capitalize font-medium">
+                        {holidayInfo.scope}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="px-4 py-2 bg-card">
+                <p className="text-xs text-muted-foreground">
+                  Día festivo - {format(props.date, "dd 'de' MMMM", { locale: es })}
+                </p>
+              </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -156,7 +284,11 @@ export function DatePickerWithRange({
             id="date"
             size={size}
             variant={"outline"}
-            className={cn("w-[300px] justify-start text-left font-normal", !date && "text-muted-foreground")}
+            className={cn(
+              "w-[300px] justify-start text-left font-normal",
+              !date && "text-muted-foreground",
+              classNameButton
+            )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
             {date?.from ? (
@@ -177,27 +309,28 @@ export function DatePickerWithRange({
             <Calendar
               initialFocus
               mode="range"
-              defaultMonth={tempDate?.from || new Date()}
+              defaultMonth={currentDisplayMonth}
               selected={tempDate}
               onSelect={handleSelect}
               numberOfMonths={2}
               locale={es}
+              disabled={isDateDisabled}
+              fromDate={fromDate}
+              toDate={toDate}
               modifiers={showHolidays ? { holiday: isHoliday } : undefined}
               modifiersClassNames={
                 showHolidays
                   ? {
                       holiday:
-                        "bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-400 font-semibold border border-orange-200 dark:border-orange-800 hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-colors",
+                        "!bg-orange-50 dark:!bg-orange-950/30 !text-orange-500 dark:!text-orange-200 !font-bold !border-2 !border-orange-200 dark:!border-orange-800 hover:!bg-orange-100 dark:hover:!bg-orange-900/40 hover:!border-orange-300 dark:hover:!border-orange-700 !transition-colors aria-selected:!bg-orange-50 aria-selected:!text-orange-500 aria-selected:!border-orange-200 aria-selected:hover:!bg-orange-50",
                     }
                   : undefined
               }
-              components={
-                showHolidays
-                  ? {
-                      DayContent: DayContentComponent,
-                    }
-                  : undefined
-              }
+              components={{
+                IconLeft: CustomIconLeft,
+                IconRight: CustomIconRight,
+                ...(showHolidays ? { DayContent: DayContentComponent } : {}),
+              }}
             />
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
               <Button variant="outline" size="sm" onClick={handleCancel}>

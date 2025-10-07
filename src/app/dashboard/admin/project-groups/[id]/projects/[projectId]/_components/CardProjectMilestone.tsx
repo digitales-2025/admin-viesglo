@@ -24,9 +24,11 @@ import TablePhasesProject from "./TablePhasesProject";
 interface Props {
   milestone: MilestoneDetailedResponseDto;
   projectId: string;
+  projectStartDate: string;
+  projectEndDate: string;
 }
 
-function CardProjectMilestoneBase({ milestone, projectId }: Props) {
+function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, projectEndDate }: Props) {
   const { open } = useDialogStore();
   const { openMilestoneId, toggleMilestone } = useOpenMilestoneStore();
   const { mutate: updateMilestone } = useUpdateMilestone();
@@ -108,6 +110,10 @@ function CardProjectMilestoneBase({ milestone, projectId }: Props) {
                   confirmText="Guardar período"
                   clearText="Limpiar período"
                   cancelText="Cancelar"
+                  // Limitadores de fechas del proyecto
+                  fromDate={new Date(projectStartDate)}
+                  toDate={new Date(projectEndDate)}
+                  showHolidays={true}
                 />
               </div>
 

@@ -26,7 +26,13 @@ export const ListMilestonesProject = () => {
         </div>
       ) : (
         milestones?.map((milestone: MilestoneDetailedResponseDto) => (
-          <CardProjectMilestone key={milestone.id} milestone={milestone} projectId={projectId} />
+          <CardProjectMilestone
+            key={milestone.id}
+            milestone={milestone}
+            projectId={projectId}
+            projectStartDate={projectData.startDate || ""}
+            projectEndDate={projectData.endDate || ""}
+          />
         ))
       )}
     </div>
