@@ -33,7 +33,7 @@ export const useLogin = () => {
       try {
         queryClient.invalidateQueries({ queryKey: profileOpts.queryKey, exact: true });
         queryClient.prefetchQuery(profileOpts);
-      } catch (e) {
+      } catch {
         console.error("Error invalidating previous errors/prefetch");
       }
 

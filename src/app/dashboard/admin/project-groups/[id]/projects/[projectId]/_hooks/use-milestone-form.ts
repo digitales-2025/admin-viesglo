@@ -49,9 +49,6 @@ export function useMilestoneForm({ isUpdate = false, initialData, projectId, onS
   const getSubmitData = (data: MilestoneForm) => {
     return {
       ...data,
-      // Agregar campos adicionales si es necesario
-      order: 1, // Por defecto
-      isCustom: true, // Por defecto para milestones creados manualmente
     };
   };
 

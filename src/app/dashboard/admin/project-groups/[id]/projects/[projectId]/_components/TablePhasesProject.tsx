@@ -66,7 +66,15 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
     return milestone.phases.filter((phase) => phase.name.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [milestone.phases, searchTerm]);
 
-  const columns = useMemo(() => getPhasesProjectColumns({ onDateUpdate: handleDateUpdate }), [handleDateUpdate]);
+  const columns = useMemo(
+    () =>
+      getPhasesProjectColumns({
+        onDateUpdate: handleDateUpdate,
+        milestoneStartDate: milestone.startDate,
+        milestoneEndDate: milestone.endDate,
+      } as any),
+    [handleDateUpdate, milestone.startDate, milestone.endDate]
+  );
 
   return (
     <div className="space-y-4">

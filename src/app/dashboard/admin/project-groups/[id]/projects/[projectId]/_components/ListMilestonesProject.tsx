@@ -17,7 +17,7 @@ export const ListMilestonesProject = () => {
   }
 
   return (
-    <div className="flex flex-col gap-2 pl-2">
+    <div className="flex flex-col gap-2 pl-4">
       {isProjectDataLoading ? (
         <div className="flex flex-col gap-4">
           {Array.from({ length: 3 }).map((_, idx) => (
@@ -26,7 +26,13 @@ export const ListMilestonesProject = () => {
         </div>
       ) : (
         milestones?.map((milestone: MilestoneDetailedResponseDto) => (
-          <CardProjectMilestone key={milestone.id} milestone={milestone} projectId={projectId} />
+          <CardProjectMilestone
+            key={milestone.id}
+            milestone={milestone}
+            projectId={projectId}
+            projectStartDate={projectData.startDate || ""}
+            projectEndDate={projectData.endDate || ""}
+          />
         ))
       )}
     </div>

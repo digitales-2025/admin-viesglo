@@ -4,7 +4,7 @@ import { UseFormReturn } from "react-hook-form";
 import { ClientSearch } from "@/app/dashboard/admin/clients/search/ClientSearch";
 import { UserSearch } from "@/app/dashboard/admin/users/search/UserSearch";
 import { cn } from "@/lib/utils";
-import { DatePicker } from "@/shared/components/ui/date-picker";
+import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
@@ -195,17 +195,43 @@ export default function ProjectsEditorForm({ form, onSubmit, isUpdate, isPending
                   <FormItem>
                     <FormLabel className="text-sm font-medium flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
-                      Fecha de inicio
+                      Fechas del proyecto
                       <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
-                      <DatePicker
-                        selected={field.value ? new Date(field.value) : undefined}
-                        onSelect={(date) => {
-                          const dateString = date ? date.toISOString() : undefined;
-                          field.onChange(dateString);
+                      <DatePickerWithRange
+                        initialValue={{
+                          from: field.value ? new Date(field.value) : undefined,
+                          to: form.getValues("endDate") ? new Date(form.getValues("endDate")!) : undefined,
                         }}
-                        disabled={isPending}
+                        onChange={(dateRange) => {
+                          // Actualizar startDate
+                          const startDateString = dateRange?.from ? dateRange.from.toISOString() : undefined;
+                          field.onChange(startDateString);
+
+                          // Actualizar endDate
+                          const endDateString = dateRange?.to ? dateRange.to.toISOString() : undefined;
+                          form.setValue("endDate", endDateString);
+                        }}
+                        onConfirm={(dateRange) => {
+                          // Confirmar ambas fechas
+                          const startDateString = dateRange?.from ? dateRange.from.toISOString() : undefined;
+                          const endDateString = dateRange?.to ? dateRange.to.toISOString() : undefined;
+
+                          field.onChange(startDateString);
+                          form.setValue("endDate", endDateString);
+                        }}
+                        onClear={() => {
+                          // Limpiar ambas fechas
+                          field.onChange(undefined);
+                          form.setValue("endDate", undefined);
+                        }}
+                        placeholder="Seleccionar fechas de inicio y fin"
+                        confirmText="Aceptar"
+                        clearText="Limpiar"
+                        cancelText="Cancelar"
+                        showHolidays={true}
+                        classNameButton="w-full"
                       />
                     </FormControl>
                     <FormMessage />

@@ -2,12 +2,13 @@
 
 import React from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
+import { Check, Edit, MoreHorizontal, Plus, Trash, X } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
+import { DatePicker } from "@/shared/components/ui/date-picker";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
 import {
   DropdownMenu,
@@ -18,7 +19,11 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
-import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
+import {
+  useSetDeliverableActualEndDate,
+  useSetDeliverableActualStartDate,
+} from "../../../../_hooks/use-deliverable-actual-dates";
+import { useToggleDeliverableApproval, useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
 import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
@@ -39,6 +44,8 @@ interface TableDeliverablesPhaseProps {
   clearFilters: () => void;
   // Estados de filtros
   search: string | undefined;
+  phaseStartDate: string | undefined;
+  phaseEndDate: string | undefined;
 }
 
 // Funciones auxiliares
@@ -65,9 +72,16 @@ export function TableDeliverablesPhase({
   handleSearchChange,
   // Estados de filtros
   search,
+  phaseStartDate,
+  phaseEndDate,
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
   const { mutate: updateDeliverable } = useUpdateDeliverable();
+  const { mutate: setActualStartDate } = useSetDeliverableActualStartDate();
+  const { mutate: setActualEndDate } = useSetDeliverableActualEndDate();
+  const { mutate: toggleApproval, isPending: isTogglingApproval } = useToggleDeliverableApproval();
+
+  console.log("deliverables", JSON.stringify(deliverables, null, 2));
 
   // Función para manejar la actualización del período completo
   const handleDateUpdate = React.useCallback(
@@ -96,6 +110,33 @@ export function TableDeliverablesPhase({
     [updateDeliverable, projectId, phaseId]
   );
 
+  // Función para manejar la actualización de fecha de inicio real
+  const handleActualStartDateUpdate = (deliverableId: string, date?: Date) => {
+    if (date) {
+      setActualStartDate(deliverableId, date.toISOString());
+    }
+  };
+
+  // Función para manejar la actualización de fecha de fin real
+  const handleActualEndDateUpdate = (deliverableId: string, date?: Date) => {
+    if (date) {
+      setActualEndDate(deliverableId, date.toISOString());
+    }
+  };
+
+  // Función para manejar el toggle de aprobación
+  const handleToggleApproval = (deliverableId: string) => {
+    toggleApproval({
+      params: {
+        path: {
+          projectId,
+          phaseId,
+          deliverableId,
+        },
+      },
+    });
+  };
+
   // Definir las columnas
   const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
     () => [
@@ -104,28 +145,20 @@ export function TableDeliverablesPhase({
         header: "Nombre",
         cell: ({ getValue, row }) => {
           const name = getValue();
-          const description = row.original.description;
+          const status = row.original.status;
+          const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
+          const IconComponent = config?.icon;
           return (
             <div className="flex flex-col space-y-1">
               <span className="font-medium text-foreground">{name || "Sin nombre"}</span>
-              <span className="text-sm text-muted-foreground line-clamp-2">{description || "Sin descripción"}</span>
+              <Badge
+                variant="outline"
+                className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}
+              >
+                {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
+                {formatStatus(status)}
+              </Badge>
             </div>
-          );
-        },
-      }),
-      columnHelper.accessor("status", {
-        id: "estado",
-        header: "Estado",
-        cell: ({ getValue }) => {
-          const status = getValue();
-          const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
-          const IconComponent = config?.icon;
-
-          return (
-            <Badge variant="outline" className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}>
-              {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
-              {formatStatus(status)}
-            </Badge>
           );
         },
       }),
@@ -147,14 +180,14 @@ export function TableDeliverablesPhase({
       }),
       columnHelper.display({
         id: "dateRange",
-        header: "Período",
+        header: "Fecha de Inicio y Fin - Planificado",
         cell: ({ row }) => {
           const startDate = row.original.startDate;
           const endDate = row.original.endDate;
           const deliverableId = row.original.id;
 
           return (
-            <div className="w-fit">
+            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
               <DatePickerWithRange
                 initialValue={
                   startDate || endDate
@@ -173,7 +206,89 @@ export function TableDeliverablesPhase({
                 confirmText="Guardar período"
                 clearText="Limpiar período"
                 cancelText="Cancelar"
+                // Limitadores de fechas de la fase
+                fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
+                toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
+                showHolidays={true}
               />
+            </div>
+          );
+        },
+      }),
+
+      columnHelper.display({
+        id: "actualStartDate",
+        header: "Fecha de Inicio - Ejecutado",
+        cell: ({ row }) => {
+          const actualStartDate = row.original.actualStartDate;
+          const deliverableId = row.original.id;
+
+          return (
+            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
+              <DatePicker
+                selected={actualStartDate ? new Date(actualStartDate) : undefined}
+                onSelect={(date) => handleActualStartDateUpdate(deliverableId, date)}
+                placeholder="Seleccionar inicio"
+                clearable={true}
+                className="w-full min-w-[140px]"
+              />
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "actualEndDate",
+        header: "Fecha de Fin - Ejecutado",
+        cell: ({ row }) => {
+          const actualEndDate = row.original.actualEndDate;
+          const deliverableId = row.original.id;
+
+          return (
+            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
+              <DatePicker
+                selected={actualEndDate ? new Date(actualEndDate) : undefined}
+                onSelect={(date) => handleActualEndDateUpdate(deliverableId, date)}
+                placeholder="Seleccionar fin"
+                clearable={true}
+                className="w-full min-w-[140px]"
+              />
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "approval",
+        header: "Aprobación",
+        cell: ({ row }) => {
+          const deliverable = row.original;
+          const isApproved = deliverable.isApproved || false;
+
+          return (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant={isApproved ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleToggleApproval(deliverable.id)}
+                disabled={isTogglingApproval}
+                className={cn(
+                  "gap-2",
+                  isApproved
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                )}
+              >
+                {isApproved ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Aprobado
+                  </>
+                ) : (
+                  <>
+                    <X className="h-4 w-4" />
+                    Aprobar
+                  </>
+                )}
+              </Button>
             </div>
           );
         },
@@ -185,32 +300,45 @@ export function TableDeliverablesPhase({
           const deliverable = row.original;
 
           return (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Agregar incidencias
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
-                  <Trash className="w-4 h-4 mr-2" />
-                  Eliminar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div onClick={(e) => e.stopPropagation()}>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}>
+                    <Edit className="w-4 h-4 mr-2" />
+                    Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar incidencias
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
+                    <Trash className="w-4 h-4 mr-2" />
+                    Eliminar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           );
         },
       }),
     ],
-    [handleDateUpdate, open]
+    [
+      projectId,
+      phaseId,
+      updateDeliverable,
+      open,
+      handleActualStartDateUpdate,
+      handleActualEndDateUpdate,
+      handleToggleApproval,
+      isTogglingApproval,
+      phaseStartDate,
+      phaseEndDate,
+    ]
   );
 
   // Configuración de paginación del servidor

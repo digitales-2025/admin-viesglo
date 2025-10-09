@@ -1,4 +1,4 @@
-import { AlertTriangle, FileText, Package, Target, Weight } from "lucide-react";
+import { AlertTriangle, FileText, Package, Target } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
@@ -82,34 +82,6 @@ export default function DeliverableEditorForm({ form, onSubmit, isPending }: Del
           </div>
           <div className="px-2 space-y-4">
             <div className="grid grid-cols-1 gap-4">
-              <FormField
-                control={form.control}
-                name="weight"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium flex items-center gap-2">
-                      <Weight className="h-4 w-4 text-muted-foreground shrink-0" />
-                      Peso (0-100)
-                    </FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        min="0"
-                        max="100"
-                        placeholder="Ingrese el peso del entregable"
-                        disabled={isPending}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          field.onChange(value === "" ? undefined : Number(value));
-                        }}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
               <FormField
                 control={form.control}
                 name="priority"

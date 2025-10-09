@@ -82,15 +82,23 @@ export const useUpdateMilestoneStatus = () => {
 };
 
 /**
- * Hook para asignar milestone
+ * Hook para asignar/desasignar milestone
  */
 export const useAssignMilestone = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("patch", "/v1/project-milestones/{projectId}/milestones/{milestoneId}/assign", {
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
-      toast.success("Hito asignado correctamente");
+
+      // Determinar si se está asignando o desasignando basado en consultantId
+      const isUnassigning =
+        !variables.body.consultantId ||
+        variables.body.consultantId.trim() === "" ||
+        variables.body.consultantId === null;
+      const message = isUnassigning ? "Hito desasignado correctamente" : "Hito asignado correctamente";
+
+      toast.success(message);
     },
     onError: (error) => {
       toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
