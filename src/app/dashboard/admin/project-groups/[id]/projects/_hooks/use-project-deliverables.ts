@@ -396,3 +396,40 @@ export const useDeleteDeliverable = () => {
     }
   );
 };
+
+/**
+ * Hook para toggle del estado de aprobación de un entregable
+ */
+export const useToggleDeliverableApproval = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation(
+    "patch",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/toggle-approval",
+    {
+      onSuccess: (data) => {
+        // Invalidar todas las queries relacionadas con entregables
+        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
+
+        // Mostrar mensaje de éxito basado en el nuevo estado
+        const isApproved = data.data?.isApproved;
+        const message = isApproved ? "Entregable aprobado correctamente" : "Entregable desaprobado correctamente";
+
+        toast.success(message);
+      },
+      onError: (error) => {
+        toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+      },
+    }
+  );
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};

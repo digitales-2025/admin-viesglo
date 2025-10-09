@@ -23,11 +23,15 @@ export type SimpleColumnDef<TRow> = {
 
 interface PhasesProjectColumnsProps {
   onDateUpdate?: (phaseId: string, startDate?: Date, endDate?: Date) => void;
+  milestoneStartDate?: string;
+  milestoneEndDate?: string;
 }
 
-export function getPhasesProjectColumns({ onDateUpdate }: PhasesProjectColumnsProps = {}): Array<
-  SimpleColumnDef<PhaseDetailedResponseDto>
-> {
+export function getPhasesProjectColumns({
+  onDateUpdate,
+  milestoneStartDate,
+  milestoneEndDate,
+}: PhasesProjectColumnsProps = {}): Array<SimpleColumnDef<PhaseDetailedResponseDto>> {
   return [
     {
       key: "name",
@@ -104,6 +108,10 @@ export function getPhasesProjectColumns({ onDateUpdate }: PhasesProjectColumnsPr
               confirmText="Guardar período"
               clearText="Limpiar período"
               cancelText="Cancelar"
+              // Limitadores de fechas del milestone
+              fromDate={milestoneStartDate ? new Date(milestoneStartDate) : undefined}
+              toDate={milestoneEndDate ? new Date(milestoneEndDate) : undefined}
+              showHolidays={true}
             />
           </div>
         );

@@ -1516,6 +1516,26 @@ export interface paths {
     patch: operations["ProjectDeliverablesController_setPrecedent_v1"];
     trace?: never;
   };
+  "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/toggle-approval": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Toggle del estado de aprobación de un entregable
+     * @description Cambia el estado de aprobación de un entregable (aprobado/desaprobado)
+     */
+    patch: operations["ProjectDeliverablesController_toggleDeliverableApproval_v1"];
+    trace?: never;
+  };
   "/v1/project-milestones/{projectId}/milestones": {
     parameters: {
       query?: never;
@@ -5292,6 +5312,11 @@ export interface components {
        * @example 64a1b2c3d4e5f6789abcdef8
        */
       precedentId?: string;
+      /**
+       * @description Indica si el entregable está aprobado
+       * @example false
+       */
+      isApproved: boolean;
     };
     PhaseDetailedResponseDto: {
       /**
@@ -11526,6 +11551,71 @@ export interface operations {
         };
       };
       /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_toggleDeliverableApproval_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado de aprobación cambiado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @example true */
+            success?: boolean;
+            /** @example Estado de aprobación cambiado exitosamente */
+            message?: string;
+            data?: {
+              /** @example 507f1f77bcf86cd799439013 */
+              deliverableId?: string;
+              /** @example true */
+              isApproved?: boolean;
+            };
+          };
+        };
+      };
+      /** @description Error en la solicitud */
       400: {
         headers: {
           [name: string]: unknown;

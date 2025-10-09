@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import { AUTH_COOKIE_NAME } from "./utils/constants";
+
 // Rutas públicas que no requieren autenticación
 const PUBLIC_ROUTES = ["/auth/sign-in", "/forbidden"];
 
@@ -78,7 +80,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Verificar presencia de cookie de autenticación (sin validar su contenido)
-  const session_token = !!request.cookies.get("better-auth.session_token")?.value;
+  const session_token = !!request.cookies.get(AUTH_COOKIE_NAME)?.value;
 
   // CASO 1: Ruta pública, usuario aparentemente autenticado -> redirigir a la página principal
   if (PUBLIC_ROUTES.includes(pathname) && session_token) {

@@ -1,5 +1,6 @@
 import { Trash } from "lucide-react";
 
+import { MilestoneResourcesDialog } from "@/app/dashboard/admin/milestones-resources/_components/MilestoneResourcesDialog";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteMilestone } from "../../_hooks/use-project-milestones";
@@ -73,6 +74,14 @@ export default function MilestonesProjectOverlays({ projectId }: MilestonesProje
             Esta acción es irreversible.
           </>
         }
+      />
+      <MilestoneResourcesDialog
+        key="milestone-resources"
+        open={isOpenForModule(MODULE_MILESTONES_PROJECT, "create-resource")}
+        currentRow={{ projectId, milestoneId: data?.id }}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
       />
     </>
   );

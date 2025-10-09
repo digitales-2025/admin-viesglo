@@ -15,6 +15,8 @@ import {
   Users,
 } from "lucide-react";
 
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/shared/components/ui/button";
 import {
   TreeExpander,
   TreeIcon,
@@ -24,9 +26,7 @@ import {
   TreeNodeTrigger,
   TreeProvider,
   TreeView,
-} from "@/components/ui/kibo-ui/tree";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/shared/components/ui/button";
+} from "@/shared/components/ui/kibo-ui/tree";
 import { DeliverableDetailedResponseDto, MilestoneDetailedResponseDto, PhaseDetailedResponseDto } from "../_types";
 import { ProjectProvider, useProjectContext } from "./_context/ProjectContext";
 import { useOpenMilestoneStore } from "./_stores/useOpenMilestoneStore";

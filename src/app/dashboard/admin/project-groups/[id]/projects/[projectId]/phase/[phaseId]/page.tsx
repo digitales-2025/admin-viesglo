@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import DeliverablesPhaseOverlays from "./_components/deliverables-phase-overlays/DeliverablesPhaseOverlays";
@@ -10,8 +10,10 @@ import { ListDeliverablesPhase } from "./_components/ListDeliverablesPhase";
 
 export default function ViewPhaseDeliverablesPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const projectId = params.projectId as string;
   const phaseId = params.phaseId as string;
+  const milestoneId = searchParams.get("milestoneId") || "";
 
   return (
     <>
@@ -25,7 +27,7 @@ export default function ViewPhaseDeliverablesPage() {
         </ShellHeader>
       </div>
       <ListDeliverablesPhase />
-      <DeliverablesPhaseOverlays projectId={projectId} phaseId={phaseId} />
+      {milestoneId && <DeliverablesPhaseOverlays projectId={projectId} phaseId={phaseId} milestoneId={milestoneId} />}
     </>
   );
 }

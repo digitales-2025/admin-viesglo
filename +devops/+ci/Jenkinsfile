@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Config pnpm') {
             steps {
-		sh 'npm i -g pnpm'
+                sh 'npm i -g pnpm'
                 sh 'pnpm config set store-dir /root/.pnpm-store'
             }
         }

@@ -16,7 +16,6 @@ import {
   PlusCircle,
   Shield,
   Target,
-  X,
   Zap,
 } from "lucide-react";
 
@@ -122,17 +121,6 @@ export const projectStatusConfig = {
     icon: CheckCircle2,
     badge: "success",
     iconClass: "text-green-600 dark:text-green-300",
-  },
-  [ProjectStatusEnum.CANCELLED]: {
-    label: "Cancelado",
-    description: "Proyecto cancelado",
-    className: "bg-red-200 dark:bg-red-800/40",
-    textClass: "text-red-900 dark:text-red-200",
-    borderColor: "border-red-400 dark:border-red-700",
-    hoverClass: "hover:bg-red-300 dark:hover:bg-red-700/60",
-    icon: X,
-    badge: "danger",
-    iconClass: "text-red-600 dark:text-red-300",
   },
 };
 

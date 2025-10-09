@@ -27,7 +27,7 @@ export function ListDeliverablesPhase() {
     search,
   } = usePhaseDeliverablesPaginated(projectId, phaseId);
 
-  const { isLoading, error } = query;
+  const { isLoading, error, data } = query;
 
   if (isLoading) return <Loading text="Cargando entregables..." variant="spinner" />;
 
@@ -57,6 +57,8 @@ export function ListDeliverablesPhase() {
           search={search}
           handleSortChange={handleSortChange}
           clearFilters={clearFilters}
+          phaseStartDate={data?.phase?.startDate}
+          phaseEndDate={data?.phase?.endDate}
         />
       </div>
     </div>

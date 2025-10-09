@@ -17,8 +17,8 @@ export type ProjectPaginatedFilterDto = {
   sortOrder?: "asc" | "desc";
   clientId?: string;
   projectGroupId?: string;
-  status?: string;
-  projectType?: string;
+  status?: string[];
+  projectType?: string[];
 };
 
 // DTOs de Response (del project-response.dto.ts)
