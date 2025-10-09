@@ -19,7 +19,11 @@ import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
-import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
+import {
+  deliverablePriorityConfig,
+  deliverableStatusConfig,
+  precedentDisplayConfig,
+} from "../../../../_utils/projects.utils";
 import {
   useRemovePrecedent,
   useSetPrecedent,
@@ -90,6 +94,13 @@ export function TableDeliverablesPhase({
 
     // Si selectedPrecedentId está vacío, remover precedente
     if (!selectedPrecedentId) {
+      console.log("%c[Eliminando precedencia]", "color: #ef4444; font-weight: bold;", {
+        projectId,
+        phaseId,
+        deliverableId,
+        action: "DELETE precedent",
+        message: "Precedente será eliminado (actualmente solo log)",
+      });
       removePrecedent({
         params: {
           path: {
@@ -98,7 +109,7 @@ export function TableDeliverablesPhase({
             deliverableId,
           },
         },
-        body: {},
+        body: {} as Record<string, never>,
       });
       return;
     }
@@ -197,17 +208,25 @@ export function TableDeliverablesPhase({
           const rowIndex = row.index;
           const currentDeliverableId = row.original.id;
 
-          // Si es el primer elemento (índice 0)
+          // Caso 1: Primer elemento, no requiere precedente.
           if (rowIndex === 0) {
+            const config = precedentDisplayConfig.NO_PRECEDENT_REQUIRED;
+            const IconComponent = config.icon;
             return (
-              <Badge variant="outline" className="text-xs text-green-700 border-green-500 h-8 px-3">
-                No requiere precedente
+              <Badge
+                variant="outline"
+                className={cn("h-8 gap-1.5", config.className, config.textClass, config.borderColor)}
+              >
+                <IconComponent className={cn("h-3 w-3", config.iconClass)} />
+                {config.label}
               </Badge>
             );
           }
 
-          // Si no tiene precedente - mostrar opción para asignar
+          // Caso 2: No tiene precedente asignado.
           if (!precedentId) {
+            const config = precedentDisplayConfig.ASSIGN_PRECEDENT;
+            const IconComponent = config.icon;
             return (
               <DropdownMenu
                 open={openDropdowns[currentDeliverableId]}
@@ -217,32 +236,36 @@ export function TableDeliverablesPhase({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 text-xs cursor-pointer hover:bg-muted transition-colors"
+                    className={cn(
+                      "h-8 gap-1.5 text-xs cursor-pointer transition-colors",
+                      config.className,
+                      config.textClass,
+                      config.borderColor
+                    )}
                   >
-                    Asignar precedente
+                    <IconComponent className={cn("h-3 w-3", config.iconClass)} />
+                    {config.label}
                   </Button>
                 </DropdownMenuTrigger>
 
+                {/* INICIO: Asegurarse de que este contenido esté presente */}
                 <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Seleccionar precedente
                   </div>
-
                   {deliverables
                     .filter((deliverable) => deliverable.id !== currentDeliverableId)
                     .map((deliverable) => {
-                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1; // +1 para usuario
+                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1;
                       return (
                         <DropdownMenuItem
                           key={deliverable.id}
                           onClick={() => handlePrecedentSelect(currentDeliverableId, deliverable.id)}
                           className="cursor-pointer flex items-start gap-2 py-2"
                         >
-                          {/* Índice mostrado desde 1 */}
                           <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
                             {globalIndex}
                           </span>
-
                           <div className="flex flex-col">
                             <span className="font-medium text-sm leading-tight truncate">
                               {deliverable.name || "Sin nombre"}
@@ -255,18 +278,25 @@ export function TableDeliverablesPhase({
                       );
                     })}
                 </DropdownMenuContent>
+                {/* FIN: Contenido del Dropdown */}
               </DropdownMenu>
             );
           }
 
-          // Si tiene precedente
+          // Caso 3: Tiene un precedente asignado.
           const precedentDeliverable = findPrecedentDeliverable(precedentId);
-          const precedentIndex = deliverables.findIndex((d) => d.id === precedentDeliverable?.id) + 1; // también +1 aquí
+          const precedentIndex = deliverables.findIndex((d) => d.id === precedentDeliverable?.id) + 1;
+          const config = precedentDisplayConfig.HAS_PRECEDENT;
+          const IconComponent = config.icon;
 
           return (
-            <div className="relative flex items-center space-x-2">
-              <Badge variant="secondary" className="text-xs h-8 px-3">
-                #{precedentIndex} {precedentDeliverable?.name || `ID: ${precedentId}`}
+            <div className="relative flex items-center space-x-1">
+              <Badge
+                variant="outline"
+                className={cn("text-xs h-8 px-3 gap-1.5", config.className, config.textClass, config.borderColor)}
+              >
+                <IconComponent className={cn("h-3 w-3", config.iconClass)} />#{precedentIndex}{" "}
+                {precedentDeliverable?.name || `ID: ${precedentId}`}
               </Badge>
 
               <DropdownMenu
@@ -277,18 +307,18 @@ export function TableDeliverablesPhase({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-6 w-6 p-0 hover:bg-muted transition-colors"
+                    className="h-6 w-6 p-0 rounded-sm data-[state=open]:bg-muted"
                     title="Editar precedente"
                   >
                     <Edit className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
 
+                {/* INICIO: Asegurarse de que este contenido también esté presente aquí */}
                 <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                     Cambiar precedente
                   </div>
-
                   {deliverables
                     .filter((d) => d.id !== currentDeliverableId)
                     .map((deliverable) => {
@@ -302,7 +332,6 @@ export function TableDeliverablesPhase({
                           <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
                             {globalIndex}
                           </span>
-
                           <div className="flex flex-col">
                             <span className="font-medium text-sm leading-tight truncate">
                               {deliverable.name || "Sin nombre"}
@@ -314,9 +343,7 @@ export function TableDeliverablesPhase({
                         </DropdownMenuItem>
                       );
                     })}
-
                   <div className="border-t my-1" />
-
                   <DropdownMenuItem
                     onClick={() => handlePrecedentSelect(currentDeliverableId, "")}
                     className="cursor-pointer flex items-center gap-2 py-2 hover:bg-muted"
@@ -325,6 +352,7 @@ export function TableDeliverablesPhase({
                     <span className="text-xs text-muted-foreground">Quitar precedente</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
+                {/* FIN: Contenido del Dropdown */}
               </DropdownMenu>
             </div>
           );
