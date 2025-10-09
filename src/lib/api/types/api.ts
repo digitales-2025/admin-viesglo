@@ -1492,6 +1492,30 @@ export interface paths {
     patch: operations["ProjectDeliverablesController_completeDeliverable_v1"];
     trace?: never;
   };
+  "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remover precedente
+     * @description Remueve el entregable precedente de otro entregable
+     */
+    delete: operations["ProjectDeliverablesController_removePrecedent_v1"];
+    options?: never;
+    head?: never;
+    /**
+     * Establecer precedente
+     * @description Establece un entregable precedente para otro entregable
+     */
+    patch: operations["ProjectDeliverablesController_setPrecedent_v1"];
+    trace?: never;
+  };
   "/v1/project-milestones/{projectId}/milestones": {
     parameters: {
       query?: never;
@@ -2606,6 +2630,46 @@ export interface paths {
     head?: never;
     /** Reabrir incidencia */
     patch: operations["IncidentsController_reopen_v1"];
+    trace?: never;
+  };
+  "/v1/holidays/year": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener feriados por año
+     * @description Obtiene todos los feriados nacionales peruanos de un año específico. Usa web scraping como fuente primaria y feriados hardcoded como fallback.
+     */
+    get: operations["HolidaysController_getHolidaysForYear_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/holidays/range": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener feriados por rango de fechas
+     * @description Obtiene todos los feriados nacionales peruanos dentro de un rango de fechas específico. Útil para calcular días laborables en períodos específicos.
+     */
+    get: operations["HolidaysController_getHolidaysInRange_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
 }
@@ -5223,6 +5287,11 @@ export interface components {
        * @example 1024000
        */
       totalDocumentSize: number;
+      /**
+       * @description ID del entregable precedente
+       * @example 64a1b2c3d4e5f6789abcdef8
+       */
+      precedentId?: string;
     };
     PhaseDetailedResponseDto: {
       /**
@@ -6249,6 +6318,33 @@ export interface components {
        */
       progress: number;
     };
+    SetPrecedentRequestDto: {
+      /**
+       * @description ID del entregable precedente
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      precedentDeliverableId: string;
+    };
+    PrecedentOperationResponseDto: {
+      /**
+       * @description Éxito de la operación
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo
+       * @example Precedente establecido exitosamente
+       */
+      message: string;
+      /**
+       * @description Datos adicionales
+       * @example {
+       *       "deliverableId": "64a1b2c3d4e5f6789abcdef0"
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    RemovePrecedentRequestDto: Record<string, never>;
     AddMilestoneRequestDto: {
       /**
        * @description Nombre del hito
@@ -6353,22 +6449,22 @@ export interface components {
     };
     AssignMilestoneRequestDto: {
       /**
-       * @description ID del consultor interno a asignar
+       * @description ID del consultor interno a asignar (vacío para desasignar)
        * @example 64a1b2c3d4e5f6789abcdef5
        */
-      consultantId: string;
+      consultantId?: string;
     };
     SetDeliverableActualDatesRequestDto: {
       /**
-       * @description Fecha real de inicio del entregable
+       * @description Fecha real de inicio del entregable (opcional)
        * @example 2024-01-20T08:00:00.000Z
        */
-      actualStartDate: string;
+      actualStartDate?: string;
       /**
-       * @description Fecha real de fin del entregable
+       * @description Fecha real de fin del entregable (opcional)
        * @example 2024-02-05T17:00:00.000Z
        */
-      actualEndDate: string;
+      actualEndDate?: string;
     };
     DeliverableActualDatesResponseDto: {
       /**
@@ -7614,11 +7710,6 @@ export interface components {
        * @example 66f2c7f9e7d6b2d9a1c3f4e8
        */
       deliverableId: string;
-      /**
-       * @description ID del usuario que crea la incidencia
-       * @example 66f2c7f9e7d6b2d9a1c3f4aa
-       */
-      createdById: string;
     };
     IncidentResponseDto: {
       /** @description ID único de la incidencia */
@@ -7685,6 +7776,23 @@ export interface components {
       description?: string;
       /** @description Fecha de ocurrencia (ISO) */
       date?: string;
+    };
+    HolidayResponseDto: {
+      /**
+       * @description Fecha del feriado en formato YYYY-MM-DD
+       * @example 2025-01-01
+       */
+      date: string;
+      /**
+       * @description Nombre del feriado
+       * @example Año Nuevo
+       */
+      name: string;
+      /**
+       * @description Alcance del feriado (nacional, regional, etc.)
+       * @example Nacional
+       */
+      scope: string;
     };
   };
   responses: never;
@@ -10429,10 +10537,10 @@ export interface operations {
         clientId?: string;
         /** @description Filtrar por ID del grupo de proyectos */
         projectGroupId?: string;
-        /** @description Filtrar por estado del proyecto */
-        status?: string;
-        /** @description Filtrar por tipo de proyecto */
-        projectType?: string;
+        /** @description Filtrar por estados del proyecto */
+        status?: string[];
+        /** @description Filtrar por tipos de proyecto */
+        projectType?: string[];
         /** @description Campo por el cual ordenar */
         sortBy?: unknown;
       };
@@ -11309,6 +11417,124 @@ export interface operations {
         };
       };
       /** @description Proyecto, hito o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_removePrecedent_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Solicitud para remover precedente */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RemovePrecedentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Precedente removido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PrecedentOperationResponseDto"];
+        };
+      };
+      /** @description El entregable no tiene precedente */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_setPrecedent_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description ID del entregable precedente */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetPrecedentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Precedente establecido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PrecedentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
       404: {
         headers: {
           [name: string]: unknown;
@@ -14843,7 +15069,7 @@ export interface operations {
   };
   IncidentsController_findPaginated_v1: {
     parameters: {
-      query?: {
+      query: {
         /** @description Número de página */
         page?: number;
         /** @description Tamaño de página */
@@ -14854,14 +15080,14 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
-        /** @description Filtrar por ID del proyecto */
-        projectId?: string;
-        /** @description Filtrar por ID del hito */
-        milestoneId?: string;
-        /** @description Filtrar por ID de la fase */
-        phaseId?: string;
-        /** @description Filtrar por ID del entregable */
-        deliverableId?: string;
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
         /** @description Filtrar por estado de resolución */
         isResolved?: boolean;
         /** @description Filtrar por ID del usuario que creó la incidencia */
@@ -15153,6 +15379,68 @@ export interface operations {
         content: {
           "application/json": components["schemas"]["BaseErrorResponse"];
         };
+      };
+    };
+  };
+  HolidaysController_getHolidaysForYear_v1: {
+    parameters: {
+      query: {
+        /** @description Año para obtener los feriados (ej: 2025) */
+        year: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de feriados del año especificado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HolidayResponseDto"][];
+        };
+      };
+      /** @description Año inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  HolidaysController_getHolidaysInRange_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del rango (formato: YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del rango (formato: YYYY-MM-DD) */
+        endDate: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de feriados en el rango especificado */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["HolidayResponseDto"][];
+        };
+      };
+      /** @description Fechas inválidas */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
