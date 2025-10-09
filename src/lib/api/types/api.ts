@@ -7614,11 +7614,6 @@ export interface components {
        * @example 66f2c7f9e7d6b2d9a1c3f4e8
        */
       deliverableId: string;
-      /**
-       * @description ID del usuario que crea la incidencia
-       * @example 66f2c7f9e7d6b2d9a1c3f4aa
-       */
-      createdById: string;
     };
     IncidentResponseDto: {
       /** @description ID único de la incidencia */
@@ -14843,7 +14838,7 @@ export interface operations {
   };
   IncidentsController_findPaginated_v1: {
     parameters: {
-      query?: {
+      query: {
         /** @description Número de página */
         page?: number;
         /** @description Tamaño de página */
@@ -14854,14 +14849,14 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
-        /** @description Filtrar por ID del proyecto */
-        projectId?: string;
-        /** @description Filtrar por ID del hito */
-        milestoneId?: string;
-        /** @description Filtrar por ID de la fase */
-        phaseId?: string;
-        /** @description Filtrar por ID del entregable */
-        deliverableId?: string;
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
         /** @description Filtrar por estado de resolución */
         isResolved?: boolean;
         /** @description Filtrar por ID del usuario que creó la incidencia */

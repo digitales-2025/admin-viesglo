@@ -85,23 +85,15 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
     return () => io.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Función para calcular el progreso basado en proyectos completados
+  // Progreso: derivado solo desde datos de la consulta (sin valores estáticos)
   const calculateProgress = (projectGroup: ProjectGroupResponseDto) => {
-    // Por ahora retornamos valores de ejemplo para mostrar el diseño
-    // En el futuro esto se calculará basado en proyectos reales
-    const progressMap: Record<string, number> = {
-      "MIPYMES de calidad - 2023": 70,
-      "Digitalización Empresarial - 2023": 8,
-      "Innovación Abierta - 2024": 33,
-      "Mercados Modernos - 2024": 50,
-      "MIPYMES de calidad - 2025": 45,
-      "Digitalización Empresarial - 2025": 12,
-      "Fondo Empleo - 2025": 24,
-      "PNIPA - 2025": 70,
-      "Digitalización Empresarial - 2024": 14,
-    };
-
-    return progressMap[projectGroup.name] || 0;
+    const candidate = projectGroup as unknown as Record<string, unknown>;
+    const possibleKeys = ["progressPercentage", "progress", "completionPercentage", "completion"];
+    const value = possibleKeys.map((k) => candidate[k]).find((v) => typeof v === "number") as number | undefined;
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return Math.max(0, Math.min(100, value));
+    }
+    return 0;
   };
 
   // Función para obtener el color del círculo de progreso
