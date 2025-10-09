@@ -1492,6 +1492,50 @@ export interface paths {
     patch: operations["ProjectDeliverablesController_completeDeliverable_v1"];
     trace?: never;
   };
+  "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Remover precedente
+     * @description Remueve el entregable precedente de otro entregable
+     */
+    delete: operations["ProjectDeliverablesController_removePrecedent_v1"];
+    options?: never;
+    head?: never;
+    /**
+     * Establecer precedente
+     * @description Establece un entregable precedente para otro entregable
+     */
+    patch: operations["ProjectDeliverablesController_setPrecedent_v1"];
+    trace?: never;
+  };
+  "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/toggle-approval": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Toggle del estado de aprobación de un entregable
+     * @description Cambia el estado de aprobación de un entregable (aprobado/desaprobado)
+     */
+    patch: operations["ProjectDeliverablesController_toggleDeliverableApproval_v1"];
+    trace?: never;
+  };
   "/v1/project-milestones/{projectId}/milestones": {
     parameters: {
       query?: never;
@@ -5263,6 +5307,16 @@ export interface components {
        * @example 1024000
        */
       totalDocumentSize: number;
+      /**
+       * @description ID del entregable precedente
+       * @example 64a1b2c3d4e5f6789abcdef8
+       */
+      precedentId?: string;
+      /**
+       * @description Indica si el entregable está aprobado
+       * @example false
+       */
+      isApproved: boolean;
     };
     PhaseDetailedResponseDto: {
       /**
@@ -6289,6 +6343,33 @@ export interface components {
        */
       progress: number;
     };
+    SetPrecedentRequestDto: {
+      /**
+       * @description ID del entregable precedente
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      precedentDeliverableId: string;
+    };
+    PrecedentOperationResponseDto: {
+      /**
+       * @description Éxito de la operación
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo
+       * @example Precedente establecido exitosamente
+       */
+      message: string;
+      /**
+       * @description Datos adicionales
+       * @example {
+       *       "deliverableId": "64a1b2c3d4e5f6789abcdef0"
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    RemovePrecedentRequestDto: Record<string, never>;
     AddMilestoneRequestDto: {
       /**
        * @description Nombre del hito
@@ -7654,11 +7735,6 @@ export interface components {
        * @example 66f2c7f9e7d6b2d9a1c3f4e8
        */
       deliverableId: string;
-      /**
-       * @description ID del usuario que crea la incidencia
-       * @example 66f2c7f9e7d6b2d9a1c3f4aa
-       */
-      createdById: string;
     };
     IncidentResponseDto: {
       /** @description ID único de la incidencia */
@@ -11385,6 +11461,189 @@ export interface operations {
       };
     };
   };
+  ProjectDeliverablesController_removePrecedent_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Solicitud para remover precedente */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["RemovePrecedentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Precedente removido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PrecedentOperationResponseDto"];
+        };
+      };
+      /** @description El entregable no tiene precedente */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_setPrecedent_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description ID del entregable precedente */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetPrecedentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Precedente establecido exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PrecedentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverablesController_toggleDeliverableApproval_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Estado de aprobación cambiado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": {
+            /** @example true */
+            success?: boolean;
+            /** @example Estado de aprobación cambiado exitosamente */
+            message?: string;
+            data?: {
+              /** @example 507f1f77bcf86cd799439013 */
+              deliverableId?: string;
+              /** @example true */
+              isApproved?: boolean;
+            };
+          };
+        };
+      };
+      /** @description Error en la solicitud */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
   ProjectMilestonesController_addMilestone_v1: {
     parameters: {
       query?: never;
@@ -14900,7 +15159,7 @@ export interface operations {
   };
   IncidentsController_findPaginated_v1: {
     parameters: {
-      query?: {
+      query: {
         /** @description Número de página */
         page?: number;
         /** @description Tamaño de página */
@@ -14911,14 +15170,14 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
-        /** @description Filtrar por ID del proyecto */
-        projectId?: string;
-        /** @description Filtrar por ID del hito */
-        milestoneId?: string;
-        /** @description Filtrar por ID de la fase */
-        phaseId?: string;
-        /** @description Filtrar por ID del entregable */
-        deliverableId?: string;
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID del hito */
+        milestoneId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
         /** @description Filtrar por estado de resolución */
         isResolved?: boolean;
         /** @description Filtrar por ID del usuario que creó la incidencia */

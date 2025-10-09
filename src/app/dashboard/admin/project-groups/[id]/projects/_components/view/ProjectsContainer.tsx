@@ -129,8 +129,8 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
           {/* Error State */}
           {isError && (
             <div className="flex flex-col items-center justify-center py-12">
-              <div className="text-destructive mb-2">Error al cargar los proyectos</div>
-              <Button variant="outline" onClick={() => query.refetch()}>
+              <div className="text-destructive mb-2">{query.error?.error.userMessage}</div>
+              <Button variant="outline" onClick={() => query.refetch()} disabled={query.isFetching}>
                 Reintentar
               </Button>
             </div>

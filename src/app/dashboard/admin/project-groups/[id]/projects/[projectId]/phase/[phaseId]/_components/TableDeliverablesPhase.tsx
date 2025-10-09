@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Check, Edit, MoreHorizontal, Trash, X } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
@@ -23,7 +23,7 @@ import {
   useSetDeliverableActualEndDate,
   useSetDeliverableActualStartDate,
 } from "../../../../_hooks/use-deliverable-actual-dates";
-import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
+import { useToggleDeliverableApproval, useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
 import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
@@ -79,6 +79,9 @@ export function TableDeliverablesPhase({
   const { mutate: updateDeliverable } = useUpdateDeliverable();
   const { mutate: setActualStartDate } = useSetDeliverableActualStartDate();
   const { mutate: setActualEndDate } = useSetDeliverableActualEndDate();
+  const { mutate: toggleApproval, isPending: isTogglingApproval } = useToggleDeliverableApproval();
+
+  console.log("deliverables", JSON.stringify(deliverables, null, 2));
 
   // Función para manejar la actualización del período completo
   const handleDateUpdate = (deliverableId: string, startDate?: Date, endDate?: Date) => {
@@ -118,7 +121,18 @@ export function TableDeliverablesPhase({
     }
   };
 
-  console.log("deliverables", JSON.stringify(deliverables, null, 2));
+  // Función para manejar el toggle de aprobación
+  const handleToggleApproval = (deliverableId: string) => {
+    toggleApproval({
+      params: {
+        path: {
+          projectId,
+          phaseId,
+          deliverableId,
+        },
+      },
+    });
+  };
 
   // Definir las columnas
   const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
@@ -240,6 +254,43 @@ export function TableDeliverablesPhase({
         },
       }),
       columnHelper.display({
+        id: "approval",
+        header: "Aprobación",
+        cell: ({ row }) => {
+          const deliverable = row.original;
+          const isApproved = deliverable.isApproved || false;
+
+          return (
+            <div onClick={(e) => e.stopPropagation()}>
+              <Button
+                variant={isApproved ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleToggleApproval(deliverable.id)}
+                disabled={isTogglingApproval}
+                className={cn(
+                  "gap-2",
+                  isApproved
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                )}
+              >
+                {isApproved ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Aprobado
+                  </>
+                ) : (
+                  <>
+                    <X className="h-4 w-4" />
+                    Aprobar
+                  </>
+                )}
+              </Button>
+            </div>
+          );
+        },
+      }),
+      columnHelper.display({
         id: "actions",
         header: "",
         cell: ({ row }) => {
@@ -276,6 +327,8 @@ export function TableDeliverablesPhase({
       open,
       handleActualStartDateUpdate,
       handleActualEndDateUpdate,
+      handleToggleApproval,
+      isTogglingApproval,
       phaseStartDate,
       phaseEndDate,
     ]
