@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Check, Edit, MoreHorizontal, Trash, X } from "lucide-react";
+import { Check, Edit, MoreHorizontal, Plus, Trash, X } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
@@ -84,28 +84,31 @@ export function TableDeliverablesPhase({
   console.log("deliverables", JSON.stringify(deliverables, null, 2));
 
   // Función para manejar la actualización del período completo
-  const handleDateUpdate = (deliverableId: string, startDate?: Date, endDate?: Date) => {
-    updateDeliverable(
-      {
-        params: {
-          path: {
-            projectId,
-            phaseId,
-            deliverableId,
+  const handleDateUpdate = React.useCallback(
+    (deliverableId: string, startDate?: Date, endDate?: Date) => {
+      updateDeliverable(
+        {
+          params: {
+            path: {
+              projectId,
+              phaseId,
+              deliverableId,
+            },
+          },
+          body: {
+            startDate: startDate?.toISOString(),
+            endDate: endDate?.toISOString(),
           },
         },
-        body: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-        },
-      },
-      {
-        onError: (error) => {
-          console.error("Error al actualizar período:", error);
-        },
-      }
-    );
-  };
+        {
+          onError: (error) => {
+            console.error("Error al actualizar período:", error);
+          },
+        }
+      );
+    },
+    [updateDeliverable, projectId, phaseId]
+  );
 
   // Función para manejar la actualización de fecha de inicio real
   const handleActualStartDateUpdate = (deliverableId: string, date?: Date) => {
@@ -308,6 +311,10 @@ export function TableDeliverablesPhase({
                   <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}>
                     <Edit className="w-4 h-4 mr-2" />
                     Editar
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Agregar incidencias
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
                     <Trash className="w-4 h-4 mr-2" />

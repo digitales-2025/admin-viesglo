@@ -1,5 +1,6 @@
 import { Trash } from "lucide-react";
 
+import { IncidentDialog } from "@/app/dashboard/admin/incidents/_components";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteDeliverable } from "../../../../../_hooks/use-project-deliverables";
@@ -7,9 +8,17 @@ import { DeliverableEditorSheet } from "../editor/DeliverableEditorSheet";
 
 export const MODULE_DELIVERABLES_PHASE = "deliverables-phase";
 
-export default function DeliverablesPhaseOverlays({ projectId, phaseId }: { projectId: string; phaseId: string }) {
+interface DeliverablesPhaseOverlaysProps {
+  projectId: string;
+  phaseId: string;
+  milestoneId: string;
+}
+
+export default function DeliverablesPhaseOverlays({ projectId, phaseId, milestoneId }: DeliverablesPhaseOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteDeliverable, isPending: isDeleting } = useDeleteDeliverable();
+  // Derivar IDs actuales desde el store (deliverable seleccionado)
+  const currentDeliverableId = (data as any)?.id as string | undefined;
 
   return (
     <>
@@ -25,6 +34,23 @@ export default function DeliverablesPhaseOverlays({ projectId, phaseId }: { proj
         projectId={projectId}
         phaseId={phaseId}
       />
+
+      {/* Incident Dialog */}
+      {isOpenForModule(MODULE_DELIVERABLES_PHASE, "create-incident") && currentDeliverableId && (
+        <IncidentDialog
+          key="phase-incident"
+          open={true}
+          onOpenChange={(open) => {
+            if (!open) close();
+          }}
+          currentRow={{
+            projectId,
+            milestoneId,
+            phaseId,
+            deliverableId: currentDeliverableId,
+          }}
+        />
+      )}
 
       <ConfirmDialog
         key="deliverable-delete"

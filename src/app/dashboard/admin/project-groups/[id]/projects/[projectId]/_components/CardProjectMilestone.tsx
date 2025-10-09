@@ -149,6 +149,17 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   <DropdownMenuItem
                     onClick={(e) => {
                       e.stopPropagation();
+                      open(MODULE_MILESTONES_PROJECT, "create-resource", milestone);
+                    }}
+                  >
+                    Agregar recursos
+                    <DropdownMenuShortcut>
+                      <PlusCircle className="w-4 h-4" />
+                    </DropdownMenuShortcut>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation();
                       open(MODULE_MILESTONES_PROJECT, "delete", milestone);
                     }}
                   >

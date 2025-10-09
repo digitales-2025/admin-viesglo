@@ -341,12 +341,13 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
   /**
    * Manual reconnection after token refresh with improved error handling
    * Useful when the app refreshes tokens without full logout/login
+   * Returns a promise that resolves on successful reconnection or rejects on failure
    */
   const reconnectAfterTokenRefresh = useCallback(async () => {
     // Prevent multiple simultaneous reconnection attempts
     if (connectionInProgressRef.current) {
       console.log("MQTT Session Lifecycle - Reconnection already in progress, skipping");
-      return;
+      return Promise.resolve(); // Return resolved promise to not break awaiting code
     }
 
     connectionInProgressRef.current = true;
@@ -367,12 +368,16 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
       await reconnect();
 
       console.log("MQTT Session Lifecycle - Successfully reconnected after token refresh");
+      return Promise.resolve(); // Explicit success
     } catch (error) {
       console.error("MQTT Session Lifecycle - Failed to reconnect after token refresh:", error);
 
       // If reconnection fails, clear credentials and mark token as expired
       MqttCredentialsService.clearCredentialsCache();
       setTokenExpired(true);
+
+      // Return rejected promise so calling code knows reconnection failed
+      return Promise.reject(error);
     } finally {
       connectionInProgressRef.current = false;
     }
