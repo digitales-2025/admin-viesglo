@@ -18,9 +18,13 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
-import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
 import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
+import {
+  useRemovePrecedent,
+  useSetPrecedent,
+  useUpdateDeliverable,
+} from "../../../../../projects/_hooks/use-project-deliverables";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
 import { MODULE_DELIVERABLES_PHASE } from "./deliverables-phase-overlays/DeliverablesPhaseOverlays";
 
@@ -68,15 +72,50 @@ export function TableDeliverablesPhase({
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
   const { mutate: updateDeliverable } = useUpdateDeliverable();
+  const { mutate: setPrecedent } = useSetPrecedent();
+  const { mutate: removePrecedent } = useRemovePrecedent();
 
   // Estado para controlar los dropdowns de precedencias
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
 
   // Función para manejar la selección de precedente
   const handlePrecedentSelect = (deliverableId: string, selectedPrecedentId: string) => {
-    console.log(`Entregable ${deliverableId} -> Precedente seleccionado:`, selectedPrecedentId);
+    console.log("%c[Precedencia seleccionada]", "color: #4ade80; font-weight: bold;", {
+      projectId,
+      phaseId,
+      deliverable: deliverableId,
+      selectedPrecedent: selectedPrecedentId,
+    });
     setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
-    // TODO: lógica para actualizar en backend
+
+    // Si selectedPrecedentId está vacío, remover precedente
+    if (!selectedPrecedentId) {
+      removePrecedent({
+        params: {
+          path: {
+            projectId,
+            phaseId,
+            deliverableId,
+          },
+        },
+        body: {},
+      });
+      return;
+    }
+
+    // Establecer nuevo precedente
+    setPrecedent({
+      params: {
+        path: {
+          projectId,
+          phaseId,
+          deliverableId,
+        },
+      },
+      body: {
+        precedentDeliverableId: selectedPrecedentId,
+      },
+    });
   };
 
   // Función para encontrar el entregable precedente por ID
@@ -86,26 +125,19 @@ export function TableDeliverablesPhase({
 
   // Función para manejar la actualización del período completo
   const handleDateUpdate = (deliverableId: string, startDate?: Date, endDate?: Date) => {
-    updateDeliverable(
-      {
-        params: {
-          path: {
-            projectId,
-            phaseId,
-            deliverableId,
-          },
-        },
-        body: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
+    updateDeliverable({
+      params: {
+        path: {
+          projectId,
+          phaseId,
+          deliverableId,
         },
       },
-      {
-        onError: (error) => {
-          console.error("Error al actualizar período:", error);
-        },
-      }
-    );
+      body: {
+        startDate: startDate?.toISOString(),
+        endDate: endDate?.toISOString(),
+      },
+    });
   };
 
   // Definir las columnas

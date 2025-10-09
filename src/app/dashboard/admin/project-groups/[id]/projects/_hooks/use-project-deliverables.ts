@@ -318,8 +318,62 @@ export const useCompleteDeliverable = () => {
 };
 
 /**
- * Hook para eliminar entregable
+ * Hook para establecer precedente de entregable
  */
+export const useSetPrecedent = () => {
+  const queryClient = useQueryClient();
+  const mutation = backend.useMutation(
+    "patch",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent",
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
+        toast.success("Precedente establecido correctamente");
+      },
+      onError: (error) => {
+        toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+      },
+    }
+  );
+
+  return {
+    ...mutation,
+    isSuccess: mutation.isSuccess,
+  };
+};
+
+/**
+ * Hook para remover precedente de entregable
+ */
+export const useRemovePrecedent = () => {
+  const queryClient = useQueryClient();
+  return backend.useMutation(
+    "delete",
+    "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent",
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
+        });
+        queryClient.invalidateQueries({
+          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        });
+        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+        toast.success("Precedente removido correctamente");
+      },
+      onError: (error: any) => {
+        toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
+      },
+    }
+  );
+};
+
 export const useDeleteDeliverable = () => {
   const queryClient = useQueryClient();
   return backend.useMutation(
