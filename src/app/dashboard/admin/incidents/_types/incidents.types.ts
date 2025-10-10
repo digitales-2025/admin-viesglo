@@ -63,6 +63,15 @@ export interface PaginatedIncidentResponseDto {
   };
 }
 
+export interface ActiveIncidentSummaryResponseDto {
+  /** Descripción de la incidencia */
+  description: string;
+  /** Fecha de creación de la incidencia */
+  createdAt: string;
+  /** Estado de resolución de la incidencia */
+  isResolved: boolean;
+}
+
 export interface IncidentPaginatedFilterDto {
   /** Número de página */
   page?: number;
