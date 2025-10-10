@@ -59,6 +59,7 @@ export function ListDeliverablesPhase() {
           clearFilters={clearFilters}
           phaseStartDate={data?.phase?.startDate}
           phaseEndDate={data?.phase?.endDate}
+          milestoneStatus={data?.milestoneStatus} // ✅ Pasar milestoneStatus
         />
       </div>
     </div>

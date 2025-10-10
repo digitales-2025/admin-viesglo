@@ -6198,6 +6198,12 @@ export interface components {
     PhaseDeliverablesPaginatedResponseDto: {
       /** @description Información completa de la fase */
       phase: components["schemas"]["PhaseDetailedResponseDto"];
+      /**
+       * @description Estado del milestone al que pertenece la fase
+       * @example VALIDATED
+       * @enum {string}
+       */
+      milestoneStatus: "PLANNING" | "IN_PROGRESS" | "VALIDATED" | "COMPLETED";
       /** @description Entregables paginados de la fase */
       deliverables: components["schemas"]["DeliverableDetailedResponseDto"][];
       /**

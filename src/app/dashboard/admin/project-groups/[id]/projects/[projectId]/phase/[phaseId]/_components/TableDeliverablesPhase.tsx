@@ -46,6 +46,7 @@ interface TableDeliverablesPhaseProps {
   search: string | undefined;
   phaseStartDate: string | undefined;
   phaseEndDate: string | undefined;
+  milestoneStatus?: string; // ✅ Agregar milestoneStatus
 }
 
 // Funciones auxiliares
@@ -79,6 +80,7 @@ export function TableDeliverablesPhase({
   search,
   phaseStartDate,
   phaseEndDate,
+  milestoneStatus, // ✅ Agregar milestoneStatus
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
   const { mutate: updateDeliverable } = useUpdateDeliverable();
@@ -186,6 +188,7 @@ export function TableDeliverablesPhase({
           const startDate = row.original.startDate;
           const endDate = row.original.endDate;
           const deliverableId = row.original.id;
+          const isReadOnly = milestoneStatus === "VALIDATED"; // ✅ Determinar si es readOnly
 
           return (
             <div className="w-fit" onClick={(e) => e.stopPropagation()}>
@@ -201,7 +204,9 @@ export function TableDeliverablesPhase({
                 onConfirm={(dateRange) => {
                   handleDateUpdate(deliverableId, dateRange?.from, dateRange?.to);
                 }}
-                placeholder={startDate && endDate ? "Editar período" : "Seleccionar período"}
+                placeholder={
+                  isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
+                }
                 size="sm"
                 className="w-full"
                 confirmText="Guardar período"
@@ -211,6 +216,7 @@ export function TableDeliverablesPhase({
                 fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
                 toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
                 showHolidays={true}
+                readOnly={isReadOnly} // ✅ Aplicar readOnly
               />
             </div>
           );
@@ -350,6 +356,7 @@ export function TableDeliverablesPhase({
     phaseStartDate,
     phaseEndDate,
     hasAnyDeliverableWithDates,
+    milestoneStatus, // ✅ Agregar milestoneStatus a las dependencias
   ]);
 
   // Configuración de paginación del servidor
