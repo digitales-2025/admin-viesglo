@@ -31,6 +31,8 @@ interface DatePickerWithRangeProps extends Omit<React.HTMLAttributes<HTMLDivElem
   fromDate?: Date;
   toDate?: Date;
   disabledDates?: Date[];
+  // Modo de solo lectura
+  readOnly?: boolean;
 }
 
 export function DatePickerWithRange({
@@ -51,6 +53,8 @@ export function DatePickerWithRange({
   fromDate,
   toDate,
   disabledDates,
+  // Modo de solo lectura
+  readOnly = false,
   ...props
 }: DatePickerWithRangeProps) {
   // Estado principal para almacenar el valor final seleccionado
@@ -287,6 +291,7 @@ export function DatePickerWithRange({
             className={cn(
               "w-[300px] justify-start text-left font-normal",
               !date && "text-muted-foreground",
+              readOnly && "cursor-pointer opacity-100",
               classNameButton
             )}
           >
@@ -311,10 +316,10 @@ export function DatePickerWithRange({
               mode="range"
               defaultMonth={currentDisplayMonth}
               selected={tempDate}
-              onSelect={handleSelect}
+              onSelect={readOnly ? undefined : handleSelect}
               numberOfMonths={2}
               locale={es}
-              disabled={isDateDisabled}
+              disabled={readOnly ? () => true : isDateDisabled}
               fromDate={fromDate}
               toDate={toDate}
               modifiers={showHolidays ? { holiday: isHoliday } : undefined}
@@ -333,17 +338,25 @@ export function DatePickerWithRange({
               }}
             />
             <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
-              <Button variant="outline" size="sm" onClick={handleCancel}>
-                {cancelText}
-              </Button>
-              {date && (
-                <Button size="sm" variant="outline" onClick={handleClear}>
-                  {clearText}
+              {readOnly ? (
+                <Button variant="outline" size="sm" onClick={handleCancel}>
+                  Cerrar
                 </Button>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleCancel}>
+                    {cancelText}
+                  </Button>
+                  {date && (
+                    <Button size="sm" variant="outline" onClick={handleClear}>
+                      {clearText}
+                    </Button>
+                  )}
+                  <Button size="sm" onClick={handleConfirm}>
+                    {confirmText}
+                  </Button>
+                </>
               )}
-              <Button size="sm" onClick={handleConfirm}>
-                {confirmText}
-              </Button>
             </div>
           </div>
         </PopoverContent>
