@@ -15,6 +15,7 @@ export type DialogType =
   | "togleActive"
   | "create-resource"
   | "create-incident"
+  | "approve"
   | null;
 
 interface DialogState<T = any> {

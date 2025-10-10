@@ -25,12 +25,14 @@ interface PhasesProjectColumnsProps {
   onDateUpdate?: (phaseId: string, startDate?: Date, endDate?: Date) => void;
   milestoneStartDate?: string;
   milestoneEndDate?: string;
+  milestoneStatus?: string;
 }
 
 export function getPhasesProjectColumns({
   onDateUpdate,
   milestoneStartDate,
   milestoneEndDate,
+  milestoneStatus,
 }: PhasesProjectColumnsProps = {}): Array<SimpleColumnDef<PhaseDetailedResponseDto>> {
   return [
     {
@@ -102,7 +104,13 @@ export function getPhasesProjectColumns({
               onConfirm={(dateRange) => {
                 onDateUpdate?.(phaseId, dateRange?.from, dateRange?.to);
               }}
-              placeholder={startDate && endDate ? "Editar período" : "Seleccionar período"}
+              placeholder={
+                milestoneStatus === "VALIDATED"
+                  ? "Período validado"
+                  : startDate && endDate
+                    ? "Editar período"
+                    : "Seleccionar período"
+              }
               size="sm"
               className="w-full"
               confirmText="Guardar período"
@@ -112,6 +120,8 @@ export function getPhasesProjectColumns({
               fromDate={milestoneStartDate ? new Date(milestoneStartDate) : undefined}
               toDate={milestoneEndDate ? new Date(milestoneEndDate) : undefined}
               showHolidays={true}
+              // Modo de solo lectura cuando el milestone esté validado
+              readOnly={milestoneStatus === "VALIDATED"}
             />
           </div>
         );

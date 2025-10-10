@@ -105,7 +105,13 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   onConfirm={(dateRange) => {
                     handleDateUpdate(dateRange?.from, dateRange?.to);
                   }}
-                  placeholder={milestone.startDate && milestone.endDate ? "Editar período" : "Seleccionar período"}
+                  placeholder={
+                    milestone.status === "VALIDATED"
+                      ? "Período validado"
+                      : milestone.startDate && milestone.endDate
+                        ? "Editar período"
+                        : "Seleccionar período"
+                  }
                   className="w-full"
                   confirmText="Guardar período"
                   clearText="Limpiar período"
@@ -114,6 +120,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   fromDate={new Date(projectStartDate)}
                   toDate={new Date(projectEndDate)}
                   showHolidays={true}
+                  // Modo de solo lectura cuando el milestone esté validado
+                  readOnly={milestone.status === "VALIDATED"}
                 />
               </div>
 
@@ -121,6 +129,10 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                 variant="outline"
                 onClick={(e) => {
                   e.stopPropagation();
+                  // Expandir el milestone antes de abrir el dialog
+                  if (!expanded) {
+                    toggleMilestone(milestone.id);
+                  }
                   open(MODULE_PHASES_PROJECT, "create");
                 }}
               >
@@ -188,8 +200,11 @@ const CardProjectMilestone = memo(CardProjectMilestoneBase, (prev, next) => {
   // Evita re-render si no cambian campos relevantes
   return (
     prev.milestone.id === next.milestone.id &&
+    prev.milestone.status === next.milestone.status &&
     prev.milestone.name === next.milestone.name &&
     prev.milestone.progress === next.milestone.progress &&
+    prev.milestone.startDate === next.milestone.startDate &&
+    prev.milestone.endDate === next.milestone.endDate &&
     prev.milestone.completedDeliverablesCount === next.milestone.completedDeliverablesCount &&
     prev.milestone.phasesCount === next.milestone.phasesCount &&
     prev.milestone.phases.length === next.milestone.phases.length &&

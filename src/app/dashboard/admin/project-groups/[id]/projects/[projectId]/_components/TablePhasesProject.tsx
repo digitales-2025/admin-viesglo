@@ -72,8 +72,9 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
         onDateUpdate: handleDateUpdate,
         milestoneStartDate: milestone.startDate,
         milestoneEndDate: milestone.endDate,
+        milestoneStatus: milestone.status,
       } as any),
-    [handleDateUpdate, milestone.startDate, milestone.endDate]
+    [handleDateUpdate, milestone.startDate, milestone.endDate, milestone.status]
   );
 
   return (

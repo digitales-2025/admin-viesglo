@@ -2,7 +2,7 @@
 
 import React from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Check, Edit, MoreHorizontal, Plus, Trash, X } from "lucide-react";
+import { CheckCheck, Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
 
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
@@ -23,7 +23,7 @@ import {
   useSetDeliverableActualEndDate,
   useSetDeliverableActualStartDate,
 } from "../../../../_hooks/use-deliverable-actual-dates";
-import { useToggleDeliverableApproval, useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
+import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
 import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
@@ -59,6 +59,11 @@ const formatPriority = (priority: string) => {
   return config ? config.label : priority;
 };
 
+// Función para verificar si un entregable tiene fechas planificadas válidas
+const hasValidPlannedDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
+  return !!(deliverable.startDate && deliverable.endDate);
+};
+
 // Crear el column helper
 const columnHelper = createColumnHelper<DeliverableDetailedResponseDto>();
 
@@ -79,10 +84,6 @@ export function TableDeliverablesPhase({
   const { mutate: updateDeliverable } = useUpdateDeliverable();
   const { mutate: setActualStartDate } = useSetDeliverableActualStartDate();
   const { mutate: setActualEndDate } = useSetDeliverableActualEndDate();
-  const { mutate: toggleApproval, isPending: isTogglingApproval } = useToggleDeliverableApproval();
-
-  console.log("deliverables", JSON.stringify(deliverables, null, 2));
-
   // Función para manejar la actualización del período completo
   const handleDateUpdate = React.useCallback(
     (deliverableId: string, startDate?: Date, endDate?: Date) => {
@@ -125,21 +126,21 @@ export function TableDeliverablesPhase({
   };
 
   // Función para manejar el toggle de aprobación
-  const handleToggleApproval = (deliverableId: string) => {
-    toggleApproval({
-      params: {
-        path: {
-          projectId,
-          phaseId,
-          deliverableId,
-        },
-      },
-    });
+  const handleToggleApproval = (deliverable: DeliverableDetailedResponseDto) => {
+    // Solo permitir aprobar si no está aprobado
+    if (!deliverable.isApproved) {
+      open(MODULE_DELIVERABLES_PHASE, "approve", deliverable);
+    }
   };
 
+  // Verificar si algún entregable tiene fechas planificadas para mostrar la columna de aprobación
+  const hasAnyDeliverableWithDates = React.useMemo(() => {
+    return deliverables.some((deliverable) => hasValidPlannedDates(deliverable));
+  }, [deliverables]);
+
   // Definir las columnas
-  const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
-    () => [
+  const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(() => {
+    const baseColumns = [
       columnHelper.accessor("name", {
         id: "nombre",
         header: "Nombre",
@@ -256,43 +257,52 @@ export function TableDeliverablesPhase({
           );
         },
       }),
-      columnHelper.display({
-        id: "approval",
-        header: "Aprobación",
-        cell: ({ row }) => {
-          const deliverable = row.original;
-          const isApproved = deliverable.isApproved || false;
+      // Columna de aprobación - solo se incluye si algún entregable tiene fechas planificadas
+      ...(hasAnyDeliverableWithDates
+        ? [
+            columnHelper.display({
+              id: "approval",
+              header: "Aprobación",
+              cell: ({ row }) => {
+                const deliverable = row.original;
+                const isApproved = deliverable.isApproved || false;
+                const hasValidDates = hasValidPlannedDates(deliverable);
 
-          return (
-            <div onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant={isApproved ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleToggleApproval(deliverable.id)}
-                disabled={isTogglingApproval}
-                className={cn(
-                  "gap-2",
-                  isApproved
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "border-green-600 text-green-600 hover:bg-green-50"
-                )}
-              >
-                {isApproved ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Aprobado
-                  </>
-                ) : (
-                  <>
-                    <X className="h-4 w-4" />
-                    Aprobar
-                  </>
-                )}
-              </Button>
-            </div>
-          );
-        },
-      }),
+                // Solo mostrar el botón de aprobación si tiene fechas planificadas válidas
+                if (!hasValidDates) {
+                  return <div className="text-muted-foreground text-sm">Sin fechas planificadas</div>;
+                }
+
+                return (
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <Button
+                      variant={isApproved ? "default" : "outline"}
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleApproval(deliverable);
+                      }}
+                      disabled={isApproved}
+                      className={cn("gap-2", isApproved ? " cursor-not-allowed" : "")}
+                    >
+                      {isApproved ? (
+                        <>
+                          <CheckCheck className="h-4 w-4" />
+                          Válido
+                        </>
+                      ) : (
+                        <>
+                          <CheckCheck className="h-4 w-4" />
+                          Validar
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                );
+              },
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: "actions",
         header: "",
@@ -326,20 +336,21 @@ export function TableDeliverablesPhase({
           );
         },
       }),
-    ],
-    [
-      projectId,
-      phaseId,
-      updateDeliverable,
-      open,
-      handleActualStartDateUpdate,
-      handleActualEndDateUpdate,
-      handleToggleApproval,
-      isTogglingApproval,
-      phaseStartDate,
-      phaseEndDate,
-    ]
-  );
+    ];
+
+    return baseColumns;
+  }, [
+    projectId,
+    phaseId,
+    updateDeliverable,
+    open,
+    handleActualStartDateUpdate,
+    handleActualEndDateUpdate,
+    handleToggleApproval,
+    phaseStartDate,
+    phaseEndDate,
+    hasAnyDeliverableWithDates,
+  ]);
 
   // Configuración de paginación del servidor
   const serverPagination: ServerPaginationTanstackTableConfig | undefined = meta
