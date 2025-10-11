@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Send } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
@@ -29,6 +30,32 @@ export default function ProjectsEditorSheet({
     onSuccess: () => onOpenChange(false),
     projectGroupId,
   });
+
+  // Limpiar formulario cuando se cambia entre crear/actualizar
+  useEffect(() => {
+    if (open) {
+      if (!isUpdate) {
+        // Si es crear, resetear completamente el formulario
+        form.reset({
+          name: "",
+          description: "",
+          projectType: undefined,
+          status: undefined,
+          clientId: "",
+          coordinatorId: "",
+          projectGroupId: undefined,
+          projectTemplateId: undefined,
+          selectedMilestones: [],
+          projectTagIds: [],
+          startDate: undefined,
+          endDate: undefined,
+          commercialExecutive: "",
+          implementingCompany: "",
+          externalReviewer: "",
+        });
+      }
+    }
+  }, [open, isUpdate, form]);
 
   return (
     <GenericSheet

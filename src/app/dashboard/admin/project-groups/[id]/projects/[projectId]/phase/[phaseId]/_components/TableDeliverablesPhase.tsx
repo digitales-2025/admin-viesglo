@@ -46,7 +46,7 @@ interface TableDeliverablesPhaseProps {
   search: string | undefined;
   phaseStartDate: string | undefined;
   phaseEndDate: string | undefined;
-  milestoneStatus?: string; // ✅ Agregar milestoneStatus
+  milestoneStatus?: string;
 }
 
 // Funciones auxiliares
@@ -135,9 +135,9 @@ export function TableDeliverablesPhase({
     }
   };
 
-  // Verificar si algún entregable tiene fechas planificadas para mostrar la columna de aprobación
-  const hasAnyDeliverableWithDates = React.useMemo(() => {
-    return deliverables.some((deliverable) => hasValidPlannedDates(deliverable));
+  // Verificar si TODOS los entregables tienen fechas planificadas para mostrar la columna de aprobación
+  const hasAllDeliverablesWithDates = React.useMemo(() => {
+    return deliverables.length > 0 && deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
   }, [deliverables]);
 
   // Definir las columnas
@@ -263,8 +263,8 @@ export function TableDeliverablesPhase({
           );
         },
       }),
-      // Columna de aprobación - solo se incluye si algún entregable tiene fechas planificadas
-      ...(hasAnyDeliverableWithDates
+      // Columna de aprobación - solo se incluye si TODOS los entregables tienen fechas planificadas
+      ...(hasAllDeliverablesWithDates
         ? [
             columnHelper.display({
               id: "approval",
@@ -272,12 +272,6 @@ export function TableDeliverablesPhase({
               cell: ({ row }) => {
                 const deliverable = row.original;
                 const isApproved = deliverable.isApproved || false;
-                const hasValidDates = hasValidPlannedDates(deliverable);
-
-                // Solo mostrar el botón de aprobación si tiene fechas planificadas válidas
-                if (!hasValidDates) {
-                  return <div className="text-muted-foreground text-sm">Sin fechas planificadas</div>;
-                }
 
                 return (
                   <div onClick={(e) => e.stopPropagation()}>
@@ -355,7 +349,7 @@ export function TableDeliverablesPhase({
     handleToggleApproval,
     phaseStartDate,
     phaseEndDate,
-    hasAnyDeliverableWithDates,
+    hasAllDeliverablesWithDates,
     milestoneStatus, // ✅ Agregar milestoneStatus a las dependencias
   ]);
 

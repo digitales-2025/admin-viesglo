@@ -18,6 +18,7 @@ export default function BulletChart({
   tolerance = 5,
 }: BulletChartProps) {
   const max = 100;
+
   const [hoveredSection, setHoveredSection] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isAnimating, setIsAnimating] = useState(true);
@@ -162,32 +163,194 @@ export default function BulletChart({
     const maxPos = 100;
 
     // Distancia mínima entre labels (en porcentaje)
-    const minDistance = 8;
+    const minDistance = 12; // Ajustado para mejor balance entre separación y visualización
 
-    let targetLabelPos = targetPos;
-    let currentLabelPos = currentPos;
+    // Función auxiliar para verificar si dos posiciones están muy cerca
+    const areTooClose = (pos1: number, pos2: number) => Math.abs(pos1 - pos2) < minDistance;
 
-    // Si target y current están muy cerca, reposicionar
-    if (Math.abs(targetPos - currentPos) < minDistance) {
-      if (targetPos < currentPos) {
-        // Target a la izquierda, current a la derecha
-        targetLabelPos = Math.max(0, targetPos - minDistance / 2);
-        currentLabelPos = Math.min(100, currentPos + minDistance / 2);
+    // Casos especiales para valores 0 y 100
+    const isTargetZero = targetPos === 0;
+    const isCurrentZero = currentPos === 0;
+    const isTargetMax = targetPos >= 100;
+    const isCurrentMax = currentPos >= 100;
+
+    // Verificar todas las posibles superposiciones PRIMERO
+    const currentTargetClose = areTooClose(targetPos, currentPos);
+    const currentMaxClose = areTooClose(currentPos, maxPos);
+    const targetMaxClose = areTooClose(targetPos, maxPos);
+
+    // ============================================
+    // CASO 1: Ambos valores son 0
+    // ============================================
+    if (isTargetZero && isCurrentZero) {
+      return {
+        target: 0,
+        current: null,
+        max: null, // No mostrar max cuando ambos están en 0
+      };
+    }
+
+    // ============================================
+    // CASO 2: Ambos valores son 100
+    // ============================================
+    if (isTargetMax && isCurrentMax) {
+      return {
+        target: null,
+        current: 100,
+        max: null, // No mostrar max cuando ambos están en 100
+      };
+    }
+
+    // ============================================
+    // CASO 3: Los tres valores están muy cerca entre sí
+    // ============================================
+    if (currentTargetClose && currentMaxClose && targetMaxClose) {
+      // Los tres están muy cerca, priorizar Current
+      return {
+        target: null,
+        current: currentPos,
+        max: null,
+      };
+    }
+
+    // ============================================
+    // CASO 4: Current está cerca de Target y Max (pero Target y Max no están tan cerca entre sí)
+    // ============================================
+    if (currentTargetClose && currentMaxClose && !targetMaxClose) {
+      // Current en el medio de Target y Max, mostrar solo Current
+      return {
+        target: null,
+        current: currentPos,
+        max: null,
+      };
+    }
+
+    // ============================================
+    // CASO 5: Target está cerca de Current y Max (pero Current y Max no están tan cerca entre sí)
+    // ============================================
+    if (currentTargetClose && targetMaxClose && !currentMaxClose) {
+      // Target en el medio, priorizar Current
+      return {
+        target: null,
+        current: currentPos,
+        max: null,
+      };
+    }
+
+    // ============================================
+    // CASO 6: Max está cerca de Current y Target (pero Current y Target no están tan cerca entre sí)
+    // ============================================
+    if (currentMaxClose && targetMaxClose && !currentTargetClose) {
+      // Max en el medio, ocultar Max y mostrar Current y Target
+      return {
+        target: targetPos,
+        current: currentPos,
+        max: null,
+      };
+    }
+
+    // ============================================
+    // CASO 7: Current en 0 y Target cercano a Max
+    // ============================================
+    if (isCurrentZero && targetMaxClose) {
+      // Current en 0, Target y Max están muy cerca
+      // Mostrar Current (en 0) y Target, ocultar Max
+      return {
+        target: targetPos,
+        current: 0,
+        max: null, // Ocultar Max porque está muy cerca de Target
+      };
+    }
+
+    // ============================================
+    // CASO 8: Target en 0 y Current cercano a Max
+    // ============================================
+    if (isTargetZero && currentMaxClose) {
+      // Target en 0, Current y Max están muy cerca
+      // Mostrar Target (en 0) y Current, ocultar Max
+      return {
+        target: 0,
+        current: currentPos,
+        max: null, // Ocultar Max porque está muy cerca de Current
+      };
+    }
+
+    // ============================================
+    // CASO 9: Current en 0 con Target alto (pero no cercano a Max)
+    // ============================================
+    if (isCurrentZero && targetPos > 50 && !targetMaxClose) {
+      // Current en 0, Target alto pero bien separado de Max
+      return {
+        target: targetPos,
+        current: 0,
+        max: maxPos,
+      };
+    }
+
+    // ============================================
+    // CASO 10: Target en 0 con Current alto (pero no cercano a Max)
+    // ============================================
+    if (isTargetZero && currentPos > 50 && !currentMaxClose) {
+      // Target en 0, Current alto pero bien separado de Max
+      return {
+        target: 0,
+        current: currentPos,
+        max: maxPos,
+      };
+    }
+
+    // ============================================
+    // CASO 11: Current y Target están muy cerca (sin involucrar Max)
+    // ============================================
+    if (currentTargetClose && !currentMaxClose && !targetMaxClose) {
+      // Current y Target muy cerca, priorizar Current
+      if (isCurrentZero || isTargetZero) {
+        // Si alguno está en 0, mostrar ambos
+        return {
+          target: targetPos,
+          current: currentPos,
+          max: maxPos,
+        };
       } else {
-        // Current a la izquierda, target a la derecha
-        currentLabelPos = Math.max(0, currentPos - minDistance / 2);
-        targetLabelPos = Math.min(100, targetPos + minDistance / 2);
+        // Valores intermedios, priorizar Current
+        return {
+          target: null,
+          current: currentPos,
+          max: maxPos,
+        };
       }
     }
 
-    // Si current está muy cerca del final, moverlo un poco hacia la izquierda
-    if (currentLabelPos > 95) {
-      currentLabelPos = 95;
+    // ============================================
+    // CASO 12: Current y Max están muy cerca (sin involucrar Target)
+    // ============================================
+    if (currentMaxClose && !currentTargetClose && !targetMaxClose) {
+      // Current y Max muy cerca, priorizar Current
+      return {
+        target: targetPos,
+        current: currentPos,
+        max: null, // Ocultar Max porque está muy cerca de Current
+      };
     }
 
+    // ============================================
+    // CASO 13: Target y Max están muy cerca (sin involucrar Current)
+    // ============================================
+    if (targetMaxClose && !currentTargetClose && !currentMaxClose) {
+      // Target y Max muy cerca, priorizar Target y ocultar Max
+      return {
+        target: targetPos,
+        current: currentPos,
+        max: null, // Ocultar Max porque está muy cerca de Target
+      };
+    }
+
+    // ============================================
+    // CASO 14: No hay superposiciones - mostrar todos
+    // ============================================
     return {
-      target: targetLabelPos,
-      current: currentLabelPos,
+      target: targetPos,
+      current: currentPos,
       max: maxPos,
     };
   };
@@ -295,37 +458,43 @@ export default function BulletChart({
 
       {/* Percentage labels positioned correctly */}
       <div className="relative w-full mt-3 pb-4">
-        {/* Target label positioned at target position */}
-        <div
-          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
-          style={{
-            left: `${labelPositions.target}%`,
-            transform: "translateX(-50%)",
-          }}
-        >
-          {Math.round((animatedTarget / 100) * max) || 0}%
-        </div>
+        {/* Target label positioned at target position - solo mostrar si no es null */}
+        {labelPositions.target !== null && (
+          <div
+            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            style={{
+              left: `${labelPositions.target}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            {Math.round((animatedTarget / 100) * max) || 0}%
+          </div>
+        )}
 
-        {/* Current label positioned at current position */}
-        <div
-          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
-          style={{
-            left: `${labelPositions.current}%`,
-            transform: "translateX(-50%)",
-          }}
-        >
-          {Math.round((animatedCurrent / 100) * max) || 0}%
-        </div>
+        {/* Current label positioned at current position - solo mostrar si no es null */}
+        {labelPositions.current !== null && (
+          <div
+            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            style={{
+              left: `${labelPositions.current}%`,
+              transform: "translateX(-50%)",
+            }}
+          >
+            {Math.round((animatedCurrent / 100) * max) || 0}%
+          </div>
+        )}
 
-        {/* Max label positioned at the end */}
-        <div
-          className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
-          style={{
-            right: "0%",
-          }}
-        >
-          {max || 100}%
-        </div>
+        {/* Max label positioned at the end - solo mostrar si no hay superposición con otros labels */}
+        {labelPositions.max !== null && (
+          <div
+            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            style={{
+              right: "0%",
+            }}
+          >
+            {max || 100}%
+          </div>
+        )}
       </div>
 
       {/* Tooltip Card */}

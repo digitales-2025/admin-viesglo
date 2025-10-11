@@ -28,7 +28,7 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
       name: "",
       description: "",
       projectType: undefined,
-      status: undefined,
+      status: undefined, // Se maneja automáticamente en getSubmitData
       clientId: "",
       coordinatorId: "",
       projectGroupId: undefined,
@@ -50,7 +50,7 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
         name: initialData.name || "",
         description: initialData.description || "",
         projectType: initialData.projectType as any,
-        status: initialData.status as ProjectStatusEnum,
+        status: undefined, // Se maneja automáticamente en getSubmitData
         clientId: initialData.clientId || "",
         coordinatorId: initialData.coordinatorId || "",
         projectGroupId: initialData.projectGroupId || undefined,
@@ -71,6 +71,10 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
     return {
       ...data,
       projectGroupId: projectGroupId,
+      // Lógica de status:
+      // - Al crear: asignar CREATED automáticamente
+      // - Al actualizar: mantener el status del initialData
+      status: isUpdate ? initialData?.status || ProjectStatusEnum.CREATED : ProjectStatusEnum.CREATED,
       // Si es actualización, mantener algunos valores del initialData
       ...(isUpdate &&
         initialData && {

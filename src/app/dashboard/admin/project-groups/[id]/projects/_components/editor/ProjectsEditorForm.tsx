@@ -10,7 +10,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { ProjectsForm } from "../../_schemas/projects.schemas";
-import { projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
+import { projectTypeConfig } from "../../_utils/projects.utils";
 import SelectProjectTemplates from "./SelectProjectTemplates";
 
 interface ProjectsEditorFormProps {
@@ -114,59 +114,6 @@ export default function ProjectsEditorForm({ form, onSubmit, isUpdate, isPending
                         </SelectTrigger>
                         <SelectContent>
                           {Object.entries(projectTypeConfig).map(([key, config]) => {
-                            const IconComponent = config.icon;
-                            return (
-                              <SelectItem key={key} value={key}>
-                                <div className="flex items-center gap-2">
-                                  <IconComponent className={cn("h-4 w-4", config.iconClass)} />
-                                  <div className="flex flex-col">
-                                    <span className="font-medium">{config.label}</span>
-                                    <span className="text-xs text-muted-foreground">{config.description}</span>
-                                  </div>
-                                </div>
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-sm font-medium flex items-center gap-2">
-                      <Settings className="h-4 w-4 text-muted-foreground shrink-0" />
-                      Estado inicial
-                      <span className="text-red-500">*</span>
-                    </FormLabel>
-                    <FormControl>
-                      <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Selecciona un estado">
-                            {field.value &&
-                              (() => {
-                                const config = projectStatusConfig[field.value as keyof typeof projectStatusConfig];
-                                if (config) {
-                                  const IconComponent = config.icon;
-                                  return (
-                                    <div className="flex items-center gap-2">
-                                      <IconComponent className={cn("h-4 w-4", config.iconClass)} />
-                                      <span>{config.label}</span>
-                                    </div>
-                                  );
-                                }
-                                return field.value;
-                              })()}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(projectStatusConfig).map(([key, config]) => {
                             const IconComponent = config.icon;
                             return (
                               <SelectItem key={key} value={key}>
