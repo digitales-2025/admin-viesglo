@@ -1,8 +1,22 @@
 "use client";
 
-import { AlertTriangle, BarChart3, Calendar, CheckSquare, Clock, Target, TrendingUp, Users } from "lucide-react";
+import { useState } from "react";
+import {
+  AlertTriangle,
+  BarChart3,
+  Calendar,
+  CheckSquare,
+  Clock,
+  RefreshCw,
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 
+import { useActiveIncidentsByProject } from "@/app/dashboard/admin/incidents/_hooks/use-incidents";
+import { ActiveIncidentSummaryResponseDto } from "@/app/dashboard/admin/incidents/_types/incidents.types";
 import BulletChart from "@/app/dashboard/admin/project-groups/[id]/projects/_components/view/BulletChart";
+import { Loading } from "@/shared/components/loading";
 import { Progress } from "@/shared/components/ui/progress";
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks";
@@ -22,6 +36,48 @@ export default function ProjectProgressDialog({ open, onOpenChange, project }: P
   // Hook para obtener hitos del proyecto
   const { query: milestonesQuery } = useProjectMilestones(project?.id || "");
   const milestones = milestonesQuery.data?.milestones || [];
+
+  // Hook para obtener incidencias activas del proyecto
+  const {
+    data: activeIncidentsData,
+    isLoading: isLoadingIncidents,
+    refetch: refetchIncidents,
+  } = useActiveIncidentsByProject(project?.id || "", !!project?.id);
+  const activeIncidents: ActiveIncidentSummaryResponseDto[] = activeIncidentsData || [];
+
+  // Estado local para controlar la animación del botón
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Función para manejar el clic del botón
+  const handleRefreshIncidents = () => {
+    if (refetchIncidents) {
+      setIsRefreshing(true);
+
+      // ⏱️ Duración mínima de 3 segundos para la animación
+      const minLoadingTime = 3000; // 3 segundos
+      const startTime = Date.now();
+
+      refetchIncidents()
+        .then(() => {
+          // Mantener loading hasta completar 3 segundos mínimos
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+          setTimeout(() => {
+            setIsRefreshing(false);
+          }, remainingTime);
+        })
+        .catch(() => {
+          // Mantener loading hasta completar 3 segundos mínimos incluso con error
+          const elapsedTime = Date.now() - startTime;
+          const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+          setTimeout(() => {
+            setIsRefreshing(false);
+          }, remainingTime);
+        });
+    }
+  };
 
   // No renderizar si no hay proyecto
   if (!project) {
@@ -320,24 +376,79 @@ export default function ProjectProgressDialog({ open, onOpenChange, project }: P
 
         {/* Principales Incidencias - Diseño Creativo */}
         <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 flex items-center justify-center">
-              <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold">Principales Incidencias</h3>
+                <p className="text-sm text-muted-foreground">Problemas y alertas del proyecto</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-base font-semibold">Principales Incidencias</h3>
-              <p className="text-sm text-muted-foreground">Problemas y alertas del proyecto</p>
-            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleRefreshIncidents();
+              }}
+              disabled={isRefreshing}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 text-sm font-medium transition-colors",
+                isRefreshing
+                  ? "text-muted-foreground/50 bg-muted/30 cursor-not-allowed"
+                  : "text-muted-foreground hover:text-foreground bg-muted/50 hover:bg-muted cursor-pointer"
+              )}
+              title="Actualizar incidencias"
+            >
+              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+              {isRefreshing ? "Actualizando..." : "Actualizar"}
+            </button>
           </div>
 
           <div className="relative bg-card border border-border rounded-lg p-6 overflow-hidden">
-            <div className="relative text-center">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 flex items-center justify-center">
-                <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
+            {isLoadingIncidents || isRefreshing ? (
+              <div className="flex justify-center py-8">
+                <Loading
+                  variant="spinner"
+                  size="lg"
+                  text={isRefreshing ? "Actualizando incidencias..." : "Cargando incidencias..."}
+                  textPosition="bottom"
+                />
               </div>
-              <h4 className="text-base font-medium mb-2">Sin incidencias</h4>
-              <p className="text-sm text-muted-foreground">No hay problemas reportados actualmente</p>
-            </div>
+            ) : activeIncidents.length > 0 ? (
+              <div className="space-y-3">
+                {activeIncidents.map((incident, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 p-3 bg-muted/30 rounded-lg border border-border/50"
+                  >
+                    <div className="w-2 h-2 rounded-full bg-red-500 mt-2 flex-shrink-0"></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground mb-1">{incident.description}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3 w-3" />
+                        {new Date(incident.createdAt).toLocaleDateString("es-ES", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 flex items-center justify-center">
+                  <CheckSquare className="h-8 w-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h4 className="text-base font-medium mb-2 text-green-600 dark:text-green-400">
+                  Sin incidencias activas
+                </h4>
+                <p className="text-sm text-muted-foreground">El proyecto no tiene problemas pendientes</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  CheckCircle,
   CheckCircle2,
   CheckSquare,
   Circle,
@@ -9,8 +10,10 @@ import {
   Flag,
   FolderOpen,
   GitBranch,
+  Link,
   Loader2,
   Play,
+  PlusCircle,
   Shield,
   Target,
   Zap,
@@ -288,5 +291,32 @@ export const bondTypeConfig = {
     icon: Shield,
     badge: "success",
     iconClass: "text-green-600 dark:text-green-300",
+  },
+};
+
+export const precedentDisplayConfig = {
+  NO_PRECEDENT_REQUIRED: {
+    label: "No requiere precedente",
+    icon: CheckCircle,
+    className: "bg-green-100 dark:bg-green-900/40",
+    textClass: "text-green-700 dark:text-green-400",
+    borderColor: "border-green-300 dark:border-green-700",
+    iconClass: "text-green-600 dark:text-green-500",
+  },
+  HAS_PRECEDENT: {
+    icon: Link,
+    className: "bg-blue-100 dark:bg-blue-900/40",
+    textClass: "text-blue-700 dark:text-blue-400",
+    borderColor: "border-blue-300 dark:border-blue-700",
+    iconClass: "text-blue-600 dark:text-blue-500",
+  },
+  ASSIGN_PRECEDENT: {
+    label: "Asignar precedente",
+    icon: PlusCircle,
+    // Using muted foreground for a clean, placeholder-like look
+    className: "bg-transparent hover:bg-muted/50 border-dashed",
+    textClass: "text-muted-foreground",
+    borderColor: "border-muted-foreground/60",
+    iconClass: "text-muted-foreground/80",
   },
 };

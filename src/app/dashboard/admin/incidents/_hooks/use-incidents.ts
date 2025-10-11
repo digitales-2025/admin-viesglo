@@ -13,6 +13,7 @@ export const INCIDENTS_KEYS = {
   list: (filters: IncidentPaginatedFilterDto) => [...INCIDENTS_KEYS.lists(), { filters }] as const,
   detail: (id: string) => [...INCIDENTS_KEYS.all, id] as const,
   byDeliverable: (deliverableId: string) => [...INCIDENTS_KEYS.all, "deliverable", deliverableId] as const,
+  activeByProject: (projectId: string) => [...INCIDENTS_KEYS.all, "active", "project", projectId] as const,
 };
 
 /**
@@ -173,19 +174,22 @@ export function useResolveIncident() {
 }
 
 /**
- * Hook para reabrir una incidencia
+ * Hook para obtener incidencias activas por proyecto
  */
-export function useReopenIncident() {
-  const queryClient = useQueryClient();
-
-  return backend.useMutation("patch", "/v1/incidents/{id}/reopen", {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/incidents/{id}"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/incidents"] });
-      toast.success("Incidencia reabierta correctamente");
+export function useActiveIncidentsByProject(projectId: string, enabled: boolean = true) {
+  return backend.useQuery(
+    "get",
+    "/v1/incidents/active/project/{projectId}",
+    {
+      params: {
+        path: { projectId },
+      },
     },
-    onError: (error: any) => {
-      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
-    },
-  });
+    {
+      enabled: enabled && !!projectId,
+      staleTime: 0, // ❌ Sin cache para desarrollo
+      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+    }
+  );
 }

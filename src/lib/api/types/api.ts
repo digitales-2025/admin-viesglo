@@ -2652,6 +2652,26 @@ export interface paths {
     patch: operations["IncidentsController_reopen_v1"];
     trace?: never;
   };
+  "/v1/incidents/active/project/{projectId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener incidencias activas por proyecto
+     * @description Devuelve solo las incidencias activas (no resueltas) de un proyecto específico, con información resumida (descripción, fecha de creación y estado de resolución)
+     */
+    get: operations["IncidentsController_getActiveIncidentsByProject_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/holidays/year": {
     parameters: {
       query?: never;
@@ -7807,6 +7827,17 @@ export interface components {
       description?: string;
       /** @description Fecha de ocurrencia (ISO) */
       date?: string;
+    };
+    ActiveIncidentSummaryResponseDto: {
+      /** @description Descripción de la incidencia */
+      description: string;
+      /**
+       * Format: date-time
+       * @description Fecha de creación de la incidencia
+       */
+      createdAt: string;
+      /** @description Si la incidencia está resuelta */
+      isResolved: boolean;
     };
     HolidayResponseDto: {
       /**
@@ -15469,6 +15500,55 @@ export interface operations {
       };
       /** @description Sin permisos */
       403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  IncidentsController_getActiveIncidentsByProject_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        projectId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de incidencias activas obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ActiveIncidentSummaryResponseDto"][];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto no encontrado */
+      404: {
         headers: {
           [name: string]: unknown;
         };
