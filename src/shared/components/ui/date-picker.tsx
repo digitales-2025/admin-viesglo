@@ -15,6 +15,8 @@ export interface DatePickerProps {
   disabled?: boolean;
   className?: string;
   clearable?: boolean;
+  fromDate?: Date; // Fecha mínima permitida
+  toDate?: Date; // Fecha máxima permitida
 }
 
 export function DatePicker({
@@ -24,22 +26,31 @@ export function DatePicker({
   disabled = false,
   className,
   clearable = false,
+  fromDate,
+  toDate,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (date: Date | undefined) => {
+    if (disabled) return; // No permitir selección si está deshabilitado
     onSelect(date);
     setOpen(false); // Cerrar el popover al seleccionar una fecha
   };
 
+  const handleOpenChange = (newOpen: boolean) => {
+    if (disabled) return; // No permitir abrir si está deshabilitado
+    setOpen(newOpen);
+  };
+
   return (
-    <Popover open={open} onOpenChange={setOpen} modal={true}>
+    <Popover open={open} onOpenChange={handleOpenChange} modal={true}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
           className={cn(
             "w-full justify-between text-left font-normal",
             !selected && "text-muted-foreground",
+            disabled && "opacity-50 cursor-not-allowed",
             className
           )}
           disabled={disabled}
@@ -48,28 +59,32 @@ export function DatePicker({
           <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={selected}
-          onSelect={handleSelect}
-          initialFocus
-          locale={es}
-          defaultMonth={selected}
-        />
-        {clearable && (
-          <Button
-            variant="ghost"
-            onClick={() => {
-              onSelect(undefined);
-              setOpen(false);
-            }}
-          >
-            Limpiar
-            <X className="w-4 h-4" />
-          </Button>
-        )}
-      </PopoverContent>
+      {!disabled && (
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={selected}
+            onSelect={handleSelect}
+            initialFocus
+            locale={es}
+            defaultMonth={selected}
+            fromDate={fromDate}
+            toDate={toDate}
+          />
+          {clearable && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                onSelect(undefined);
+                setOpen(false);
+              }}
+            >
+              Limpiar
+              <X className="w-4 h-4" />
+            </Button>
+          )}
+        </PopoverContent>
+      )}
     </Popover>
   );
 }
