@@ -1,6 +1,8 @@
 import { memo } from "react";
-import { ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
+import { CheckCircle, ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
@@ -26,9 +28,10 @@ interface Props {
   projectId: string;
   projectStartDate: string;
   projectEndDate: string;
+  projectStatus: string;
 }
 
-function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, projectEndDate }: Props) {
+function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, projectEndDate, projectStatus }: Props) {
   const { open } = useDialogStore();
   const { openMilestoneId, toggleMilestone } = useOpenMilestoneStore();
   const { mutate: updateMilestone } = useUpdateMilestone();
@@ -81,107 +84,233 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
               className="inline-flex items-center gap-2 xl:order-3 order-5 lg:order-3"
               onClick={(e) => e.stopPropagation()}
             >
-              <MilestoneAssigneeSelector
-                projectId={projectId}
-                milestoneId={milestone.id}
-                currentAssignee={milestone.internalConsultant}
-                filterBySystemRolePosition={3}
-                filterByActive={true}
-                avatarSize="md"
-                align="center"
-              />
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.milestones, action: EnumAction.write },
+                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
+                fallback={
+                  <MilestoneAssigneeSelector
+                    projectId={projectId}
+                    milestoneId={milestone.id}
+                    currentAssignee={milestone.internalConsultant}
+                    filterBySystemRolePosition={3}
+                    filterByActive={true}
+                    avatarSize="md"
+                    align="center"
+                    readOnly={true} // Readonly si no tiene permisos
+                  />
+                }
+              >
+                <MilestoneAssigneeSelector
+                  projectId={projectId}
+                  milestoneId={milestone.id}
+                  currentAssignee={milestone.internalConsultant}
+                  filterBySystemRolePosition={3}
+                  filterByActive={true}
+                  avatarSize="md"
+                  align="center"
+                  // Readonly si no tiene permisos O si el milestone no está en PLANNING
+                  readOnly={milestone.status !== "PLANNING"}
+                />
+              </PermissionProtected>
             </div>
             <div className="inline-flex justify-end items-center gap-2 xl:order-4 order-3 lg:order-4 ">
-              <div onClick={(e) => e.stopPropagation()}>
-                <DatePickerWithRange
-                  initialValue={
-                    milestone.startDate || milestone.endDate
-                      ? {
-                          from: milestone.startDate ? new Date(milestone.startDate) : undefined,
-                          to: milestone.endDate ? new Date(milestone.endDate) : undefined,
-                        }
-                      : undefined
+              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <PermissionProtected
+                  permissions={[
+                    { resource: EnumResource.milestones, action: EnumAction.write },
+                    { resource: EnumResource.milestones, action: EnumAction.manage },
+                  ]}
+                  requireAll={false}
+                  hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
+                  fallback={
+                    <DatePickerWithRange
+                      initialValue={
+                        milestone.startDate || milestone.endDate
+                          ? {
+                              from: milestone.startDate ? new Date(milestone.startDate) : undefined,
+                              to: milestone.endDate ? new Date(milestone.endDate) : undefined,
+                            }
+                          : undefined
+                      }
+                      placeholder={
+                        milestone.status === "VALIDATED"
+                          ? "Período validado"
+                          : milestone.startDate && milestone.endDate
+                            ? "Editar período"
+                            : "Seleccionar período"
+                      }
+                      className="w-full"
+                      // Limitadores de fechas del proyecto
+                      fromDate={new Date(projectStartDate)}
+                      toDate={new Date(projectEndDate)}
+                      showHolidays={true}
+                      readOnly={true} // Readonly si no tiene permisos
+                    />
                   }
-                  onConfirm={(dateRange) => {
-                    handleDateUpdate(dateRange?.from, dateRange?.to);
-                  }}
-                  placeholder={
-                    milestone.status === "VALIDATED"
-                      ? "Período validado"
-                      : milestone.startDate && milestone.endDate
-                        ? "Editar período"
-                        : "Seleccionar período"
-                  }
-                  className="w-full"
-                  confirmText="Guardar período"
-                  clearText="Limpiar período"
-                  cancelText="Cancelar"
-                  // Limitadores de fechas del proyecto
-                  fromDate={new Date(projectStartDate)}
-                  toDate={new Date(projectEndDate)}
-                  showHolidays={true}
-                  // Modo de solo lectura cuando el milestone esté validado
-                  readOnly={milestone.status === "VALIDATED"}
-                />
+                >
+                  <DatePickerWithRange
+                    initialValue={
+                      milestone.startDate || milestone.endDate
+                        ? {
+                            from: milestone.startDate ? new Date(milestone.startDate) : undefined,
+                            to: milestone.endDate ? new Date(milestone.endDate) : undefined,
+                          }
+                        : undefined
+                    }
+                    onConfirm={(dateRange) => {
+                      handleDateUpdate(dateRange?.from, dateRange?.to);
+                    }}
+                    placeholder={
+                      milestone.status === "VALIDATED"
+                        ? "Período validado"
+                        : milestone.startDate && milestone.endDate
+                          ? "Editar período"
+                          : "Seleccionar período"
+                    }
+                    className="w-full"
+                    confirmText="Guardar período"
+                    clearText="Limpiar período"
+                    cancelText="Cancelar"
+                    // Limitadores de fechas del proyecto
+                    fromDate={new Date(projectStartDate)}
+                    toDate={new Date(projectEndDate)}
+                    showHolidays={true}
+                    // Readonly si no tiene permisos O si el milestone no está en PLANNING
+                    readOnly={milestone.status !== "PLANNING"}
+                  />
+                </PermissionProtected>
+
+                {milestone.status === "OPERATIONALLY_COMPLETED" && (
+                  <PermissionProtected
+                    permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                    requireAll={false}
+                    hideOnUnauthorized={true}
+                  >
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        open(MODULE_MILESTONES_PROJECT, "approve", milestone);
+                      }}
+                      title="Aprobar oficialmente el hito"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                    </Button>
+                  </PermissionProtected>
+                )}
               </div>
 
-              <Button
-                variant="outline"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  // Expandir el milestone antes de abrir el dialog
-                  if (!expanded) {
-                    toggleMilestone(milestone.id);
-                  }
-                  open(MODULE_PHASES_PROJECT, "create");
-                }}
-              >
-                <PlusCircle className="w-4 h-4 mr-1" />
-                <span className="hidden sm:block">Agregar fase</span>
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Ellipsis className="w-4 h-4" />
+              {milestone.status === "PLANNING" && (
+                <PermissionProtected
+                  permissions={[
+                    { resource: EnumResource.phases, action: EnumAction.write },
+                    { resource: EnumResource.phases, action: EnumAction.manage },
+                  ]}
+                  requireAll={false}
+                  hideOnUnauthorized={true}
+                >
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Expandir el milestone antes de abrir el dialog
+                      if (!expanded) {
+                        toggleMilestone(milestone.id);
+                      }
+                      open(MODULE_PHASES_PROJECT, "create");
+                    }}
+                  >
+                    <PlusCircle className="w-4 h-4 mr-1" />
+                    <span className="hidden sm:block">Agregar fase</span>
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(MODULE_MILESTONES_PROJECT, "edit", milestone);
-                    }}
-                  >
-                    Editar
-                    <DropdownMenuShortcut>
-                      <Edit className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(MODULE_MILESTONES_PROJECT, "create-resource", milestone);
-                    }}
-                  >
-                    Agregar recursos
-                    <DropdownMenuShortcut>
-                      <PlusCircle className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      open(MODULE_MILESTONES_PROJECT, "delete", milestone);
-                    }}
-                  >
-                    Eliminar
-                    <DropdownMenuShortcut>
-                      <Trash className="w-4 h-4" />
-                    </DropdownMenuShortcut>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </PermissionProtected>
+              )}
+
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.milestones, action: EnumAction.write },
+                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={true}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Ellipsis className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <PermissionProtected
+                      permissions={[
+                        { resource: EnumResource.milestones, action: EnumAction.write },
+                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                      ]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          open(MODULE_MILESTONES_PROJECT, "edit", milestone);
+                        }}
+                        disabled={milestone.status !== "PLANNING"}
+                      >
+                        Editar
+                        <DropdownMenuShortcut>
+                          <Edit className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+
+                    <PermissionProtected
+                      permissions={[
+                        { resource: EnumResource.milestones, action: EnumAction.write },
+                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                      ]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          open(MODULE_MILESTONES_PROJECT, "create-resource", milestone);
+                        }}
+                        disabled={projectStatus === "OFFICIALLY_COMPLETED"}
+                      >
+                        Agregar recursos
+                        <DropdownMenuShortcut>
+                          <PlusCircle className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+
+                    <PermissionProtected
+                      permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          open(MODULE_MILESTONES_PROJECT, "delete", milestone);
+                        }}
+                        disabled={milestone.status !== "PLANNING"}
+                      >
+                        Eliminar
+                        <DropdownMenuShortcut>
+                          <Trash className="w-4 h-4" />
+                        </DropdownMenuShortcut>
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PermissionProtected>
             </div>
           </CardTitle>
         </CardHeader>

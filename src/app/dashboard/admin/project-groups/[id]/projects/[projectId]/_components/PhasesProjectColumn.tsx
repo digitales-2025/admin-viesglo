@@ -1,5 +1,7 @@
 import { Edit, MoreHorizontal, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
@@ -92,37 +94,72 @@ export function getPhasesProjectColumns({
 
         return (
           <div className="w-64" onClick={(e) => e.stopPropagation()}>
-            <DatePickerWithRange
-              initialValue={
-                startDate || endDate
-                  ? {
-                      from: startDate ? new Date(startDate) : undefined,
-                      to: endDate ? new Date(endDate) : undefined,
-                    }
-                  : undefined
+            <PermissionProtected
+              permissions={[
+                { resource: EnumResource.phases, action: EnumAction.write },
+                { resource: EnumResource.phases, action: EnumAction.manage },
+              ]}
+              requireAll={false}
+              hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
+              fallback={
+                <DatePickerWithRange
+                  initialValue={
+                    startDate || endDate
+                      ? {
+                          from: startDate ? new Date(startDate) : undefined,
+                          to: endDate ? new Date(endDate) : undefined,
+                        }
+                      : undefined
+                  }
+                  placeholder={
+                    milestoneStatus === "VALIDATED"
+                      ? "Período validado"
+                      : startDate && endDate
+                        ? "Editar período"
+                        : "Seleccionar período"
+                  }
+                  size="sm"
+                  className="w-full"
+                  // Limitadores de fechas del milestone
+                  fromDate={milestoneStartDate ? new Date(milestoneStartDate) : undefined}
+                  toDate={milestoneEndDate ? new Date(milestoneEndDate) : undefined}
+                  showHolidays={true}
+                  readOnly={true} // Readonly si no tiene permisos
+                />
               }
-              onConfirm={(dateRange) => {
-                onDateUpdate?.(phaseId, dateRange?.from, dateRange?.to);
-              }}
-              placeholder={
-                milestoneStatus === "VALIDATED"
-                  ? "Período validado"
-                  : startDate && endDate
-                    ? "Editar período"
-                    : "Seleccionar período"
-              }
-              size="sm"
-              className="w-full"
-              confirmText="Guardar período"
-              clearText="Limpiar período"
-              cancelText="Cancelar"
-              // Limitadores de fechas del milestone
-              fromDate={milestoneStartDate ? new Date(milestoneStartDate) : undefined}
-              toDate={milestoneEndDate ? new Date(milestoneEndDate) : undefined}
-              showHolidays={true}
-              // Modo de solo lectura cuando el milestone esté validado
-              readOnly={milestoneStatus === "VALIDATED"}
-            />
+            >
+              <DatePickerWithRange
+                initialValue={
+                  startDate || endDate
+                    ? {
+                        from: startDate ? new Date(startDate) : undefined,
+                        to: endDate ? new Date(endDate) : undefined,
+                      }
+                    : undefined
+                }
+                onConfirm={(dateRange) => {
+                  onDateUpdate?.(phaseId, dateRange?.from, dateRange?.to);
+                }}
+                placeholder={
+                  milestoneStatus === "VALIDATED"
+                    ? "Período validado"
+                    : startDate && endDate
+                      ? "Editar período"
+                      : "Seleccionar período"
+                }
+                size="sm"
+                className="w-full"
+                confirmText="Guardar período"
+                clearText="Limpiar período"
+                cancelText="Cancelar"
+                // Limitadores de fechas del milestone
+                fromDate={milestoneStartDate ? new Date(milestoneStartDate) : undefined}
+                toDate={milestoneEndDate ? new Date(milestoneEndDate) : undefined}
+                showHolidays={true}
+                // Readonly si no tiene permisos O si el milestone no está en PLANNING
+                readOnly={milestoneStatus !== "PLANNING"}
+              />
+            </PermissionProtected>
           </div>
         );
       },
@@ -171,23 +208,48 @@ export function getPhasesProjectColumns({
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => open(MODULE_PHASES_PROJECT, "edit", phase)}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  Editar
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => open(MODULE_PHASES_PROJECT, "delete", phase)}>
-                  <Trash className="w-4 h-4 mr-2" />
-                  Eliminar
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PermissionProtected
+              permissions={[
+                { resource: EnumResource.phases, action: EnumAction.write },
+                { resource: EnumResource.phases, action: EnumAction.manage },
+              ]}
+              requireAll={false}
+              hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
+            >
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <PermissionProtected
+                    permissions={[
+                      { resource: EnumResource.phases, action: EnumAction.write },
+                      { resource: EnumResource.phases, action: EnumAction.manage },
+                    ]}
+                    requireAll={false}
+                    hideOnUnauthorized={true}
+                  >
+                    <DropdownMenuItem onClick={() => open(MODULE_PHASES_PROJECT, "edit", phase)}>
+                      <Edit className="w-4 h-4 mr-2" />
+                      Editar
+                    </DropdownMenuItem>
+                  </PermissionProtected>
+
+                  <PermissionProtected
+                    permissions={[{ resource: EnumResource.phases, action: EnumAction.manage }]}
+                    requireAll={false}
+                    hideOnUnauthorized={true}
+                  >
+                    <DropdownMenuItem onClick={() => open(MODULE_PHASES_PROJECT, "delete", phase)}>
+                      <Trash className="w-4 h-4 mr-2" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </PermissionProtected>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </PermissionProtected>
           </div>
         );
       },
