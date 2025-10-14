@@ -15,7 +15,10 @@ export default function ProjectsPage() {
   return (
     <>
       <ShellHeader>
-        <ShellTitle title={"Proyectos"} />
+        <ShellTitle
+          title={"Proyectos"}
+          description={"Gestiona y monitorea el progreso de todos los proyectos del grupo"}
+        />
         <ProjectsPrimaryButtons />
       </ShellHeader>
       <ProjectsContainer projectGroupId={projectGroupId} />

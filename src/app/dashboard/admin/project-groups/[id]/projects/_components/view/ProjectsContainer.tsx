@@ -139,9 +139,11 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
             </div>
 
             {/* Overall Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-7 flex items-center relative">
+            <div className="w-full bg-gray-200 rounded-full h-8 flex items-center relative">
               <div
-                className="bg-primary h-8 rounded-full transition-all duration-300"
+                className={`bg-primary h-8 transition-all duration-300 ${
+                  overallProgress === 100 ? "rounded-full" : "rounded-l-full"
+                }`}
                 style={{ width: `${overallProgress}%` }}
               ></div>
               <span

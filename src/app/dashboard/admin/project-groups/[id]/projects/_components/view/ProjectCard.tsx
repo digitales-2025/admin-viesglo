@@ -17,7 +17,7 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { ProjectResponseDto } from "../../_types";
-import { projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
+import { projectDelayLevelConfig, projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
 import BulletChart from "./BulletChart";
 
 interface ProjectCardProps {
@@ -175,6 +175,31 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Hitos:</span>
                   <span className="text-gray-600">{project.milestonesCount}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nivel de retraso:</span>
+                    {(() => {
+                      const projectDelayConfig =
+                        projectDelayLevelConfig[project.delayLevel as keyof typeof projectDelayLevelConfig];
+                      if (projectDelayConfig) {
+                        const ProjectDelayConfigIcon = projectDelayConfig.icon;
+                        return (
+                          <div
+                            className={cn(
+                              "flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium border",
+                              projectDelayConfig.badge,
+                              projectDelayConfig.textClass
+                            )}
+                          >
+                            <ProjectDelayConfigIcon className={cn("h-3 w-3", projectDelayConfig.iconClass)} />
+                            <span>{projectDelayConfig.label}</span>
+                          </div>
+                        );
+                      }
+                      return <span className="text-red-600 font-medium">{project.delayLevel}</span>;
+                    })()}
+                  </div>
                 </div>
               </div>
             </div>
