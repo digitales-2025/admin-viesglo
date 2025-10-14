@@ -17,8 +17,15 @@ import {
   YAxis,
 } from "recharts";
 
+import {
+  ProjectStatusEnum,
+  ProjectTypeEnum,
+} from "@/app/dashboard/admin/project-groups/[id]/projects/_types/project.enums";
+import {
+  projectStatusConfig,
+  projectTypeConfig,
+} from "@/app/dashboard/admin/project-groups/[id]/projects/_utils/projects.utils";
 import { fetchProjectsDashboardSummary, fetchProjectsTypeDistribution } from "@/shared/lib/projects.service";
-import { DataTableFacetedFilter } from "../data-table/data-table-faceted-filter";
 import { ServerDateRangeFacetedFilter } from "../filters/ServerDateRangeFacetedFilter";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -27,16 +34,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ClientsDashboard from "./_components/clients/ClientsDashboard";
 import CostsDashboard from "./_components/costs/CostsDashboards";
 import { ProjectsDashboard } from "./_components/projects";
+import { StyledFacetedFilter } from "./_components/StyledFacetedFilter";
 
 // Los datos de salud se derivan dinámicamente de clientes
 
 // Paleta de colores para gráficos de proyectos
 const COLORS = ["#2563eb", "#16a34a", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
-const TYPE_COLOR_MAP: Record<string, string> = {
-  Documentado: "#2563eb", // azul
-  Implementado: "#16a34a", // verde
-  Híbrido: "#8b5cf6", // violeta
-};
+
+// Mapeo de colores usando las configuraciones de projects.utils.ts
+const TYPE_COLOR_MAP: Record<string, string> = Object.fromEntries(
+  Object.values(ProjectTypeEnum).map((type) => [
+    projectTypeConfig[type].label,
+    type === ProjectTypeEnum.DOCUMENTADO
+      ? "#2563eb" // azul
+      : type === ProjectTypeEnum.IMPLEMENTADO
+        ? "#16a34a" // verde
+        : type === ProjectTypeEnum.HIBRIDO
+          ? "#8b5cf6" // violeta
+          : "#6b7280", // gris por defecto
+  ])
+);
 
 const milestoneData = [
   { name: "Hito 1", value: 186 },
@@ -100,39 +117,44 @@ export default function Dashboard() {
   // Derivar métricas simples desde clientes (placeholder de negocio)
   const totalCostos = 45231.89; // TODO: reemplazar con endpoint real de costos
 
-  // Procesar datos de tipos de proyectos
-  const DEFAULT_TYPES = [
-    { type: "DOCUMENTADO", count: 0 },
-    { type: "IMPLEMENTADO", count: 0 },
-    { type: "HIBRIDO", count: 0 },
-  ];
+  // Procesar datos de tipos de proyectos usando los enums
+  const DEFAULT_TYPES = Object.values(ProjectTypeEnum).map((type) => ({
+    type,
+    count: 0,
+  }));
 
-  // Opciones para los filtros
-  const TYPE_OPTIONS = [
-    { value: "DOCUMENTADO", label: "Documentado" },
-    { value: "IMPLEMENTADO", label: "Implementado" },
-    { value: "HIBRIDO", label: "Híbrido" },
-  ];
+  // Opciones para los filtros usando las configuraciones de projects.utils.ts
+  const TYPE_OPTIONS = Object.values(ProjectTypeEnum).map((type) => ({
+    value: type,
+    label: projectTypeConfig[type].label,
+    icon: projectTypeConfig[type].icon,
+    badgeVariant: projectTypeConfig[type].badge as "default" | "secondary" | "destructive" | "outline",
+    className: projectTypeConfig[type].className,
+    textClass: projectTypeConfig[type].textClass,
+    borderColor: projectTypeConfig[type].borderColor,
+    iconClass: projectTypeConfig[type].iconClass,
+  }));
 
-  const STATUS_OPTIONS = [
-    { value: "CREATED", label: "Creado" },
-    { value: "PLANNING", label: "Planificación" },
-    { value: "IN_PROGRESS", label: "En progreso" },
-    { value: "OPERATIONALLY_COMPLETED", label: "Operacionalmente completado" },
-    { value: "OFFICIALLY_COMPLETED", label: "Oficialmente completado" },
-  ];
+  const STATUS_OPTIONS = Object.values(ProjectStatusEnum).map((status) => ({
+    value: status,
+    label: projectStatusConfig[status].label,
+    icon: projectStatusConfig[status].icon,
+    badgeVariant: projectStatusConfig[status].badge as "default" | "secondary" | "destructive" | "outline",
+    className: projectStatusConfig[status].className,
+    textClass: projectStatusConfig[status].textClass,
+    borderColor: projectStatusConfig[status].borderColor,
+    iconClass: projectStatusConfig[status].iconClass,
+  }));
 
   const typeData = projectsSummary?.summary?.projectsByType?.length
     ? projectsSummary.summary.projectsByType
     : DEFAULT_TYPES;
   const typeDistribution = typeDist?.distribution ?? [];
 
-  // Mapeo de etiquetas a español
-  const TYPE_LABELS: Record<string, string> = {
-    DOCUMENTADO: "Documentado",
-    IMPLEMENTADO: "Implementado",
-    HIBRIDO: "Híbrido",
-  };
+  // Mapeo de etiquetas usando las configuraciones de projects.utils.ts
+  const TYPE_LABELS: Record<string, string> = Object.fromEntries(
+    Object.values(ProjectTypeEnum).map((type) => [type, projectTypeConfig[type].label])
+  );
 
   // Funciones de filtrado
   const applyFilters = (data: any[]) => {
@@ -225,13 +247,13 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <div className="flex items-center gap-4">
-            <DataTableFacetedFilter
+            <StyledFacetedFilter
               title="Tipo de proyecto"
               options={TYPE_OPTIONS}
               selectedValues={typeFilters}
               onSelectedValuesChange={(vals) => setTypeFilters((vals as string[]) || [])}
             />
-            <DataTableFacetedFilter
+            <StyledFacetedFilter
               title="Estado"
               options={STATUS_OPTIONS}
               selectedValues={statusFilters}

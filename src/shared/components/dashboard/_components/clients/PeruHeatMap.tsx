@@ -11,10 +11,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { peruDepartamental } from "@/shared/data/peru-departament";
-// type ClientEventPayload = {
-//   type: "created" | "updated" | "deleted";
-//   client: ClientSummary;
-// };
 import { useRealtimeSubscription } from "@/shared/hooks/use-realtime-subscription";
 import { fetchClientsDashboardSummary } from "@/shared/lib/clients.service";
 
