@@ -2712,6 +2712,106 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/dashboards/costs/summary": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Resumen global de costos
+     * @description Retorna montos totales: gastado, costos directos, costos indirectos y gastos
+     */
+    get: operations["CostsDashboardController_getSummary_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/costs/by-project": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Costos por proyecto
+     * @description Lista todos los proyectos con (nombre, tipo) y los 4 montos de costos
+     */
+    get: operations["CostsDashboardController_getCostsByProject_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/costs/pie-distribution": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Distribución de gastos por tipo (PIE)
+     * @description Devuelve totales por tipo para gráfico de pastel
+     */
+    get: operations["CostsDashboardController_getPieDistribution_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/costs/cost-efficiency": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Análisis de eficiencia de costos
+     * @description Métricas de eficiencia: costo promedio por proyecto, distribución de costos, etc.
+     */
+    get: operations["CostsDashboardController_getCostEfficiency_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/dashboards/costs/monthly-breakdown": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Desglose mensual de costos
+     * @description Costos agrupados por mes con detalles por categoría, útil para análisis temporal
+     */
+    get: operations["CostsDashboardController_getMonthlyBreakdown_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6218,6 +6318,12 @@ export interface components {
     PhaseDeliverablesPaginatedResponseDto: {
       /** @description Información completa de la fase */
       phase: components["schemas"]["PhaseDetailedResponseDto"];
+      /**
+       * @description Estado del milestone al que pertenece la fase
+       * @example VALIDATED
+       * @enum {string}
+       */
+      milestoneStatus: "PLANNING" | "IN_PROGRESS" | "VALIDATED" | "COMPLETED";
       /** @description Entregables paginados de la fase */
       deliverables: components["schemas"]["DeliverableDetailedResponseDto"][];
       /**
@@ -12146,7 +12252,16 @@ export interface operations {
   };
   ProjectsDashboardController_getSummary_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -12175,7 +12290,16 @@ export interface operations {
   };
   ProjectsDashboardController_getStatusDistribution_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -12204,7 +12328,16 @@ export interface operations {
   };
   ProjectsDashboardController_getTypeDistribution_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -12233,7 +12366,16 @@ export interface operations {
   };
   ProjectsDashboardController_getProgress_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -12262,7 +12404,16 @@ export interface operations {
   };
   ProjectsDashboardController_getPerformance_v1: {
     parameters: {
-      query?: never;
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -15738,6 +15889,188 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  CostsDashboardController_getSummary_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  CostsDashboardController_getCostsByProject_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  CostsDashboardController_getPieDistribution_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  CostsDashboardController_getCostEfficiency_v1: {
+    parameters: {
+      query?: {
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  CostsDashboardController_getMonthlyBreakdown_v1: {
+    parameters: {
+      query?: {
+        /** @description Año a analizar */
+        year?: string;
+        /** @description Filtrar por tipo de proyecto */
+        projectType?: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+        /** @description Filtrar por estado del proyecto */
+        status?: "CREATED" | "PLANNING" | "IN_PROGRESS" | "OPERATIONALLY_COMPLETED" | "OFFICIALLY_COMPLETED";
+        /** @description Fecha de inicio del rango (YYYY-MM-DD) */
+        startDate?: string;
+        /** @description Fecha de fin del rango (YYYY-MM-DD) */
+        endDate?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description OK */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
