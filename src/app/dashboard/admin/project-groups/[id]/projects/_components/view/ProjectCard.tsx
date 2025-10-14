@@ -5,6 +5,8 @@ import { Calendar, Edit, Eye, Info } from "lucide-react";
 
 import HoverCardClient from "@/app/dashboard/admin/project-groups/[id]/projects/_components/view/HoverCardClient";
 import HoverCardResponsible from "@/app/dashboard/admin/project-groups/[id]/projects/_components/view/HoverCardCoordinator";
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Card, CardContent, CardFooter } from "@/shared/components/ui/card";
 import {
   ContextMenu,
@@ -63,29 +65,48 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           <CardContent>
             {/* Company Header */}
             <div className="flex items-center justify-between mb-3 gap-4">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  open("projects", "edit-fields", project);
-                }}
-                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="Editar información de empresa"
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.projects, action: EnumAction.write },
+                  { resource: EnumResource.projects, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={true}
               >
-                <Info className="w-4 h-4 shrink-0" />
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    open("projects", "edit-fields", project);
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  title="Editar información de empresa"
+                >
+                  <Info className="w-4 h-4 shrink-0" />
+                </button>
+              </PermissionProtected>
 
               <h3 className="font-bold text-gray-900 flex-1 truncate capitalize text-center">{project.name}</h3>
 
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  open("projects", "progress", project);
-                }}
-                className="p-1 hover:bg-gray-100 rounded transition-colors"
-                title="Ver dashboard de progreso"
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.projects, action: EnumAction.read },
+                  { resource: EnumResource.projects, action: EnumAction.write },
+                  { resource: EnumResource.projects, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={true}
               >
-                <Eye className="w-4 h-4 shrink-0" />
-              </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    open("projects", "progress", project);
+                  }}
+                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  title="Ver dashboard de progreso"
+                >
+                  <Eye className="w-4 h-4 shrink-0" />
+                </button>
+              </PermissionProtected>
             </div>
 
             {/* Bullet Chart Toggle */}
@@ -181,12 +202,21 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         </Card>
       </ContextMenuTrigger>
 
-      <ContextMenuContent className="w-48">
-        <ContextMenuItem onClick={handleEditProject}>
-          <Edit className="h-4 w-4 mr-2" />
-          Editar Proyecto
-        </ContextMenuItem>
-      </ContextMenuContent>
+      <PermissionProtected
+        permissions={[
+          { resource: EnumResource.projects, action: EnumAction.write },
+          { resource: EnumResource.projects, action: EnumAction.manage },
+        ]}
+        requireAll={false}
+        hideOnUnauthorized={true}
+      >
+        <ContextMenuContent className="w-48">
+          <ContextMenuItem onClick={handleEditProject}>
+            <Edit className="h-4 w-4 mr-2" />
+            Editar Proyecto
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </PermissionProtected>
     </ContextMenu>
   );
 }
