@@ -21,11 +21,16 @@ import { firstLetterName } from "@/shared/utils/firstLetterName";
 import { Skeleton } from "../ui/skeleton";
 
 export function ProfileDropdown() {
-  const { data: user, isLoading } = useProfile();
+  const { data: user, isLoading, isAuthenticated, isUnauthenticated } = useProfile();
   const { onLogout } = useLogout();
   const connectionStatus = useMqttConnectionStatus();
 
   const dotColor = connectionStatus === "connected" ? "bg-green-500" : "bg-gray-400";
+
+  // ✅ Si no está autenticado, no mostrar el dropdown
+  if (isUnauthenticated || (!isLoading && !isAuthenticated)) {
+    return null;
+  }
 
   return (
     <>
