@@ -139,6 +139,7 @@ export interface MqttConnectionActions {
   setNextReconnectDelay: (delay: number) => void;
   setNetworkOnline: (online: boolean) => void;
   setTokenExpired: (expired: boolean) => void;
+  resetMqttState: () => void;
 }
 
 /**

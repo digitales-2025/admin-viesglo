@@ -13,6 +13,7 @@ export interface DatePickerProps {
   onSelect: (date: Date | undefined) => void;
   placeholder?: string;
   disabled?: boolean;
+  readOnly?: boolean; // Modo de solo lectura - no permite cambios
   className?: string;
   clearable?: boolean;
   fromDate?: Date; // Fecha mínima permitida
@@ -24,6 +25,7 @@ export function DatePicker({
   onSelect,
   placeholder = "Seleccionar fecha",
   disabled = false,
+  readOnly = false, // Por defecto no es solo lectura
   className,
   clearable = false,
   fromDate,
@@ -32,13 +34,13 @@ export function DatePicker({
   const [open, setOpen] = React.useState(false);
 
   const handleSelect = (date: Date | undefined) => {
-    if (disabled) return; // No permitir selección si está deshabilitado
+    if (disabled || readOnly) return; // No permitir selección si está deshabilitado o en modo readonly
     onSelect(date);
     setOpen(false); // Cerrar el popover al seleccionar una fecha
   };
 
   const handleOpenChange = (newOpen: boolean) => {
-    if (disabled) return; // No permitir abrir si está deshabilitado
+    if (disabled || readOnly) return; // No permitir abrir si está deshabilitado o en modo readonly
     setOpen(newOpen);
   };
 
@@ -50,16 +52,16 @@ export function DatePicker({
           className={cn(
             "w-full justify-between text-left font-normal",
             !selected && "text-muted-foreground",
-            disabled && "opacity-50 cursor-not-allowed",
+            (disabled || readOnly) && "opacity-50 cursor-not-allowed",
             className
           )}
-          disabled={disabled}
+          disabled={disabled || readOnly}
         >
           {selected ? format(selected, "PPP", { locale: es }) : <span>{placeholder}</span>}
           <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      {!disabled && (
+      {!disabled && !readOnly && (
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"

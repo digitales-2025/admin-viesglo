@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, SearchIcon } from "lucide-react";
+import { FolderOpen, Loader2, Search, SearchIcon } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 import { Loading } from "@/shared/components/loading";
@@ -183,20 +183,30 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
               {/* No results */}
               {allProjects.length === 0 && !isLoading && (
                 <div className="col-span-full text-center py-12">
-                  <div className="text-muted-foreground mb-4">
-                    {inputValue ? "No se encontraron proyectos con ese criterio" : "No hay proyectos en este grupo"}
+                  <div className="flex flex-col items-center gap-3">
+                    {inputValue ? (
+                      <>
+                        <Search className="h-12 w-12 text-muted-foreground/60" />
+                        <div className="text-muted-foreground">No se encontraron proyectos con ese criterio</div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setInputValue("");
+                            handleInputChange("");
+                          }}
+                          className="mt-2"
+                        >
+                          Limpiar búsqueda
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <FolderOpen className="h-12 w-12 text-muted-foreground/60" />
+                        <div className="text-muted-foreground">No hay proyectos en este grupo</div>
+                      </>
+                    )}
                   </div>
-                  {inputValue && (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setInputValue("");
-                        handleInputChange("");
-                      }}
-                    >
-                      Limpiar búsqueda
-                    </Button>
-                  )}
                 </div>
               )}
 
