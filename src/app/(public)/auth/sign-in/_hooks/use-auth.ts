@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { backend } from "@/lib/api/types/backend";
 import { useAuthLoading } from "@/shared/hooks/use-auth-loading";
+import { useMqttResetState } from "@/shared/stores/mqtt-connection.store";
 import { loginSchema, LoginSchemaDto } from "../_schemas/login.schema";
 import { Credentials } from "../_types/login.types";
 
@@ -43,6 +44,7 @@ export const useLogin = () => {
       // Handle MQTT reconnection as background promise with timeout fallback
       const handleMqttReconnection = async () => {
         try {
+          // ✅ No resetear el estado completo, solo limpiar credenciales
           if (typeof window !== "undefined" && (window as any).__mqttReconnectAfterTokenRefresh) {
             await (window as any).__mqttReconnectAfterTokenRefresh();
           }
@@ -88,11 +90,43 @@ export const useLogin = () => {
 export const useLogout = () => {
   const router = useRouter();
   const { showLogout } = useAuthLoading();
+  const queryClient = useQueryClient();
+  const resetMqttState = useMqttResetState();
+
   const mutation = backend.useMutation("post", "/v1/auth/signout", {
     onSuccess: () => {
       showLogout();
+
+      // ✅ Limpiar completamente el cache de React Query
+      // Esto asegura que no se muestren datos de la sesión anterior
+      queryClient.clear();
+
+      // ✅ Invalidar específicamente las queries de autenticación
+      queryClient.invalidateQueries({ queryKey: ["/v1/auth/me"] });
+      queryClient.invalidateQueries({ queryKey: ["/v1/auth/profile"] });
+      queryClient.invalidateQueries({ queryKey: ["/v1/auth/permissions"] });
+
+      // ✅ Reset del estado MQTT solo en logout exitoso
+      // Esto asegura que el próximo login tenga un estado limpio
+      resetMqttState();
+
       router.replace("/auth/sign-in");
       toast.success("Sesión cerrada correctamente");
+    },
+    onError: (error) => {
+      showLogout();
+      // ✅ Incluso si hay error, limpiar el cache para evitar datos inconsistentes
+      queryClient.clear();
+      queryClient.invalidateQueries({ queryKey: ["/v1/auth/me"] });
+
+      // ✅ Reset del estado MQTT incluso en caso de error
+      resetMqttState();
+
+      if (error && typeof error === "object" && "error" in error) {
+        toast.error(error.error.userMessage || "Error al cerrar sesión");
+      } else {
+        toast.error("Error al cerrar sesión");
+      }
     },
   });
 
@@ -109,13 +143,24 @@ export const useLogout = () => {
 export const useProfile = (options: { enabled?: boolean } = { enabled: true }) => {
   const query = backend.useQuery("get", "/v1/auth/me", {
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: (failureCount: number, error: any) => {
+      // ✅ No reintentar si es un error de autenticación (401)
+      if (error?.status === 401 || error?.statusCode === 401) {
+        return false;
+      }
+      return failureCount < 3;
+    },
     ...options,
   });
 
   const isSuperAdmin = query.data?.role?.name === "GERENCIA" || false;
+
   return {
     ...query,
     isSuperAdmin,
+    // ✅ Agregar estado de autenticación más claro
+    isAuthenticated: !!query.data && !query.isError,
+    isUnauthenticated: query.isError && (query.error as any)?.status === 401,
   };
 };
 
