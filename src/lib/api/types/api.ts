@@ -2712,6 +2712,54 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/project-deliverable-documents/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener documentos de un entregable
+     * @description Obtiene todos los documentos asociados a un entregable específico
+     */
+    get: operations["ProjectDeliverableDocumentsController_findDeliverableDocuments_v1"];
+    put?: never;
+    /**
+     * Agregar documento a entregable
+     * @description Agrega un nuevo documento a un entregable específico
+     */
+    post: operations["ProjectDeliverableDocumentsController_addDocumentToDeliverable_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-deliverable-documents/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/documents/{documentId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar documento de entregable
+     * @description Actualiza un documento existente de un entregable específico
+     */
+    put: operations["ProjectDeliverableDocumentsController_updateDocument_v1"];
+    post?: never;
+    /**
+     * Eliminar documento de entregable
+     * @description Elimina un documento de un entregable específico
+     */
+    delete: operations["ProjectDeliverableDocumentsController_deleteDocument_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -5064,6 +5112,12 @@ export interface components {
        */
       targetProgress: number;
       /**
+       * @description Nivel de retraso del proyecto basado en la diferencia entre progreso actual y objetivo
+       * @example ON_TIME
+       * @enum {string}
+       */
+      delayLevel: "ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY";
+      /**
        * @description ID del cliente
        * @example 64a1b2c3d4e5f6789abcdef0
        */
@@ -5579,6 +5633,12 @@ export interface components {
        * @example 30
        */
       targetProgress: number;
+      /**
+       * @description Nivel de retraso del proyecto basado en la diferencia entre progreso actual y objetivo
+       * @example ON_TIME
+       * @enum {string}
+       */
+      delayLevel: "ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY";
       /**
        * @description ID del cliente
        * @example 64a1b2c3d4e5f6789abcdef0
@@ -7855,6 +7915,137 @@ export interface components {
        * @example Nacional
        */
       scope: string;
+    };
+    DeliverableDocumentsResponseDto: {
+      /** @description Lista de documentos del entregable */
+      documents: {
+        /** @example 64a1b2c3d4e5f6789abcdef4 */
+        id?: string;
+        /** @example documento_analisis.pdf */
+        fileName?: string;
+        /** @example https://nextcloud.example.com/files/documento_analisis.pdf */
+        fileUrl?: string;
+        /** @example 2.5 */
+        fileSize?: number;
+        uploadedBy?: {
+          /** @example 64a1b2c3d4e5f6789abcdef0 */
+          userId?: string;
+          /** @example Juan */
+          name?: string;
+          /** @example Pérez */
+          lastName?: string;
+          /** @example juan.perez@example.com */
+          email?: string;
+          /** @example USER */
+          role?: string;
+        };
+        /** @example 2025-01-13T10:30:00Z */
+        uploadedAt?: string;
+      }[];
+      /**
+       * @description Número total de documentos
+       * @example 3
+       */
+      totalDocuments: number;
+      /**
+       * @description Tamaño total de todos los documentos en MB
+       * @example 7.8
+       */
+      totalSize: number;
+    };
+    AddDocumentToDeliverableRequestDto: {
+      /**
+       * @description Nombre del archivo
+       * @example documento_analisis.pdf
+       */
+      fileName: string;
+      /**
+       * @description URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento_analisis.pdf
+       */
+      fileUrl: string;
+      /**
+       * @description Tamaño del archivo en MB
+       * @example 2.5
+       */
+      fileSize: number;
+      /**
+       * @description ID del usuario que sube el documento
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      uploadedBy: string;
+      /**
+       * @description Fecha de subida del documento
+       * @example 2025-01-13T10:30:00Z
+       */
+      uploadedAt?: string;
+    };
+    DocumentOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Documento agregado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID del milestone
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      milestoneId: string;
+      /**
+       * @description ID de la fase
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      deliverableId: string;
+      /**
+       * @description ID del documento
+       * @example 64a1b2c3d4e5f6789abcdef4
+       */
+      documentId: string;
+      /** @description Datos del documento */
+      data: {
+        /** @example documento_analisis.pdf */
+        fileName?: string;
+        /** @example https://nextcloud.example.com/files/documento_analisis.pdf */
+        fileUrl?: string;
+        /** @example 2.5 */
+        fileSize?: number;
+        /** @example 64a1b2c3d4e5f6789abcdef0 */
+        uploadedBy?: string;
+        /** @example 2025-01-13T10:30:00Z */
+        uploadedAt?: string;
+      };
+    };
+    UpdateDocumentRequestDto: {
+      /**
+       * @description Nuevo nombre del archivo
+       * @example documento_analisis_v2.pdf
+       */
+      fileName?: string;
+      /**
+       * @description Nueva URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento_analisis_v2.pdf
+       */
+      fileUrl?: string;
+      /**
+       * @description Nuevo tamaño del archivo en MB
+       * @example 3.2
+       */
+      fileSize?: number;
     };
   };
   responses: never;
@@ -10603,6 +10794,8 @@ export interface operations {
         status?: string[];
         /** @description Filtrar por tipos de proyecto */
         projectType?: string[];
+        /** @description Filtrar por niveles de retraso del proyecto */
+        delayLevel?: ("ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY")[];
         /** @description Campo por el cual ordenar */
         sortBy?: unknown;
       };
@@ -15617,6 +15810,236 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_findDeliverableDocuments_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documentos del entregable obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableDocumentsResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_addDocumentToDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddDocumentToDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Documento agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_updateDocument_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+        /** @description ID del documento a actualizar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDocumentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Documento actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase, entregable o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_deleteDocument_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+        /** @description ID del documento a eliminar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documento eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description El documento no puede ser eliminado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase, entregable o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
