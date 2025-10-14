@@ -4,8 +4,10 @@ import React, { useState } from "react";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 import { CheckCheck, Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
+import { PermissionProtected, usePermissionCheckHook } from "@/shared/components/protected-component";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { DatePicker } from "@/shared/components/ui/date-picker";
@@ -82,9 +84,10 @@ export function TableDeliverablesPhase({
   search,
   phaseStartDate,
   phaseEndDate,
-  milestoneStatus, // ✅ Agregar milestoneStatus
+  milestoneStatus,
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
+  const { hasAnyPermission } = usePermissionCheckHook();
 
   const { mutate: setPrecedent } = useSetPrecedent();
   const { mutate: removePrecedent } = useRemovePrecedent();
@@ -143,23 +146,10 @@ export function TableDeliverablesPhase({
   };
   // Función para manejar la selección de precedente
   const handlePrecedentSelect = (deliverableId: string, selectedPrecedentId: string) => {
-    console.log("%c[Precedencia seleccionada]", "color: #4ade80; font-weight: bold;", {
-      projectId,
-      phaseId,
-      deliverable: deliverableId,
-      selectedPrecedent: selectedPrecedentId,
-    });
     setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
 
     // Si selectedPrecedentId está vacío, remover precedente
     if (!selectedPrecedentId) {
-      console.log("%c[Eliminando precedencia]", "color: #ef4444; font-weight: bold;", {
-        projectId,
-        phaseId,
-        deliverableId,
-        action: "DELETE precedent",
-        message: "Precedente será eliminado (actualmente solo log)",
-      });
       removePrecedent({
         params: {
           path: {
@@ -227,10 +217,28 @@ export function TableDeliverablesPhase({
     return milestoneStatus !== "CREATED";
   };
 
+  // Función para verificar si el usuario tiene permisos de aprobación
+  const hasApprovalPermissions = React.useMemo(() => {
+    return hasAnyPermission([
+      { resource: EnumResource.projects, action: EnumAction.write },
+      { resource: EnumResource.projects, action: EnumAction.manage },
+    ]);
+  }, [hasAnyPermission]);
+
   // Verificar si TODOS los entregables tienen fechas planificadas para mostrar la columna de aprobación
   const hasAllDeliverablesWithDates = React.useMemo(() => {
     return deliverables.length > 0 && deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
   }, [deliverables]);
+
+  // Verificar si TODOS los entregables ya están aprobados
+  const areAllDeliverablesApproved = React.useMemo(() => {
+    return deliverables.length > 0 && deliverables.every((deliverable) => deliverable.isApproved === true);
+  }, [deliverables]);
+
+  // Verificar si se debe mostrar la columna de aprobación (fechas + permisos + no todos aprobados)
+  const shouldShowApprovalColumn = React.useMemo(() => {
+    return hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
+  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved]);
 
   // Definir las columnas
   const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(() => {
@@ -285,6 +293,7 @@ export function TableDeliverablesPhase({
               openDropdowns={openDropdowns}
               setOpenDropdowns={setOpenDropdowns}
               onPrecedentSelect={handlePrecedentSelect}
+              milestoneStatus={milestoneStatus}
             />
           );
         },
@@ -297,36 +306,68 @@ export function TableDeliverablesPhase({
           const startDate = row.original.startDate;
           const endDate = row.original.endDate;
           const deliverableId = row.original.id;
-          const isReadOnly = milestoneStatus === "VALIDATED"; // ✅ Determinar si es readOnly
+          const isReadOnly = milestoneStatus !== "PLANNING";
 
           return (
             <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <DatePickerWithRange
-                initialValue={
-                  startDate || endDate
-                    ? {
-                        from: startDate ? new Date(startDate) : undefined,
-                        to: endDate ? new Date(endDate) : undefined,
-                      }
-                    : undefined
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.deliverables, action: EnumAction.write },
+                  { resource: EnumResource.deliverables, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
+                fallback={
+                  <DatePickerWithRange
+                    initialValue={
+                      startDate || endDate
+                        ? {
+                            from: startDate ? new Date(startDate) : undefined,
+                            to: endDate ? new Date(endDate) : undefined,
+                          }
+                        : undefined
+                    }
+                    placeholder={
+                      isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
+                    }
+                    size="sm"
+                    className="w-full"
+                    // Limitadores de fechas de la fase
+                    fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
+                    toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
+                    showHolidays={true}
+                    readOnly={true} // Readonly si no tiene permisos
+                  />
                 }
-                onConfirm={(dateRange) => {
-                  handleDateUpdate(deliverableId, dateRange?.from, dateRange?.to);
-                }}
-                placeholder={
-                  isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
-                }
-                size="sm"
-                className="w-full"
-                confirmText="Guardar período"
-                clearText="Limpiar período"
-                cancelText="Cancelar"
-                // Limitadores de fechas de la fase
-                fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
-                toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
-                showHolidays={true}
-                readOnly={isReadOnly} // ✅ Aplicar readOnly
-              />
+              >
+                <DatePickerWithRange
+                  initialValue={
+                    startDate || endDate
+                      ? {
+                          from: startDate ? new Date(startDate) : undefined,
+                          to: endDate ? new Date(endDate) : undefined,
+                        }
+                      : undefined
+                  }
+                  onConfirm={(dateRange) => {
+                    handleDateUpdate(deliverableId, dateRange?.from, dateRange?.to);
+                  }}
+                  placeholder={
+                    isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
+                  }
+                  size="sm"
+                  className="w-full"
+                  confirmText="Guardar período"
+                  clearText="Limpiar período"
+                  cancelText="Cancelar"
+                  // Limitadores de fechas de la fase
+                  fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
+                  toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
+                  showHolidays={true}
+                  // Readonly si no tiene permisos O si el milestone no está en PLANNING
+                  readOnly={isReadOnly}
+                />
+              </PermissionProtected>
             </div>
           );
         },
@@ -354,6 +395,7 @@ export function TableDeliverablesPhase({
                       className="w-full min-w-[140px]"
                       // actualStartDate no puede ser posterior a actualEndDate
                       toDate={deliverable.actualEndDate ? new Date(deliverable.actualEndDate) : undefined}
+                      readOnly={milestoneStatus === "OFFICIALLY_APPROVED"}
                     />
                   </div>
                 );
@@ -378,6 +420,7 @@ export function TableDeliverablesPhase({
                       className="w-full min-w-[140px]"
                       // actualEndDate no puede ser anterior a actualStartDate
                       fromDate={deliverable.actualStartDate ? new Date(deliverable.actualStartDate) : undefined}
+                      readOnly={milestoneStatus === "OFFICIALLY_APPROVED"}
                     />
                   </div>
                 );
@@ -385,8 +428,8 @@ export function TableDeliverablesPhase({
             }),
           ]
         : []),
-      // Columna de aprobación - solo se incluye si TODOS los entregables tienen fechas planificadas
-      ...(hasAllDeliverablesWithDates
+      // Columna de aprobación - solo se incluye si TODOS los entregables tienen fechas planificadas Y el usuario tiene permisos Y no todos están aprobados
+      ...(shouldShowApprovalColumn
         ? [
             columnHelper.display({
               id: "approval",
@@ -433,27 +476,71 @@ export function TableDeliverablesPhase({
 
           return (
             <div onClick={(e) => e.stopPropagation()}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}>
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agregar incidencias
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
-                    <Trash className="w-4 h-4 mr-2" />
-                    Eliminar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <PermissionProtected
+                permissions={[
+                  { resource: EnumResource.deliverables, action: EnumAction.write },
+                  { resource: EnumResource.deliverables, action: EnumAction.manage },
+                ]}
+                requireAll={false}
+                hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <PermissionProtected
+                      permissions={[
+                        { resource: EnumResource.deliverables, action: EnumAction.write },
+                        { resource: EnumResource.deliverables, action: EnumAction.manage },
+                      ]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}
+                        disabled={milestoneStatus !== "PLANNING"}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Editar
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+
+                    <PermissionProtected
+                      permissions={[
+                        { resource: EnumResource.deliverables, action: EnumAction.write },
+                        { resource: EnumResource.deliverables, action: EnumAction.manage },
+                      ]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}
+                        disabled={milestoneStatus !== "OFFICIALLY_COMPLETED"}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Agregar incidencias
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+
+                    <PermissionProtected
+                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.manage }]}
+                      requireAll={false}
+                      hideOnUnauthorized={true}
+                    >
+                      <DropdownMenuItem
+                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}
+                        disabled={milestoneStatus !== "PLANNING"}
+                      >
+                        <Trash className="w-4 h-4 mr-2" />
+                        Eliminar
+                      </DropdownMenuItem>
+                    </PermissionProtected>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </PermissionProtected>
             </div>
           );
         },
@@ -471,7 +558,7 @@ export function TableDeliverablesPhase({
     handleToggleApproval,
     phaseStartDate,
     phaseEndDate,
-    hasAllDeliverablesWithDates,
+    shouldShowApprovalColumn,
     milestoneStatus,
     deliverables, // ✅ Agregar deliverables para las funciones de precedencia
   ]);
