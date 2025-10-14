@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 import { ProjectPaginatedFilterDto } from "../_types";
-import { ProjectStatusEnum, ProjectTypeEnum } from "../_types/project.enums";
+import { ProjectDelayLevelEnum, ProjectStatusEnum, ProjectTypeEnum } from "../_types/project.enums";
 
 /**
  * Hook para obtener proyectos paginados con filtros
@@ -34,6 +34,9 @@ export const useSearchProjects = () => {
   const [projectGroupId, setProjectGroupId] = useState<string | undefined>(undefined);
   const [status, setStatus] = useState<ProjectStatusEnum[]>([]);
   const [projectType, setProjectType] = useState<ProjectTypeEnum[]>([]);
+  const [delayLevel, setDelayLevel] = useState<ProjectDelayLevelEnum[]>([]);
+  const [projectSortField, setProjectSortField] = useState<string>("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const { size } = usePagination();
   const [ids, setIds] = useState<string[] | undefined>(undefined);
 
@@ -50,6 +53,9 @@ export const useSearchProjects = () => {
           projectGroupId,
           status: status.length > 0 ? status : undefined,
           projectType: projectType.length > 0 ? projectType : undefined,
+          delayLevel: delayLevel.length > 0 ? delayLevel : undefined,
+          projectSortField,
+          sortOrder,
           ids,
         },
       },
@@ -109,12 +115,24 @@ export const useSearchProjects = () => {
     setProjectType(projectTypes);
   }, []);
 
+  const handleDelayLevelFilter = useCallback((delayLevels: ProjectDelayLevelEnum[]) => {
+    setDelayLevel(delayLevels);
+  }, []);
+
+  const handleSortChange = useCallback((field: string, order: "asc" | "desc") => {
+    setProjectSortField(field);
+    setSortOrder(order);
+  }, []);
+
   const clearFilters = useCallback(() => {
     setSearch(undefined);
     setClientId(undefined);
     setProjectGroupId(undefined);
     setStatus([]);
     setProjectType([]);
+    setDelayLevel([]);
+    setProjectSortField("createdAt");
+    setSortOrder("desc");
     setIds(undefined);
   }, []);
 
@@ -133,6 +151,8 @@ export const useSearchProjects = () => {
     handleProjectGroupFilter,
     handleStatusFilter,
     handleProjectTypeFilter,
+    handleDelayLevelFilter,
+    handleSortChange,
     clearFilters,
     // Estados de filtros
     search,
@@ -141,9 +161,14 @@ export const useSearchProjects = () => {
     projectGroupId,
     status,
     projectType,
+    delayLevel,
     // Estados de filtros para arrays
     selectedStatuses: status,
     selectedProjectTypes: projectType,
+    selectedDelayLevels: delayLevel,
+    // Estados de ordenamiento
+    projectSortField,
+    sortOrder,
     // Scroll infinito
     handleScrollEnd,
   };

@@ -16,6 +16,8 @@ import {
   PlusCircle,
   Shield,
   Target,
+  TrendingDown,
+  TrendingUp,
   Zap,
 } from "lucide-react";
 
@@ -24,6 +26,7 @@ import {
   DeliverablePriorityEnum,
   DeliverableStatusEnum,
   MilestoneStatusEnum,
+  ProjectDelayLevelEnum,
   ProjectStatusEnum,
   ProjectTypeEnum,
 } from "../_types/project.enums";
@@ -318,5 +321,53 @@ export const precedentDisplayConfig = {
     textClass: "text-muted-foreground",
     borderColor: "border-muted-foreground/60",
     iconClass: "text-muted-foreground/80",
+  },
+};
+
+// Configuración para ProjectDelayLevelEnum
+export const projectDelayLevelConfig = {
+  [ProjectDelayLevelEnum.ON_TIME]: {
+    label: "En Tiempo",
+    description: "Proyecto en tiempo según cronograma",
+    className: "bg-green-200 dark:bg-green-800/40",
+    textClass: "text-green-900 dark:text-green-200",
+    borderColor: "border-green-400 dark:border-green-700",
+    hoverClass: "hover:bg-green-300 dark:hover:bg-green-700/60",
+    icon: CheckCircle,
+    badge: "success",
+    iconClass: "text-green-600 dark:text-green-300",
+  },
+  [ProjectDelayLevelEnum.AHEAD]: {
+    label: "Adelantado",
+    description: "Proyecto adelantado respecto al cronograma",
+    className: "bg-blue-200 dark:bg-blue-800/40",
+    textClass: "text-blue-900 dark:text-blue-200",
+    borderColor: "border-blue-400 dark:border-blue-700",
+    hoverClass: "hover:bg-blue-300 dark:hover:bg-blue-700/60",
+    icon: TrendingUp,
+    badge: "info",
+    iconClass: "text-blue-600 dark:text-blue-300",
+  },
+  [ProjectDelayLevelEnum.ACCEPTABLE_DELAY]: {
+    label: "Retraso Aceptable",
+    description: "Proyecto con retraso dentro del rango aceptable",
+    className: "bg-yellow-200 dark:bg-yellow-800/40",
+    textClass: "text-yellow-900 dark:text-yellow-200",
+    borderColor: "border-yellow-400 dark:border-yellow-700",
+    hoverClass: "hover:bg-yellow-300 dark:hover:bg-yellow-700/60",
+    icon: AlertTriangle,
+    badge: "warning",
+    iconClass: "text-yellow-600 dark:text-yellow-300",
+  },
+  [ProjectDelayLevelEnum.CRITICAL_DELAY]: {
+    label: "Retraso Crítico",
+    description: "Proyecto con retraso crítico que requiere atención",
+    className: "bg-red-200 dark:bg-red-800/40",
+    textClass: "text-red-900 dark:text-red-200",
+    borderColor: "border-red-400 dark:border-red-700",
+    hoverClass: "hover:bg-red-300 dark:hover:bg-red-700/60",
+    icon: TrendingDown,
+    badge: "danger",
+    iconClass: "text-red-600 dark:text-red-300",
   },
 };
