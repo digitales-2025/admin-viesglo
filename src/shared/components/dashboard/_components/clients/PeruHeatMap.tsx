@@ -78,7 +78,7 @@ export default function PeruHeatMap() {
   // Fase 1: carga inicial (ViewModel agregado completo desde el backend)
   const { data: summaryData } = useQuery({
     queryKey: ["clients", "dashboard", "summary"],
-    queryFn: fetchClientsDashboardSummary,
+    queryFn: () => fetchClientsDashboardSummary(),
     staleTime: 60_000,
   });
 
