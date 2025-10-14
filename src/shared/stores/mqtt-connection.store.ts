@@ -35,25 +35,20 @@ export const useMqttConnectionStore = create<MqttStore>()(
       setStatus: (status: ConnectionStatus) => {
         const currentState = get();
 
-        console.log(`📊 MQTT Store - setStatus called:`, {
-          currentStatus: currentState.status,
-          targetStatus: status,
-          timestamp: new Date().toISOString(),
-        });
-
-        // Validate state transition
+        // ✅ Validar transición de estado, pero ser más tolerante con resets
         if (!isValidStateTransition(currentState.status, status)) {
-          console.warn(
-            formatMqttError("State Transition", `Invalid transition from ${currentState.status} to ${status}`, {
-              currentStatus: currentState.status,
-              targetStatus: status,
-            })
-          );
-          return;
+          // ✅ Permitir transiciones de reset (mismo estado) sin advertencia
+          if (currentState.status === status) {
+          } else {
+            console.warn(
+              formatMqttError("State Transition", `Invalid transition from ${currentState.status} to ${status}`, {
+                currentStatus: currentState.status,
+                targetStatus: status,
+              })
+            );
+            return;
+          }
         }
-
-        // Log state transitions for debugging
-        console.log(`🔄 MQTT Store - State Transition: ${currentState.status} -> ${status}`);
 
         set(
           (state) => ({
@@ -71,8 +66,6 @@ export const useMqttConnectionStore = create<MqttStore>()(
           false,
           "setStatus"
         );
-
-        console.log(`✅ MQTT Store - Status updated to: ${status}`);
       },
 
       setClient: (client: MqttClient | null) =>
@@ -172,6 +165,31 @@ export const useMqttConnectionStore = create<MqttStore>()(
           false,
           "setTokenExpired"
         ),
+
+      // ✅ Reset suave del estado MQTT para logout/login limpio
+      resetMqttState: () => {
+        set(
+          (state) => ({
+            ...state,
+            status: "disconnected",
+            error: null,
+            reconnectAttempts: 0,
+            lastReconnectAttempt: null,
+            nextReconnectDelay: 1000,
+            tokenExpired: false,
+            // ✅ No resetear client ni lastConnected para evitar problemas de desmontaje
+            // El client se limpiará naturalmente cuando se desconecte
+          }),
+          false,
+          "resetMqttState"
+        );
+      },
+
+      // ✅ Función para resetear flags de conexión en progreso
+      resetConnectionFlags: () => {
+        // Esta función se puede usar para resetear flags externos si es necesario
+        // Por ahora solo loggeamos para debugging
+      },
     }),
     {
       name: "mqtt-connection-store",
@@ -211,3 +229,5 @@ export const useMqttNextReconnectDelay = () => useMqttConnectionStore((state) =>
 export const useMqttNetworkOnline = () => useMqttConnectionStore((state) => state.isNetworkOnline);
 
 export const useMqttTokenExpired = () => useMqttConnectionStore((state) => state.tokenExpired);
+
+export const useMqttResetState = () => useMqttConnectionStore((state) => state.resetMqttState);

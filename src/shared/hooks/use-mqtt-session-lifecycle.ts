@@ -112,34 +112,24 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
    */
   const handleAuthStateChange = useCallback(
     async (isCurrentlyAuthenticated: boolean, wasAuthenticated: boolean | null, isLoading: boolean) => {
-      console.log("MQTT Session Lifecycle - Auth state change detected:", {
-        isCurrentlyAuthenticated,
-        wasAuthenticated,
-        isLoading,
-        autoConnectOnAuth,
-        autoDisconnectOnLogout,
-        mqttStatus: status,
-        connectionInProgress: connectionInProgressRef.current,
-        disconnectionInProgress: disconnectionInProgressRef.current,
-        timestamp: new Date().toISOString(),
-      });
-
       // Don't connect while authentication is still loading
       if (isLoading) {
-        console.log("MQTT Session Lifecycle - Authentication still loading, skipping connection attempt");
         return;
       }
 
       // User just logged in (and auth is not loading)
       if (isCurrentlyAuthenticated && wasAuthenticated === false && autoConnectOnAuth) {
+        // ✅ Reset connection progress flag if we're disconnected
+        if (status === "disconnected") {
+          connectionInProgressRef.current = false;
+        }
+
         // Prevent multiple simultaneous connection attempts
         if (connectionInProgressRef.current || status === "connecting" || status === "connected") {
-          console.log("MQTT Session Lifecycle - Connection already in progress or connected, skipping");
           return;
         }
 
         connectionInProgressRef.current = true;
-        console.log("MQTT Session Lifecycle - User authenticated and stable, connecting MQTT");
 
         try {
           // Small delay to ensure authentication is fully settled
@@ -154,8 +144,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
 
           await connect();
           onAuthConnect?.();
-
-          console.log("MQTT Session Lifecycle - Successfully connected on authentication");
         } catch (error) {
           console.error("MQTT Session Lifecycle - Failed to connect on authentication:", error);
         } finally {
@@ -167,12 +155,10 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
       else if (!isCurrentlyAuthenticated && wasAuthenticated === true && autoDisconnectOnLogout) {
         // Prevent multiple simultaneous disconnection attempts
         if (disconnectionInProgressRef.current || status === "disconnected") {
-          console.log("MQTT Session Lifecycle - Disconnection already in progress or disconnected, skipping");
           return;
         }
 
         disconnectionInProgressRef.current = true;
-        console.log("MQTT Session Lifecycle - User logged out, disconnecting MQTT");
 
         try {
           // Clear cached credentials on logout
@@ -180,8 +166,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
 
           await disconnect();
           onAuthDisconnect?.();
-
-          console.log("MQTT Session Lifecycle - Successfully disconnected on logout");
         } catch (error) {
           console.error("MQTT Session Lifecycle - Failed to disconnect on logout:", error);
         } finally {
@@ -210,7 +194,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
       return; // Already handled
     }
 
-    console.log("MQTT Session Lifecycle - Token expiration detected, handling cleanup");
     tokenExpirationHandledRef.current = true;
 
     try {
@@ -229,8 +212,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
 
       // Notify callback
       onTokenExpired?.();
-
-      console.log("MQTT Session Lifecycle - Token expiration handled successfully");
 
       // Redirect to login page after a short delay to allow cleanup
       setTimeout(() => {
@@ -268,7 +249,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
             tokenExpirationHandledRef.current = false;
             await connect();
             onAuthConnect?.();
-            console.log("MQTT Session Lifecycle - Connected on initial mount (already authenticated)");
           } catch (error) {
             console.error("MQTT Session Lifecycle - Initial connect failed:", error);
           } finally {
@@ -318,8 +298,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
 
       // Check if it's an authentication error (401/403)
       if (error.status === 401 || error.status === 403) {
-        console.log("MQTT Session Lifecycle - Authentication error detected, likely token expiration");
-
         // Mark token as expired in MQTT store
         setTokenExpired(true);
       }
@@ -332,7 +310,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
    */
   useEffect(() => {
     return () => {
-      console.log("MQTT Session Lifecycle - Component unmounting, cleaning up");
       // Note: We don't disconnect here as the component might unmount for other reasons
       // The actual cleanup should happen in the main MQTT hook
     };
@@ -346,12 +323,10 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
   const reconnectAfterTokenRefresh = useCallback(async () => {
     // Prevent multiple simultaneous reconnection attempts
     if (connectionInProgressRef.current) {
-      console.log("MQTT Session Lifecycle - Reconnection already in progress, skipping");
       return Promise.resolve(); // Return resolved promise to not break awaiting code
     }
 
     connectionInProgressRef.current = true;
-    console.log("MQTT Session Lifecycle - Reconnecting after token refresh");
 
     try {
       // Clear cached credentials to force fresh fetch
@@ -367,7 +342,6 @@ export function useMqttSessionLifecycle(options: UseMqttSessionLifecycleOptions 
       // Reconnect MQTT with fresh credentials
       await reconnect();
 
-      console.log("MQTT Session Lifecycle - Successfully reconnected after token refresh");
       return Promise.resolve(); // Explicit success
     } catch (error) {
       console.error("MQTT Session Lifecycle - Failed to reconnect after token refresh:", error);

@@ -52,17 +52,13 @@ export class MqttCredentialsService {
       this.credentialsCache.credentials &&
       now - this.credentialsCache.timestamp < this.CACHE_DURATION
     ) {
-      console.log("🔄 Using cached MQTT credentials");
       return this.credentialsCache.credentials;
     }
 
     // If there's already a pending request, return it to avoid duplicate calls
     if (this.credentialsCache.pendingRequest && !forceRefresh) {
-      console.log("⏳ Waiting for pending MQTT credentials request");
       return this.credentialsCache.pendingRequest;
     }
-
-    console.log("🚀 Fetching fresh MQTT credentials from backend");
 
     // Create new request
     const credentialsRequest = this.fetchCredentialsFromBackend();
@@ -163,7 +159,6 @@ export class MqttCredentialsService {
    * Useful when authentication state changes or credentials become invalid
    */
   static clearCredentialsCache(): void {
-    console.log("🧹 Clearing MQTT credentials cache");
     this.credentialsCache.credentials = null;
     this.credentialsCache.timestamp = 0;
     this.credentialsCache.pendingRequest = null;
