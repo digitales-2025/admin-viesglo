@@ -6,7 +6,6 @@ import {
   AreaChart,
   Bar,
   BarChart,
-  CartesianGrid,
   LabelList,
   Legend,
   ResponsiveContainer,
@@ -22,6 +21,7 @@ import {
   fetchProjectsPerformance,
   fetchProjectsProgress,
   fetchProjectsStatusDistribution,
+  ProjectsFilterParams,
 } from "@/shared/lib/projects.service";
 
 /**
@@ -37,28 +37,35 @@ function Kpi({ label, value }: { label: string; value: number | string }) {
 }
 
 /**
+ * Props del componente ProjectsDashboard
+ */
+interface ProjectsDashboardProps {
+  filters?: ProjectsFilterParams;
+}
+
+/**
  * Dashboard de proyectos con métricas, gráficos y KPIs
  * Muestra resumen general, distribuciones, progreso y rendimiento
  */
-export default function ProjectsDashboard() {
+export default function ProjectsDashboard({ filters }: ProjectsDashboardProps) {
   const { data, isLoading } = useQuery({
-    queryKey: ["projects", "dashboard", "summary"],
-    queryFn: fetchProjectsDashboardSummary,
+    queryKey: ["projects", "dashboard", "summary", filters],
+    queryFn: () => fetchProjectsDashboardSummary(filters),
     staleTime: 60_000,
   });
   const { data: statusDist } = useQuery({
-    queryKey: ["projects", "dashboard", "status"],
-    queryFn: fetchProjectsStatusDistribution,
+    queryKey: ["projects", "dashboard", "status", filters],
+    queryFn: () => fetchProjectsStatusDistribution(filters),
     staleTime: 60_000,
   });
   const { data: progressData } = useQuery({
-    queryKey: ["projects", "dashboard", "progress"],
-    queryFn: fetchProjectsProgress,
+    queryKey: ["projects", "dashboard", "progress", filters],
+    queryFn: () => fetchProjectsProgress(filters),
     staleTime: 60_000,
   });
   const { data: performanceData } = useQuery({
-    queryKey: ["projects", "dashboard", "performance"],
-    queryFn: fetchProjectsPerformance,
+    queryKey: ["projects", "dashboard", "performance", filters],
+    queryFn: () => fetchProjectsPerformance(filters),
     staleTime: 60_000,
   });
 
@@ -207,7 +214,6 @@ export default function ProjectsDashboard() {
                           <stop offset="100%" stopColor="#2563eb" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="statusLabel" />
                       <YAxis allowDecimals={false} />
                       <Tooltip formatter={(value, name) => [value as any, name as string]} />
@@ -242,7 +248,6 @@ export default function ProjectsDashboard() {
                           <stop offset="100%" stopColor="#16a34a" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="statusLabel" />
                       <YAxis unit="%" domain={[0, 100]} />
                       <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -280,7 +285,6 @@ export default function ProjectsDashboard() {
                           <stop offset="100%" stopColor="#f59e0b" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="range" />
                       <YAxis unit="%" domain={[0, 100]} />
                       <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -315,7 +319,6 @@ export default function ProjectsDashboard() {
                           <stop offset="95%" stopColor="#14b8a6" stopOpacity={0.05} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="week" />
                       <YAxis unit="%" domain={[0, 100]} />
                       <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -349,7 +352,6 @@ export default function ProjectsDashboard() {
                           <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.05} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="month" />
                       <YAxis unit="%" domain={[0, 100]} />
                       <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -404,7 +406,6 @@ export default function ProjectsDashboard() {
                           <stop offset="100%" stopColor="#10b981" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis allowDecimals={false} />
                       <Tooltip />
@@ -444,7 +445,6 @@ export default function ProjectsDashboard() {
                           <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.9} />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" />
                       <XAxis dataKey="name" />
                       <YAxis unit="%" domain={[0, 100]} />
                       <Tooltip formatter={(value) => [`${value}%`, "Porcentaje"]} />

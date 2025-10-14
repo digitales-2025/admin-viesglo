@@ -139,7 +139,15 @@ export function DataTableFacetedFilter<TData, TValue>({
                 <CommandSeparator />
                 <CommandGroup>
                   <CommandItem
-                    onSelect={() => column?.setFilterValue(undefined)}
+                    onSelect={() => {
+                      if (onSelectedValuesChange) {
+                        // Modo controlado: usar callback
+                        onSelectedValuesChange(undefined);
+                      } else {
+                        // Modo no controlado (tabla): usar setFilterValue
+                        column?.setFilterValue(undefined);
+                      }
+                    }}
                     className="justify-center text-center"
                   >
                     Limpiar filtros

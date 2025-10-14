@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { AlertTriangle, BarChart3, Bell, Calendar, FileText } from "lucide-react";
+import { AlertTriangle, BarChart3, Bell, FileText } from "lucide-react";
 import {
   Bar,
   BarChart,
-  CartesianGrid,
   Cell,
   LabelList,
   Legend,
@@ -18,14 +17,15 @@ import {
   YAxis,
 } from "recharts";
 
-import { fetchClientsDashboardSummary } from "@/shared/lib/clients.service";
 import { fetchProjectsDashboardSummary, fetchProjectsTypeDistribution } from "@/shared/lib/projects.service";
+import { DataTableFacetedFilter } from "../data-table/data-table-faceted-filter";
+import { ServerDateRangeFacetedFilter } from "../filters/ServerDateRangeFacetedFilter";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import ClientsDashboard from "./_components/clients/ClientsDashboard";
+import CostsDashboard from "./_components/costs/CostsDashboards";
 import { ProjectsDashboard } from "./_components/projects";
 
 // Los datos de salud se derivan dinámicamente de clientes
@@ -71,34 +71,33 @@ const reminders = [
 // Realtime del dashboard de clientes se maneja en el propio módulo de Clientes
 
 export default function Dashboard() {
-  const [selectedArea, setSelectedArea] = useState("Área");
-  const [selectedProjectType, setSelectedProjectType] = useState("Tipo de proyecto");
-  const [selectedStatus, setSelectedStatus] = useState("Estado");
+  const [typeFilters, setTypeFilters] = useState<string[]>([]);
+  const [statusFilters, setStatusFilters] = useState<string[]>([]);
+  const [dateRange, setDateRange] = useState<{ from?: Date; to?: Date }>({});
 
-  // Fase 1: carga inicial HTTP
-  const { data: dashboardSummary } = useQuery({
-    queryKey: ["clients", "dashboard", "summary"],
-    queryFn: fetchClientsDashboardSummary,
-    staleTime: 60_000,
-  });
+  // Crear objeto de filtros para enviar a los endpoints
+  const filterParams = {
+    projectType: typeFilters.length === 1 ? typeFilters[0] : undefined,
+    status: statusFilters.length === 1 ? statusFilters[0] : undefined,
+    startDate: dateRange.from ? dateRange.from.toISOString().split("T")[0] : undefined,
+    endDate: dateRange.to ? dateRange.to.toISOString().split("T")[0] : undefined,
+  };
 
   // Datos de distribución de tipos de proyectos
   const { data: typeDist } = useQuery({
-    queryKey: ["projects", "dashboard", "type"],
-    queryFn: fetchProjectsTypeDistribution,
+    queryKey: ["projects", "dashboard", "type", filterParams],
+    queryFn: () => fetchProjectsTypeDistribution(filterParams),
     staleTime: 60_000,
   });
 
   // Datos del resumen de proyectos
   const { data: projectsSummary } = useQuery({
-    queryKey: ["projects", "dashboard", "summary"],
-    queryFn: fetchProjectsDashboardSummary,
+    queryKey: ["projects", "dashboard", "summary", filterParams],
+    queryFn: () => fetchProjectsDashboardSummary(filterParams),
     staleTime: 60_000,
   });
 
   // Derivar métricas simples desde clientes (placeholder de negocio)
-  const totalActivos = dashboardSummary?.summary?.totalClients ?? 0;
-  const totalRetraso = Math.max(0, Math.floor(totalActivos * 0.2));
   const totalCostos = 45231.89; // TODO: reemplazar con endpoint real de costos
 
   // Procesar datos de tipos de proyectos
@@ -106,6 +105,21 @@ export default function Dashboard() {
     { type: "DOCUMENTADO", count: 0 },
     { type: "IMPLEMENTADO", count: 0 },
     { type: "HIBRIDO", count: 0 },
+  ];
+
+  // Opciones para los filtros
+  const TYPE_OPTIONS = [
+    { value: "DOCUMENTADO", label: "Documentado" },
+    { value: "IMPLEMENTADO", label: "Implementado" },
+    { value: "HIBRIDO", label: "Híbrido" },
+  ];
+
+  const STATUS_OPTIONS = [
+    { value: "CREATED", label: "Creado" },
+    { value: "PLANNING", label: "Planificación" },
+    { value: "IN_PROGRESS", label: "En progreso" },
+    { value: "OPERATIONALLY_COMPLETED", label: "Operacionalmente completado" },
+    { value: "OFFICIALLY_COMPLETED", label: "Oficialmente completado" },
   ];
 
   const typeData = projectsSummary?.summary?.projectsByType?.length
@@ -120,38 +134,86 @@ export default function Dashboard() {
     HIBRIDO: "Híbrido",
   };
 
-  const typeDataLabeled = typeData.map((t: any) => ({ ...t, typeLabel: TYPE_LABELS[t.type] ?? t.type }));
-  const typeDistributionLabeled = typeDistribution.map((t: any) => ({
+  // Funciones de filtrado
+  const applyFilters = (data: any[]) => {
+    let filteredData = [...data];
+
+    // Filtrar por tipo de proyecto
+    if (typeFilters.length > 0) {
+      filteredData = filteredData.filter((item) => typeFilters.includes(item.type || item.typeLabel));
+    }
+
+    // Filtrar por estado
+    if (statusFilters.length > 0) {
+      filteredData = filteredData.filter((item) => statusFilters.includes(item.status || item.statusLabel));
+    }
+
+    // Filtrar por rango de fechas (si el item tiene fecha)
+    if (dateRange.from || dateRange.to) {
+      filteredData = filteredData.filter((item) => {
+        if (!item.createdAt && !item.updatedAt && !item.date) return true;
+
+        const itemDate = new Date(item.createdAt || item.updatedAt || item.date);
+
+        if (dateRange.from && itemDate < dateRange.from) return false;
+        if (dateRange.to && itemDate > dateRange.to) return false;
+
+        return true;
+      });
+    }
+
+    return filteredData;
+  };
+
+  // Aplicar filtros a los datos de proyectos
+  const filteredTypeData = applyFilters(typeData);
+  const filteredTypeDistribution = applyFilters(typeDistribution);
+
+  // Recalcular datos filtrados
+  const filteredTypeDataLabeled = filteredTypeData.map((t: any) => ({
     ...t,
     typeLabel: TYPE_LABELS[t.type] ?? t.type,
   }));
 
-  // Datos para gráficos
-  const typePercentageChartData = (
-    typeDistributionLabeled.length
-      ? typeDistributionLabeled
-      : typeDataLabeled.map((t: any) => ({ typeLabel: t.typeLabel, percentage: 0 }))
+  const filteredTypeDistributionLabeled = filteredTypeDistribution.map((t: any) => ({
+    ...t,
+    typeLabel: TYPE_LABELS[t.type] ?? t.type,
+  }));
+
+  // Datos filtrados para gráficos
+  const filteredTypePercentageChartData = (
+    filteredTypeDistributionLabeled.length
+      ? filteredTypeDistributionLabeled
+      : filteredTypeDataLabeled.map((t: any) => ({ typeLabel: t.typeLabel, percentage: 0 }))
   ).map((d: any) => ({ ...d, percentageLabel: `${d.percentage ?? 0}%` }));
 
-  const typeAvgProgressChartData = (
-    typeDistributionLabeled.length
-      ? typeDistributionLabeled
-      : typeDataLabeled.map((t: any) => ({ typeLabel: t.typeLabel, averageProgress: 0 }))
+  const filteredTypeAvgProgressChartData = (
+    filteredTypeDistributionLabeled.length
+      ? filteredTypeDistributionLabeled
+      : filteredTypeDataLabeled.map((t: any) => ({ typeLabel: t.typeLabel, averageProgress: 0 }))
   ).map((d: any) => ({ ...d, averageProgressLabel: `${d.averageProgress ?? 0}%` }));
 
-  // Versiones ordenadas (desc) para facilitar lectura
-  const typeCountChartDataSorted = [...typeDataLabeled].sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
-  const typePercentageChartDataSorted = [...typePercentageChartData].sort(
+  // Versiones ordenadas filtradas
+  const filteredTypeCountChartDataSorted = [...filteredTypeDataLabeled].sort((a, b) => (b.count ?? 0) - (a.count ?? 0));
+  const filteredTypePercentageChartDataSorted = [...filteredTypePercentageChartData].sort(
     (a, b) => (b.percentage ?? 0) - (a.percentage ?? 0)
   );
-  const typeAvgProgressChartDataSorted = [...typeAvgProgressChartData].sort(
+  const filteredTypeAvgProgressChartDataSorted = [...filteredTypeAvgProgressChartData].sort(
     (a, b) => (b.averageProgress ?? 0) - (a.averageProgress ?? 0)
   );
 
+  // Calcular métricas filtradas
+  const filteredTotalActivos = filteredTypeData.reduce((sum, item) => sum + (item.count || 0), 0);
+  const filteredTotalRetraso = Math.max(0, Math.floor(filteredTotalActivos * 0.2));
+
   const projectHealthData = [
-    { name: "Saludables", value: Math.max(0, totalActivos - totalRetraso), color: "#22c55e" },
-    { name: "En riesgo", value: Math.floor(totalRetraso * 0.6), color: "#eab308" },
-    { name: "Críticos", value: Math.max(0, totalRetraso - Math.floor(totalRetraso * 0.6)), color: "#ef4444" },
+    { name: "Saludables", value: Math.max(0, filteredTotalActivos - filteredTotalRetraso), color: "#22c55e" },
+    { name: "En riesgo", value: Math.floor(filteredTotalRetraso * 0.6), color: "#eab308" },
+    {
+      name: "Críticos",
+      value: Math.max(0, filteredTotalRetraso - Math.floor(filteredTotalRetraso * 0.6)),
+      color: "#ef4444",
+    },
   ];
 
   // Fase 2: se gestiona en <ClientsDashboard /> para aislar resuscripciones
@@ -163,49 +225,75 @@ export default function Dashboard() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
           <div className="flex items-center gap-4">
-            <Select value={selectedArea} onValueChange={setSelectedArea}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Área">Calidad</SelectItem>
-                <SelectItem value="Norte">Digitales</SelectItem>
-              </SelectContent>
-            </Select>
+            <DataTableFacetedFilter
+              title="Tipo de proyecto"
+              options={TYPE_OPTIONS}
+              selectedValues={typeFilters}
+              onSelectedValuesChange={(vals) => setTypeFilters((vals as string[]) || [])}
+            />
+            <DataTableFacetedFilter
+              title="Estado"
+              options={STATUS_OPTIONS}
+              selectedValues={statusFilters}
+              onSelectedValuesChange={(vals) => setStatusFilters((vals as string[]) || [])}
+            />
 
-            <Select value={selectedProjectType} onValueChange={setSelectedProjectType}>
-              <SelectTrigger className="w-40">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Tipo de proyecto">Documentado</SelectItem>
-                <SelectItem value="Construcción">Híbrido</SelectItem>
-                <SelectItem value="Consultoría">Implementado</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Estado">Estado</SelectItem>
-                <SelectItem value="Activo">Activo</SelectItem>
-                <SelectItem value="Pausado">Pausado</SelectItem>
-                <SelectItem value="Completado">Completado</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button variant="outline" className="gap-2">
-              <Calendar className="h-4 w-4" />
-              20 Ene, 2023 - 09 Feb, 2023
-            </Button>
+            <ServerDateRangeFacetedFilter
+              title="Rango de fechas"
+              from={dateRange.from}
+              to={dateRange.to}
+              onChange={setDateRange}
+            />
           </div>
         </div>
 
+        {/* Indicador de filtros activos */}
+        {(typeFilters.length > 0 || statusFilters.length > 0 || dateRange.from || dateRange.to) && (
+          <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="text-sm font-medium text-blue-700 dark:text-blue-300">Filtros activos:</div>
+            <div className="flex items-center gap-2 flex-wrap">
+              {typeFilters.length > 0 && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                  {typeFilters.length} tipo{typeFilters.length > 1 ? "s" : ""} seleccionado
+                  {typeFilters.length > 1 ? "s" : ""}
+                </Badge>
+              )}
+              {statusFilters.length > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300"
+                >
+                  {statusFilters.length} estado{statusFilters.length > 1 ? "s" : ""} seleccionado
+                  {statusFilters.length > 1 ? "s" : ""}
+                </Badge>
+              )}
+              {(dateRange.from || dateRange.to) && (
+                <Badge
+                  variant="secondary"
+                  className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                >
+                  Rango de fechas
+                </Badge>
+              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setTypeFilters([]);
+                  setStatusFilters([]);
+                  setDateRange({});
+                }}
+                className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200"
+              >
+                Limpiar todos
+              </Button>
+            </div>
+          </div>
+        )}
+
         {/* Navigation Tabs */}
         <Tabs defaultValue="general" className="w-full ">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="general">
               <span className="truncate text-ellipsis font-medium">General</span>
             </TabsTrigger>
@@ -214,6 +302,9 @@ export default function Dashboard() {
             </TabsTrigger>
             <TabsTrigger value="proyectos">
               <span className="truncate text-ellipsis font-medium">Proyectos</span>
+            </TabsTrigger>
+            <TabsTrigger value="costos">
+              <span className="truncate text-ellipsis font-medium">Costos</span>
             </TabsTrigger>
             <TabsTrigger value="analiticas">
               <span className="truncate text-ellipsis font-medium">Analíticas</span>
@@ -235,7 +326,7 @@ export default function Dashboard() {
                   <BarChart3 className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalActivos}</div>
+                  <div className="text-2xl font-bold">{filteredTotalActivos}</div>
                   <p className="text-xs text-muted-foreground">Número total de proyectos activos</p>
                 </CardContent>
               </Card>
@@ -246,7 +337,7 @@ export default function Dashboard() {
                   <AlertTriangle className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{totalRetraso}</div>
+                  <div className="text-2xl font-bold">{filteredTotalRetraso}</div>
                   <p className="text-xs text-muted-foreground">Total de proyectos con retraso</p>
                 </CardContent>
               </Card>
@@ -321,7 +412,6 @@ export default function Dashboard() {
                         layout="horizontal"
                         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                       >
-                        <CartesianGrid strokeDasharray="3 3" />
                         <XAxis type="number" />
                         <YAxis dataKey="name" type="category" width={60} />
                         <Bar dataKey="value" fill="#3b82f6" radius={[0, 4, 4, 0]} />
@@ -377,7 +467,7 @@ export default function Dashboard() {
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
-                          data={typeCountChartDataSorted}
+                          data={filteredTypeCountChartDataSorted}
                           dataKey="count"
                           nameKey="typeLabel"
                           cx="50%"
@@ -390,7 +480,7 @@ export default function Dashboard() {
                           animationDuration={700}
                           animationEasing="ease-out"
                         >
-                          {typeCountChartDataSorted.map((entry, index) => (
+                          {filteredTypeCountChartDataSorted.map((entry, index) => (
                             <Cell key={index} fill={TYPE_COLOR_MAP[entry.typeLabel] ?? COLORS[index % COLORS.length]} />
                           ))}
                         </Pie>
@@ -411,14 +501,13 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={typePercentageChartDataSorted}>
+                      <BarChart data={filteredTypePercentageChartDataSorted}>
                         <defs>
                           <linearGradient id="barViolet" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor="#a78bfa" stopOpacity={0.9} />
                             <stop offset="100%" stopColor="#8b5cf6" stopOpacity={0.9} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="typeLabel" />
                         <YAxis unit="%" domain={[0, 100]} />
                         <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -449,14 +538,13 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={typeAvgProgressChartDataSorted}>
+                      <BarChart data={filteredTypeAvgProgressChartDataSorted}>
                         <defs>
                           <linearGradient id="barCyan" x1="0" y1="0" x2="0" y2="1">
                             <stop offset="0%" stopColor="#67e8f9" stopOpacity={0.9} />
                             <stop offset="100%" stopColor="#06b6d4" stopOpacity={0.9} />
                           </linearGradient>
                         </defs>
-                        <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="typeLabel" />
                         <YAxis unit="%" domain={[0, 100]} />
                         <Tooltip formatter={(value, name) => [`${value}%`, name as string]} />
@@ -485,7 +573,11 @@ export default function Dashboard() {
           </TabsContent>
 
           <TabsContent value="proyectos">
-            <ProjectsDashboard />
+            <ProjectsDashboard filters={filterParams} />
+          </TabsContent>
+
+          <TabsContent value="costos">
+            <CostsDashboard filters={filterParams} />
           </TabsContent>
 
           <TabsContent value="analiticas">

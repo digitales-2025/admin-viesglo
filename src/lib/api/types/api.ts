@@ -6575,11 +6575,138 @@ export interface components {
        */
       data?: Record<string, never>;
     };
-    ProjectsDashboardSummaryResponseDto: Record<string, never>;
-    ProjectsStatusDistributionResponseDto: Record<string, never>;
-    ProjectsTypeDistributionResponseDto: Record<string, never>;
-    ProjectsProgressResponseDto: Record<string, never>;
-    ProjectsPerformanceResponseDto: Record<string, never>;
+    ProjectsDashboardSummaryResponseDto: {
+      summary: {
+        totalProjects: number;
+        projectsByStatus: Array<{ status: string; count: number }>;
+        projectsByType: Array<{ type: string; count: number }>;
+        averageProgress: number;
+        overdueProjects: number;
+        completedProjects: number;
+        activeProjects: number;
+      };
+      milestones: {
+        totalMilestones: number;
+        completedMilestones: number;
+        pendingMilestones: number;
+        inProgressMilestones: number;
+        completionRate: number;
+      };
+      deliverables: {
+        totalDeliverables: number;
+        completedDeliverables: number;
+        inProcessDeliverables: number;
+        registeredDeliverables: number;
+        completionRate: number;
+      };
+      assignments: {
+        byUser: Array<{ userId: string; userName: string; count: number }>;
+        byRole: Array<{ role: string; count: number }>;
+      };
+      performance: {
+        projectsCompletedOnTime: number;
+        projectsOverdue: number;
+        averageCompletionTime: number;
+        productivityScore: number;
+      };
+      meta: { source: string; at: string; lastUpdated: string };
+    };
+    ProjectsStatusDistributionResponseDto: {
+      distribution: Array<{ status: string; count: number; percentage: number }>;
+      meta: { source: string; at: string; lastUpdated: string };
+    };
+    ProjectsTypeDistributionResponseDto: {
+      distribution: Array<{ type: string; count: number; percentage: number; averageProgress: number }>;
+      meta: { source: string; at: string; lastUpdated: string };
+    };
+    ProjectsProgressResponseDto: {
+      overallProgress: {
+        averageProgress: number;
+        progressDistribution: Array<{ range: string; count: number; percentage: number }>;
+      };
+      trends: {
+        weeklyProgress: Array<{ week: string; averageProgress: number }>;
+        monthlyProgress: Array<{ month: string; averageProgress: number }>;
+      };
+      meta: { source: string; at: string; lastUpdated: string };
+    };
+    ProjectsPerformanceResponseDto: {
+      performance: {
+        completionRate: number;
+        onTimeDelivery: number;
+        averageProjectDuration: number;
+        productivityIndex: number;
+      };
+      quality: {
+        projectsWithoutIssues: number;
+        projectsWithIssues: number;
+        issueResolutionRate: number;
+      };
+      resourceUtilization: {
+        teamUtilization: number;
+        resourceEfficiency: number;
+      };
+      meta: { source: string; at: string; lastUpdated: string };
+    };
+    // ===== Costs dashboard schemas =====
+    CostsFilterParams: {
+      projectType?: string;
+      status?: string;
+      startDate?: string;
+      endDate?: string;
+    };
+    CostsDashboardSummaryResponseDto: {
+      totalSpent: number;
+      totalDirectCosts: number;
+      totalIndirectCosts: number;
+      totalExpenses: number;
+    };
+    CostsDashboardByProjectResponseDto: Array<{
+      projectId: string;
+      projectName: string;
+      projectType: string;
+      totalSpent: number;
+      totalDirectCosts: number;
+      totalIndirectCosts: number;
+      totalExpenses: number;
+    }>;
+    CostsDashboardPieDistributionResponseDto: {
+      total: number;
+      distribution: Array<{ category: string; amount: number; percentage: number }>;
+    };
+    CostsDashboardCostEfficiencyResponseDto: {
+      summary: {
+        totalProjects: number;
+        totalCost: number;
+        averageCostPerProject: number;
+        maxCost: number;
+        minCost: number;
+        median: number;
+      };
+      distribution: Array<{ range: string; count: number; percentage: number }>;
+    };
+    CostsDashboardMonthlyBreakdownResponseDto: {
+      year: number;
+      monthlyBreakdown: Array<{
+        month: string;
+        totalSpent: number;
+        directCosts: number;
+        indirectCosts: number;
+        expenses: number;
+      }>;
+      summary: {
+        totalYearSpent: number;
+        averageMonthlySpent: number;
+        peakMonth: {
+          month: string;
+          totalSpent: number;
+          directCosts: number;
+          indirectCosts: number;
+          expenses: number;
+          transactionCount: number;
+        };
+      };
+    };
     RoleListItemDto: {
       /**
        * @description Identificador único de la entidad

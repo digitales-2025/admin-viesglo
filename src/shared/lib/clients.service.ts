@@ -1,5 +1,15 @@
 import { http } from "@/lib/http/clientFetch";
 
+/**
+ * Parámetros de filtrado para endpoints de clientes
+ */
+export type ClientsFilterParams = {
+  projectType?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
 export interface ClientSummary {
   id: string;
   name: string;
@@ -17,11 +27,21 @@ export async function fetchActiveClients(): Promise<ClientSummary[]> {
   return res.data ?? [];
 }
 
-export async function fetchClientsDashboardSummary(): Promise<{
+export async function fetchClientsDashboardSummary(filters?: ClientsFilterParams): Promise<{
   summary: { totalClients: number; departaments: Array<{ name: string; count: number }> };
   list: ClientSummary[];
 }> {
-  const res = await http.get("/v1/dashboards/clients/summary");
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/clients/summary${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const data = res.data as any;
   // Normalizar forma de respuesta por si llega aplanada ({ totalClients, departaments, list })
   if (data && !data.summary && ("totalClients" in data || "departaments" in data)) {
