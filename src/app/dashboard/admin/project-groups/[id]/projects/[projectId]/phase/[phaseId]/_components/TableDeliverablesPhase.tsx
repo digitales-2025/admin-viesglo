@@ -146,40 +146,25 @@ export function TableDeliverablesPhase({
     });
   };
   // Función para manejar la selección de precedente
-  const handlePrecedentSelect = React.useCallback(
-    (deliverableId: string, selectedPrecedentId: string) => {
-      console.log("%c[Precedencia seleccionada]", "color: #4ade80; font-weight: bold;", {
+  const handlePrecedentSelect = (deliverableId: string, selectedPrecedentId: string) => {
+    console.log("%c[Precedencia seleccionada]", "color: #4ade80; font-weight: bold;", {
+      projectId,
+      phaseId,
+      deliverable: deliverableId,
+      selectedPrecedent: selectedPrecedentId,
+    });
+    setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
+
+    // Si selectedPrecedentId está vacío, remover precedente
+    if (!selectedPrecedentId) {
+      console.log("%c[Eliminando precedencia]", "color: #ef4444; font-weight: bold;", {
         projectId,
         phaseId,
-        deliverable: deliverableId,
-        selectedPrecedent: selectedPrecedentId,
+        deliverableId,
+        action: "DELETE precedent",
+        message: "Precedente será eliminado (actualmente solo log)",
       });
-      setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
-
-      // Si selectedPrecedentId está vacío, remover precedente
-      if (!selectedPrecedentId) {
-        console.log("%c[Eliminando precedencia]", "color: #ef4444; font-weight: bold;", {
-          projectId,
-          phaseId,
-          deliverableId,
-          action: "DELETE precedent",
-          message: "Precedente será eliminado (actualmente solo log)",
-        });
-        removePrecedent({
-          params: {
-            path: {
-              projectId,
-              phaseId,
-              deliverableId,
-            },
-          },
-          body: {} as Record<string, never>,
-        });
-        return;
-      }
-
-      // Establecer nuevo precedente
-      setPrecedent({
+      removePrecedent({
         params: {
           path: {
             projectId,
@@ -187,21 +172,30 @@ export function TableDeliverablesPhase({
             deliverableId,
           },
         },
-        body: {
-          precedentDeliverableId: selectedPrecedentId,
-        },
+        body: {} as Record<string, never>,
       });
-    },
-    [projectId, phaseId, removePrecedent, setPrecedent, setOpenDropdowns]
-  );
+      return;
+    }
+
+    // Establecer nuevo precedente
+    setPrecedent({
+      params: {
+        path: {
+          projectId,
+          phaseId,
+          deliverableId,
+        },
+      },
+      body: {
+        precedentDeliverableId: selectedPrecedentId,
+      },
+    });
+  };
 
   // Función para encontrar el entregable precedente por ID
-  const findPrecedentDeliverable = React.useCallback(
-    (id: string) => {
-      return deliverables.find((deliverable) => deliverable.id === id);
-    },
-    [deliverables]
-  );
+  const findPrecedentDeliverable = (id: string) => {
+    return deliverables.find((deliverable) => deliverable.id === id);
+  };
 
   // Definir las columnas
   const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
@@ -563,11 +557,6 @@ export function TableDeliverablesPhase({
       isTogglingApproval,
       phaseStartDate,
       phaseEndDate,
-      openDropdowns,
-      handlePrecedentSelect,
-      setOpenDropdowns,
-      findPrecedentDeliverable,
-      deliverables,
     ]
   );
 

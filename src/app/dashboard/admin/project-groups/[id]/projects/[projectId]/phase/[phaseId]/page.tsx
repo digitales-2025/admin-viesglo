@@ -27,7 +27,7 @@ export default function ViewPhaseDeliverablesPage() {
         </ShellHeader>
       </div>
       <ListDeliverablesPhase />
-      <DeliverablesPhaseOverlays projectId={projectId} phaseId={phaseId} milestoneId={milestoneId} />
+      {milestoneId && <DeliverablesPhaseOverlays projectId={projectId} phaseId={phaseId} milestoneId={milestoneId} />}
     </>
   );
 }
