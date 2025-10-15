@@ -1,104 +1,44 @@
+import { components } from "@/lib/api/types/api";
 import { http } from "@/lib/http/clientFetch";
 
 /**
  * Resumen general del dashboard de proyectos con métricas completas
  */
-export type ProjectsDashboardSummary = {
-  summary: {
-    totalProjects: number;
-    projectsByStatus: Array<{ status: string; count: number }>;
-    projectsByType: Array<{ type: string; count: number }>;
-    averageProgress: number;
-    overdueProjects: number;
-    completedProjects: number;
-    activeProjects: number;
-  };
-  milestones: {
-    totalMilestones: number;
-    completedMilestones: number;
-    pendingMilestones: number;
-    inProgressMilestones: number;
-    completionRate: number;
-  };
-  deliverables: {
-    totalDeliverables: number;
-    completedDeliverables: number;
-    inProcessDeliverables: number;
-    registeredDeliverables: number;
-    completionRate: number;
-  };
-  assignments: {
-    byUser: Array<{ userId: string; userName: string; count: number }>;
-    byRole: Array<{ role: string; count: number }>;
-  };
-  performance: {
-    projectsCompletedOnTime: number;
-    projectsOverdue: number;
-    averageCompletionTime: number;
-    productivityScore: number;
-  };
-  meta: {
-    source: string;
-    at: string;
-    lastUpdated: string;
-  };
-};
+export type ProjectsDashboardSummary = components["schemas"]["ProjectsDashboardSummaryResponseDto"];
 
-export type ProjectsStatusDistribution = {
-  distribution: Array<{
-    status: string;
-    count: number;
-    percentage: number;
-  }>;
-  meta: { source: string; at: string; lastUpdated: string };
-};
+export type ProjectsStatusDistribution = components["schemas"]["ProjectsStatusDistributionResponseDto"];
 
-export type ProjectsTypeDistribution = {
-  distribution: Array<{
-    type: string;
-    count: number;
-    percentage: number;
-    averageProgress: number;
-  }>;
-  meta: { source: string; at: string; lastUpdated: string };
-};
+export type ProjectsTypeDistribution = components["schemas"]["ProjectsTypeDistributionResponseDto"];
 
-export type ProjectsProgress = {
-  overallProgress: {
-    averageProgress: number;
-    progressDistribution: Array<{ range: string; count: number; percentage: number }>;
-  };
-  trends: {
-    weeklyProgress: Array<{ week: string; averageProgress: number }>;
-    monthlyProgress: Array<{ month: string; averageProgress: number }>;
-  };
-  meta: { source: string; at: string; lastUpdated: string };
-};
+export type ProjectsProgress = components["schemas"]["ProjectsProgressResponseDto"];
 
-export type ProjectsPerformance = {
-  performance: {
-    completionRate: number;
-    onTimeDelivery: number;
-    averageProjectDuration: number;
-    productivityIndex: number;
-  };
-  quality: {
-    projectsWithoutIssues: number;
-    projectsWithIssues: number;
-    issueResolutionRate: number;
-  };
-  resourceUtilization: {
-    teamUtilization: number;
-    resourceEfficiency: number;
-  };
-  meta: { source: string; at: string; lastUpdated: string };
+export type ProjectsPerformance = components["schemas"]["ProjectsPerformanceResponseDto"];
+
+/**
+ * Parámetros de filtrado para endpoints de proyectos
+ */
+export type ProjectsFilterParams = {
+  projectType?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
 };
 
 /**
  * Resumen general del dashboard de proyectos
  */
-export async function fetchProjectsDashboardSummary(): Promise<ProjectsDashboardSummary> {
-  const res = await http.get("/v1/dashboards/projects/summary");
+export async function fetchProjectsDashboardSummary(filters?: ProjectsFilterParams): Promise<ProjectsDashboardSummary> {
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/projects/summary${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const payload = (res?.data as any)?.["application/json"] ?? res?.data;
   return payload as ProjectsDashboardSummary;
 }
@@ -106,8 +46,20 @@ export async function fetchProjectsDashboardSummary(): Promise<ProjectsDashboard
 /**
  * Distribución de proyectos por estado
  */
-export async function fetchProjectsStatusDistribution(): Promise<ProjectsStatusDistribution> {
-  const res = await http.get("/v1/dashboards/projects/status");
+export async function fetchProjectsStatusDistribution(
+  filters?: ProjectsFilterParams
+): Promise<ProjectsStatusDistribution> {
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/projects/status${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const payload = (res?.data as any)?.["application/json"] ?? res?.data;
   return payload as ProjectsStatusDistribution;
 }
@@ -115,8 +67,18 @@ export async function fetchProjectsStatusDistribution(): Promise<ProjectsStatusD
 /**
  * Distribución de proyectos por tipo
  */
-export async function fetchProjectsTypeDistribution(): Promise<ProjectsTypeDistribution> {
-  const res = await http.get("/v1/dashboards/projects/type");
+export async function fetchProjectsTypeDistribution(filters?: ProjectsFilterParams): Promise<ProjectsTypeDistribution> {
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/projects/type${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const payload = (res?.data as any)?.["application/json"] ?? res?.data;
   return payload as ProjectsTypeDistribution;
 }
@@ -124,8 +86,18 @@ export async function fetchProjectsTypeDistribution(): Promise<ProjectsTypeDistr
 /**
  * Progreso general y tendencias temporales
  */
-export async function fetchProjectsProgress(): Promise<ProjectsProgress> {
-  const res = await http.get("/v1/dashboards/projects/progress");
+export async function fetchProjectsProgress(filters?: ProjectsFilterParams): Promise<ProjectsProgress> {
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/projects/progress${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const payload = (res?.data as any)?.["application/json"] ?? res?.data;
   return payload as ProjectsProgress;
 }
@@ -133,8 +105,18 @@ export async function fetchProjectsProgress(): Promise<ProjectsProgress> {
 /**
  * Métricas de rendimiento y calidad
  */
-export async function fetchProjectsPerformance(): Promise<ProjectsPerformance> {
-  const res = await http.get("/v1/dashboards/projects/performance");
+export async function fetchProjectsPerformance(filters?: ProjectsFilterParams): Promise<ProjectsPerformance> {
+  const params = new URLSearchParams();
+
+  if (filters?.projectType) params.append("projectType", filters.projectType);
+  if (filters?.status) params.append("status", filters.status);
+  if (filters?.startDate) params.append("startDate", filters.startDate);
+  if (filters?.endDate) params.append("endDate", filters.endDate);
+
+  const queryString = params.toString();
+  const url = `/v1/dashboards/projects/performance${queryString ? `?${queryString}` : ""}`;
+
+  const res = await http.get(url);
   const payload = (res?.data as any)?.["application/json"] ?? res?.data;
   return payload as ProjectsPerformance;
 }
