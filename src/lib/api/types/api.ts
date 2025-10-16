@@ -1536,6 +1536,126 @@ export interface paths {
     patch: operations["ProjectDeliverablesController_toggleDeliverableApproval_v1"];
     trace?: never;
   };
+  "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Buscar entregables adicionales por fase con paginación
+     * @description Obtiene los entregables adicionales de una fase específica con paginación y filtros
+     */
+    get: operations["AdditionalDeliverablesController_findAdditionalDeliverablesPaginated_v1"];
+    put?: never;
+    /**
+     * Agregar entregable adicional a fase
+     * @description Agrega un nuevo entregable adicional a una fase específica
+     */
+    post: operations["AdditionalDeliverablesController_addAdditionalDeliverable_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar entregable adicional
+     * @description Actualiza un entregable adicional existente en una fase específica
+     */
+    put: operations["AdditionalDeliverablesController_updateAdditionalDeliverable_v1"];
+    post?: never;
+    /**
+     * Eliminar entregable adicional
+     * @description Elimina un entregable adicional de una fase específica
+     */
+    delete: operations["AdditionalDeliverablesController_deleteAdditionalDeliverable_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}/progress": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /**
+     * Actualizar progreso de entregable adicional
+     * @description Actualiza el progreso de un entregable adicional (0-100%)
+     */
+    patch: operations["AdditionalDeliverablesController_updateAdditionalDeliverableProgress_v1"];
+    trace?: never;
+  };
+  "/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Listar documentos adicionales
+     * @description Obtiene la lista de documentos adicionales de un entregable adicional
+     */
+    get: operations["AdditionalDocumentsController_listAdditionalDocuments"];
+    put?: never;
+    /**
+     * Agregar documento adicional
+     * @description Agrega un documento adicional a un entregable adicional específico
+     */
+    post: operations["AdditionalDocumentsController_addAdditionalDocument"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}/documents/{documentId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar documento adicional (PUT)
+     * @description Actualiza un documento adicional reemplazando todos sus campos
+     */
+    put: operations["AdditionalDocumentsController_updateAdditionalDocument"];
+    post?: never;
+    /**
+     * Eliminar documento adicional
+     * @description Elimina un documento adicional de un entregable adicional
+     */
+    delete: operations["AdditionalDocumentsController_removeAdditionalDocument"];
+    options?: never;
+    head?: never;
+    /**
+     * Actualizar documento adicional parcialmente (PATCH)
+     * @description Actualiza parcialmente un documento adicional, solo los campos proporcionados
+     */
+    patch: operations["AdditionalDocumentsController_patchAdditionalDocument"];
+    trace?: never;
+  };
   "/v1/project-milestones/{projectId}/milestones": {
     parameters: {
       query?: never;
@@ -2804,6 +2924,174 @@ export interface paths {
      * @description Costos agrupados por mes con detalles por categoría, útil para análisis temporal
      */
     get: operations["CostsDashboardController_getMonthlyBreakdown_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-deliverable-documents/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/documents": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Obtener documentos de un entregable
+     * @description Obtiene todos los documentos asociados a un entregable específico
+     */
+    get: operations["ProjectDeliverableDocumentsController_findDeliverableDocuments_v1"];
+    put?: never;
+    /**
+     * Agregar documento a entregable
+     * @description Agrega un nuevo documento a un entregable específico
+     */
+    post: operations["ProjectDeliverableDocumentsController_addDocumentToDeliverable_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/project-deliverable-documents/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/documents/{documentId}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Actualizar documento de entregable
+     * @description Actualiza un documento existente de un entregable específico
+     */
+    put: operations["ProjectDeliverableDocumentsController_updateDocument_v1"];
+    post?: never;
+    /**
+     * Eliminar documento de entregable
+     * @description Elimina un documento de un entregable específico
+     */
+    delete: operations["ProjectDeliverableDocumentsController_deleteDocument_v1"];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/project-efficiency": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de eficiencia de proyectos
+     * @description Genera un reporte Excel con análisis de eficiencia de proyectos en el rango de fechas especificado
+     */
+    get: operations["ReportsController_generateProjectEfficiencyReport_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/milestone-analysis": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de análisis de milestones
+     * @description Genera un reporte Excel con análisis detallado de milestones en el rango de fechas especificado
+     */
+    get: operations["ReportsController_generateMilestoneAnalysisReport_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/deliverable-approval": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de entregables y aprobaciones
+     * @description Genera un reporte Excel con análisis de entregables y procesos de aprobación
+     */
+    get: operations["ReportsController_generateDeliverableApprovalReport_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/client-satisfaction": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de satisfacción del cliente
+     * @description Genera un reporte Excel con análisis de satisfacción del cliente y métricas de calidad
+     */
+    get: operations["ReportsController_generateClientSatisfactionReport_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/resource-cost": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de recursos y costos
+     * @description Genera un reporte Excel con análisis financiero de recursos y métricas de ROI
+     */
+    get: operations["ReportsController_generateResourceCostReport_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/reports/audit-traceability": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Generar reporte de auditoría y trazabilidad
+     * @description Genera un reporte Excel con análisis de auditoría, trazabilidad y cumplimiento de procesos
+     */
+    get: operations["ReportsController_generateAuditTraceabilityReport_v1"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5164,6 +5452,12 @@ export interface components {
        */
       targetProgress: number;
       /**
+       * @description Nivel de retraso del proyecto basado en la diferencia entre progreso actual y objetivo
+       * @example ON_TIME
+       * @enum {string}
+       */
+      delayLevel: "ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY";
+      /**
        * @description ID del cliente
        * @example 64a1b2c3d4e5f6789abcdef0
        */
@@ -5679,6 +5973,12 @@ export interface components {
        * @example 30
        */
       targetProgress: number;
+      /**
+       * @description Nivel de retraso del proyecto basado en la diferencia entre progreso actual y objetivo
+       * @example ON_TIME
+       * @enum {string}
+       */
+      delayLevel: "ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY";
       /**
        * @description ID del cliente
        * @example 64a1b2c3d4e5f6789abcdef0
@@ -6496,6 +6796,254 @@ export interface components {
       data?: Record<string, never>;
     };
     RemovePrecedentRequestDto: Record<string, never>;
+    UserSummaryDto: {
+      /**
+       * @description ID del usuario
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      userId: string;
+      /**
+       * @description Nombre del usuario
+       * @example Juan
+       */
+      name: string;
+      /**
+       * @description Apellido del usuario
+       * @example Pérez
+       */
+      lastName: string;
+      /**
+       * @description Email del usuario
+       * @example juan.perez@example.com
+       */
+      email: string;
+      /**
+       * @description Rol del usuario
+       * @example Consultor
+       */
+      role: string;
+    };
+    AdditionalDocumentDto: {
+      /**
+       * @description ID del documento
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      id: string;
+      /**
+       * @description Nombre del archivo (opcional por ahora)
+       * @example documento_analisis.pdf
+       */
+      fileName?: Record<string, never>;
+      /**
+       * @description URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento.pdf
+       */
+      fileUrl: string;
+      /**
+       * @description Tamaño del archivo en MB (opcional por ahora)
+       * @example 2.5
+       */
+      fileSize?: Record<string, never>;
+      /** @description Usuario que subió el documento */
+      uploadedBy: components["schemas"]["UserSummaryDto"];
+      /**
+       * Format: date-time
+       * @description Fecha de subida del documento
+       * @example 2024-01-15T10:30:00.000Z
+       */
+      uploadedAt: string;
+    };
+    AdditionalDeliverableResponseDto: {
+      /**
+       * @description ID del entregable adicional
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      id: string;
+      /**
+       * @description Nombre del entregable adicional
+       * @example Documento adicional de análisis
+       */
+      name: string;
+      /**
+       * @description Descripción del entregable adicional
+       * @example Análisis detallado de requerimientos adicionales
+       */
+      description?: string;
+      /**
+       * Format: date-time
+       * @description Fecha real de inicio
+       * @example 2024-01-15T09:00:00.000Z
+       */
+      actualStartDate?: string;
+      /**
+       * Format: date-time
+       * @description Fecha real de fin
+       * @example 2024-01-20T18:00:00.000Z
+       */
+      actualEndDate?: string;
+      /**
+       * @description Estado del entregable
+       * @example IN_PROCESS
+       * @enum {string}
+       */
+      status: "REGISTERED" | "IN_PROCESS" | "FINISHED";
+      /**
+       * @description Progreso del entregable (0-100)
+       * @example 75
+       */
+      progress: number;
+      /** @description Documentos adicionales del entregable */
+      additionalDocuments: components["schemas"]["AdditionalDocumentDto"][];
+      /**
+       * Format: date-time
+       * @description Fecha de creación
+       * @example 2024-01-10T10:00:00.000Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @description Fecha de última actualización
+       * @example 2024-01-15T14:30:00.000Z
+       */
+      updatedAt: string;
+    };
+    AdditionalDeliverablesPaginatedResponseDto: {
+      /** @description Lista de entregables adicionales */
+      data: components["schemas"]["AdditionalDeliverableResponseDto"][];
+      /**
+       * @description Información de paginación
+       * @example {
+       *       "page": 1,
+       *       "pageSize": 10,
+       *       "total": 45,
+       *       "totalPages": 5
+       *     }
+       */
+      pagination: Record<string, never>;
+      /**
+       * @description Información de la fase
+       * @example {
+       *       "phaseId": "64a1b2c3d4e5f6789abcdef1",
+       *       "phaseName": "Fase de Análisis",
+       *       "projectId": "64a1b2c3d4e5f6789abcdef0"
+       *     }
+       */
+      phaseInfo: Record<string, never>;
+    };
+    CreateAdditionalDeliverableRequestDto: {
+      /**
+       * @description Nombre del entregable adicional
+       * @example Documento adicional de análisis
+       */
+      name: string;
+      /**
+       * @description Descripción del entregable adicional
+       * @example Análisis detallado de requerimientos adicionales
+       */
+      description?: string;
+      /**
+       * @description Fecha real de inicio
+       * @example 2024-01-15T09:00:00.000Z
+       */
+      actualStartDate?: string;
+      /**
+       * @description Fecha real de fin
+       * @example 2024-01-20T18:00:00.000Z
+       */
+      actualEndDate?: string;
+    };
+    AdditionalDeliverableOperationResponseDto: {
+      /**
+       * @description Éxito de la operación
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo
+       * @example Entregable adicional creado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID de la fase
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable adicional
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      additionalDeliverableId: string;
+      /** @description Datos adicionales de la operación */
+      data?: Record<string, never>;
+    };
+    UpdateAdditionalDeliverableRequestDto: {
+      /**
+       * @description Nombre del entregable adicional
+       * @example Documento actualizado
+       */
+      name?: string;
+      /**
+       * @description Descripción del entregable adicional
+       * @example Descripción actualizada
+       */
+      description?: string;
+      /**
+       * @description Fecha real de inicio
+       * @example 2024-01-15T09:00:00.000Z
+       */
+      actualStartDate?: string;
+      /**
+       * @description Fecha real de fin
+       * @example 2024-01-20T18:00:00.000Z
+       */
+      actualEndDate?: string;
+    };
+    UpdateAdditionalDeliverableProgressRequestDto: {
+      /**
+       * @description Progreso del entregable (0-100)
+       * @example 75
+       */
+      progress: number;
+    };
+    CreateAdditionalDocumentDto: {
+      /**
+       * @description URL del archivo en NextCloud (único campo requerido)
+       * @example https://nextcloud.example.com/files/documento.pdf
+       */
+      fileUrl: string;
+      /**
+       * @description Nombre del archivo (opcional, puede ser null)
+       * @example documento_analisis.pdf
+       */
+      fileName?: Record<string, never> | null;
+      /**
+       * @description Tamaño del archivo en MB (opcional, puede ser null)
+       * @example 2.5
+       */
+      fileSize?: Record<string, never> | null;
+    };
+    UpdateAdditionalDocumentDto: {
+      /**
+       * @description URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento_actualizado.pdf
+       */
+      fileUrl?: string;
+      /**
+       * @description Nombre del archivo
+       * @example documento_actualizado.pdf
+       */
+      fileName?: Record<string, never> | null;
+      /**
+       * @description Tamaño del archivo en MB
+       * @example 3.2
+       */
+      fileSize?: Record<string, never> | null;
+    };
     AddMilestoneRequestDto: {
       /**
        * @description Nombre del hito
@@ -6682,135 +7230,212 @@ export interface components {
       data?: Record<string, never>;
     };
     ProjectsDashboardSummaryResponseDto: {
+      /** @description Resumen general de proyectos */
       summary: {
-        totalProjects: number;
-        projectsByStatus: Array<{ status: string; count: number }>;
-        projectsByType: Array<{ type: string; count: number }>;
-        averageProgress: number;
-        overdueProjects: number;
-        completedProjects: number;
-        activeProjects: number;
+        /** @example 24 */
+        totalProjects?: number;
+        projectsByStatus?: {
+          /** @example CREATED */
+          status?: string;
+          /** @example 23 */
+          count?: number;
+        }[];
+        projectsByType?: {
+          /** @example DOCUMENTADO */
+          type?: string;
+          /** @example 8 */
+          count?: number;
+        }[];
+        /** @example 7 */
+        averageProgress?: number;
+        /** @example 1 */
+        overdueProjects?: number;
+        /** @example 1 */
+        completedProjects?: number;
+        /** @example 24 */
+        activeProjects?: number;
       };
+      /** @description Métricas de hitos */
       milestones: {
-        totalMilestones: number;
-        completedMilestones: number;
-        pendingMilestones: number;
-        inProgressMilestones: number;
-        completionRate: number;
+        /** @example 28 */
+        totalMilestones?: number;
+        /** @example 0 */
+        completedMilestones?: number;
+        /** @example 27 */
+        pendingMilestones?: number;
+        /** @example 1 */
+        inProgressMilestones?: number;
+        /** @example 0 */
+        completionRate?: number;
       };
+      /** @description Métricas de entregables */
       deliverables: {
-        totalDeliverables: number;
-        completedDeliverables: number;
-        inProcessDeliverables: number;
-        registeredDeliverables: number;
-        completionRate: number;
+        /** @example 57 */
+        totalDeliverables?: number;
+        /** @example 13 */
+        completedDeliverables?: number;
+        /** @example 1 */
+        inProcessDeliverables?: number;
+        /** @example 43 */
+        registeredDeliverables?: number;
+        /** @example 23 */
+        completionRate?: number;
       };
+      /** @description Métricas de asignaciones */
       assignments: {
-        byUser: Array<{ userId: string; userName: string; count: number }>;
-        byRole: Array<{ role: string; count: number }>;
+        byUser?: {
+          /** @example 68c42af8a2bab0123425b9dd */
+          userId?: string;
+          /** @example Coordinador 68c42af8a2bab0123425b9dd */
+          userName?: string;
+          /** @example 23 */
+          count?: number;
+        }[];
+        byRole?: {
+          /** @example COORDINATOR */
+          role?: string;
+          /** @example 24 */
+          count?: number;
+        }[];
       };
+      /** @description Métricas de rendimiento */
       performance: {
-        projectsCompletedOnTime: number;
-        projectsOverdue: number;
-        averageCompletionTime: number;
-        productivityScore: number;
+        /** @example 0 */
+        projectsCompletedOnTime?: number;
+        /** @example 1 */
+        projectsOverdue?: number;
+        /** @example 41 */
+        averageCompletionTime?: number;
+        /** @example 6 */
+        productivityScore?: number;
       };
-      meta: { source: string; at: string; lastUpdated: string };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
     };
     ProjectsStatusDistributionResponseDto: {
-      distribution: Array<{ status: string; count: number; percentage: number }>;
-      meta: { source: string; at: string; lastUpdated: string };
+      /** @description Distribución de proyectos por estado */
+      distribution: {
+        /** @example CREATED */
+        status?: string;
+        /** @example 23 */
+        count?: number;
+        /** @example 96 */
+        percentage?: number;
+      }[];
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
     };
     ProjectsTypeDistributionResponseDto: {
-      distribution: Array<{ type: string; count: number; percentage: number; averageProgress: number }>;
-      meta: { source: string; at: string; lastUpdated: string };
+      /** @description Distribución de proyectos por tipo */
+      distribution: {
+        /** @example DOCUMENTADO */
+        type?: string;
+        /** @example 8 */
+        count?: number;
+        /** @example 33 */
+        percentage?: number;
+        /** @example 15 */
+        averageProgress?: number;
+      }[];
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
     };
     ProjectsProgressResponseDto: {
+      /** @description Progreso general de proyectos */
       overallProgress: {
-        averageProgress: number;
-        progressDistribution: Array<{ range: string; count: number; percentage: number }>;
+        /** @example 7 */
+        averageProgress?: number;
+        progressDistribution?: {
+          /** @example 0-25% */
+          range?: string;
+          /** @example 20 */
+          count?: number;
+          /** @example 83 */
+          percentage?: number;
+        }[];
       };
+      /** @description Tendencias temporales */
       trends: {
-        weeklyProgress: Array<{ week: string; averageProgress: number }>;
-        monthlyProgress: Array<{ month: string; averageProgress: number }>;
+        weeklyProgress?: {
+          /** @example Semana 1 */
+          week?: string;
+          /** @example 5 */
+          averageProgress?: number;
+        }[];
+        monthlyProgress?: {
+          /** @example oct 2025 */
+          month?: string;
+          /** @example 7 */
+          averageProgress?: number;
+        }[];
       };
-      meta: { source: string; at: string; lastUpdated: string };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
     };
     ProjectsPerformanceResponseDto: {
+      /** @description Métricas de rendimiento */
       performance: {
-        completionRate: number;
-        onTimeDelivery: number;
-        averageProjectDuration: number;
-        productivityIndex: number;
+        /** @example 4 */
+        completionRate?: number;
+        /** @example 0 */
+        onTimeDelivery?: number;
+        /** @example 41 */
+        averageProjectDuration?: number;
+        /** @example 2 */
+        productivityIndex?: number;
       };
+      /** @description Métricas de calidad */
       quality: {
-        projectsWithoutIssues: number;
-        projectsWithIssues: number;
-        issueResolutionRate: number;
+        /** @example 19 */
+        projectsWithoutIssues?: number;
+        /** @example 5 */
+        projectsWithIssues?: number;
+        /** @example 85 */
+        issueResolutionRate?: number;
       };
+      /** @description Utilización de recursos */
       resourceUtilization: {
-        teamUtilization: number;
-        resourceEfficiency: number;
+        /** @example 75 */
+        teamUtilization?: number;
+        /** @example 80 */
+        resourceEfficiency?: number;
       };
-      meta: { source: string; at: string; lastUpdated: string };
-    };
-    // ===== Costs dashboard schemas =====
-    CostsFilterParams: {
-      projectType?: string;
-      status?: string;
-      startDate?: string;
-      endDate?: string;
-    };
-    CostsDashboardSummaryResponseDto: {
-      totalSpent: number;
-      totalDirectCosts: number;
-      totalIndirectCosts: number;
-      totalExpenses: number;
-    };
-    CostsDashboardByProjectResponseDto: Array<{
-      projectId: string;
-      projectName: string;
-      projectType: string;
-      totalSpent: number;
-      totalDirectCosts: number;
-      totalIndirectCosts: number;
-      totalExpenses: number;
-    }>;
-    CostsDashboardPieDistributionResponseDto: {
-      total: number;
-      distribution: Array<{ category: string; amount: number; percentage: number }>;
-    };
-    CostsDashboardCostEfficiencyResponseDto: {
-      summary: {
-        totalProjects: number;
-        totalCost: number;
-        averageCostPerProject: number;
-        maxCost: number;
-        minCost: number;
-        median: number;
-      };
-      distribution: Array<{ range: string; count: number; percentage: number }>;
-    };
-    CostsDashboardMonthlyBreakdownResponseDto: {
-      year: number;
-      monthlyBreakdown: Array<{
-        month: string;
-        totalSpent: number;
-        directCosts: number;
-        indirectCosts: number;
-        expenses: number;
-      }>;
-      summary: {
-        totalYearSpent: number;
-        averageMonthlySpent: number;
-        peakMonth: {
-          month: string;
-          totalSpent: number;
-          directCosts: number;
-          indirectCosts: number;
-          expenses: number;
-          transactionCount: number;
-        };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
       };
     };
     RoleListItemDto: {
@@ -8082,6 +8707,273 @@ export interface components {
        * @example Nacional
        */
       scope: string;
+    };
+    CostsDashboardSummaryResponseDto: {
+      /**
+       * @description Total gastado en todos los proyectos
+       * @example 150000
+       */
+      totalSpent: number;
+      /**
+       * @description Total de costos directos
+       * @example 80000
+       */
+      totalDirectCosts: number;
+      /**
+       * @description Total de costos indirectos
+       * @example 50000
+       */
+      totalIndirectCosts: number;
+      /**
+       * @description Total de gastos
+       * @example 20000
+       */
+      totalExpenses: number;
+    };
+    CostsDashboardByProjectResponseDto: {
+      /**
+       * @description ID del proyecto
+       * @example 68c42af8a2bab0123425b9dd
+       */
+      projectId: string;
+      /**
+       * @description Nombre del proyecto
+       * @example Proyecto Digital 2025
+       */
+      projectName: string;
+      /**
+       * @description Tipo de proyecto
+       * @example DOCUMENTADO
+       * @enum {string}
+       */
+      projectType: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+      /**
+       * @description Total gastado en el proyecto
+       * @example 25000
+       */
+      totalSpent: number;
+      /**
+       * @description Costos directos del proyecto
+       * @example 15000
+       */
+      totalDirectCosts: number;
+      /**
+       * @description Costos indirectos del proyecto
+       * @example 8000
+       */
+      totalIndirectCosts: number;
+      /**
+       * @description Gastos del proyecto
+       * @example 2000
+       */
+      totalExpenses: number;
+    };
+    CostsDashboardPieDistributionResponseDto: {
+      /**
+       * @description Total de gastos
+       * @example 150000
+       */
+      total: number;
+      /** @description Distribución por categoría */
+      distribution: {
+        /**
+         * @example DIRECT_COSTS
+         * @enum {string}
+         */
+        category?: "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
+        /** @example 80000 */
+        amount?: number;
+        /** @example 53 */
+        percentage?: number;
+      }[];
+    };
+    CostsDashboardCostEfficiencyResponseDto: {
+      /** @description Resumen de eficiencia */
+      summary: {
+        /** @example 24 */
+        totalProjects?: number;
+        /** @example 150000 */
+        totalCost?: number;
+        /** @example 6250 */
+        averageCostPerProject?: number;
+        /** @example 25000 */
+        maxCost?: number;
+        /** @example 1000 */
+        minCost?: number;
+        /** @example 5500 */
+        median?: number;
+      };
+      /** @description Distribución por rangos de costo */
+      distribution: {
+        /** @example 0-10K */
+        range?: string;
+        /** @example 15 */
+        count?: number;
+        /** @example 63 */
+        percentage?: number;
+      }[];
+    };
+    CostsDashboardMonthlyBreakdownResponseDto: {
+      /**
+       * @description Año analizado
+       * @example 2025
+       */
+      year: number;
+      /** @description Desglose mensual */
+      monthlyBreakdown: {
+        /** @example 2025-01 */
+        month?: string;
+        /** @example 15000 */
+        totalSpent?: number;
+        /** @example 8000 */
+        directCosts?: number;
+        /** @example 5000 */
+        indirectCosts?: number;
+        /** @example 2000 */
+        expenses?: number;
+      }[];
+      /** @description Resumen anual */
+      summary: {
+        /** @example 180000 */
+        totalYearSpent?: number;
+        /** @example 15000 */
+        averageMonthlySpent?: number;
+        peakMonth?: {
+          /** @example 2025-03 */
+          month?: string;
+          /** @example 25000 */
+          totalSpent?: number;
+          /** @example 15000 */
+          directCosts?: number;
+          /** @example 8000 */
+          indirectCosts?: number;
+          /** @example 2000 */
+          expenses?: number;
+          /** @example 45 */
+          transactionCount?: number;
+        };
+      };
+    };
+    DeliverableDocumentsResponseDto: {
+      /** @description Lista de documentos del entregable */
+      documents: {
+        /** @example 64a1b2c3d4e5f6789abcdef4 */
+        id?: string;
+        /** @example documento_analisis.pdf */
+        fileName?: string;
+        /** @example https://nextcloud.example.com/files/documento_analisis.pdf */
+        fileUrl?: string;
+        /** @example 2.5 */
+        fileSize?: number;
+        uploadedBy?: {
+          /** @example 64a1b2c3d4e5f6789abcdef0 */
+          userId?: string;
+          /** @example Juan */
+          name?: string;
+          /** @example Pérez */
+          lastName?: string;
+          /** @example juan.perez@example.com */
+          email?: string;
+          /** @example USER */
+          role?: string;
+        };
+        /** @example 2025-01-13T10:30:00Z */
+        uploadedAt?: string;
+      }[];
+      /**
+       * @description Número total de documentos
+       * @example 3
+       */
+      totalDocuments: number;
+      /**
+       * @description Tamaño total de todos los documentos en MB
+       * @example 7.8
+       */
+      totalSize: number;
+    };
+    AddDocumentToDeliverableRequestDto: {
+      /**
+       * @description Nombre del archivo
+       * @example documento_analisis.pdf
+       */
+      fileName: string;
+      /**
+       * @description URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento_analisis.pdf
+       */
+      fileUrl: string;
+      /**
+       * @description Tamaño del archivo en MB
+       * @example 2.5
+       */
+      fileSize?: number;
+    };
+    DocumentOperationResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje descriptivo del resultado
+       * @example Documento agregado exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID del milestone
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      milestoneId: string;
+      /**
+       * @description ID de la fase
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      deliverableId: string;
+      /**
+       * @description ID del documento
+       * @example 64a1b2c3d4e5f6789abcdef4
+       */
+      documentId: string;
+      /** @description Datos del documento */
+      data: {
+        /** @example documento_analisis.pdf */
+        fileName?: string;
+        /** @example https://nextcloud.example.com/files/documento_analisis.pdf */
+        fileUrl?: string;
+        /** @example 2.5 */
+        fileSize?: number;
+        /** @example 64a1b2c3d4e5f6789abcdef0 */
+        uploadedBy?: string;
+        /** @example 2025-01-13T10:30:00Z */
+        uploadedAt?: string;
+      };
+    };
+    UpdateDocumentRequestDto: {
+      /**
+       * @description Nuevo nombre del archivo
+       * @example documento_analisis_v2.pdf
+       */
+      fileName?: string;
+      /**
+       * @description Nueva URL del archivo en NextCloud
+       * @example https://nextcloud.example.com/files/documento_analisis_v2.pdf
+       */
+      fileUrl?: string;
+      /**
+       * @description Nuevo tamaño del archivo en MB
+       * @example 3.2
+       */
+      fileSize?: number;
     };
   };
   responses: never;
@@ -10830,6 +11722,10 @@ export interface operations {
         status?: string[];
         /** @description Filtrar por tipos de proyecto */
         projectType?: string[];
+        /** @description Filtrar por niveles de retraso del proyecto */
+        delayLevel?: ("ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY")[];
+        /** @description Campo específico para ordenamiento de proyectos */
+        projectSortField?: "name" | "createdAt" | "updatedAt" | "endDate" | "startDate" | "overallProgress" | "status";
         /** @description Campo por el cual ordenar */
         sortBy?: unknown;
       };
@@ -11899,6 +12795,526 @@ export interface operations {
       };
       /** @description Error interno del servidor */
       500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverablesController_findAdditionalDeliverablesPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda por nombre o descripción */
+        search?: string;
+        /** @description Filtrar por estado del entregable */
+        status?: "REGISTERED" | "IN_PROCESS" | "FINISHED";
+        /** @description Campo para ordenamiento */
+        sortField?: "name" | "status" | "progress" | "createdAt" | "updatedAt";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+      };
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Entregables adicionales paginados obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverablesPaginatedResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o fase no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverablesController_addAdditionalDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del entregable adicional a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAdditionalDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable adicional agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto o fase no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverablesController_updateAdditionalDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional a actualizar */
+        additionalDeliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del entregable adicional a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAdditionalDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Entregable adicional actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverablesController_deleteAdditionalDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional a eliminar */
+        additionalDeliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Entregable adicional eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverableOperationResponseDto"];
+        };
+      };
+      /** @description El entregable adicional no puede ser eliminado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverablesController_updateAdditionalDeliverableProgress_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Nuevo progreso del entregable adicional */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAdditionalDeliverableProgressRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Progreso del entregable adicional actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverableOperationResponseDto"];
+        };
+      };
+      /** @description Progreso inválido */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDocumentsController_listAdditionalDocuments: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Lista de documentos adicionales obtenida exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDocumentDto"][];
+        };
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto, fase o entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AdditionalDocumentsController_addAdditionalDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento adicional a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateAdditionalDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Documento adicional agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto, fase o entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDocumentsController_updateAdditionalDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+        /** @description ID del documento adicional a actualizar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento adicional a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAdditionalDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Documento adicional actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto, fase, entregable adicional o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDocumentsController_removeAdditionalDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+        /** @description ID del documento adicional a eliminar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documento adicional eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto, fase, entregable adicional o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDocumentsController_patchAdditionalDocument: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable adicional */
+        additionalDeliverableId: string;
+        /** @description ID del documento adicional a actualizar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Campos del documento adicional a actualizar (parcial) */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateAdditionalDocumentDto"];
+      };
+    };
+    responses: {
+      /** @description Documento adicional actualizado parcialmente exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Proyecto, fase, entregable adicional o documento no encontrado */
+      404: {
         headers: {
           [name: string]: unknown;
         };
@@ -15915,7 +17331,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardSummaryResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -15951,7 +17369,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardByProjectResponseDto"][];
+        };
       };
       /** @description Error */
       500: {
@@ -15987,7 +17407,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardPieDistributionResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -16023,7 +17445,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardCostEfficiencyResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -16061,7 +17485,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardMonthlyBreakdownResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -16070,6 +17496,482 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_findDeliverableDocuments_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documentos del entregable obtenidos exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DeliverableDocumentsResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_addDocumentToDeliverable_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento a agregar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["AddDocumentToDeliverableRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Documento agregado exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase o entregable no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_updateDocument_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+        /** @description ID del documento a actualizar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    /** @description Datos del documento a actualizar */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UpdateDocumentRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Documento actualizado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase, entregable o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ProjectDeliverableDocumentsController_deleteDocument_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del proyecto */
+        projectId: string;
+        /** @description ID de la fase */
+        phaseId: string;
+        /** @description ID del entregable */
+        deliverableId: string;
+        /** @description ID del documento a eliminar */
+        documentId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Documento eliminado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["DocumentOperationResponseDto"];
+        };
+      };
+      /** @description El documento no puede ser eliminado */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Proyecto, fase, entregable o documento no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  ReportsController_generateProjectEfficiencyReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description Tipo de proyecto (opcional) */
+        projectType?: string;
+        /** @description ID del cliente (opcional) */
+        clientId?: string;
+        /** @description Estado del proyecto (opcional) */
+        status?: string;
+        /** @description ID del ejecutivo comercial */
+        commercialExecutiveId?: string;
+        /** @description ID de la empresa implementadora */
+        implementingCompanyId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description No autorizado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Sin permisos para acceder a reportes */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  ReportsController_generateMilestoneAnalysisReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description Estado del milestone (opcional) */
+        status?: string;
+        /** @description ID del proyecto (opcional) */
+        projectId?: string;
+        /** @description ID del usuario asignado (opcional) */
+        assignedToId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+    };
+  };
+  ReportsController_generateDeliverableApprovalReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description Estado del entregable (opcional) */
+        status?: string;
+        /** @description Prioridad del entregable (opcional) */
+        priority?: string;
+        /** @description ID del usuario asignado (opcional) */
+        assignedToId?: string;
+        /** @description ID del milestone (opcional) */
+        milestoneId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+    };
+  };
+  ReportsController_generateClientSatisfactionReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description ID del cliente (opcional) */
+        clientId?: string;
+        /** @description ID del proyecto (opcional) */
+        projectId?: string;
+        /** @description Nivel de satisfacción (opcional) */
+        satisfactionLevel?: "HIGH" | "MEDIUM" | "LOW";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+    };
+  };
+  ReportsController_generateResourceCostReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description Tipo de recurso (opcional) */
+        resourceType?: string;
+        /** @description ID del proyecto (opcional) */
+        projectId?: string;
+        /** @description ID del recurso (opcional) */
+        resourceId?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+    };
+  };
+  ReportsController_generateAuditTraceabilityReport_v1: {
+    parameters: {
+      query: {
+        /** @description Fecha de inicio del reporte (YYYY-MM-DD) */
+        startDate: string;
+        /** @description Fecha de fin del reporte (YYYY-MM-DD) */
+        endDate: string;
+        /** @description Formato del reporte */
+        format?: "excel" | "pdf";
+        /** @description Nombre personalizado del archivo (opcional) */
+        fileName?: string;
+        /** @description ID del usuario (opcional) */
+        userId?: string;
+        /** @description Tipo de acción (opcional) */
+        action?: string;
+        /** @description Tipo de entidad (opcional) */
+        entityType?: string;
+        /** @description Nivel de severidad (opcional) */
+        severity?: "HIGH" | "MEDIUM" | "LOW";
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Reporte generado exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
         };
       };
     };

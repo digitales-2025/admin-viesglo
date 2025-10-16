@@ -8,9 +8,13 @@ import type { ConnectionStatus } from "../types/mqtt.types";
 /**
  * Valid state transitions for MQTT connection
  * Ensures proper state flow as per requirements
+ *
+ * ✅ Permite transiciones más flexibles para manejar casos edge:
+ * - disconnected → disconnected: Para resets de estado
+ * - disconnected → connected: Para conexiones directas del cliente MQTT
  */
 const VALID_TRANSITIONS: Record<ConnectionStatus, ConnectionStatus[]> = {
-  disconnected: ["connecting", "error"],
+  disconnected: ["connecting", "connected", "error", "disconnected"], // ✅ Agregado "connected" y "disconnected"
   connecting: ["connected", "error", "disconnected"],
   connected: ["disconnected", "reconnecting", "error"],
   reconnecting: ["connected", "error", "disconnected"],
@@ -25,14 +29,6 @@ const VALID_TRANSITIONS: Record<ConnectionStatus, ConnectionStatus[]> = {
  */
 export function isValidStateTransition(from: ConnectionStatus, to: ConnectionStatus): boolean {
   const isValid = VALID_TRANSITIONS[from].includes(to);
-
-  console.log(`🔍 State Transition Validation:`, {
-    currentStatus: from,
-    targetStatus: to,
-    validTargets: VALID_TRANSITIONS[from],
-    isValid,
-    timestamp: new Date().toISOString(),
-  });
 
   return isValid;
 }
@@ -358,12 +354,10 @@ export function shouldAttemptReconnection(
  */
 export function createNetworkMonitor(onOnline: () => void, onOffline: () => void): () => void {
   const handleOnline = () => {
-    console.log("Network connectivity restored");
     onOnline();
   };
 
   const handleOffline = () => {
-    console.log("Network connectivity lost");
     onOffline();
   };
 

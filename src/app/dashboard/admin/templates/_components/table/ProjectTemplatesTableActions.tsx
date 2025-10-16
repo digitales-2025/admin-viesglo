@@ -24,25 +24,41 @@ export default function ProjectTemplatesTableActions({ projectTemplate }: Projec
   const MODULE = "templates";
 
   const router = useRouter();
-  const handleDelete = () => open(MODULE, "delete", projectTemplate);
-  const handleReactivate = () => reactivateClient({ params: { path: { id: projectTemplate.id } } });
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    open(MODULE, "delete", projectTemplate);
+  };
+
+  const handleReactivate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    reactivateClient({ params: { path: { id: projectTemplate.id } } });
+  };
+
+  const handleView = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/dashboard/admin/templates/${projectTemplate.id}/view`);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/dashboard/admin/templates/${projectTemplate.id}/edit`);
+  };
+
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={handleTriggerClick}>
           <MoreHorizontal className="size-4" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={() => router.push(`/dashboard/admin/templates/${projectTemplate.id}/view`)}>
-          Ver
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleView}>Ver</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => router.push(`/dashboard/admin/templates/${projectTemplate.id}/edit`)}
-        >
+        <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
           Editar
           <DropdownMenuShortcut>
             <Edit className="size-4 mr-2" />

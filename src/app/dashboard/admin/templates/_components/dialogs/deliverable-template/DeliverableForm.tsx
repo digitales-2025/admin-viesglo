@@ -153,7 +153,7 @@ export default function DeliverableForm({
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid grid-cols-1 gap-4">
           <FormItem>
-            <FormLabel className="font-sans font-semibold">Milestone Template</FormLabel>
+            <FormLabel className="font-sans font-semibold">Plantilla de hito</FormLabel>
             {milestoneTemplates.length === 0 ? (
               <div className="flex items-center justify-center p-4 border border-dashed border-gray-300 rounded-md">
                 <div className="text-center">
@@ -177,7 +177,7 @@ export default function DeliverableForm({
                 >
                   <FormControl>
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Selecciona un milestone template" />
+                      <SelectValue placeholder="Selecciona una plantilla de hito" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -189,7 +189,7 @@ export default function DeliverableForm({
                   </SelectContent>
                 </Select>
                 {!selectedMilestoneTemplateId && !isUpdate && (
-                  <p className="text-sm text-red-500 mt-1">Debes seleccionar un milestone template</p>
+                  <p className="text-sm text-red-500 mt-1">Debes seleccionar una plantilla de hito</p>
                 )}
               </>
             )}

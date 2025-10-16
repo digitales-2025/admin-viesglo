@@ -25,11 +25,8 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
     const groupId = params.id as string;
     const projectId = params.projectId as string;
     const phaseId = phase.id;
-    const milestoneId = milestone.id;
 
-    router.push(
-      `/dashboard/admin/project-groups/${groupId}/projects/${projectId}/phase/${phaseId}?milestoneId=${milestoneId}`
-    );
+    router.push(`/dashboard/admin/project-groups/${groupId}/projects/${projectId}/phase/${phaseId}`);
   };
 
   // Función para manejar la actualización del período de la fase
@@ -72,8 +69,9 @@ export default function TablePhasesProject({ milestone, projectId }: TablePhases
         onDateUpdate: handleDateUpdate,
         milestoneStartDate: milestone.startDate,
         milestoneEndDate: milestone.endDate,
+        milestoneStatus: milestone.status,
       } as any),
-    [handleDateUpdate, milestone.startDate, milestone.endDate]
+    [handleDateUpdate, milestone.startDate, milestone.endDate, milestone.status]
   );
 
   return (

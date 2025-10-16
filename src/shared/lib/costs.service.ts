@@ -4,7 +4,13 @@ import { http } from "@/lib/http/clientFetch";
 /**
  * Parámetros de filtrado para endpoints de costos
  */
-export type CostsFilterParams = components["schemas"]["CostsFilterParams"];
+export type CostsFilterParams = {
+  projectType?: string;
+  status?: string;
+  startDate?: string;
+  endDate?: string;
+  year?: string;
+};
 
 export type CostsDashboardSummary = components["schemas"]["CostsDashboardSummaryResponseDto"];
 

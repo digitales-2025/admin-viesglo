@@ -7,6 +7,19 @@ import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 
 /**
+ * Claves de cache para entregables
+ */
+export const DELIVERABLES_KEYS = {
+  all: ["deliverables"] as const,
+  lists: () => [...DELIVERABLES_KEYS.all, "list"] as const,
+  list: (projectId: string, phaseId: string) => [...DELIVERABLES_KEYS.lists(), projectId, phaseId] as const,
+  paginated: (projectId: string, phaseId: string) =>
+    [...DELIVERABLES_KEYS.lists(), projectId, phaseId, "paginated"] as const,
+  detail: (projectId: string, phaseId: string, deliverableId: string) =>
+    [...DELIVERABLES_KEYS.all, projectId, phaseId, deliverableId] as const,
+};
+
+/**
  * Hook para obtener entregables por fase
  */
 export const usePhaseDeliverables = (projectId: string, phaseId: string) => {

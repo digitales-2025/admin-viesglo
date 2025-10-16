@@ -26,6 +26,7 @@ interface MilestoneAssigneeSelectorProps {
   currentAssignee?: UserSummaryResponseDto | null;
   onAssignmentChange?: (user: UserSummaryResponseDto | null) => void;
   disabled?: boolean;
+  readOnly?: boolean; // Modo de solo lectura - no permite cambios
   // Props de filtrado flexibles (igual que UserSearch)
   filterByActive?: boolean | undefined; // true = solo activos, false = solo inactivos, undefined = todos
   filterByRoleId?: string | undefined; // ID específico del rol
@@ -113,6 +114,7 @@ export function MilestoneAssigneeSelector({
   currentAssignee,
   onAssignmentChange,
   disabled = false,
+  readOnly = false, // Por defecto no es solo lectura
   // Props de filtrado
   filterByActive = true, // Por defecto solo usuarios activos
   filterByRoleId,
@@ -268,7 +270,7 @@ export function MilestoneAssigneeSelector({
   }, [allUsers, showUnassigned, showAutomatic, avatarSize]);
 
   const handleSelect = (option: any) => {
-    if (isPending) return;
+    if (isPending || readOnly) return; // No permitir cambios en modo readonly
 
     const selectedUser = option.entity;
 
@@ -363,14 +365,19 @@ export function MilestoneAssigneeSelector({
     <div ref={containerRef} className={cn("relative", className)}>
       {/* Trigger: Solo avatar clickeable */}
       <div
-        className={cn("cursor-pointer transition-opacity", (disabled || isPending) && "opacity-50 cursor-not-allowed")}
-        onClick={() => !disabled && !isPending && setOpen(true)}
+        className={cn(
+          "transition-opacity",
+          // En modo readonly, no es clickeable
+          readOnly ? "cursor-default" : "cursor-pointer",
+          (disabled || isPending || readOnly) && "opacity-50 cursor-not-allowed"
+        )}
+        onClick={() => !disabled && !isPending && !readOnly && setOpen(true)}
       >
         <UserAvatar user={currentAssignee} size={avatarSize} sizeClasses={sizeClasses} iconSizes={iconSizes} />
       </div>
 
-      {/* Dropdown */}
-      {isOpen && (
+      {/* Dropdown - Solo mostrar si no es readonly */}
+      {isOpen && !readOnly && (
         <div
           className={cn(
             "absolute z-50 rounded-md border bg-popover shadow-lg animate-in fade-in-0 zoom-in-95",

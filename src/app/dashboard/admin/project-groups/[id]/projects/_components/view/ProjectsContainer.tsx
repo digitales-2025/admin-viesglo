@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Loader2, SearchIcon } from "lucide-react";
+import { FolderOpen, Loader2, Search, SearchIcon } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 import { Loading } from "@/shared/components/loading";
@@ -34,9 +34,14 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
     handleProjectGroupFilter,
     handleStatusFilter,
     handleProjectTypeFilter,
+    handleDelayLevelFilter,
+    handleSortChange,
     handleScrollEnd,
     selectedStatuses,
     selectedProjectTypes,
+    selectedDelayLevels,
+    projectSortField,
+    sortOrder,
   } = useSearchProjects();
 
   // Configurar filtro por grupo de proyectos
@@ -60,22 +65,35 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
     [debouncedSearch]
   );
 
-  // Scroll infinito responsive (basado en autocomplete.tsx)
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // Scroll infinito con Intersection Observer (más eficiente)
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const handleScroll = useCallback(
-    (event: React.UIEvent<HTMLDivElement>) => {
-      if (!hasNextPage || isFetchingNextPage) return;
-
-      const { scrollTop, scrollHeight, clientHeight } = event.currentTarget;
-      const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px margen
-
-      if (isAtBottom) {
-        handleScrollEnd();
+  // Intersection Observer para detectar cuando el usuario llega al final
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          handleScrollEnd();
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "100px", // Cargar cuando esté a 100px del final
       }
-    },
-    [hasNextPage, isFetchingNextPage, handleScrollEnd]
-  );
+    );
+
+    const currentRef = loadMoreRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, handleScrollEnd]);
 
   // Calcular progreso general del grupo
   const overallProgress =
@@ -100,8 +118,13 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
           <ProjectsFilters
             selectedProjectTypes={selectedProjectTypes}
             selectedProjectStatuses={selectedStatuses}
+            selectedDelayLevels={selectedDelayLevels}
+            projectSortField={projectSortField}
+            sortOrder={sortOrder}
             onProjectTypesChange={handleProjectTypeFilter}
             onProjectStatusesChange={handleStatusFilter}
+            onDelayLevelsChange={handleDelayLevelFilter}
+            onSortChange={handleSortChange}
           />
         </div>
 
@@ -116,12 +139,21 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
             </div>
 
             {/* Overall Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-7 flex items-center">
+            <div className="w-full bg-gray-200 rounded-full h-8 flex items-center relative">
               <div
-                className="bg-primary h-8 rounded-full transition-all duration-300"
+                className={`bg-primary h-8 transition-all duration-300 ${
+                  overallProgress === 100 ? "rounded-full" : "rounded-l-full"
+                }`}
                 style={{ width: `${overallProgress}%` }}
               ></div>
-              <span className="text-lg font-semibold text-gray-900">{overallProgress}%</span>
+              <span
+                className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold transition-colors duration-300"
+                style={{
+                  color: overallProgress > 55 ? "white" : "#1f2937", // Blanco si está sobre la barra, gris oscuro si no
+                }}
+              >
+                {overallProgress}%
+              </span>
             </div>
           </div>
           {/* Loading State */}
@@ -137,11 +169,7 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
           )}
           {/* Projects Grid with Infinite Scroll */}
           {!isLoading && !isError && (
-            <div
-              ref={scrollContainerRef}
-              className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6 max-h-[calc(100vh-300px)] overflow-y-auto"
-              onScroll={handleScroll}
-            >
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6">
               {allProjects.map((project) => (
                 <ProjectCard key={project.id} project={project} />
               ))}
@@ -157,22 +185,35 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
               {/* No results */}
               {allProjects.length === 0 && !isLoading && (
                 <div className="col-span-full text-center py-12">
-                  <div className="text-muted-foreground mb-4">
-                    {inputValue ? "No se encontraron proyectos con ese criterio" : "No hay proyectos en este grupo"}
+                  <div className="flex flex-col items-center gap-3">
+                    {inputValue ? (
+                      <>
+                        <Search className="h-12 w-12 text-muted-foreground/60" />
+                        <div className="text-muted-foreground">No se encontraron proyectos con ese criterio</div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setInputValue("");
+                            handleInputChange("");
+                          }}
+                          className="mt-2"
+                        >
+                          Limpiar búsqueda
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <FolderOpen className="h-12 w-12 text-muted-foreground/60" />
+                        <div className="text-muted-foreground">No hay proyectos en este grupo</div>
+                      </>
+                    )}
                   </div>
-                  {inputValue && (
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setInputValue("");
-                        handleInputChange("");
-                      }}
-                    >
-                      Limpiar búsqueda
-                    </Button>
-                  )}
                 </div>
               )}
+
+              {/* Elemento invisible para detectar scroll infinito */}
+              {hasNextPage && <div ref={loadMoreRef} className="h-4" />}
             </div>
           )}
         </div>

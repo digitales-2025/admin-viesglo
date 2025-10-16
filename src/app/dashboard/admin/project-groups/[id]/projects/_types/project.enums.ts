@@ -43,3 +43,10 @@ export enum BondTypeEnum {
   INTERNAL = "INTERNAL",
   EXTERNAL = "EXTERNAL",
 }
+
+export enum ProjectDelayLevelEnum {
+  ON_TIME = "ON_TIME",
+  AHEAD = "AHEAD",
+  ACCEPTABLE_DELAY = "ACCEPTABLE_DELAY",
+  CRITICAL_DELAY = "CRITICAL_DELAY",
+}

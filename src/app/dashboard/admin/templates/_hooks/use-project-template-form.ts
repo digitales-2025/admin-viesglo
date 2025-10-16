@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { CreateProjectTemplate, CreateProjectTemplateSchema } from "../_schemas/projectTemplates.schemas";
 import { useTemplateDraftStore } from "../_stores/template-draft.store";
@@ -55,8 +56,8 @@ export const useProjectTemplateForm = ({
           initialData.milestones?.map((milestone) => ({
             milestoneTemplateId: milestone.milestoneTemplateId,
             isRequired: milestone.isRequired ?? false,
-            customName: milestone.customName, // Preservar null si es null
-            customizations: milestone.customizations, // Preservar null si es null
+            customName: milestone.customName === null ? undefined : milestone.customName, // Convertir null a undefined
+            customizations: milestone.customizations === null ? undefined : milestone.customizations, // Convertir null a undefined
           })) || [],
         tagIds: initialData.tags?.map((tag) => tag.id) || [],
       };
@@ -64,6 +65,34 @@ export const useProjectTemplateForm = ({
       form.reset(formData);
     }
   }, [initialData, isUpdate]);
+
+  // Función para limpiar null values de milestones
+  const cleanMilestones = useCallback((milestones: any[]) => {
+    if (!milestones) return milestones;
+
+    return milestones.map((milestone) => ({
+      ...milestone,
+      customName: milestone.customName === null ? undefined : milestone.customName,
+      customizations: milestone.customizations === null ? undefined : milestone.customizations,
+    }));
+  }, []);
+
+  // Efecto para asegurar que los milestones siempre tengan undefined en lugar de null
+  useEffect(() => {
+    if (isUpdate) {
+      const currentValues = form.getValues();
+      if (currentValues.milestones) {
+        const needsUpdate = currentValues.milestones.some(
+          (milestone) => milestone.customName === null || milestone.customizations === null
+        );
+
+        if (needsUpdate) {
+          const fixedMilestones = cleanMilestones(currentValues.milestones);
+          form.setValue("milestones", fixedMilestones);
+        }
+      }
+    }
+  }, [form, isUpdate, cleanMilestones]);
 
   // Función para obtener los datos finales con isActive manejado automáticamente
   const getSubmitData = (data: CreateProjectTemplate) => {
@@ -75,7 +104,13 @@ export const useProjectTemplateForm = ({
 
   // Función para manejar el submit
   const onSubmit = (data: CreateProjectTemplate) => {
-    const submitData = getSubmitData(data);
+    // Limpiar null values en milestones antes de procesar
+    const cleanedData = {
+      ...data,
+      milestones: cleanMilestones(data.milestones || []),
+    };
+
+    const submitData = getSubmitData(cleanedData);
 
     if (isUpdate && initialData) {
       // Actualizar plantilla existente
@@ -93,6 +128,9 @@ export const useProjectTemplateForm = ({
             // Redirigir a la lista de plantillas
             router.push("/dashboard/admin/templates");
           },
+          onError: (error) => {
+            toast.error(error?.error?.userMessage || "Ocurrió un error inesperado al actualizar la plantilla");
+          },
         }
       );
     } else {
@@ -101,12 +139,16 @@ export const useProjectTemplateForm = ({
         { body: submitData as any },
         {
           onSuccess: () => {
+            toast.success("Plantilla creada correctamente");
             onSuccess?.();
             form.reset();
             // Limpiar borrador después de guardar exitosamente
             clearDraft(undefined, false);
             // Redirigir a la lista de plantillas
             router.push("/dashboard/admin/templates");
+          },
+          onError: (error) => {
+            toast.error(error?.error?.userMessage || "Ocurrió un error inesperado al crear la plantilla");
           },
         }
       );

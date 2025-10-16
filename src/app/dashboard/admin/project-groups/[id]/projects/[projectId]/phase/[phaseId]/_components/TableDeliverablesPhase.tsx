@@ -1,38 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { Check, Edit, MoreHorizontal, Plus, Trash, X } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
-import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { cn } from "@/shared/lib/utils";
+import { usePermissionCheckHook } from "@/shared/components/protected-component";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import {
   useSetDeliverableActualEndDate,
   useSetDeliverableActualStartDate,
 } from "../../../../_hooks/use-deliverable-actual-dates";
-import { useToggleDeliverableApproval, useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
+import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
-import {
-  deliverablePriorityConfig,
-  deliverableStatusConfig,
-  precedentDisplayConfig,
-} from "../../../../_utils/projects.utils";
 import { useRemovePrecedent, useSetPrecedent } from "../../../../../projects/_hooks/use-project-deliverables";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
 import { MODULE_DELIVERABLES_PHASE } from "./deliverables-phase-overlays/DeliverablesPhaseOverlays";
+import { DeliverablesPhaseColumns } from "./DeliverablesPhaseColumns";
 
 interface TableDeliverablesPhaseProps {
   projectId: string;
@@ -51,21 +36,13 @@ interface TableDeliverablesPhaseProps {
   search: string | undefined;
   phaseStartDate: string | undefined;
   phaseEndDate: string | undefined;
+  milestoneStatus?: string;
 }
 
-// Funciones auxiliares
-const formatStatus = (status: string) => {
-  const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
-  return config ? config.label : status;
+// Función para verificar si un entregable tiene fechas planificadas válidas
+const hasValidPlannedDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
+  return !!(deliverable.startDate && deliverable.endDate);
 };
-
-const formatPriority = (priority: string) => {
-  const config = deliverablePriorityConfig[priority as keyof typeof deliverablePriorityConfig];
-  return config ? config.label : priority;
-};
-
-// Crear el column helper
-const columnHelper = createColumnHelper<DeliverableDetailedResponseDto>();
 
 export function TableDeliverablesPhase({
   projectId,
@@ -79,8 +56,11 @@ export function TableDeliverablesPhase({
   search,
   phaseStartDate,
   phaseEndDate,
+  milestoneStatus,
 }: TableDeliverablesPhaseProps) {
   const { open } = useDialogStore();
+  const { hasAnyPermission } = usePermissionCheckHook();
+
   const { mutate: setPrecedent } = useSetPrecedent();
   const { mutate: removePrecedent } = useRemovePrecedent();
 
@@ -88,10 +68,6 @@ export function TableDeliverablesPhase({
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const { mutate: setActualStartDate } = useSetDeliverableActualStartDate();
   const { mutate: setActualEndDate } = useSetDeliverableActualEndDate();
-  const { mutate: toggleApproval, isPending: isTogglingApproval } = useToggleDeliverableApproval();
-
-  console.log("deliverables", JSON.stringify(deliverables, null, 2));
-
   // Función para manejar la actualización del período completo
   const handleDateUpdate = React.useCallback(
     (deliverableId: string, startDate?: Date, endDate?: Date) => {
@@ -133,37 +109,33 @@ export function TableDeliverablesPhase({
     }
   };
 
+  // Función para manejar la confirmación de fecha de fin real (con diálogo de confirmación)
+  const handleActualEndDateConfirm = (deliverableId: string, date?: Date) => {
+    if (date) {
+      // Abrir diálogo de confirmación con los datos del entregable
+      const deliverable = deliverables.find((d) => d.id === deliverableId);
+      if (deliverable) {
+        open(MODULE_DELIVERABLES_PHASE, "confirm-end-date", {
+          ...deliverable,
+          endDate: date.toISOString(),
+        });
+      }
+    }
+  };
+
   // Función para manejar el toggle de aprobación
-  const handleToggleApproval = (deliverableId: string) => {
-    toggleApproval({
-      params: {
-        path: {
-          projectId,
-          phaseId,
-          deliverableId,
-        },
-      },
-    });
+  const handleToggleApproval = (deliverable: DeliverableDetailedResponseDto) => {
+    // Solo permitir aprobar si no está aprobado
+    if (!deliverable.isApproved) {
+      open(MODULE_DELIVERABLES_PHASE, "approve", deliverable);
+    }
   };
   // Función para manejar la selección de precedente
   const handlePrecedentSelect = (deliverableId: string, selectedPrecedentId: string) => {
-    console.log("%c[Precedencia seleccionada]", "color: #4ade80; font-weight: bold;", {
-      projectId,
-      phaseId,
-      deliverable: deliverableId,
-      selectedPrecedent: selectedPrecedentId,
-    });
     setOpenDropdowns((prev) => ({ ...prev, [deliverableId]: false }));
 
     // Si selectedPrecedentId está vacío, remover precedente
     if (!selectedPrecedentId) {
-      console.log("%c[Eliminando precedencia]", "color: #ef4444; font-weight: bold;", {
-        projectId,
-        phaseId,
-        deliverableId,
-        action: "DELETE precedent",
-        message: "Precedente será eliminado (actualmente solo log)",
-      });
       removePrecedent({
         params: {
           path: {
@@ -197,368 +169,83 @@ export function TableDeliverablesPhase({
     return deliverables.find((deliverable) => deliverable.id === id);
   };
 
-  // Definir las columnas
-  const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(
-    () => [
-      columnHelper.accessor("name", {
-        id: "nombre",
-        header: "Nombre",
-        cell: ({ getValue, row }) => {
-          const name = getValue();
-          const status = row.original.status;
-          const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
-          const IconComponent = config?.icon;
-          return (
-            <div className="flex flex-col space-y-1">
-              <span className="font-medium text-foreground">{name || "Sin nombre"}</span>
-              <Badge
-                variant="outline"
-                className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}
-              >
-                {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
-                {formatStatus(status)}
-              </Badge>
-            </div>
-          );
-        },
-      }),
-      columnHelper.accessor("priority", {
-        id: "prioridad",
-        header: "Prioridad",
-        cell: ({ getValue }) => {
-          const priority = getValue();
-          const config = deliverablePriorityConfig[priority as keyof typeof deliverablePriorityConfig];
-          const IconComponent = config?.icon;
+  // Función para verificar si un entregable tiene precedente y si está bloqueado
+  const isDeliverableBlockedByPrecedent = (deliverable: DeliverableDetailedResponseDto): boolean => {
+    const precedentId = (deliverable as any).precedentId;
+    if (!precedentId) return false;
 
-          return (
-            <Badge variant="outline" className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}>
-              {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
-              {formatPriority(priority)}
-            </Badge>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: "precedences",
-        header: "Precedencias",
-        cell: ({ row }) => {
-          const precedentId = (row.original as any).precedentId;
-          const rowIndex = row.index;
-          const currentDeliverableId = row.original.id;
+    const precedentDeliverable = findPrecedentDeliverable(precedentId);
+    if (!precedentDeliverable) return false;
 
-          // Caso 1: Primer elemento, no requiere precedente.
-          if (rowIndex === 0) {
-            const config = precedentDisplayConfig.NO_PRECEDENT_REQUIRED;
-            const IconComponent = config.icon;
-            return (
-              <Badge
-                variant="outline"
-                className={cn("h-8 gap-1.5", config.className, config.textClass, config.borderColor)}
-              >
-                <IconComponent className={cn("h-3 w-3", config.iconClass)} />
-                {config.label}
-              </Badge>
-            );
-          }
+    // El entregable está bloqueado si su precedente no tiene fecha de fin real
+    return !precedentDeliverable.actualEndDate;
+  };
 
-          // Caso 2: No tiene precedente asignado.
-          if (!precedentId) {
-            const config = precedentDisplayConfig.ASSIGN_PRECEDENT;
-            const IconComponent = config.icon;
-            return (
-              <DropdownMenu
-                open={openDropdowns[currentDeliverableId]}
-                onOpenChange={(open) => setOpenDropdowns((prev) => ({ ...prev, [currentDeliverableId]: open }))}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "h-8 gap-1.5 text-xs cursor-pointer transition-colors",
-                      config.className,
-                      config.textClass,
-                      config.borderColor
-                    )}
-                  >
-                    <IconComponent className={cn("h-3 w-3", config.iconClass)} />
-                    {config.label}
-                  </Button>
-                </DropdownMenuTrigger>
+  // Función para determinar si las fechas reales deben estar habilitadas
+  const shouldEnableActualDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
+    // PRIMERO: Verificar si está bloqueado por precedencia (esto tiene prioridad)
+    const isBlocked = isDeliverableBlockedByPrecedent(deliverable);
+    if (isBlocked) {
+      return false;
+    }
 
-                {/* INICIO: Asegurarse de que este contenido esté presente */}
-                <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
-                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Seleccionar precedente
-                  </div>
-                  {deliverables
-                    .filter((deliverable) => deliverable.id !== currentDeliverableId)
-                    .map((deliverable) => {
-                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1;
-                      return (
-                        <DropdownMenuItem
-                          key={deliverable.id}
-                          onClick={() => handlePrecedentSelect(currentDeliverableId, deliverable.id)}
-                          className="cursor-pointer flex items-start gap-2 py-2"
-                        >
-                          <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
-                            {globalIndex}
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm leading-tight truncate">
-                              {deliverable.name || "Sin nombre"}
-                            </span>
-                            <span className="text-xs text-muted-foreground truncate">
-                              {deliverable.description || "Sin descripción"}
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-                {/* FIN: Contenido del Dropdown */}
-              </DropdownMenu>
-            );
-          }
+    // SEGUNDO: Verificar el estado del milestone
+    if (milestoneStatus === "VALIDATED") {
+      return true;
+    }
 
-          // Caso 3: Tiene un precedente asignado.
-          const precedentDeliverable = findPrecedentDeliverable(precedentId);
-          const precedentIndex = deliverables.findIndex((d) => d.id === precedentDeliverable?.id) + 1;
-          const config = precedentDisplayConfig.HAS_PRECEDENT;
-          const IconComponent = config.icon;
+    return true;
+  };
 
-          return (
-            <div className="relative flex items-center space-x-1">
-              <Badge
-                variant="outline"
-                className={cn("text-xs h-8 px-3 gap-1.5", config.className, config.textClass, config.borderColor)}
-              >
-                <IconComponent className={cn("h-3 w-3", config.iconClass)} />#{precedentIndex}{" "}
-                {precedentDeliverable?.name || `ID: ${precedentId}`}
-              </Badge>
+  // Función para determinar si las columnas de fechas reales deben mostrarse
+  const shouldShowActualDateColumns = (): boolean => {
+    // Solo mostrar las columnas cuando el milestone status NO es "CREATED"
+    return milestoneStatus !== "PLANNING";
+  };
 
-              <DropdownMenu
-                open={openDropdowns[currentDeliverableId]}
-                onOpenChange={(open) => setOpenDropdowns((prev) => ({ ...prev, [currentDeliverableId]: open }))}
-              >
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 rounded-sm data-[state=open]:bg-muted"
-                    title="Editar precedente"
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                </DropdownMenuTrigger>
+  // Función para verificar si el usuario tiene permisos de aprobación
+  const hasApprovalPermissions = React.useMemo(() => {
+    return hasAnyPermission([
+      { resource: EnumResource.projects, action: EnumAction.write },
+      { resource: EnumResource.projects, action: EnumAction.manage },
+    ]);
+  }, [hasAnyPermission]);
 
-                {/* INICIO: Asegurarse de que este contenido también esté presente aquí */}
-                <DropdownMenuContent align="start" className="w-72 max-h-72 overflow-y-auto">
-                  <div className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Cambiar precedente
-                  </div>
-                  {deliverables
-                    .filter((d) => d.id !== currentDeliverableId)
-                    .map((deliverable) => {
-                      const globalIndex = deliverables.findIndex((d) => d.id === deliverable.id) + 1;
-                      return (
-                        <DropdownMenuItem
-                          key={deliverable.id}
-                          onClick={() => handlePrecedentSelect(currentDeliverableId, deliverable.id)}
-                          className="cursor-pointer flex items-start gap-2 py-2"
-                        >
-                          <span className="text-[10px] font-semibold text-muted-foreground w-5 text-right pt-0.5">
-                            {globalIndex}
-                          </span>
-                          <div className="flex flex-col">
-                            <span className="font-medium text-sm leading-tight truncate">
-                              {deliverable.name || "Sin nombre"}
-                            </span>
-                            <span className="text-xs text-muted-foreground truncate">
-                              {deliverable.description || "Sin descripción"}
-                            </span>
-                          </div>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  <div className="border-t my-1" />
-                  <DropdownMenuItem
-                    onClick={() => handlePrecedentSelect(currentDeliverableId, "")}
-                    className="cursor-pointer flex items-center gap-2 py-2 hover:bg-muted"
-                  >
-                    <Trash className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">Quitar precedente</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-                {/* FIN: Contenido del Dropdown */}
-              </DropdownMenu>
-            </div>
-          );
-        },
-      }),
+  // Verificar si TODOS los entregables tienen fechas planificadas para mostrar la columna de aprobación
+  const hasAllDeliverablesWithDates = React.useMemo(() => {
+    return deliverables.length > 0 && deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
+  }, [deliverables]);
 
-      columnHelper.display({
-        id: "dateRange",
-        header: "Fecha de Inicio y Fin - Planificado",
-        cell: ({ row }) => {
-          const startDate = row.original.startDate;
-          const endDate = row.original.endDate;
-          const deliverableId = row.original.id;
+  // Verificar si TODOS los entregables ya están aprobados
+  const areAllDeliverablesApproved = React.useMemo(() => {
+    return deliverables.length > 0 && deliverables.every((deliverable) => deliverable.isApproved === true);
+  }, [deliverables]);
 
-          return (
-            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <DatePickerWithRange
-                initialValue={
-                  startDate || endDate
-                    ? {
-                        from: startDate ? new Date(startDate) : undefined,
-                        to: endDate ? new Date(endDate) : undefined,
-                      }
-                    : undefined
-                }
-                onConfirm={(dateRange) => {
-                  handleDateUpdate(deliverableId, dateRange?.from, dateRange?.to);
-                }}
-                placeholder={startDate && endDate ? "Editar período" : "Seleccionar período"}
-                size="sm"
-                className="w-full"
-                confirmText="Guardar período"
-                clearText="Limpiar período"
-                cancelText="Cancelar"
-                // Limitadores de fechas de la fase
-                fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
-                toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
-                showHolidays={true}
-              />
-            </div>
-          );
-        },
-      }),
+  // Verificar si se debe mostrar la columna de aprobación (fechas + permisos + no todos aprobados)
+  const shouldShowApprovalColumn = React.useMemo(() => {
+    return hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
+  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved]);
 
-      columnHelper.display({
-        id: "actualStartDate",
-        header: "Fecha de Inicio - Ejecutado",
-        cell: ({ row }) => {
-          const actualStartDate = row.original.actualStartDate;
-          const deliverableId = row.original.id;
-
-          return (
-            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <DatePicker
-                selected={actualStartDate ? new Date(actualStartDate) : undefined}
-                onSelect={(date) => handleActualStartDateUpdate(deliverableId, date)}
-                placeholder="Seleccionar inicio"
-                clearable={true}
-                className="w-full min-w-[140px]"
-              />
-            </div>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: "actualEndDate",
-        header: "Fecha de Fin - Ejecutado",
-        cell: ({ row }) => {
-          const actualEndDate = row.original.actualEndDate;
-          const deliverableId = row.original.id;
-
-          return (
-            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <DatePicker
-                selected={actualEndDate ? new Date(actualEndDate) : undefined}
-                onSelect={(date) => handleActualEndDateUpdate(deliverableId, date)}
-                placeholder="Seleccionar fin"
-                clearable={true}
-                className="w-full min-w-[140px]"
-              />
-            </div>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: "approval",
-        header: "Aprobación",
-        cell: ({ row }) => {
-          const deliverable = row.original;
-          const isApproved = deliverable.isApproved || false;
-
-          return (
-            <div onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant={isApproved ? "default" : "outline"}
-                size="sm"
-                onClick={() => handleToggleApproval(deliverable.id)}
-                disabled={isTogglingApproval}
-                className={cn(
-                  "gap-2",
-                  isApproved
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "border-green-600 text-green-600 hover:bg-green-50"
-                )}
-              >
-                {isApproved ? (
-                  <>
-                    <Check className="h-4 w-4" />
-                    Aprobado
-                  </>
-                ) : (
-                  <>
-                    <X className="h-4 w-4" />
-                    Aprobar
-                  </>
-                )}
-              </Button>
-            </div>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: "actions",
-        header: "",
-        cell: ({ row }) => {
-          const deliverable = row.original;
-
-          return (
-            <div onClick={(e) => e.stopPropagation()}>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}>
-                    <Edit className="w-4 h-4 mr-2" />
-                    Editar
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Agregar incidencias
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}>
-                    <Trash className="w-4 h-4 mr-2" />
-                    Eliminar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
-      }),
-    ],
-    [
-      projectId,
-      phaseId,
-      updateDeliverable,
-      open,
-      handleActualStartDateUpdate,
-      handleActualEndDateUpdate,
-      handleToggleApproval,
-      isTogglingApproval,
-      phaseStartDate,
-      phaseEndDate,
-    ]
-  );
+  // Obtener las columnas del componente dedicado
+  const columns = DeliverablesPhaseColumns({
+    projectId,
+    phaseId,
+    deliverables,
+    milestoneStatus,
+    phaseStartDate,
+    phaseEndDate,
+    handleDateUpdate,
+    handleActualStartDateUpdate,
+    handleActualEndDateUpdate,
+    handleActualEndDateConfirm,
+    handleToggleApproval,
+    handlePrecedentSelect,
+    openDropdowns,
+    setOpenDropdowns,
+    shouldEnableActualDates,
+    shouldShowActualDateColumns,
+    shouldShowApprovalColumn,
+  });
 
   // Configuración de paginación del servidor
   const serverPagination: ServerPaginationTanstackTableConfig | undefined = meta
@@ -579,7 +266,14 @@ export function TableDeliverablesPhase({
       data={deliverables}
       filterPlaceholder="Buscar entregables..."
       expandable={true}
-      renderDetailsPanel={(deliverable) => <DeliverableDetailsPanel deliverable={deliverable} />}
+      renderDetailsPanel={(deliverable) => (
+        <DeliverableDetailsPanel
+          deliverable={deliverable}
+          projectId={projectId}
+          phaseId={phaseId}
+          milestoneStatus={milestoneStatus}
+        />
+      )}
       getItemId={(deliverable) => deliverable.id}
       getItemTitle={(deliverable) => deliverable.name}
       defaultPanelSize={40}

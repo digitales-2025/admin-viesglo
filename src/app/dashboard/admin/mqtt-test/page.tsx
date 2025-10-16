@@ -27,15 +27,6 @@ export default function MqttTestPage() {
     qos: 1,
   });
 
-  // Debug logging
-  console.log("MQTT Test Page - Current state:", {
-    topic,
-    messagesCount: messages.length,
-    isConnected,
-    isSubscribed,
-    timestamp: new Date().toISOString(),
-  });
-
   const handleSubscribe = useCallback(() => {
     if (!isSubscribed) subscribe();
   }, [isSubscribed, subscribe]);
