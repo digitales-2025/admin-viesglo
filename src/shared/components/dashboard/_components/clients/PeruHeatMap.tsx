@@ -11,10 +11,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { peruDepartamental } from "@/shared/data/peru-departament";
-// type ClientEventPayload = {
-//   type: "created" | "updated" | "deleted";
-//   client: ClientSummary;
-// };
 import { useRealtimeSubscription } from "@/shared/hooks/use-realtime-subscription";
 import { fetchClientsDashboardSummary } from "@/shared/lib/clients.service";
 
@@ -78,7 +74,7 @@ export default function PeruHeatMap() {
   // Fase 1: carga inicial (ViewModel agregado completo desde el backend)
   const { data: summaryData } = useQuery({
     queryKey: ["clients", "dashboard", "summary"],
-    queryFn: fetchClientsDashboardSummary,
+    queryFn: () => fetchClientsDashboardSummary(),
     staleTime: 60_000,
   });
 
