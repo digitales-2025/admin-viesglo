@@ -110,7 +110,7 @@ export default function PhaseForm({
               >
                 <FormControl>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Selecciona un milestone template" />
+                    <SelectValue placeholder="Selecciona una plantilla de hito" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -122,7 +122,7 @@ export default function PhaseForm({
                 </SelectContent>
               </Select>
               {!selectedMilestoneId && (
-                <p className="text-sm text-red-500 mt-1">Debes seleccionar un milestone template</p>
+                <p className="text-sm text-red-500 mt-1">Debes seleccionar una plantilla de hito</p>
               )}
             </>
           )}

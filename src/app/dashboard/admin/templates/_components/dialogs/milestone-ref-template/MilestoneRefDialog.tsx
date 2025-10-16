@@ -55,7 +55,7 @@ export function MilestoneRefDialog({
       description={
         isUpdate
           ? "Modifica la configuración del hito seleccionado. Cambia los campos necesarios y guarda los cambios."
-          : "Configura un hito para tu plantilla de proyecto. Selecciona el milestone template y personaliza su configuración."
+          : "Configura un hito para tu plantilla de proyecto. Selecciona una plantilla de hito y personaliza su configuración."
       }
       dialogContentClassName="sm:max-w-md px-0"
       dialogScrollAreaClassName="h-full max-h-[80vh] px-0"

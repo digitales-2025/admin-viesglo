@@ -40,7 +40,7 @@ export const MilestoneTemplateSchema = z.object({
 
 // Schema para milestone template ref (como se usa en project templates)
 export const MilestoneTemplateRefSchema = z.object({
-  milestoneTemplateId: z.string().min(1, "El ID del milestone template es requerido"),
+  milestoneTemplateId: z.string().min(1, "El ID de la plantilla de hito es requerido"),
   isRequired: z.boolean().optional().default(false),
   customName: z.string().max(100, "El nombre personalizado no puede tener más de 100 caracteres").optional(),
   customizations: z.record(z.any()).optional(),
@@ -120,7 +120,7 @@ export type MilestoneTemplateRefFormData = z.infer<typeof MilestoneTemplateRefSc
 
 // Schema para el formulario de milestone ref con campos adicionales
 export const milestoneRefFormSchema = z.object({
-  milestoneTemplateId: z.string().min(1, "El ID del milestone template es requerido"),
+  milestoneTemplateId: z.string().min(1, "El ID de la plantilla de hito es requerido"),
   isRequired: z.boolean().default(false),
   customName: z.string().max(100, "El nombre personalizado no puede tener más de 100 caracteres").optional(),
   customizations: z.record(z.any()).optional(),
