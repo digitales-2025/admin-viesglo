@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
@@ -17,6 +18,19 @@ import { MilestoneTemplateResponseDto } from "../../_types/templates.types";
 import { useTagsByName } from "../../../tags/_hooks/use-tags";
 import { TagResponseDto } from "../../../tags/_types/tags.types";
 import CreateProjectTemplateForm from "../../create/_components/CreateProjectTemplateForm";
+
+// Función para obtener nombres legibles de los campos
+const getFieldDisplayName = (fieldName: string): string => {
+  const fieldNames: Record<string, string> = {
+    name: "Nombre",
+    description: "Descripción",
+    isActive: "Estado",
+    milestones: "Hitos",
+    tagIds: "Etiquetas",
+  };
+
+  return fieldNames[fieldName] || fieldName;
+};
 
 export default function EditTemplatesPage() {
   const params = useParams();
@@ -121,8 +135,27 @@ export default function EditTemplatesPage() {
     // Solo necesitamos asegurarnos de que los tags estén sincronizados
     updateTags(selectedTags);
 
-    // Enviar el formulario
-    form.handleSubmit(onSubmit)();
+    // Enviar el formulario con manejo de errores
+    form.handleSubmit(onSubmit, (errors) => {
+      // Mostrar toast de error de validación con detalles específicos
+      const errorDetails = Object.entries(errors).map(([field, error]) => {
+        const fieldName = getFieldDisplayName(field);
+        return `${fieldName}: ${error?.message || "Campo inválido"}`;
+      });
+
+      if (errorDetails.length > 0) {
+        // Si hay un solo error, mostrarlo directamente
+        if (errorDetails.length === 1) {
+          toast.error(errorDetails[0]);
+        } else {
+          // Si hay múltiples errores, mostrarlos en lista
+          toast.error(`Errores de validación:\n• ${errorDetails.join("\n• ")}`);
+        }
+      } else {
+        toast.error("Por favor, revisa los campos del formulario");
+      }
+      // El estado isSubmitting se reseteará automáticamente por el useEffect
+    })();
   };
 
   // Callbacks para el diálogo de navegación

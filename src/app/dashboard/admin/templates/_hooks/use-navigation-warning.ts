@@ -51,6 +51,16 @@ export const useNavigationWarning = ({
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
+
+      // No interceptar si el click viene de un botón o elemento que maneja su propia navegación
+      const isButton = target.closest("button");
+      const isDropdownItem = target.closest("[role='menuitem']");
+      const isActionElement = target.closest("[data-action]");
+
+      if (isButton || isDropdownItem || isActionElement) {
+        return;
+      }
+
       const link = target.closest("a[href]") as HTMLAnchorElement;
 
       if (!link) return;

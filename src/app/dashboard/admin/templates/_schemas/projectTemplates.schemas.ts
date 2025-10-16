@@ -42,8 +42,17 @@ export const MilestoneTemplateSchema = z.object({
 export const MilestoneTemplateRefSchema = z.object({
   milestoneTemplateId: z.string().min(1, "El ID de la plantilla de hito es requerido"),
   isRequired: z.boolean().optional().default(false),
-  customName: z.string().max(100, "El nombre personalizado no puede tener más de 100 caracteres").optional(),
-  customizations: z.record(z.any()).optional(),
+  customName: z
+    .string()
+    .max(100, "El nombre personalizado no puede tener más de 100 caracteres")
+    .optional()
+    .nullable()
+    .transform((val) => (val === null ? undefined : val)),
+  customizations: z
+    .record(z.any())
+    .optional()
+    .nullable()
+    .transform((val) => (val === null ? undefined : val)),
 });
 
 export const CreateProjectTemplateSchema = z.object({

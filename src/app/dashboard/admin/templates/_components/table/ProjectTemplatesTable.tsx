@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 
 import { useProfile } from "@/app/(public)/auth/sign-in/_hooks/use-auth";
 import AlertMessage from "@/shared/components/alerts/Alert";
@@ -12,10 +13,16 @@ import { ProjectTemplateResponseDto } from "../../_types/templates.types";
 import { columnsProjectTemplates } from "./ProjectTemplatesColumns";
 
 export default function ProjectTemplatesTable() {
+  const router = useRouter();
   const { query, setPagination } = useProjectTemplates();
   const { data, isLoading, error } = query;
   const columns = useMemo(() => columnsProjectTemplates(), []);
   const { isSuperAdmin } = useProfile();
+
+  // Función para manejar el click en una fila
+  const handleRowClick = (template: ProjectTemplateResponseDto) => {
+    router.push(`/dashboard/admin/templates/${template.id}/view`);
+  };
 
   if (isLoading) return <Loading text="Cargando plantillas de proyectos..." variant="spinner" />;
 
@@ -36,6 +43,7 @@ export default function ProjectTemplatesTable() {
       columns={columns}
       data={data.data as unknown as ProjectTemplateResponseDto[]}
       filterPlaceholder="Buscar plantilla..."
+      onClickRow={handleRowClick}
       serverPagination={{
         pageIndex: data.meta.page - 1,
         pageSize: data.meta.pageSize,
