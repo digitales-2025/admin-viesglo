@@ -7,6 +7,16 @@ import { usePagination } from "@/shared/hooks/use-pagination";
 import { ProjectPaginatedFilterDto } from "../_types";
 import { ProjectDelayLevelEnum, ProjectStatusEnum, ProjectTypeEnum } from "../_types/project.enums";
 
+// Tipo para los campos de ordenamiento permitidos
+export type ProjectSortField =
+  | "status"
+  | "name"
+  | "createdAt"
+  | "updatedAt"
+  | "endDate"
+  | "startDate"
+  | "overallProgress";
+
 /**
  * Hook para obtener proyectos paginados con filtros
  */
@@ -35,7 +45,7 @@ export const useSearchProjects = () => {
   const [status, setStatus] = useState<ProjectStatusEnum[]>([]);
   const [projectType, setProjectType] = useState<ProjectTypeEnum[]>([]);
   const [delayLevel, setDelayLevel] = useState<ProjectDelayLevelEnum[]>([]);
-  const [projectSortField, setProjectSortField] = useState<string>("createdAt");
+  const [projectSortField, setProjectSortField] = useState<ProjectSortField>("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const { size } = usePagination();
   const [ids, setIds] = useState<string[] | undefined>(undefined);
@@ -119,7 +129,7 @@ export const useSearchProjects = () => {
     setDelayLevel(delayLevels);
   }, []);
 
-  const handleSortChange = useCallback((field: string, order: "asc" | "desc") => {
+  const handleSortChange = useCallback((field: ProjectSortField, order: "asc" | "desc") => {
     setProjectSortField(field);
     setSortOrder(order);
   }, []);

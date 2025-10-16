@@ -15,6 +15,7 @@ import {
 } from "@/shared/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Separator } from "@/shared/components/ui/separator";
+import { ProjectSortField } from "../../_hooks/use-project";
 import { ProjectDelayLevelEnum, ProjectStatusEnum, ProjectTypeEnum } from "../../_types/project.enums";
 import { projectDelayLevelConfig, projectStatusConfig, projectTypeConfig } from "../../_utils/projects.utils";
 
@@ -22,12 +23,12 @@ interface ProjectsFiltersProps {
   selectedProjectTypes: ProjectTypeEnum[];
   selectedProjectStatuses: ProjectStatusEnum[];
   selectedDelayLevels: ProjectDelayLevelEnum[];
-  projectSortField: string;
+  projectSortField: ProjectSortField;
   sortOrder: "asc" | "desc";
   onProjectTypesChange: (types: ProjectTypeEnum[]) => void;
   onProjectStatusesChange: (statuses: ProjectStatusEnum[]) => void;
   onDelayLevelsChange: (delayLevels: ProjectDelayLevelEnum[]) => void;
-  onSortChange: (field: string, order: "asc" | "desc") => void;
+  onSortChange: (field: ProjectSortField, order: "asc" | "desc") => void;
 }
 
 export default function ProjectsFilters({
