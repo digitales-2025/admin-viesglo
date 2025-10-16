@@ -14,6 +14,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { projectStatusConfig } from "@/app/dashboard/admin/project-groups/[id]/projects/_utils/projects.utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import {
@@ -23,6 +24,14 @@ import {
   fetchProjectsStatusDistribution,
   ProjectsFilterParams,
 } from "@/shared/lib/projects.service";
+
+/**
+ * Función helper para obtener el label del status usando las utilidades
+ */
+function getStatusLabel(status: string | undefined): string {
+  if (!status) return "Desconocido";
+  return projectStatusConfig[status as keyof typeof projectStatusConfig]?.label ?? status;
+}
 
 /**
  * Componente KPI para mostrar métricas clave
@@ -103,19 +112,10 @@ export default function ProjectsDashboard({ filters }: ProjectsDashboardProps) {
     resourceEfficiency: 0,
   };
 
-  // Mapeo de etiquetas a español para todos los gráficos
-  const STATUS_LABELS: Record<string, string> = {
-    CREATED: "Creado",
-    IN_PROGRESS: "En progreso",
-    OFFICIALLY_COMPLETED: "Completado",
-    PAUSED: "Pausado",
-    CANCELLED: "Cancelado",
-  };
-
-  const statusDataLabeled = statusData.map((s) => ({ ...s, statusLabel: STATUS_LABELS[s.status] ?? s.status }));
+  const statusDataLabeled = statusData.map((s) => ({ ...s, statusLabel: getStatusLabel(s.status) }));
   const statusDistributionLabeled = statusDistribution.map((s) => ({
     ...s,
-    statusLabel: STATUS_LABELS[s.status] ?? s.status,
+    statusLabel: getStatusLabel(s.status),
   }));
 
   // Conjuntos derivados con labels para valores en barras
@@ -381,8 +381,8 @@ export default function ProjectsDashboard({ filters }: ProjectsDashboardProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <Kpi label="Tasa de finalización" value={`${performance.completionRate}%`} />
                     <Kpi label="Entrega a tiempo" value={`${performance.onTimeDelivery}%`} />
-                    <Kpi label="Duración promedio (días)" value={performance.averageProjectDuration} />
-                    <Kpi label="Índice de productividad" value={performance.productivityIndex} />
+                    <Kpi label="Duración promedio (días)" value={performance.averageProjectDuration ?? 0} />
+                    <Kpi label="Índice de productividad" value={performance.productivityIndex ?? 0} />
                   </div>
                 </CardContent>
               </Card>

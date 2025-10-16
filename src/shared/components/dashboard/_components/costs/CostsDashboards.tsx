@@ -210,7 +210,7 @@ export default function CostsDashboard({ filters }: CostsDashboardProps) {
   // Datos procesados para el gráfico de torta
   const pieChartProcessedData = pieChartData.distribution.map((item) => ({
     ...item,
-    categoryLabel: CATEGORY_LABELS[item.category] || item.category,
+    categoryLabel: CATEGORY_LABELS[item.category || ""] || item.category || "Desconocido",
   }));
 
   // Filtrar proyectos por término de búsqueda
@@ -425,19 +425,19 @@ export default function CostsDashboard({ filters }: CostsDashboardProps) {
                 <div className="text-center p-3 rounded-lg border bg-green-50 border-green-200 dark:bg-green-900/40 dark:border-green-700">
                   <p className="text-sm font-medium text-green-700 dark:text-green-200">Costo Promedio</p>
                   <p className="text-2xl font-bold text-green-900 dark:text-green-50">
-                    {formatCurrency(efficiency.summary.averageCostPerProject)}
+                    {formatCurrency(efficiency.summary.averageCostPerProject ?? 0)}
                   </p>
                 </div>
                 <div className="text-center p-3 rounded-lg border bg-orange-50 border-orange-200 dark:bg-orange-900/40 dark:border-orange-700">
                   <p className="text-sm font-medium text-orange-700 dark:text-orange-200">Costo Máximo</p>
                   <p className="text-2xl font-bold text-orange-900 dark:text-orange-50">
-                    {formatCurrency(efficiency.summary.maxCost)}
+                    {formatCurrency(efficiency.summary.maxCost ?? 0)}
                   </p>
                 </div>
                 <div className="text-center p-3 rounded-lg border bg-purple-50 border-purple-200 dark:bg-purple-900/40 dark:border-purple-700">
                   <p className="text-sm font-medium text-purple-700 dark:text-purple-200">Costo Mínimo</p>
                   <p className="text-2xl font-bold text-purple-900 dark:text-purple-50">
-                    {formatCurrency(efficiency.summary.minCost)}
+                    {formatCurrency(efficiency.summary.minCost ?? 0)}
                   </p>
                 </div>
               </div>
@@ -552,22 +552,22 @@ export default function CostsDashboard({ filters }: CostsDashboardProps) {
               <div className="text-center p-4 rounded-lg border bg-blue-50 border-blue-200 dark:bg-blue-900/40 dark:border-blue-700">
                 <p className="text-sm font-medium text-blue-700 dark:text-blue-200">Total Gastado en el Año</p>
                 <p className="text-2xl font-bold text-blue-900 dark:text-blue-50">
-                  {formatCurrency(monthlyBreakdown.summary.totalYearSpent)}
+                  {formatCurrency(monthlyBreakdown.summary.totalYearSpent ?? 0)}
                 </p>
               </div>
               <div className="text-center p-4 rounded-lg border bg-green-50 border-green-200 dark:bg-green-900/40 dark:border-green-700">
                 <p className="text-sm font-medium text-green-700 dark:text-green-200">Promedio Mensual</p>
                 <p className="text-2xl font-bold text-green-900 dark:text-green-50">
-                  {formatCurrency(monthlyBreakdown.summary.averageMonthlySpent)}
+                  {formatCurrency(monthlyBreakdown.summary.averageMonthlySpent ?? 0)}
                 </p>
               </div>
               <div className="text-center p-4 rounded-lg border bg-orange-50 border-orange-200 dark:bg-orange-900/40 dark:border-orange-700">
                 <p className="text-sm font-medium text-orange-700 dark:text-orange-200">Mes Pico</p>
                 <p className="text-lg font-bold text-orange-900 dark:text-orange-50">
-                  {monthlyBreakdown.summary.peakMonth.month}
+                  {monthlyBreakdown.summary.peakMonth?.month || "N/A"}
                 </p>
                 <p className="text-sm text-orange-700 dark:text-orange-300">
-                  {formatCurrency(monthlyBreakdown.summary.peakMonth.totalSpent)}
+                  {formatCurrency(monthlyBreakdown.summary.peakMonth?.totalSpent ?? 0)}
                 </p>
               </div>
             </div>

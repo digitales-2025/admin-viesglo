@@ -146,8 +146,8 @@ export default function Dashboard() {
     iconClass: projectStatusConfig[status].iconClass,
   }));
 
-  const typeData = (projectsSummary as any)?.summary?.projectsByType?.length
-    ? (projectsSummary as any).summary.projectsByType
+  const typeData = projectsSummary?.summary?.projectsByType?.length
+    ? projectsSummary.summary.projectsByType
     : DEFAULT_TYPES;
   const typeDistribution = typeDist?.distribution ?? [];
 

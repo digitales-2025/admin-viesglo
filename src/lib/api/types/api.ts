@@ -7229,11 +7229,215 @@ export interface components {
        */
       data?: Record<string, never>;
     };
-    ProjectsDashboardSummaryResponseDto: Record<string, never>;
-    ProjectsStatusDistributionResponseDto: Record<string, never>;
-    ProjectsTypeDistributionResponseDto: Record<string, never>;
-    ProjectsProgressResponseDto: Record<string, never>;
-    ProjectsPerformanceResponseDto: Record<string, never>;
+    ProjectsDashboardSummaryResponseDto: {
+      /** @description Resumen general de proyectos */
+      summary: {
+        /** @example 24 */
+        totalProjects?: number;
+        projectsByStatus?: {
+          /** @example CREATED */
+          status?: string;
+          /** @example 23 */
+          count?: number;
+        }[];
+        projectsByType?: {
+          /** @example DOCUMENTADO */
+          type?: string;
+          /** @example 8 */
+          count?: number;
+        }[];
+        /** @example 7 */
+        averageProgress?: number;
+        /** @example 1 */
+        overdueProjects?: number;
+        /** @example 1 */
+        completedProjects?: number;
+        /** @example 24 */
+        activeProjects?: number;
+      };
+      /** @description Métricas de hitos */
+      milestones: {
+        /** @example 28 */
+        totalMilestones?: number;
+        /** @example 0 */
+        completedMilestones?: number;
+        /** @example 27 */
+        pendingMilestones?: number;
+        /** @example 1 */
+        inProgressMilestones?: number;
+        /** @example 0 */
+        completionRate?: number;
+      };
+      /** @description Métricas de entregables */
+      deliverables: {
+        /** @example 57 */
+        totalDeliverables?: number;
+        /** @example 13 */
+        completedDeliverables?: number;
+        /** @example 1 */
+        inProcessDeliverables?: number;
+        /** @example 43 */
+        registeredDeliverables?: number;
+        /** @example 23 */
+        completionRate?: number;
+      };
+      /** @description Métricas de asignaciones */
+      assignments: {
+        byUser?: {
+          /** @example 68c42af8a2bab0123425b9dd */
+          userId?: string;
+          /** @example Coordinador 68c42af8a2bab0123425b9dd */
+          userName?: string;
+          /** @example 23 */
+          count?: number;
+        }[];
+        byRole?: {
+          /** @example COORDINATOR */
+          role?: string;
+          /** @example 24 */
+          count?: number;
+        }[];
+      };
+      /** @description Métricas de rendimiento */
+      performance: {
+        /** @example 0 */
+        projectsCompletedOnTime?: number;
+        /** @example 1 */
+        projectsOverdue?: number;
+        /** @example 41 */
+        averageCompletionTime?: number;
+        /** @example 6 */
+        productivityScore?: number;
+      };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
+    };
+    ProjectsStatusDistributionResponseDto: {
+      /** @description Distribución de proyectos por estado */
+      distribution: {
+        /** @example CREATED */
+        status?: string;
+        /** @example 23 */
+        count?: number;
+        /** @example 96 */
+        percentage?: number;
+      }[];
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
+    };
+    ProjectsTypeDistributionResponseDto: {
+      /** @description Distribución de proyectos por tipo */
+      distribution: {
+        /** @example DOCUMENTADO */
+        type?: string;
+        /** @example 8 */
+        count?: number;
+        /** @example 33 */
+        percentage?: number;
+        /** @example 15 */
+        averageProgress?: number;
+      }[];
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
+    };
+    ProjectsProgressResponseDto: {
+      /** @description Progreso general de proyectos */
+      overallProgress: {
+        /** @example 7 */
+        averageProgress?: number;
+        progressDistribution?: {
+          /** @example 0-25% */
+          range?: string;
+          /** @example 20 */
+          count?: number;
+          /** @example 83 */
+          percentage?: number;
+        }[];
+      };
+      /** @description Tendencias temporales */
+      trends: {
+        weeklyProgress?: {
+          /** @example Semana 1 */
+          week?: string;
+          /** @example 5 */
+          averageProgress?: number;
+        }[];
+        monthlyProgress?: {
+          /** @example oct 2025 */
+          month?: string;
+          /** @example 7 */
+          averageProgress?: number;
+        }[];
+      };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
+    };
+    ProjectsPerformanceResponseDto: {
+      /** @description Métricas de rendimiento */
+      performance: {
+        /** @example 4 */
+        completionRate?: number;
+        /** @example 0 */
+        onTimeDelivery?: number;
+        /** @example 41 */
+        averageProjectDuration?: number;
+        /** @example 2 */
+        productivityIndex?: number;
+      };
+      /** @description Métricas de calidad */
+      quality: {
+        /** @example 19 */
+        projectsWithoutIssues?: number;
+        /** @example 5 */
+        projectsWithIssues?: number;
+        /** @example 85 */
+        issueResolutionRate?: number;
+      };
+      /** @description Utilización de recursos */
+      resourceUtilization: {
+        /** @example 75 */
+        teamUtilization?: number;
+        /** @example 80 */
+        resourceEfficiency?: number;
+      };
+      /** @description Metadatos de la respuesta */
+      meta: {
+        /** @example project-repository */
+        source?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        at?: string;
+        /** @example 2025-10-16T21:06:39.313Z */
+        lastUpdated?: string;
+      };
+    };
     RoleListItemDto: {
       /**
        * @description Identificador único de la entidad
@@ -8503,6 +8707,152 @@ export interface components {
        * @example Nacional
        */
       scope: string;
+    };
+    CostsDashboardSummaryResponseDto: {
+      /**
+       * @description Total gastado en todos los proyectos
+       * @example 150000
+       */
+      totalSpent: number;
+      /**
+       * @description Total de costos directos
+       * @example 80000
+       */
+      totalDirectCosts: number;
+      /**
+       * @description Total de costos indirectos
+       * @example 50000
+       */
+      totalIndirectCosts: number;
+      /**
+       * @description Total de gastos
+       * @example 20000
+       */
+      totalExpenses: number;
+    };
+    CostsDashboardByProjectResponseDto: {
+      /**
+       * @description ID del proyecto
+       * @example 68c42af8a2bab0123425b9dd
+       */
+      projectId: string;
+      /**
+       * @description Nombre del proyecto
+       * @example Proyecto Digital 2025
+       */
+      projectName: string;
+      /**
+       * @description Tipo de proyecto
+       * @example DOCUMENTADO
+       * @enum {string}
+       */
+      projectType: "DOCUMENTADO" | "HIBRIDO" | "IMPLEMENTADO";
+      /**
+       * @description Total gastado en el proyecto
+       * @example 25000
+       */
+      totalSpent: number;
+      /**
+       * @description Costos directos del proyecto
+       * @example 15000
+       */
+      totalDirectCosts: number;
+      /**
+       * @description Costos indirectos del proyecto
+       * @example 8000
+       */
+      totalIndirectCosts: number;
+      /**
+       * @description Gastos del proyecto
+       * @example 2000
+       */
+      totalExpenses: number;
+    };
+    CostsDashboardPieDistributionResponseDto: {
+      /**
+       * @description Total de gastos
+       * @example 150000
+       */
+      total: number;
+      /** @description Distribución por categoría */
+      distribution: {
+        /**
+         * @example DIRECT_COSTS
+         * @enum {string}
+         */
+        category?: "DIRECT_COSTS" | "INDIRECT_COSTS" | "EXPENSES";
+        /** @example 80000 */
+        amount?: number;
+        /** @example 53 */
+        percentage?: number;
+      }[];
+    };
+    CostsDashboardCostEfficiencyResponseDto: {
+      /** @description Resumen de eficiencia */
+      summary: {
+        /** @example 24 */
+        totalProjects?: number;
+        /** @example 150000 */
+        totalCost?: number;
+        /** @example 6250 */
+        averageCostPerProject?: number;
+        /** @example 25000 */
+        maxCost?: number;
+        /** @example 1000 */
+        minCost?: number;
+        /** @example 5500 */
+        median?: number;
+      };
+      /** @description Distribución por rangos de costo */
+      distribution: {
+        /** @example 0-10K */
+        range?: string;
+        /** @example 15 */
+        count?: number;
+        /** @example 63 */
+        percentage?: number;
+      }[];
+    };
+    CostsDashboardMonthlyBreakdownResponseDto: {
+      /**
+       * @description Año analizado
+       * @example 2025
+       */
+      year: number;
+      /** @description Desglose mensual */
+      monthlyBreakdown: {
+        /** @example 2025-01 */
+        month?: string;
+        /** @example 15000 */
+        totalSpent?: number;
+        /** @example 8000 */
+        directCosts?: number;
+        /** @example 5000 */
+        indirectCosts?: number;
+        /** @example 2000 */
+        expenses?: number;
+      }[];
+      /** @description Resumen anual */
+      summary: {
+        /** @example 180000 */
+        totalYearSpent?: number;
+        /** @example 15000 */
+        averageMonthlySpent?: number;
+        peakMonth?: {
+          /** @example 2025-03 */
+          month?: string;
+          /** @example 25000 */
+          totalSpent?: number;
+          /** @example 15000 */
+          directCosts?: number;
+          /** @example 8000 */
+          indirectCosts?: number;
+          /** @example 2000 */
+          expenses?: number;
+          /** @example 45 */
+          transactionCount?: number;
+        };
+      };
     };
     DeliverableDocumentsResponseDto: {
       /** @description Lista de documentos del entregable */
@@ -16981,7 +17331,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardSummaryResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -17017,7 +17369,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardByProjectResponseDto"][];
+        };
       };
       /** @description Error */
       500: {
@@ -17053,7 +17407,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardPieDistributionResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -17089,7 +17445,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardCostEfficiencyResponseDto"];
+        };
       };
       /** @description Error */
       500: {
@@ -17127,7 +17485,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CostsDashboardMonthlyBreakdownResponseDto"];
+        };
       };
       /** @description Error */
       500: {
