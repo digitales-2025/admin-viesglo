@@ -1,24 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { CheckCheck, Edit, MoreHorizontal, Plus, Trash } from "lucide-react";
 
 import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { DataTable } from "@/shared/components/data-table/data-table";
 import { ServerPaginationTanstackTableConfig } from "@/shared/components/data-table/types/CustomPagination";
-import { PermissionProtected, usePermissionCheckHook } from "@/shared/components/protected-component";
-import { Badge } from "@/shared/components/ui/badge";
-import { Button } from "@/shared/components/ui/button";
-import { DatePicker } from "@/shared/components/ui/date-picker";
-import { DatePickerWithRange } from "@/shared/components/ui/date-range-picker";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
-import { cn } from "@/shared/lib/utils";
+import { usePermissionCheckHook } from "@/shared/components/protected-component";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import {
@@ -27,11 +14,10 @@ import {
 } from "../../../../_hooks/use-deliverable-actual-dates";
 import { useUpdateDeliverable } from "../../../../_hooks/use-project-deliverables";
 import { DeliverableDetailedResponseDto } from "../../../../_types";
-import { deliverablePriorityConfig, deliverableStatusConfig } from "../../../../_utils/projects.utils";
 import { useRemovePrecedent, useSetPrecedent } from "../../../../../projects/_hooks/use-project-deliverables";
 import { DeliverableDetailsPanel } from "./DeliverableDetailsPanel";
 import { MODULE_DELIVERABLES_PHASE } from "./deliverables-phase-overlays/DeliverablesPhaseOverlays";
-import { PrecedenceColumn } from "./PrecedenceColumn";
+import { DeliverablesPhaseColumns } from "./DeliverablesPhaseColumns";
 
 interface TableDeliverablesPhaseProps {
   projectId: string;
@@ -53,24 +39,10 @@ interface TableDeliverablesPhaseProps {
   milestoneStatus?: string;
 }
 
-// Funciones auxiliares
-const formatStatus = (status: string) => {
-  const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
-  return config ? config.label : status;
-};
-
-const formatPriority = (priority: string) => {
-  const config = deliverablePriorityConfig[priority as keyof typeof deliverablePriorityConfig];
-  return config ? config.label : priority;
-};
-
 // Función para verificar si un entregable tiene fechas planificadas válidas
 const hasValidPlannedDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
   return !!(deliverable.startDate && deliverable.endDate);
 };
-
-// Crear el column helper
-const columnHelper = createColumnHelper<DeliverableDetailedResponseDto>();
 
 export function TableDeliverablesPhase({
   projectId,
@@ -134,6 +106,20 @@ export function TableDeliverablesPhase({
   const handleActualEndDateUpdate = (deliverableId: string, date?: Date) => {
     if (date) {
       setActualEndDate(deliverableId, date.toISOString());
+    }
+  };
+
+  // Función para manejar la confirmación de fecha de fin real (con diálogo de confirmación)
+  const handleActualEndDateConfirm = (deliverableId: string, date?: Date) => {
+    if (date) {
+      // Abrir diálogo de confirmación con los datos del entregable
+      const deliverable = deliverables.find((d) => d.id === deliverableId);
+      if (deliverable) {
+        open(MODULE_DELIVERABLES_PHASE, "confirm-end-date", {
+          ...deliverable,
+          endDate: date.toISOString(),
+        });
+      }
     }
   };
 
@@ -214,7 +200,7 @@ export function TableDeliverablesPhase({
   // Función para determinar si las columnas de fechas reales deben mostrarse
   const shouldShowActualDateColumns = (): boolean => {
     // Solo mostrar las columnas cuando el milestone status NO es "CREATED"
-    return milestoneStatus !== "CREATED";
+    return milestoneStatus !== "PLANNING";
   };
 
   // Función para verificar si el usuario tiene permisos de aprobación
@@ -240,328 +226,26 @@ export function TableDeliverablesPhase({
     return hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
   }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved]);
 
-  // Definir las columnas
-  const columns = React.useMemo<ColumnDef<DeliverableDetailedResponseDto, any>[]>(() => {
-    const baseColumns = [
-      columnHelper.accessor("name", {
-        id: "nombre",
-        header: "Nombre",
-        cell: ({ getValue, row }) => {
-          const name = getValue();
-          const status = row.original.status;
-          const config = deliverableStatusConfig[status as keyof typeof deliverableStatusConfig];
-          const IconComponent = config?.icon;
-          return (
-            <div className="flex flex-col space-y-1">
-              <span className="font-medium text-foreground">{name || "Sin nombre"}</span>
-              <Badge
-                variant="outline"
-                className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}
-              >
-                {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
-                {formatStatus(status)}
-              </Badge>
-            </div>
-          );
-        },
-      }),
-      columnHelper.accessor("priority", {
-        id: "prioridad",
-        header: "Prioridad",
-        cell: ({ getValue }) => {
-          const priority = getValue();
-          const config = deliverablePriorityConfig[priority as keyof typeof deliverablePriorityConfig];
-          const IconComponent = config?.icon;
-
-          return (
-            <Badge variant="outline" className={cn("gap-1", config?.className, config?.textClass, config?.borderColor)}>
-              {IconComponent && <IconComponent className={cn("h-3 w-3", config?.iconClass)} />}
-              {formatPriority(priority)}
-            </Badge>
-          );
-        },
-      }),
-      columnHelper.display({
-        id: "precedences",
-        header: "Precedencias",
-        cell: ({ row }) => {
-          return (
-            <PrecedenceColumn
-              deliverable={row.original}
-              rowIndex={row.index}
-              allDeliverables={deliverables}
-              openDropdowns={openDropdowns}
-              setOpenDropdowns={setOpenDropdowns}
-              onPrecedentSelect={handlePrecedentSelect}
-              milestoneStatus={milestoneStatus}
-            />
-          );
-        },
-      }),
-
-      columnHelper.display({
-        id: "dateRange",
-        header: "Fecha de Inicio y Fin - Planificado",
-        cell: ({ row }) => {
-          const startDate = row.original.startDate;
-          const endDate = row.original.endDate;
-          const deliverableId = row.original.id;
-          const isReadOnly = milestoneStatus !== "PLANNING";
-
-          return (
-            <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-              <PermissionProtected
-                permissions={[
-                  { resource: EnumResource.deliverables, action: EnumAction.write },
-                  { resource: EnumResource.deliverables, action: EnumAction.manage },
-                ]}
-                requireAll={false}
-                hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
-                fallback={
-                  <DatePickerWithRange
-                    initialValue={
-                      startDate || endDate
-                        ? {
-                            from: startDate ? new Date(startDate) : undefined,
-                            to: endDate ? new Date(endDate) : undefined,
-                          }
-                        : undefined
-                    }
-                    placeholder={
-                      isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
-                    }
-                    size="sm"
-                    className="w-full"
-                    // Limitadores de fechas de la fase
-                    fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
-                    toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
-                    showHolidays={true}
-                    readOnly={true} // Readonly si no tiene permisos
-                  />
-                }
-              >
-                <DatePickerWithRange
-                  initialValue={
-                    startDate || endDate
-                      ? {
-                          from: startDate ? new Date(startDate) : undefined,
-                          to: endDate ? new Date(endDate) : undefined,
-                        }
-                      : undefined
-                  }
-                  onConfirm={(dateRange) => {
-                    handleDateUpdate(deliverableId, dateRange?.from, dateRange?.to);
-                  }}
-                  placeholder={
-                    isReadOnly ? "Período validado" : startDate && endDate ? "Editar período" : "Seleccionar período"
-                  }
-                  size="sm"
-                  className="w-full"
-                  confirmText="Guardar período"
-                  clearText="Limpiar período"
-                  cancelText="Cancelar"
-                  // Limitadores de fechas de la fase
-                  fromDate={phaseStartDate ? new Date(phaseStartDate) : undefined}
-                  toDate={phaseEndDate ? new Date(phaseEndDate) : undefined}
-                  showHolidays={true}
-                  // Readonly si no tiene permisos O si el milestone no está en PLANNING
-                  readOnly={isReadOnly}
-                />
-              </PermissionProtected>
-            </div>
-          );
-        },
-      }),
-
-      // Columnas de fechas reales - solo se muestran cuando milestone status NO es "CREATED"
-      ...(shouldShowActualDateColumns()
-        ? [
-            columnHelper.display({
-              id: "actualStartDate",
-              header: "Fecha de Inicio - Ejecutado",
-              cell: ({ row }) => {
-                const actualStartDate = row.original.actualStartDate;
-                const deliverableId = row.original.id;
-                const deliverable = row.original;
-                const isEnabled = shouldEnableActualDates(deliverable);
-
-                return (
-                  <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-                    <DatePicker
-                      selected={actualStartDate ? new Date(actualStartDate) : undefined}
-                      onSelect={(date) => handleActualStartDateUpdate(deliverableId, date)}
-                      placeholder={"Seleccionar inicio"}
-                      disabled={!isEnabled}
-                      className="w-full min-w-[140px]"
-                      // actualStartDate no puede ser posterior a actualEndDate
-                      toDate={deliverable.actualEndDate ? new Date(deliverable.actualEndDate) : undefined}
-                      readOnly={milestoneStatus === "OFFICIALLY_APPROVED"}
-                    />
-                  </div>
-                );
-              },
-            }),
-            columnHelper.display({
-              id: "actualEndDate",
-              header: "Fecha de Fin - Ejecutado",
-              cell: ({ row }) => {
-                const actualEndDate = row.original.actualEndDate;
-                const deliverableId = row.original.id;
-                const deliverable = row.original;
-                const isEnabled = shouldEnableActualDates(deliverable);
-
-                return (
-                  <div className="w-fit" onClick={(e) => e.stopPropagation()}>
-                    <DatePicker
-                      selected={actualEndDate ? new Date(actualEndDate) : undefined}
-                      onSelect={(date) => handleActualEndDateUpdate(deliverableId, date)}
-                      placeholder={"Seleccionar fin"}
-                      disabled={!isEnabled}
-                      className="w-full min-w-[140px]"
-                      // actualEndDate no puede ser anterior a actualStartDate
-                      fromDate={deliverable.actualStartDate ? new Date(deliverable.actualStartDate) : undefined}
-                      readOnly={milestoneStatus === "OFFICIALLY_APPROVED"}
-                    />
-                  </div>
-                );
-              },
-            }),
-          ]
-        : []),
-      // Columna de aprobación - solo se incluye si TODOS los entregables tienen fechas planificadas Y el usuario tiene permisos Y no todos están aprobados
-      ...(shouldShowApprovalColumn
-        ? [
-            columnHelper.display({
-              id: "approval",
-              header: "Aprobación",
-              cell: ({ row }) => {
-                const deliverable = row.original;
-                const isApproved = deliverable.isApproved || false;
-
-                return (
-                  <div onClick={(e) => e.stopPropagation()}>
-                    <Button
-                      variant={isApproved ? "default" : "outline"}
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleApproval(deliverable);
-                      }}
-                      disabled={isApproved}
-                      className={cn("gap-2", isApproved ? " cursor-not-allowed" : "")}
-                    >
-                      {isApproved ? (
-                        <>
-                          <CheckCheck className="h-4 w-4" />
-                          Válido
-                        </>
-                      ) : (
-                        <>
-                          <CheckCheck className="h-4 w-4" />
-                          Validar
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                );
-              },
-            }),
-          ]
-        : []),
-      columnHelper.display({
-        id: "actions",
-        header: "",
-        cell: ({ row }) => {
-          const deliverable = row.original;
-
-          return (
-            <div onClick={(e) => e.stopPropagation()}>
-              <PermissionProtected
-                permissions={[
-                  { resource: EnumResource.deliverables, action: EnumAction.write },
-                  { resource: EnumResource.deliverables, action: EnumAction.manage },
-                ]}
-                requireAll={false}
-                hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
-              >
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <PermissionProtected
-                      permissions={[
-                        { resource: EnumResource.deliverables, action: EnumAction.write },
-                        { resource: EnumResource.deliverables, action: EnumAction.manage },
-                      ]}
-                      requireAll={false}
-                      hideOnUnauthorized={true}
-                    >
-                      <DropdownMenuItem
-                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "edit", deliverable)}
-                        disabled={milestoneStatus !== "PLANNING"}
-                      >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Editar
-                      </DropdownMenuItem>
-                    </PermissionProtected>
-
-                    <PermissionProtected
-                      permissions={[
-                        { resource: EnumResource.deliverables, action: EnumAction.write },
-                        { resource: EnumResource.deliverables, action: EnumAction.manage },
-                      ]}
-                      requireAll={false}
-                      hideOnUnauthorized={true}
-                    >
-                      <DropdownMenuItem
-                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}
-                        disabled={milestoneStatus !== "OFFICIALLY_COMPLETED"}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        Agregar incidencias
-                      </DropdownMenuItem>
-                    </PermissionProtected>
-
-                    <PermissionProtected
-                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.manage }]}
-                      requireAll={false}
-                      hideOnUnauthorized={true}
-                    >
-                      <DropdownMenuItem
-                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "delete", deliverable)}
-                        disabled={milestoneStatus !== "PLANNING"}
-                      >
-                        <Trash className="w-4 h-4 mr-2" />
-                        Eliminar
-                      </DropdownMenuItem>
-                    </PermissionProtected>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </PermissionProtected>
-            </div>
-          );
-        },
-      }),
-    ];
-
-    return baseColumns;
-  }, [
+  // Obtener las columnas del componente dedicado
+  const columns = DeliverablesPhaseColumns({
     projectId,
     phaseId,
-    updateDeliverable,
-    open,
-    handleActualStartDateUpdate,
-    handleActualEndDateUpdate,
-    handleToggleApproval,
+    deliverables,
+    milestoneStatus,
     phaseStartDate,
     phaseEndDate,
+    handleDateUpdate,
+    handleActualStartDateUpdate,
+    handleActualEndDateUpdate,
+    handleActualEndDateConfirm,
+    handleToggleApproval,
+    handlePrecedentSelect,
+    openDropdowns,
+    setOpenDropdowns,
+    shouldEnableActualDates,
+    shouldShowActualDateColumns,
     shouldShowApprovalColumn,
-    milestoneStatus,
-    deliverables, // ✅ Agregar deliverables para las funciones de precedencia
-  ]);
+  });
 
   // Configuración de paginación del servidor
   const serverPagination: ServerPaginationTanstackTableConfig | undefined = meta
@@ -582,7 +266,14 @@ export function TableDeliverablesPhase({
       data={deliverables}
       filterPlaceholder="Buscar entregables..."
       expandable={true}
-      renderDetailsPanel={(deliverable) => <DeliverableDetailsPanel deliverable={deliverable} />}
+      renderDetailsPanel={(deliverable) => (
+        <DeliverableDetailsPanel
+          deliverable={deliverable}
+          projectId={projectId}
+          phaseId={phaseId}
+          milestoneStatus={milestoneStatus}
+        />
+      )}
       getItemId={(deliverable) => deliverable.id}
       getItemTitle={(deliverable) => deliverable.name}
       defaultPanelSize={40}

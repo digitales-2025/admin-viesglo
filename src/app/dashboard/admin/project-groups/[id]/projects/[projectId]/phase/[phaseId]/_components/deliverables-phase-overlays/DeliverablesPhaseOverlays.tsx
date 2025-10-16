@@ -1,6 +1,7 @@
-import { CheckCheck, Trash } from "lucide-react";
+import { Calendar, CheckCheck, Trash } from "lucide-react";
 
 import { IncidentDialog } from "@/app/dashboard/admin/incidents/_components";
+import { ConfettiSideCannons } from "@/shared/components/ui/confetti-side-cannons";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { useDeleteDeliverable, useToggleDeliverableApproval } from "../../../../../_hooks/use-project-deliverables";
@@ -11,16 +12,20 @@ export const MODULE_DELIVERABLES_PHASE = "deliverables-phase";
 interface DeliverablesPhaseOverlaysProps {
   projectId: string;
   phaseId: string;
-  milestoneId?: string; // Hacer opcional
+  onDeliverableEndDateConfirm?: (deliverableId: string, endDate: Date) => void; // Callback para confirmar fecha de fin
 }
 
-export default function DeliverablesPhaseOverlays({ projectId, phaseId, milestoneId }: DeliverablesPhaseOverlaysProps) {
+export default function DeliverablesPhaseOverlays({
+  projectId,
+  phaseId,
+  onDeliverableEndDateConfirm,
+}: DeliverablesPhaseOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteDeliverable, isPending: isDeleting } = useDeleteDeliverable();
   const { mutate: toggleApproval, isPending: isApproving } = useToggleDeliverableApproval();
 
   // Obtener milestoneId del prop o de los datos del dialog store (siguiendo el patrón de PhasesProjectOverlays)
-  const currentMilestoneId = milestoneId || data?.milestoneId || "";
+  const currentMilestoneId = data?.milestoneId;
 
   // Derivar IDs actuales desde el store (deliverable seleccionado)
   const currentDeliverableId = (data as any)?.id as string | undefined;
@@ -146,6 +151,54 @@ export default function DeliverablesPhaseOverlays({ projectId, phaseId, mileston
             Estás a punto de eliminar el entregable <strong className="uppercase text-wrap">{data?.name}</strong>.{" "}
             <br />
             Esta acción es irreversible.
+          </>
+        }
+      />
+
+      {/* Confirm End Date Dialog */}
+      <ConfirmDialog
+        key="deliverable-confirm-end-date"
+        open={isOpenForModule(MODULE_DELIVERABLES_PHASE, "confirm-end-date")}
+        onOpenChange={(open) => {
+          if (!open) close();
+        }}
+        handleConfirm={() => {
+          if (!data?.id || !data?.endDate) {
+            return;
+          }
+
+          // Ejecutar callback si se proporciona
+          if (onDeliverableEndDateConfirm) {
+            onDeliverableEndDateConfirm(data.id, new Date(data.endDate));
+          }
+
+          close();
+        }}
+        isLoading={false}
+        confirmText={
+          <ConfettiSideCannons
+            buttonText="Confirmar finalización"
+            asChild={true}
+            onTrigger={() => {
+              // El confetti se dispara automáticamente al hacer clic
+            }}
+          />
+        }
+        title={
+          <div className="flex items-center gap-2">
+            <Calendar className="h-4 w-4" />
+            Confirmar finalización del entregable
+          </div>
+        }
+        desc={
+          <>
+            ¿Confirmas que el entregable <strong className="uppercase text-wrap">{data?.name}</strong> se ha completado
+            en la fecha <strong>{data?.endDate ? new Date(data.endDate).toLocaleDateString("es-ES") : ""}</strong>?
+            <br />
+            <br />
+            <span className="text-sm text-muted-foreground">
+              Esta acción marcará oficialmente la finalización del entregable.
+            </span>
           </>
         }
       />

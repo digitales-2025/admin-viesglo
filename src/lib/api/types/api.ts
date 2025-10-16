@@ -7968,17 +7968,7 @@ export interface components {
        * @description Tamaño del archivo en MB
        * @example 2.5
        */
-      fileSize: number;
-      /**
-       * @description ID del usuario que sube el documento
-       * @example 64a1b2c3d4e5f6789abcdef0
-       */
-      uploadedBy: string;
-      /**
-       * @description Fecha de subida del documento
-       * @example 2025-01-13T10:30:00Z
-       */
-      uploadedAt?: string;
+      fileSize?: number;
     };
     DocumentOperationResponseDto: {
       /**
@@ -10796,6 +10786,8 @@ export interface operations {
         projectType?: string[];
         /** @description Filtrar por niveles de retraso del proyecto */
         delayLevel?: ("ON_TIME" | "AHEAD" | "ACCEPTABLE_DELAY" | "CRITICAL_DELAY")[];
+        /** @description Campo específico para ordenamiento de proyectos */
+        projectSortField?: "name" | "createdAt" | "updatedAt" | "endDate" | "startDate" | "overallProgress" | "status";
         /** @description Campo por el cual ordenar */
         sortBy?: unknown;
       };

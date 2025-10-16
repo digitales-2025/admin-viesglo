@@ -18,6 +18,11 @@ export interface DatePickerProps {
   clearable?: boolean;
   fromDate?: Date; // Fecha mínima permitida
   toDate?: Date; // Fecha máxima permitida
+  // Nuevas props para confirmación
+  showConfirmButton?: boolean; // Mostrar botón de confirmación
+  onConfirm?: (date: Date | undefined) => void; // Callback cuando se confirma
+  confirmText?: string; // Texto del botón de confirmación
+  cancelText?: string; // Texto del botón de cancelar
 }
 
 export function DatePicker({
@@ -30,18 +35,54 @@ export function DatePicker({
   clearable = false,
   fromDate,
   toDate,
+  // Nuevas props
+  showConfirmButton = false,
+  onConfirm,
+  confirmText = "Confirmar",
+  cancelText = "Cancelar",
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const [tempSelected, setTempSelected] = React.useState<Date | undefined>(selected);
+
+  // Sincronizar tempSelected cuando cambia selected externamente
+  React.useEffect(() => {
+    setTempSelected(selected);
+  }, [selected]);
 
   const handleSelect = (date: Date | undefined) => {
     if (disabled || readOnly) return; // No permitir selección si está deshabilitado o en modo readonly
-    onSelect(date);
-    setOpen(false); // Cerrar el popover al seleccionar una fecha
+
+    if (showConfirmButton) {
+      // Si tiene botón de confirmación, solo actualizar temporalmente
+      setTempSelected(date);
+    } else {
+      // Comportamiento normal: confirmar inmediatamente
+      onSelect(date);
+      setOpen(false); // Cerrar el popover al seleccionar una fecha
+    }
+  };
+
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm(tempSelected);
+    } else {
+      onSelect(tempSelected);
+    }
+    setOpen(false);
+  };
+
+  const handleCancel = () => {
+    setTempSelected(selected); // Restaurar valor original
+    setOpen(false);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (disabled || readOnly) return; // No permitir abrir si está deshabilitado o en modo readonly
     setOpen(newOpen);
+    if (!newOpen) {
+      // Si se cierra sin confirmar, restaurar valor original
+      setTempSelected(selected);
+    }
   };
 
   return (
@@ -65,15 +106,15 @@ export function DatePicker({
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
-            selected={selected}
+            selected={showConfirmButton ? tempSelected : selected}
             onSelect={handleSelect}
             initialFocus
             locale={es}
-            defaultMonth={selected}
+            defaultMonth={showConfirmButton ? tempSelected : selected}
             fromDate={fromDate}
             toDate={toDate}
           />
-          {clearable && (
+          {clearable && !showConfirmButton && (
             <Button
               variant="ghost"
               onClick={() => {
@@ -84,6 +125,16 @@ export function DatePicker({
               Limpiar
               <X className="w-4 h-4" />
             </Button>
+          )}
+          {showConfirmButton && (
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border p-2">
+              <Button variant="outline" size="sm" onClick={handleCancel}>
+                {cancelText}
+              </Button>
+              <Button size="sm" onClick={handleConfirm}>
+                {confirmText}
+              </Button>
+            </div>
           )}
         </PopoverContent>
       )}

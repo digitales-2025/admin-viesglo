@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
@@ -9,7 +9,12 @@ import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import { usePhaseDeliverablesPaginated } from "../../../../_hooks/use-project-deliverables";
 import { TableDeliverablesPhase } from "./TableDeliverablesPhase";
 
-export function ListDeliverablesPhase() {
+interface ListDeliverablesPhaseProps {
+  milestoneStatus?: string;
+  setMilestoneStatus: (status: string | undefined) => void;
+}
+
+export function ListDeliverablesPhase({ milestoneStatus, setMilestoneStatus }: ListDeliverablesPhaseProps) {
   const params = useParams();
   const projectId = params.projectId as string;
   const phaseId = params.phaseId as string;
@@ -17,7 +22,6 @@ export function ListDeliverablesPhase() {
   const {
     query,
     setPagination,
-    deliverables,
     meta,
     // Funciones de filtrado
     handleSearchChange,
@@ -28,6 +32,13 @@ export function ListDeliverablesPhase() {
   } = usePhaseDeliverablesPaginated(projectId, phaseId);
 
   const { isLoading, error, data } = query;
+
+  // Actualizar el milestoneStatus cuando se obtengan los datos
+  useEffect(() => {
+    if (data?.milestoneStatus) {
+      setMilestoneStatus(data.milestoneStatus);
+    }
+  }, [data?.milestoneStatus, setMilestoneStatus]);
 
   if (isLoading) return <Loading text="Cargando entregables..." variant="spinner" />;
 
@@ -48,7 +59,7 @@ export function ListDeliverablesPhase() {
         <TableDeliverablesPhase
           projectId={projectId}
           phaseId={phaseId}
-          deliverables={deliverables}
+          deliverables={data?.deliverables || []}
           meta={meta as MetaPaginated | undefined}
           setPagination={setPagination}
           // Funciones de filtrado
@@ -59,7 +70,7 @@ export function ListDeliverablesPhase() {
           clearFilters={clearFilters}
           phaseStartDate={data?.phase?.startDate}
           phaseEndDate={data?.phase?.endDate}
-          milestoneStatus={data?.milestoneStatus} // ✅ Pasar milestoneStatus
+          milestoneStatus={milestoneStatus} // ✅ Usar el estado pasado desde la página
         />
       </div>
     </div>

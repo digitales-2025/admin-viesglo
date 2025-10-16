@@ -12,3 +12,6 @@ export * from "./deliverable.types";
 
 // ===== EXPORTACIONES DE TIPOS DE PHASE =====
 export * from "./phase.types";
+
+// ===== EXPORTACIONES DE TIPOS DE DELIVERABLE DOCUMENTS =====
+export * from "./deliverable-document.types";

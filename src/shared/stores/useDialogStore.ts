@@ -16,6 +16,7 @@ export type DialogType =
   | "create-resource"
   | "create-incident"
   | "approve"
+  | "confirm-end-date"
   | null;
 
 interface DialogState<T = any> {
