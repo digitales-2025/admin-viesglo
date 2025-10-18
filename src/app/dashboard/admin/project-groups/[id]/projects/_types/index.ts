@@ -15,3 +15,9 @@ export * from "./phase.types";
 
 // ===== EXPORTACIONES DE TIPOS DE DELIVERABLE DOCUMENTS =====
 export * from "./deliverable-document.types";
+
+// ===== EXPORTACIONES DE TIPOS DE ADDITIONAL DELIVERABLE =====
+export * from "./additional-deliverable.types";
+
+// ===== EXPORTACIONES DE TIPOS DE ADDITIONAL DOCUMENTS =====
+export * from "./additional-document.types";

@@ -1604,7 +1604,7 @@ export interface paths {
     patch: operations["AdditionalDeliverablesController_updateAdditionalDeliverableProgress_v1"];
     trace?: never;
   };
-  "/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}/documents": {
+  "/v1/additional-documents": {
     parameters: {
       query?: never;
       header?: never;
@@ -1615,20 +1615,20 @@ export interface paths {
      * Listar documentos adicionales
      * @description Obtiene la lista de documentos adicionales de un entregable adicional
      */
-    get: operations["AdditionalDocumentsController_listAdditionalDocuments"];
+    get: operations["AdditionalDocumentsController_listAdditionalDocuments_v1"];
     put?: never;
     /**
      * Agregar documento adicional
      * @description Agrega un documento adicional a un entregable adicional específico
      */
-    post: operations["AdditionalDocumentsController_addAdditionalDocument"];
+    post: operations["AdditionalDocumentsController_addAdditionalDocument_v1"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  "/projects/{projectId}/phases/{phaseId}/additional-deliverables/{additionalDeliverableId}/documents/{documentId}": {
+  "/v1/additional-documents/{documentId}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1640,20 +1640,20 @@ export interface paths {
      * Actualizar documento adicional (PUT)
      * @description Actualiza un documento adicional reemplazando todos sus campos
      */
-    put: operations["AdditionalDocumentsController_updateAdditionalDocument"];
+    put: operations["AdditionalDocumentsController_updateAdditionalDocument_v1"];
     post?: never;
     /**
      * Eliminar documento adicional
      * @description Elimina un documento adicional de un entregable adicional
      */
-    delete: operations["AdditionalDocumentsController_removeAdditionalDocument"];
+    delete: operations["AdditionalDocumentsController_removeAdditionalDocument_v1"];
     options?: never;
     head?: never;
     /**
      * Actualizar documento adicional parcialmente (PATCH)
      * @description Actualiza parcialmente un documento adicional, solo los campos proporcionados
      */
-    patch: operations["AdditionalDocumentsController_patchAdditionalDocument"];
+    patch: operations["AdditionalDocumentsController_patchAdditionalDocument_v1"];
     trace?: never;
   };
   "/v1/project-milestones/{projectId}/milestones": {
@@ -1753,6 +1753,26 @@ export interface paths {
      * @description Establece las fechas reales de inicio y fin de un entregable, propagando automáticamente los cambios hacia arriba en la jerarquía del proyecto (fase → hito → proyecto)
      */
     put: operations["DeliverableActualDatesController_setDeliverableActualDates_v1"];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/v1/additional-deliverable-actual-dates/{id}/actual-dates": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Establecer fechas reales de entregable adicional
+     * @description Establece las fechas reales de inicio y fin de un entregable adicional, propagando automáticamente los cambios hacia arriba en la jerarquía del proyecto (fase → hito → proyecto)
+     */
+    put: operations["AdditionalDeliverableActualDatesController_setAdditionalDeliverableActualDates_v1"];
     post?: never;
     delete?: never;
     options?: never;
@@ -6908,27 +6928,28 @@ export interface components {
       updatedAt: string;
     };
     AdditionalDeliverablesPaginatedResponseDto: {
-      /** @description Lista de entregables adicionales */
-      data: components["schemas"]["AdditionalDeliverableResponseDto"][];
+      /** @description Información completa de la fase */
+      phase: components["schemas"]["PhaseDetailedResponseDto"];
       /**
-       * @description Información de paginación
+       * @description Estado del milestone al que pertenece la fase
+       * @example VALIDATED
+       * @enum {string}
+       */
+      milestoneStatus: "PLANNING" | "IN_PROGRESS" | "VALIDATED" | "COMPLETED";
+      /** @description Entregables adicionales paginados de la fase */
+      additionalDeliverables: components["schemas"]["AdditionalDeliverableResponseDto"][];
+      /**
+       * @description Metadatos de paginación de los entregables adicionales
        * @example {
+       *       "total": 25,
        *       "page": 1,
        *       "pageSize": 10,
-       *       "total": 45,
-       *       "totalPages": 5
+       *       "totalPages": 3,
+       *       "hasNext": true,
+       *       "hasPrevious": false
        *     }
        */
-      pagination: Record<string, never>;
-      /**
-       * @description Información de la fase
-       * @example {
-       *       "phaseId": "64a1b2c3d4e5f6789abcdef1",
-       *       "phaseName": "Fase de Análisis",
-       *       "projectId": "64a1b2c3d4e5f6789abcdef0"
-       *     }
-       */
-      phaseInfo: Record<string, never>;
+      meta: Record<string, never>;
     };
     CreateAdditionalDeliverableRequestDto: {
       /**
@@ -7225,6 +7246,84 @@ export interface components {
        *       "progress": 75,
        *       "delayDays": 2,
        *       "statusAnalysis": "acceptable-delay"
+       *     }
+       */
+      data?: Record<string, never>;
+    };
+    SetAdditionalDeliverableActualDatesRequestDto: {
+      /**
+       * @description Fecha real de inicio del entregable adicional (opcional)
+       * @example 2024-01-20T08:00:00.000Z
+       */
+      actualStartDate?: string;
+      /**
+       * @description Fecha real de fin del entregable adicional (opcional)
+       * @example 2024-02-05T17:00:00.000Z
+       */
+      actualEndDate?: string;
+    };
+    AdditionalDeliverableActualDatesResponseDto: {
+      /**
+       * @description Indica si la operación fue exitosa
+       * @example true
+       */
+      success: boolean;
+      /**
+       * @description Mensaje de la operación
+       * @example Fechas reales del entregable adicional establecidas exitosamente
+       */
+      message: string;
+      /**
+       * @description ID del proyecto
+       * @example 64a1b2c3d4e5f6789abcdef0
+       */
+      projectId: string;
+      /**
+       * @description ID del hito
+       * @example 64a1b2c3d4e5f6789abcdef1
+       */
+      milestoneId: string;
+      /**
+       * @description ID de la fase
+       * @example 64a1b2c3d4e5f6789abcdef2
+       */
+      phaseId: string;
+      /**
+       * @description ID del entregable adicional
+       * @example 64a1b2c3d4e5f6789abcdef3
+       */
+      additionalDeliverableId: string;
+      /**
+       * @description Fechas reales establecidas
+       * @example {
+       *       "actualStartDate": "2024-01-20T08:00:00.000Z",
+       *       "actualEndDate": "2024-02-05T17:00:00.000Z"
+       *     }
+       */
+      actualDates: Record<string, never>;
+      /**
+       * @description Información de propagación de cambios
+       * @example {
+       *       "phaseUpdated": true,
+       *       "milestoneUpdated": true,
+       *       "projectUpdated": true,
+       *       "affectedEntities": [
+       *         "phase:64a1b2c3d4e5f6789abcdef2",
+       *         "milestone:64a1b2c3d4e5f6789abcdef1",
+       *         "project:64a1b2c3d4e5f6789abcdef0"
+       *       ]
+       *     }
+       */
+      propagation: Record<string, never>;
+      /**
+       * @description Datos adicionales de la operación
+       * @example {
+       *       "status": "IN_PROGRESS",
+       *       "progress": 75,
+       *       "delayDays": 0,
+       *       "statusAnalysis": "on-time",
+       *       "plannedStartDate": null,
+       *       "plannedEndDate": null
        *     }
        */
       data?: Record<string, never>;
@@ -13098,7 +13197,7 @@ export interface operations {
       };
     };
   };
-  AdditionalDocumentsController_listAdditionalDocuments: {
+  AdditionalDocumentsController_listAdditionalDocuments_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -13139,7 +13238,7 @@ export interface operations {
       };
     };
   };
-  AdditionalDocumentsController_addAdditionalDocument: {
+  AdditionalDocumentsController_addAdditionalDocument_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -13185,7 +13284,7 @@ export interface operations {
       };
     };
   };
-  AdditionalDocumentsController_updateAdditionalDocument: {
+  AdditionalDocumentsController_updateAdditionalDocument_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -13233,7 +13332,7 @@ export interface operations {
       };
     };
   };
-  AdditionalDocumentsController_removeAdditionalDocument: {
+  AdditionalDocumentsController_removeAdditionalDocument_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -13276,7 +13375,7 @@ export interface operations {
       };
     };
   };
-  AdditionalDocumentsController_patchAdditionalDocument: {
+  AdditionalDocumentsController_patchAdditionalDocument_v1: {
     parameters: {
       query?: never;
       header?: never;
@@ -13647,6 +13746,70 @@ export interface operations {
         };
       };
       /** @description Conflicto de fechas o estado del entregable */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  AdditionalDeliverableActualDatesController_setAdditionalDeliverableActualDates_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description ID del entregable adicional */
+        id: string;
+      };
+      cookie?: never;
+    };
+    /** @description Fechas reales del entregable adicional */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["SetAdditionalDeliverableActualDatesRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Fechas reales establecidas exitosamente */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["AdditionalDeliverableActualDatesResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos o fechas inconsistentes */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Entregable adicional no encontrado */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Conflicto de fechas o estado del entregable adicional */
       409: {
         headers: {
           [name: string]: unknown;
