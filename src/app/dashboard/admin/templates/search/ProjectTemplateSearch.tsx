@@ -25,15 +25,17 @@ export function ProjectTemplateSearch({
   filterByActive,
 }: ProjectTemplateSearchProps) {
   const isDuplicate = useRef(false);
-  const { allTemplates, query, handleScrollEnd, handleSearchChange, search, handleIsActiveFilter } =
+  const { allTemplates, query, handleScrollEnd, handleSearchChange, search, handleIsActiveFilter, isActive } =
     useSearchProjectTemplates();
 
   // Aplicar filtro por estado activo cuando se pase el prop
+  // Solo aplicar una vez al inicio si el valor es diferente
   useEffect(() => {
-    if (filterByActive !== undefined) {
+    if (filterByActive !== undefined && filterByActive !== isActive) {
+      console.log("🔵 [ProjectTemplateSearch] Aplicando filtro isActive:", filterByActive);
       handleIsActiveFilter(filterByActive);
     }
-  }, [filterByActive, handleIsActiveFilter]);
+  }, [filterByActive, handleIsActiveFilter, isActive]);
 
   const projectTemplates: Option<ProjectTemplateResponseDto>[] = useMemo(() => {
     // Asegurar que allTemplates sea un array

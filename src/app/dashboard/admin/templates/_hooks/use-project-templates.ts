@@ -30,6 +30,8 @@ export const useSearchProjectTemplates = () => {
   const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
   const { size } = usePagination();
 
+  console.log("🟣 [useSearchProjectTemplates] Query params:", { search, isActive, size });
+
   const query = backend.useInfiniteQuery(
     "get",
     "/v1/project-templates/paginated",
@@ -37,32 +39,34 @@ export const useSearchProjectTemplates = () => {
       params: {
         query: {
           search,
-          page: 1,
+          page: 1, // Este valor será reemplazado automáticamente por pageParam
           pageSize: size,
           isActive,
         },
       },
     },
     {
-      initialPageParam: 1,
-      pageParamName: "page",
       getNextPageParam: (lastPage) => {
-        if (lastPage?.meta?.page && lastPage?.meta?.totalPages && lastPage.meta.page < lastPage.meta.totalPages) {
+        // Si hay más páginas disponibles, devolver el siguiente número de página
+        if (lastPage.meta.page < lastPage.meta.totalPages) {
           return lastPage.meta.page + 1;
         }
-        return undefined;
+        return undefined; // No hay más páginas
       },
       getPreviousPageParam: (firstPage) => {
-        if (firstPage?.meta?.page && firstPage.meta.page > 1) {
+        // Si no estamos en la primera página, devolver la página anterior
+        if (firstPage.meta.page > 1) {
           return firstPage.meta.page - 1;
         }
-        return undefined;
+        return undefined; // No hay páginas anteriores
       },
+      initialPageParam: 1,
+      pageParamName: "page", // Esto le dice a openapi-react-query que use "page" como parámetro de paginación
     }
   );
 
   // Obtener todas las plantillas de todas las páginas de forma plana
-  const allTemplates = query.data?.pages?.flatMap((page) => page.data) || [];
+  const allTemplates = query.data?.pages.flatMap((page) => page.data) || [];
 
   const handleScrollEnd = useCallback(() => {
     if (query.hasNextPage) {
@@ -77,6 +81,7 @@ export const useSearchProjectTemplates = () => {
   }, []);
 
   const handleIsActiveFilter = useCallback((isActive: boolean | undefined) => {
+    console.log("🟣 [useSearchProjectTemplates] handleIsActiveFilter llamado con:", isActive);
     setIsActive(isActive);
   }, []);
 
