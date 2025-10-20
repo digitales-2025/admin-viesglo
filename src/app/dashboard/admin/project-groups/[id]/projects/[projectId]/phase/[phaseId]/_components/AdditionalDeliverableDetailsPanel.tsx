@@ -288,7 +288,7 @@ export function AdditionalDeliverableDetailsPanel({
           <div className="flex flex-col gap-1">
             <h4 className="font-semibold text-sm flex items-center gap-2">
               <Files className="h-4 w-4 text-muted-foreground" />
-              Documentos ({additionalDeliverable.additionalDocumentsCount || 0})
+              Documentos ({additionalDeliverable.additionalDocuments?.length ?? 0})
             </h4>
             {areDocumentsRestricted() && (
               <p className="text-xs text-muted-foreground flex items-center gap-1">
@@ -320,21 +320,21 @@ export function AdditionalDeliverableDetailsPanel({
           </PermissionProtected>
         </div>
 
-        {additionalDeliverable.additionalDocumentsCount > 0 ? (
+        {(additionalDeliverable.additionalDocuments?.length ?? 0) > 0 ? (
           <div className="space-y-3">
             {/* Lista de documentos con previsualización */}
             <div className="space-y-3 max-h-96 overflow-y-auto">
-              {additionalDeliverable.additionalDocuments.map((doc) => (
+              {(additionalDeliverable.additionalDocuments ?? []).map((doc) => (
                 <div key={doc.id} className="space-y-2">
                   {/* Información del documento con acciones */}
                   <div
                     className="flex items-center justify-between p-2 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
-                    onClick={() => openPopupWindow(doc.fileUrl, doc.fileName)}
+                    onClick={() => openPopupWindow(String(doc.fileUrl ?? ""), String(doc.fileName ?? "Documento"))}
                   >
                     <div className="flex items-center gap-3 flex-1 min-w-0">
                       <FileDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">{doc.fileName}</p>
+                        <p className="text-sm font-medium truncate">{String(doc.fileName ?? "")}</p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>{formatDateTime(doc.uploadedAt)}</span>
                           <span>•</span>
@@ -351,7 +351,7 @@ export function AdditionalDeliverableDetailsPanel({
                         className="h-8 w-8 p-0"
                         onClick={(e) => {
                           e.stopPropagation();
-                          openPopupWindow(doc.fileUrl, doc.fileName);
+                          openPopupWindow(String(doc.fileUrl ?? ""), String(doc.fileName ?? "Documento"));
                         }}
                       >
                         <ExternalLink className="h-4 w-4" />

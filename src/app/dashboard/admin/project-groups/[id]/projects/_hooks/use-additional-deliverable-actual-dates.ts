@@ -17,27 +17,18 @@ const useSetAdditionalDeliverableActualDatesBase = () => {
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
       queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
 
-      // Invalidar queries de entregables adicionales
+      // ✅ CORRECCIÓN: Invalidar queries de entregables adicionales con la ruta correcta
       queryClient.invalidateQueries({
         queryKey: ["get", "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          "get",
-          "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/paginated",
-        ],
       });
 
       // Invalidar queries de entregables normales (para recalcular progreso)
       queryClient.invalidateQueries({
-        queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
+        queryKey: ["get", "/v1/deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
       });
 
       // Invalidar queries de milestones
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/project-milestones/{projectId}/milestones"] });
+      queryClient.invalidateQueries({ queryKey: ["get", "/v1/milestones/{projectId}/milestones"] });
 
       // Determinar el mensaje de éxito basado en las fechas establecidas
       const hasStartDate = !!variables.body.actualStartDate;

@@ -32,15 +32,16 @@ export const useAddDocumentToAdditionalDeliverable = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("post", "/v1/additional-documents", {
     onSuccess: () => {
+      // ✅ CORRECCIÓN: Invalidar con la ruta correcta
       queryClient.invalidateQueries({
         queryKey: ["get", "/v1/additional-documents"],
       });
-      queryClient.resetQueries({
-        queryKey: [
-          "get",
-          "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/paginated",
-        ],
+
+      // Invalidar queries de entregables adicionales para actualizar el contador de documentos
+      queryClient.invalidateQueries({
+        queryKey: ["get", "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables"],
       });
+
       toast.success("Documento agregado correctamente");
     },
     onError: (error) => {
@@ -61,15 +62,16 @@ export const useUpdateAdditionalDocument = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("put", "/v1/additional-documents/{documentId}", {
     onSuccess: () => {
+      // ✅ CORRECCIÓN: Invalidar con la ruta correcta
       queryClient.invalidateQueries({
         queryKey: ["get", "/v1/additional-documents"],
       });
-      queryClient.resetQueries({
-        queryKey: [
-          "get",
-          "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/paginated",
-        ],
+
+      // Invalidar queries de entregables adicionales para actualizar el contador de documentos
+      queryClient.invalidateQueries({
+        queryKey: ["get", "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables"],
       });
+
       toast.success("Documento actualizado correctamente");
     },
     onError: (error) => {
@@ -90,15 +92,16 @@ export const useDeleteAdditionalDocument = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("delete", "/v1/additional-documents/{documentId}", {
     onSuccess: () => {
+      // ✅ CORRECCIÓN: Invalidar con la ruta correcta
       queryClient.invalidateQueries({
         queryKey: ["get", "/v1/additional-documents"],
       });
-      queryClient.resetQueries({
-        queryKey: [
-          "get",
-          "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables/paginated",
-        ],
+
+      // Invalidar queries de entregables adicionales para actualizar el contador de documentos
+      queryClient.invalidateQueries({
+        queryKey: ["get", "/v1/additional-deliverables/projects/{projectId}/phases/{phaseId}/additional-deliverables"],
       });
+
       toast.success("Documento eliminado correctamente");
     },
     onError: (error) => {

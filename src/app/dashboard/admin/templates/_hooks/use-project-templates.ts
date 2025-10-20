@@ -29,7 +29,6 @@ export const useSearchProjectTemplates = () => {
   const [search, setSearch] = useState<string | undefined>(undefined);
   const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
   const { size } = usePagination();
-  const [ids, setIds] = useState<string[] | undefined>(undefined);
 
   const query = backend.useInfiniteQuery(
     "get",
@@ -38,39 +37,32 @@ export const useSearchProjectTemplates = () => {
       params: {
         query: {
           search,
-          page: 1, // Este valor será reemplazado automáticamente por pageParam
+          page: 1,
           pageSize: size,
           isActive,
-          ids,
         },
       },
     },
     {
+      initialPageParam: 1,
+      pageParamName: "page",
       getNextPageParam: (lastPage) => {
-        // Si hay más páginas disponibles, devolver el siguiente número de página
-        if (lastPage.meta.page < lastPage.meta.totalPages) {
+        if (lastPage?.meta?.page && lastPage?.meta?.totalPages && lastPage.meta.page < lastPage.meta.totalPages) {
           return lastPage.meta.page + 1;
         }
-        return undefined; // No hay más páginas
+        return undefined;
       },
       getPreviousPageParam: (firstPage) => {
-        // Si no estamos en la primera página, devolver la página anterior
-        if (firstPage.meta.page > 1) {
+        if (firstPage?.meta?.page && firstPage.meta.page > 1) {
           return firstPage.meta.page - 1;
         }
-        return undefined; // No hay páginas anteriores
+        return undefined;
       },
-      initialPageParam: 1,
-      pageParamName: "page", // Esto le dice a openapi-react-query que use "page" como parámetro de paginación
     }
   );
 
   // Obtener todas las plantillas de todas las páginas de forma plana
-  const allTemplates = query.data?.pages.flatMap((page) => page.data) || [];
-
-  const handleSearchByIds = (ids: string[]) => {
-    setIds(ids);
-  };
+  const allTemplates = query.data?.pages?.flatMap((page) => page.data) || [];
 
   const handleScrollEnd = useCallback(() => {
     if (query.hasNextPage) {
@@ -91,7 +83,6 @@ export const useSearchProjectTemplates = () => {
   const clearFilters = useCallback(() => {
     setSearch(undefined);
     setIsActive(undefined);
-    setIds(undefined);
   }, []);
 
   return {
@@ -103,7 +94,6 @@ export const useSearchProjectTemplates = () => {
     isLoading: query.isLoading,
     isError: query.isError,
     // Funciones de filtrado
-    handleSearchByIds,
     handleSearchChange,
     handleIsActiveFilter,
     clearFilters,
