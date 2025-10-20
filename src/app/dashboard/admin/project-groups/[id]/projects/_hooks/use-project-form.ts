@@ -68,18 +68,20 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
 
   // Función para obtener los datos finales
   const getSubmitData = (data: ProjectsForm) => {
+    if (isUpdate && initialData) {
+      // En actualización: NO enviar clientId, projectGroupId, projectTemplateId, status, selectedMilestones
+      const { clientId, projectGroupId, projectTemplateId, status, selectedMilestones, ...updateData } = data;
+
+      console.log(clientId, projectGroupId, projectTemplateId, status, selectedMilestones);
+
+      return updateData;
+    }
+
+    // En creación: usar los valores del formulario
     return {
       ...data,
       projectGroupId: projectGroupId,
-      // Lógica de status:
-      // - Al crear: asignar CREATED automáticamente
-      // - Al actualizar: mantener el status del initialData
-      status: isUpdate ? initialData?.status || ProjectStatusEnum.CREATED : ProjectStatusEnum.CREATED,
-      // Si es actualización, mantener algunos valores del initialData
-      ...(isUpdate &&
-        initialData && {
-          isActive: initialData.isActive ?? true,
-        }),
+      status: ProjectStatusEnum.CREATED,
     };
   };
 
@@ -91,7 +93,7 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
       updateProject(
         {
           params: { path: { id: initialData.id } },
-          body: submitData,
+          body: submitData as any,
         },
         {
           onSuccess: () => {
@@ -102,7 +104,7 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
       );
     } else {
       createProject(
-        { body: submitData },
+        { body: submitData as any },
         {
           onSuccess: (response) => {
             // Intentar diferentes estructuras posibles de la respuesta

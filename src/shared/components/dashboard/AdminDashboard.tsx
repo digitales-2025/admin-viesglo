@@ -25,6 +25,7 @@ import {
   projectStatusConfig,
   projectTypeConfig,
 } from "@/app/dashboard/admin/project-groups/[id]/projects/_utils/projects.utils";
+import { ReportsDashboard } from "@/shared/components/dashboard/_components/ReportsDashboard";
 import { fetchProjectsDashboardSummary, fetchProjectsTypeDistribution } from "@/shared/lib/projects.service";
 import { ServerDateRangeFacetedFilter } from "../filters/ServerDateRangeFacetedFilter";
 import { Badge } from "../ui/badge";
@@ -315,27 +316,41 @@ export default function Dashboard() {
 
         {/* Navigation Tabs */}
         <Tabs defaultValue="general" className="w-full ">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="general">
+          <TabsList className="grid w-full grid-cols-5 h-auto p-1 gap-1 bg-muted/50">
+            <TabsTrigger
+              value="general"
+              className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+            >
+              <BarChart3 className="h-4 w-4" />
               <span className="truncate text-ellipsis font-medium">General</span>
             </TabsTrigger>
-            <TabsTrigger value="clientes">
+            <TabsTrigger
+              value="clientes"
+              className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+            >
+              <Bell className="h-4 w-4" />
               <span className="truncate text-ellipsis font-medium">Clientes</span>
             </TabsTrigger>
-            <TabsTrigger value="proyectos">
+            <TabsTrigger
+              value="proyectos"
+              className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+            >
+              <FileText className="h-4 w-4" />
               <span className="truncate text-ellipsis font-medium">Proyectos</span>
             </TabsTrigger>
-            <TabsTrigger value="costos">
+            <TabsTrigger
+              value="costos"
+              className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+            >
+              <AlertTriangle className="h-4 w-4" />
               <span className="truncate text-ellipsis font-medium">Costos</span>
             </TabsTrigger>
-            <TabsTrigger value="analiticas">
-              <span className="truncate text-ellipsis font-medium">Analíticas</span>
-            </TabsTrigger>
-            <TabsTrigger value="reportes">
+            <TabsTrigger
+              value="reportes"
+              className="flex items-center gap-2 py-3 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+            >
+              <FileText className="h-4 w-4" />
               <span className="truncate text-ellipsis font-medium">Reportes</span>
-            </TabsTrigger>
-            <TabsTrigger value="notificaciones">
-              <span className="truncate text-ellipsis font-medium">Notificaciones</span>
             </TabsTrigger>
           </TabsList>
 
@@ -602,40 +617,8 @@ export default function Dashboard() {
             <CostsDashboard filters={filterParams} />
           </TabsContent>
 
-          <TabsContent value="analiticas">
-            <Card>
-              <CardHeader>
-                <CardTitle>Analíticas</CardTitle>
-                <CardDescription>Análisis detallado de rendimiento y métricas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Contenido de analíticas en desarrollo...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="reportes">
-            <Card>
-              <CardHeader>
-                <CardTitle>Reportes</CardTitle>
-                <CardDescription>Generación y gestión de reportes</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Contenido de reportes en desarrollo...</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="notificaciones">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notificaciones</CardTitle>
-                <CardDescription>Centro de notificaciones y alertas</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Contenido de notificaciones en desarrollo...</p>
-              </CardContent>
-            </Card>
+            <ReportsDashboard />
           </TabsContent>
         </Tabs>
       </div>

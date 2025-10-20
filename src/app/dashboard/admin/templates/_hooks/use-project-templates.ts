@@ -29,7 +29,8 @@ export const useSearchProjectTemplates = () => {
   const [search, setSearch] = useState<string | undefined>(undefined);
   const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
   const { size } = usePagination();
-  const [ids, setIds] = useState<string[] | undefined>(undefined);
+
+  console.log("🟣 [useSearchProjectTemplates] Query params:", { search, isActive, size });
 
   const query = backend.useInfiniteQuery(
     "get",
@@ -41,7 +42,6 @@ export const useSearchProjectTemplates = () => {
           page: 1, // Este valor será reemplazado automáticamente por pageParam
           pageSize: size,
           isActive,
-          ids,
         },
       },
     },
@@ -68,10 +68,6 @@ export const useSearchProjectTemplates = () => {
   // Obtener todas las plantillas de todas las páginas de forma plana
   const allTemplates = query.data?.pages.flatMap((page) => page.data) || [];
 
-  const handleSearchByIds = (ids: string[]) => {
-    setIds(ids);
-  };
-
   const handleScrollEnd = useCallback(() => {
     if (query.hasNextPage) {
       query.fetchNextPage();
@@ -85,13 +81,13 @@ export const useSearchProjectTemplates = () => {
   }, []);
 
   const handleIsActiveFilter = useCallback((isActive: boolean | undefined) => {
+    console.log("🟣 [useSearchProjectTemplates] handleIsActiveFilter llamado con:", isActive);
     setIsActive(isActive);
   }, []);
 
   const clearFilters = useCallback(() => {
     setSearch(undefined);
     setIsActive(undefined);
-    setIds(undefined);
   }, []);
 
   return {
@@ -103,7 +99,6 @@ export const useSearchProjectTemplates = () => {
     isLoading: query.isLoading,
     isError: query.isError,
     // Funciones de filtrado
-    handleSearchByIds,
     handleSearchChange,
     handleIsActiveFilter,
     clearFilters,

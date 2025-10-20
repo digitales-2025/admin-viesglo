@@ -151,16 +151,16 @@ export default function NotificationsBell() {
                           {getCategoryIcon(notification.category as Notification["category"])}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <h4
-                              className={`text-sm font-medium truncate ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
+                              className={`text-sm font-medium ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
                             >
                               {notification.title}
                             </h4>
                             {isClickable && <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
                             <Badge
                               variant="outline"
-                              className={`text-xs px-1.5 py-0.5 capitalize ${getPriorityColor(notification.priority as Notification["priority"])}`}
+                              className={`text-xs px-1.5 py-0.5 capitalize flex-shrink-0 ${getPriorityColor(notification.priority as Notification["priority"])}`}
                             >
                               {notification.priority}
                             </Badge>

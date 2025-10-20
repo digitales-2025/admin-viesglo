@@ -149,7 +149,7 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
               <span
                 className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold transition-colors duration-300"
                 style={{
-                  color: overallProgress > 55 ? "white" : "#1f2937", // Blanco si está sobre la barra, gris oscuro si no
+                  color: overallProgress > 45 ? "white" : "#1f2937", // Blanco si está sobre la barra, gris oscuro si no
                 }}
               >
                 {overallProgress}%
