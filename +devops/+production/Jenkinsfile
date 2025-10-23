@@ -5,7 +5,7 @@ pipeline {
 
         PROJECT_NAME    = "viesglo"
         PROJECT_SERVICE   = "frontend"
-        PROJECT_STAGE   = "main"
+        PROJECT_STAGE   = "production"
         PROJECT_TRIPLET   = "${PROJECT_NAME}-${PROJECT_STAGE}-${PROJECT_SERVICE}"
 
         REMOTE_USER   = "docker_admin"
