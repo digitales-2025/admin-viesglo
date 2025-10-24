@@ -6,11 +6,16 @@
  */
 
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { downloadFromBlob, fetchClient } from "@/lib/api/types/backend";
-import { BaseErrorResponse } from "@/lib/api/types/common";
+import { downloadFile } from "@/lib/api/types/backend";
+
+// Tipo para errores de descarga
+type DownloadError = {
+  error?: {
+    userMessage?: string;
+  };
+};
 
 // ============================================================================
 // 🎯 TIPOS E INTERFACES
@@ -33,12 +38,14 @@ export interface ProjectReportFilters extends BaseReportFilters {
   status?: string;
   commercialExecutiveId?: string;
   implementingCompanyId?: string;
+  [key: string]: unknown;
 }
 
 export interface MilestoneReportFilters extends BaseReportFilters {
   status?: string;
   projectId?: string;
   assignedToId?: string;
+  [key: string]: unknown;
 }
 
 export interface DeliverableReportFilters extends BaseReportFilters {
@@ -46,18 +53,21 @@ export interface DeliverableReportFilters extends BaseReportFilters {
   priority?: string;
   assignedToId?: string;
   milestoneId?: string;
+  [key: string]: unknown;
 }
 
 export interface ClientSatisfactionFilters extends BaseReportFilters {
   clientId?: string;
   projectId?: string;
   satisfactionLevel?: "HIGH" | "MEDIUM" | "LOW";
+  [key: string]: unknown;
 }
 
 export interface ResourceCostFilters extends BaseReportFilters {
   resourceType?: string;
   projectId?: string;
   resourceId?: string;
+  [key: string]: unknown;
 }
 
 export interface AuditReportFilters extends BaseReportFilters {
@@ -65,25 +75,12 @@ export interface AuditReportFilters extends BaseReportFilters {
   action?: string;
   entityType?: string;
   severity?: string;
+  [key: string]: unknown;
 }
 
 // ============================================================================
-// 🚨 TIPOS DE ERROR
+// 🚨 TIPOS DE ERROR (Simplificado - usa inferencia de tipos del backend)
 // ============================================================================
-
-interface ReportError extends BaseErrorResponse {
-  error: {
-    id: string;
-    message: string;
-    userMessage?: string;
-    category: string;
-    severity: "HIGH" | "MEDIUM" | "LOW" | "CRITICAL";
-    statusCode: number;
-    timestamp: string;
-    path: string;
-    method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" | "OPTIONS" | "HEAD";
-  };
-}
 
 // ============================================================================
 // 🛠️ UTILIDADES
@@ -116,73 +113,6 @@ export function prepareReportFilters(
 // 🎣 HOOK GENÉRICO
 // ============================================================================
 
-/**
- * Hook genérico para descargar reportes usando el sistema centralizado de backend.ts
- *
- * @param endpoint - Ruta del endpoint del reporte (ej: "/v1/reports/project-efficiency")
- * @param reportName - Nombre descriptivo del reporte para el archivo
- */
-function useReportDownload<T extends Record<string, any>>(endpoint: string, reportName: string) {
-  const [isDownloading, setIsDownloading] = useState(false);
-
-  const mutation = useMutation<string, ReportError, T>({
-    mutationFn: async (filters: T) => {
-      setIsDownloading(true);
-
-      try {
-        // Hacer la petición usando el fetchClient con parseAs: "blob"
-        // openapi-fetch parsea automáticamente y devuelve { data, response }
-        const { data, response } = await fetchClient.GET(endpoint as any, {
-          params: { query: filters },
-          parseAs: "blob", // ⭐ Importante: openapi-fetch parsea y devuelve blob en 'data'
-        });
-
-        if (!response.ok) {
-          // Si hay error, intentar parsear la respuesta como BaseErrorResponse
-          try {
-            const errorData = await response.json();
-            throw errorData as ReportError;
-          } catch {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
-          }
-        }
-
-        if (!data) {
-          throw new Error("No data received from server");
-        }
-
-        // Usar downloadFromBlob ya que openapi-fetch ya parseó el blob
-        const filename = await downloadFromBlob(data, response, {
-          filename: `${reportName}.xlsx`,
-          addTimestamp: true,
-          onSuccess: (downloadedFilename) => {
-            toast.success(`Reporte descargado: ${downloadedFilename}`);
-          },
-          onError: (error: any) => {
-            toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
-          },
-        });
-
-        return filename;
-      } finally {
-        setIsDownloading(false);
-      }
-    },
-    onError: (error: ReportError) => {
-      setIsDownloading(false);
-      toast.error(error?.error?.userMessage || "Ocurrió un error inesperado");
-      console.error("Error descargando reporte:", error);
-    },
-  });
-
-  return {
-    generateReport: mutation.mutate,
-    isDownloading: mutation.isPending || isDownloading,
-    error: mutation.error,
-    isError: mutation.isError,
-  };
-}
-
 // ============================================================================
 // 📊 HOOKS ESPECÍFICOS POR TIPO DE REPORTE
 // ============================================================================
@@ -193,7 +123,32 @@ function useReportDownload<T extends Record<string, any>>(endpoint: string, repo
  * Genera análisis completo de rendimiento, progreso y cumplimiento
  */
 export function useProjectEfficiencyReport() {
-  return useReportDownload<ProjectReportFilters>("/v1/reports/project-efficiency", "eficiencia-proyectos");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: ProjectReportFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile(
+        "/v1/reports/project-efficiency",
+        filters as Record<string, string>,
+        "eficiencia-proyectos.xlsx"
+      );
+
+      toast.success("Reporte descargado: eficiencia-proyectos.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
 
 /**
@@ -202,7 +157,32 @@ export function useProjectEfficiencyReport() {
  * Estado, progreso y métricas detalladas de hitos
  */
 export function useMilestoneAnalysisReport() {
-  return useReportDownload<MilestoneReportFilters>("/v1/reports/milestone-analysis", "analisis-milestones");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: MilestoneReportFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile(
+        "/v1/reports/milestone-analysis",
+        filters as Record<string, string>,
+        "analisis-milestones.xlsx"
+      );
+
+      toast.success("Reporte descargado: analisis-milestones.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
 
 /**
@@ -211,7 +191,32 @@ export function useMilestoneAnalysisReport() {
  * Seguimiento de entregables y procesos de validación
  */
 export function useDeliverableApprovalReport() {
-  return useReportDownload<DeliverableReportFilters>("/v1/reports/deliverable-approval", "entregables-aprobaciones");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: DeliverableReportFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile(
+        "/v1/reports/deliverable-approval",
+        filters as Record<string, string>,
+        "entregables-aprobaciones.xlsx"
+      );
+
+      toast.success("Reporte descargado: entregables-aprobaciones.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
 
 /**
@@ -220,7 +225,32 @@ export function useDeliverableApprovalReport() {
  * Métricas de calidad y nivel de satisfacción
  */
 export function useClientSatisfactionReport() {
-  return useReportDownload<ClientSatisfactionFilters>("/v1/reports/client-satisfaction", "satisfaccion-cliente");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: ClientSatisfactionFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile(
+        "/v1/reports/client-satisfaction",
+        filters as Record<string, string>,
+        "satisfaccion-cliente.xlsx"
+      );
+
+      toast.success("Reporte descargado: satisfaccion-cliente.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
 
 /**
@@ -229,7 +259,28 @@ export function useClientSatisfactionReport() {
  * Análisis financiero, ROI y utilización de recursos
  */
 export function useResourceCostReport() {
-  return useReportDownload<ResourceCostFilters>("/v1/reports/resource-cost", "recursos-costos");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: ResourceCostFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile("/v1/reports/resource-cost", filters as Record<string, string>, "recursos-costos.xlsx");
+
+      toast.success("Reporte descargado: recursos-costos.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
 
 /**
@@ -238,5 +289,30 @@ export function useResourceCostReport() {
  * Registro de acciones y cumplimiento
  */
 export function useAuditTraceabilityReport() {
-  return useReportDownload<AuditReportFilters>("/v1/reports/audit-traceability", "auditoria-trazabilidad");
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const generateReport = async (filters: AuditReportFilters) => {
+    setIsDownloading(true);
+    try {
+      await downloadFile(
+        "/v1/reports/audit-traceability",
+        filters as Record<string, string>,
+        "auditoria-trazabilidad.xlsx"
+      );
+
+      toast.success("Reporte descargado: auditoria-trazabilidad.xlsx");
+    } catch (error: unknown) {
+      const downloadError = error as DownloadError;
+      toast.error(downloadError?.error?.userMessage || "Ocurrió un error inesperado");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  return {
+    generateReport,
+    isDownloading,
+    error: null,
+    isError: false,
+  };
 }
