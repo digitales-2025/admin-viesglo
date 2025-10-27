@@ -9,7 +9,7 @@ pipeline {
         PROJECT_TRIPLET   = "${PROJECT_NAME}-${PROJECT_STAGE}-${PROJECT_SERVICE}"
 
         REMOTE_USER   = "docker_admin"
-        REMOTE_IP     = "116.203.105.37"
+        REMOTE_IP     = "192.168.88.69"
         REMOTE_FOLDER = "/opt/docker/compose/projects/${PROJECT_NAME}-${PROJECT_STAGE}/"
 
         REGISTRY_CREDENTIALS = "dockerhub-digitalesacide-credentials"
@@ -43,7 +43,7 @@ pipeline {
                             steps {
                                 script {
                                     def buildVariables = [
-                                        NEXT_PUBLIC_BACKEND_URL: "https://viesglo-main-backend.acide.win",
+                                        NEXT_PUBLIC_BACKEND_URL: "https://api-proyectos.acide.win",
                                     ]
 
                                     def dockerBuildArgs = new StringBuilder()
