@@ -1,0 +1,13 @@
+export type AuditResponse = any;
+
+export enum AuditType {
+  CREATE = "CREATE",
+  UPDATE = "UPDATE",
+  DELETE = "DELETE",
+}
+
+export const ColorAudit = {
+  [AuditType.CREATE]: "text-emerald-500",
+  [AuditType.UPDATE]: "text-amber-500",
+  [AuditType.DELETE]: "text-rose-500",
+};
