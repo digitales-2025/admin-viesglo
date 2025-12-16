@@ -96,7 +96,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                     projectId={projectId}
                     milestoneId={milestone.id}
                     currentAssignee={milestone.internalConsultant}
-                    filterBySystemRolePosition={3}
+                    filterBySystemRolePositions={[2, 3]}
                     filterByActive={true}
                     avatarSize="md"
                     align="center"
@@ -108,7 +108,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   projectId={projectId}
                   milestoneId={milestone.id}
                   currentAssignee={milestone.internalConsultant}
-                  filterBySystemRolePosition={3}
+                  filterBySystemRolePositions={[2, 3]}
                   filterByActive={true}
                   avatarSize="md"
                   align="center"
