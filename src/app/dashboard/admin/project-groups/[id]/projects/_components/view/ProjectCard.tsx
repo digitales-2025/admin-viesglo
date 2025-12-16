@@ -67,8 +67,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="flex items-center justify-between mb-3 gap-4">
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.projects, action: EnumAction.write },
-                  { resource: EnumResource.projects, action: EnumAction.manage },
+                  { resource: EnumResource.projects, action: EnumAction.update },
+                  { resource: EnumResource.projects, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -90,8 +90,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <PermissionProtected
                 permissions={[
                   { resource: EnumResource.projects, action: EnumAction.read },
-                  { resource: EnumResource.projects, action: EnumAction.write },
-                  { resource: EnumResource.projects, action: EnumAction.manage },
+                  { resource: EnumResource.projects, action: EnumAction.update },
+                  { resource: EnumResource.projects, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -229,8 +229,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       <PermissionProtected
         permissions={[
-          { resource: EnumResource.projects, action: EnumAction.write },
-          { resource: EnumResource.projects, action: EnumAction.manage },
+          { resource: EnumResource.projects, action: EnumAction.update },
+          { resource: EnumResource.projects, action: EnumAction.delete },
         ]}
         requireAll={false}
         hideOnUnauthorized={true}

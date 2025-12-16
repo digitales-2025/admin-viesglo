@@ -2,12 +2,13 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { Tags } from "lucide-react";
+import { useDebouncedCallback } from "use-debounce";
 
 import { Button } from "@/shared/components/ui/button";
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useTagForm } from "../../_hooks/use-tag-form";
-import { useDeleteTag, useTagsByName } from "../../_hooks/use-tags";
+import { TagSearchQueryResult, useDeleteTag } from "../../_hooks/use-tags";
 import { type CreateTagForm } from "../../_schemas/tags-schemas";
 import { TagResponseDto } from "../../_types/tags.types";
 import { TagEditorForm } from "./TagEditorForm";
@@ -17,6 +18,13 @@ interface TagEditorDialogProps {
   onTagsChange: (tagIds: string[]) => void;
   selectedTagObjects: TagResponseDto[];
   onTagObjectsChange: (tagObjects: TagResponseDto[]) => void;
+  allTags: TagResponseDto[];
+  query: TagSearchQueryResult;
+  handleSearchChange: (value: string) => void;
+  handlePreselectedIdsFilter?: (preselectedIds: string[] | undefined) => void;
+  handleScrollEnd: () => void;
+  isLoading: boolean;
+  isError: boolean;
 }
 
 export const TagEditorDialog = memo(function TagEditorDialog({
@@ -24,6 +32,14 @@ export const TagEditorDialog = memo(function TagEditorDialog({
   onTagsChange,
   selectedTagObjects,
   onTagObjectsChange,
+  // Props opcionales para evitar consulta duplicada
+  allTags,
+  query,
+  handleSearchChange,
+  handlePreselectedIdsFilter,
+  handleScrollEnd,
+  isLoading,
+  isError,
 }: TagEditorDialogProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -32,24 +48,25 @@ export const TagEditorDialog = memo(function TagEditorDialog({
   const [customColor, setCustomColor] = useState("#3b82f6");
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  // Estado para el término de búsqueda debounced
-  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
-
-  // useEffect simple para debounce sin dependencias circulares
+  // Aplicar preselectedIds cuando hay tags seleccionados
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedTerm(searchTerm);
-    }, 300);
+    if (selectedTags.length > 0) {
+      handlePreselectedIdsFilter?.(selectedTags);
+    }
+  }, [selectedTags, handlePreselectedIdsFilter]);
 
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  // Debounce para búsqueda (300ms)
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    handleSearchChange?.(value);
+  }, 300);
 
-  // Usar hook real para buscar tags - con debounce para optimizar
-  const { data: searchResults = [] } = useTagsByName(
-    debouncedTerm,
-    10,
-    true // Siempre habilitado para mostrar tags existentes
-  );
+  // Aplicar búsqueda con debounce cuando cambia el término
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+  }, [searchTerm, debouncedSearch]);
+
+  // Filtrar solo tags activos
+  const filteredTags = allTags?.filter((tag) => tag.isActive) || [];
 
   // Usar hook real para crear/editar tags - una sola instancia
   const {
@@ -67,9 +84,6 @@ export const TagEditorDialog = memo(function TagEditorDialog({
 
   // Hook para eliminar tags
   const { mutate: deleteTag, isPending: isDeleting } = useDeleteTag();
-
-  // Usar searchResults - el backend ya filtra por nombre, solo filtrar por isActive
-  const filteredTags = searchResults.filter((tag) => tag.isActive);
 
   // Funciones optimizadas con useCallback para evitar re-creaciones
   const handleSubmit = useCallback(
@@ -113,7 +127,7 @@ export const TagEditorDialog = memo(function TagEditorDialog({
       onTagsChange(newSelection);
 
       // También actualizar selectedTagObjects
-      const tag = searchResults.find((t) => t.id === tagId);
+      const tag = allTags?.find((t) => t.id === tagId);
       if (tag) {
         const newTagObjects = selectedTagObjects.some((t) => t.id === tagId)
           ? selectedTagObjects.filter((t) => t.id !== tagId)
@@ -121,7 +135,7 @@ export const TagEditorDialog = memo(function TagEditorDialog({
         onTagObjectsChange(newTagObjects);
       }
     },
-    [selectedTags, searchResults, selectedTagObjects, onTagsChange, onTagObjectsChange]
+    [selectedTags, allTags, selectedTagObjects, onTagsChange, onTagObjectsChange]
   );
 
   const trigger = (
@@ -161,6 +175,11 @@ export const TagEditorDialog = memo(function TagEditorDialog({
         editingTag={editingTag}
         setEditingTag={setEditingTag}
         form={form}
+        // Props para scroll infinito
+        query={query}
+        handleScrollEnd={handleScrollEnd}
+        isLoading={isLoading}
+        isError={isError}
       />
     </ResponsiveDialog>
   );

@@ -298,8 +298,8 @@ export function AdditionalDeliverableDetailsPanel({
           </div>
           <PermissionProtected
             permissions={[
-              { resource: EnumResource.deliverables, action: EnumAction.write },
-              { resource: EnumResource.deliverables, action: EnumAction.manage },
+              { resource: EnumResource.deliverables, action: EnumAction.update },
+              { resource: EnumResource.deliverables, action: EnumAction.delete },
             ]}
             requireAll={false}
             hideOnUnauthorized={true}
@@ -358,8 +358,8 @@ export function AdditionalDeliverableDetailsPanel({
                       </Button>
                       <PermissionProtected
                         permissions={[
-                          { resource: EnumResource.deliverables, action: EnumAction.write },
-                          { resource: EnumResource.deliverables, action: EnumAction.manage },
+                          { resource: EnumResource.deliverables, action: EnumAction.update },
+                          { resource: EnumResource.deliverables, action: EnumAction.delete },
                         ]}
                         requireAll={false}
                         hideOnUnauthorized={true}
@@ -414,8 +414,8 @@ export function AdditionalDeliverableDetailsPanel({
             <p className="text-sm mb-3">No hay documentos disponibles</p>
             <PermissionProtected
               permissions={[
-                { resource: EnumResource.deliverables, action: EnumAction.write },
-                { resource: EnumResource.deliverables, action: EnumAction.manage },
+                { resource: EnumResource.deliverables, action: EnumAction.update },
+                { resource: EnumResource.deliverables, action: EnumAction.delete },
               ]}
               requireAll={false}
               hideOnUnauthorized={true}

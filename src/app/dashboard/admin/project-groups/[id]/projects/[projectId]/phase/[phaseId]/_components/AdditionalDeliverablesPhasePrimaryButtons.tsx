@@ -31,8 +31,8 @@ export default function AdditionalDeliverablesPhasePrimaryButtons({
   return (
     <PermissionProtected
       permissions={[
-        { resource: EnumResource.deliverables, action: EnumAction.write },
-        { resource: EnumResource.deliverables, action: EnumAction.manage },
+        { resource: EnumResource.deliverables, action: EnumAction.update },
+        { resource: EnumResource.deliverables, action: EnumAction.delete },
       ]}
       requireAll={false}
       hideOnUnauthorized={true}

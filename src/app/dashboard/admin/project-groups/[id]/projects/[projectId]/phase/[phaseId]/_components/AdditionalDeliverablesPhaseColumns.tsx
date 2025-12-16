@@ -172,8 +172,8 @@ export function AdditionalDeliverablesPhaseColumns({
             <div onClick={(e) => e.stopPropagation()}>
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.deliverables, action: EnumAction.write },
-                  { resource: EnumResource.deliverables, action: EnumAction.manage },
+                  { resource: EnumResource.deliverables, action: EnumAction.update },
+                  { resource: EnumResource.deliverables, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
@@ -187,8 +187,8 @@ export function AdditionalDeliverablesPhaseColumns({
                   <DropdownMenuContent align="end">
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.deliverables, action: EnumAction.write },
-                        { resource: EnumResource.deliverables, action: EnumAction.manage },
+                        { resource: EnumResource.deliverables, action: EnumAction.update },
+                        { resource: EnumResource.deliverables, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -203,7 +203,7 @@ export function AdditionalDeliverablesPhaseColumns({
                     </PermissionProtected>
 
                     <PermissionProtected
-                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.manage }]}
+                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.delete }]}
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >

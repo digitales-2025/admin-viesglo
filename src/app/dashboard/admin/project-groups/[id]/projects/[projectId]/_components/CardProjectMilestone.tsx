@@ -86,8 +86,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
             >
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.milestones, action: EnumAction.write },
-                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                  { resource: EnumResource.milestones, action: EnumAction.update },
+                  { resource: EnumResource.milestones, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -121,8 +121,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <PermissionProtected
                   permissions={[
-                    { resource: EnumResource.milestones, action: EnumAction.write },
-                    { resource: EnumResource.milestones, action: EnumAction.manage },
+                    { resource: EnumResource.milestones, action: EnumAction.update },
+                    { resource: EnumResource.milestones, action: EnumAction.delete },
                   ]}
                   requireAll={false}
                   hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -186,7 +186,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
                 {milestone.status === "OPERATIONALLY_COMPLETED" && (
                   <PermissionProtected
-                    permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                    permissions={[{ resource: EnumResource.milestones, action: EnumAction.delete }]}
                     requireAll={false}
                     hideOnUnauthorized={true}
                   >
@@ -208,8 +208,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
               {milestone.status === "PLANNING" && (
                 <PermissionProtected
                   permissions={[
-                    { resource: EnumResource.phases, action: EnumAction.write },
-                    { resource: EnumResource.phases, action: EnumAction.manage },
+                    { resource: EnumResource.phases, action: EnumAction.update },
+                    { resource: EnumResource.phases, action: EnumAction.delete },
                   ]}
                   requireAll={false}
                   hideOnUnauthorized={true}
@@ -233,8 +233,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.milestones, action: EnumAction.write },
-                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                  { resource: EnumResource.milestones, action: EnumAction.update },
+                  { resource: EnumResource.milestones, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -248,8 +248,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   <DropdownMenuContent>
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.milestones, action: EnumAction.write },
-                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                        { resource: EnumResource.milestones, action: EnumAction.update },
+                        { resource: EnumResource.milestones, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -270,8 +270,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.milestones, action: EnumAction.write },
-                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                        { resource: EnumResource.milestones, action: EnumAction.update },
+                        { resource: EnumResource.milestones, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -291,7 +291,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                     </PermissionProtected>
 
                     <PermissionProtected
-                      permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                      permissions={[{ resource: EnumResource.milestones, action: EnumAction.delete }]}
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >

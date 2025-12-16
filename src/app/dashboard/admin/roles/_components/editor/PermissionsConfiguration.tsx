@@ -1,4 +1,4 @@
-import { CheckSquare, Edit, Eye, Filter, Search, Settings } from "lucide-react";
+import { CheckSquare, Edit, Eye, Filter, Plus, Search, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ export default function PermissionsConfiguration({
     }))
   );
 
+  // Permisos de lectura (read)
   const readPermissions = groupedPermissions.flatMap((group) =>
     group.actions
       .filter((action) => action.action === EnumAction.read)
@@ -44,36 +45,61 @@ export default function PermissionsConfiguration({
       }))
   );
 
-  const writePermissions = groupedPermissions.flatMap((group) =>
+  // Permisos de creación (create)
+  const createPermissions = groupedPermissions.flatMap((group) =>
     group.actions
-      .filter((action) => action.action === EnumAction.write)
+      .filter((action) => action.action === EnumAction.create)
       .map((action) => ({
         resource: group.resource as EnumResource,
         action: action.action as EnumAction,
       }))
   );
 
-  const managePermissions = groupedPermissions.flatMap((group) =>
+  // Permisos de actualización (update)
+  const updatePermissions = groupedPermissions.flatMap((group) =>
     group.actions
-      .filter((action) => action.action === EnumAction.manage)
+      .filter((action) => action.action === EnumAction.update)
       .map((action) => ({
         resource: group.resource as EnumResource,
         action: action.action as EnumAction,
       }))
   );
+
+  // Permisos de eliminación (delete)
+  const deletePermissions = groupedPermissions.flatMap((group) =>
+    group.actions
+      .filter((action) => action.action === EnumAction.delete)
+      .map((action) => ({
+        resource: group.resource as EnumResource,
+        action: action.action as EnumAction,
+      }))
+  );
+
   const allSelected = currentPermissions.length === allPermissions.length;
 
-  const allReadSelected = readPermissions.every((perm) =>
-    currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
-  );
+  const allReadSelected =
+    readPermissions.length > 0 &&
+    readPermissions.every((perm) =>
+      currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
+    );
 
-  const allWriteSelected = writePermissions.every((perm) =>
-    currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
-  );
+  const allCreateSelected =
+    createPermissions.length > 0 &&
+    createPermissions.every((perm) =>
+      currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
+    );
 
-  const allManageSelected = managePermissions.every((perm) =>
-    currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
-  );
+  const allUpdateSelected =
+    updatePermissions.length > 0 &&
+    updatePermissions.every((perm) =>
+      currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
+    );
+
+  const allDeleteSelected =
+    deletePermissions.length > 0 &&
+    deletePermissions.every((perm) =>
+      currentPermissions.some((p) => p.resource === perm.resource && p.action === perm.action)
+    );
 
   // Expandir/colapsar todos los grupos
   const toggleAllGroups = () => {
@@ -181,30 +207,44 @@ export default function PermissionsConfiguration({
 
           <Button
             type="button"
-            variant={allWriteSelected ? "default" : "outline"}
+            variant={allCreateSelected ? "default" : "outline"}
             size="sm"
-            onClick={() => toggleByAction(EnumAction.write)}
+            onClick={() => toggleByAction(EnumAction.create)}
             className={cn(
               "h-8 text-xs transition-all",
-              allWriteSelected && "bg-primary hover:bg-primary/80 text-white"
+              allCreateSelected && "bg-primary hover:bg-primary/80 text-white"
             )}
           >
-            <Edit className="w-3 h-3 mr-1" />
-            {allWriteSelected ? "Quitar escritura" : "Escritura"}
+            <Plus className="w-3 h-3 mr-1" />
+            {allCreateSelected ? "Quitar crear" : "Crear"}
           </Button>
 
           <Button
             type="button"
-            variant={allManageSelected ? "default" : "outline"}
+            variant={allUpdateSelected ? "default" : "outline"}
             size="sm"
-            onClick={() => toggleByAction(EnumAction.manage)}
+            onClick={() => toggleByAction(EnumAction.update)}
             className={cn(
               "h-8 text-xs transition-all",
-              allManageSelected && "bg-primary hover:bg-primary/80 text-white"
+              allUpdateSelected && "bg-primary hover:bg-primary/80 text-white"
             )}
           >
-            <Settings className="w-3 h-3 mr-1" />
-            {allManageSelected ? "Quitar gestión" : "Gestión"}
+            <Edit className="w-3 h-3 mr-1" />
+            {allUpdateSelected ? "Quitar editar" : "Editar"}
+          </Button>
+
+          <Button
+            type="button"
+            variant={allDeleteSelected ? "default" : "outline"}
+            size="sm"
+            onClick={() => toggleByAction(EnumAction.delete)}
+            className={cn(
+              "h-8 text-xs transition-all",
+              allDeleteSelected && "bg-primary hover:bg-primary/80 text-white"
+            )}
+          >
+            <Trash2 className="w-3 h-3 mr-1" />
+            {allDeleteSelected ? "Quitar eliminar" : "Eliminar"}
           </Button>
 
           <Button type="button" variant="ghost" size="sm" onClick={toggleAllGroups} className="h-8 text-xs ml-auto">

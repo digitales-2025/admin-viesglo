@@ -2,12 +2,17 @@
 
 import { memo, useCallback, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import { useDebouncedCallback } from "use-debounce";
 
 import { Button } from "@/shared/components/ui/button";
 import { ResponsiveDialog } from "@/shared/components/ui/resposive-dialog";
 import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useMilestoneTemplateForm } from "../../../_hooks/use-milestone-template-form";
-import { useDeleteMilestoneTemplate, useMilestoneTemplatesByName } from "../../../_hooks/use-milestone-templates";
+import {
+  MilestoneTemplateSearchQueryResult,
+  useDeleteMilestoneTemplate,
+  useSearchMilestoneTemplates,
+} from "../../../_hooks/use-milestone-templates";
 import { MilestoneFormData } from "../../../_schemas/projectTemplates.schemas";
 import { MilestoneTemplateResponseDto } from "../../../_types/templates.types";
 import { handleAddMilestoneRef } from "../../../_utils/handlers/milestone-ref-template.handlers.utils";
@@ -19,6 +24,14 @@ interface MilestoneDialogProps {
   selectedMilestoneObjects: MilestoneTemplateResponseDto[];
   onMilestoneObjectsChange: (milestoneObjects: MilestoneTemplateResponseDto[]) => void;
   milestones: MilestoneTemplateResponseDto[];
+  // Props opcionales para milestone search
+  allMilestones?: MilestoneTemplateResponseDto[];
+  milestoneQuery?: MilestoneTemplateSearchQueryResult;
+  handleMilestoneSearchChange?: (value: string) => void;
+  handleMilestonePreselectedIdsFilter?: (preselectedIds: string[] | undefined) => void;
+  handleMilestoneScrollEnd?: () => void;
+  isMilestoneLoading?: boolean;
+  isMilestoneError?: boolean;
 }
 
 export const MilestoneDialog = memo(function MilestoneDialog({
@@ -27,30 +40,67 @@ export const MilestoneDialog = memo(function MilestoneDialog({
   selectedMilestoneObjects,
   onMilestoneObjectsChange,
   milestones,
+  // Props opcionales para milestone search
+  allMilestones,
+  milestoneQuery,
+  handleMilestoneSearchChange,
+  handleMilestonePreselectedIdsFilter,
+  handleMilestoneScrollEnd,
+  isMilestoneLoading,
+  isMilestoneError,
 }: MilestoneDialogProps) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [editingMilestone, setEditingMilestone] = useState<MilestoneTemplateResponseDto | null>(null);
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  // Estado para el término de búsqueda debounced
-  const [debouncedTerm, setDebouncedTerm] = useState(searchTerm);
+  // Usar props externas si están disponibles, sino hacer consulta propia
+  const externalSearchData =
+    allMilestones &&
+    milestoneQuery &&
+    handleMilestoneSearchChange &&
+    handleMilestonePreselectedIdsFilter &&
+    handleMilestoneScrollEnd &&
+    isMilestoneLoading !== undefined &&
+    isMilestoneError !== undefined;
 
-  // useEffect simple para debounce sin dependencias circulares
+  const {
+    allMilestoneTemplates: externalAllMilestoneTemplates,
+    query: externalQuery,
+    handleSearchChange: externalHandleSearchChange,
+    handlePreselectedIdsFilter: externalHandlePreselectedIdsFilter,
+    handleScrollEnd: externalHandleScrollEnd,
+    isLoading: externalIsLoading,
+    isError: externalIsError,
+  } = useSearchMilestoneTemplates();
+
+  // Usar datos externos si están disponibles, sino usar datos internos
+  const allMilestoneTemplates = externalSearchData ? allMilestones : externalAllMilestoneTemplates;
+  const query = externalSearchData ? milestoneQuery : externalQuery;
+  const handleSearchChange = externalSearchData ? handleMilestoneSearchChange : externalHandleSearchChange;
+  const handlePreselectedIdsFilter = externalSearchData
+    ? handleMilestonePreselectedIdsFilter
+    : externalHandlePreselectedIdsFilter;
+  const handleScrollEnd = externalSearchData ? handleMilestoneScrollEnd : externalHandleScrollEnd;
+  const isLoading = externalSearchData ? isMilestoneLoading : externalIsLoading;
+  const isError = externalSearchData ? isMilestoneError : externalIsError;
+
+  // Aplicar preselectedIds cuando hay milestones seleccionados
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedTerm(searchTerm);
-    }, 300);
+    if (selectedMilestones.length > 0) {
+      handlePreselectedIdsFilter(selectedMilestones);
+    }
+  }, [selectedMilestones, handlePreselectedIdsFilter]);
 
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
+  // Debounce para búsqueda (300ms)
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    handleSearchChange(value);
+  }, 300);
 
-  // Usar hook real para buscar milestones - con debounce para optimizar
-  const { data: searchResults = [] } = useMilestoneTemplatesByName(
-    debouncedTerm,
-    10,
-    true // Siempre habilitado para mostrar milestones existentes
-  );
+  // Aplicar búsqueda con debounce cuando cambia el término
+  useEffect(() => {
+    debouncedSearch(searchTerm);
+  }, [searchTerm, debouncedSearch]);
 
   // Usar hook real para crear/editar milestones - una sola instancia
   const {
@@ -80,8 +130,8 @@ export const MilestoneDialog = memo(function MilestoneDialog({
   // Hook para eliminar milestones
   const { mutate: deleteMilestone, isPending: isDeleting } = useDeleteMilestoneTemplate();
 
-  // Usar searchResults - el backend ya filtra por nombre, solo filtrar por isActive
-  const filteredMilestones = (searchResults || []).filter((milestone) => milestone.isActive);
+  // Filtrar solo milestones activos
+  const filteredMilestones = allMilestoneTemplates.filter((milestone) => milestone.isActive);
 
   // Funciones optimizadas con useCallback para evitar re-creaciones
   const handleSubmit = useCallback(
@@ -124,7 +174,7 @@ export const MilestoneDialog = memo(function MilestoneDialog({
       onMilestonesChange(newSelection);
 
       // También actualizar selectedMilestoneObjects
-      const milestone = (searchResults || []).find((m) => m.id === milestoneId);
+      const milestone = allMilestoneTemplates.find((m) => m.id === milestoneId);
       if (milestone) {
         const newMilestoneObjects = selectedMilestoneObjects.some((m) => m.id === milestoneId)
           ? selectedMilestoneObjects.filter((m) => m.id !== milestoneId)
@@ -143,7 +193,14 @@ export const MilestoneDialog = memo(function MilestoneDialog({
         }
       }
     },
-    [selectedMilestones, searchResults, selectedMilestoneObjects, onMilestonesChange, onMilestoneObjectsChange]
+    [
+      selectedMilestones,
+      allMilestoneTemplates,
+      selectedMilestoneObjects,
+      onMilestonesChange,
+      onMilestoneObjectsChange,
+      milestones,
+    ]
   );
 
   const trigger = (
@@ -182,6 +239,11 @@ export const MilestoneDialog = memo(function MilestoneDialog({
         milestones={milestones}
         onMilestonesChange={onMilestonesChange}
         onMilestoneObjectsChange={onMilestoneObjectsChange}
+        // Props para scroll infinito
+        query={query}
+        handleScrollEnd={handleScrollEnd}
+        isLoading={isLoading}
+        isError={isError}
       />
     </ResponsiveDialog>
   );
