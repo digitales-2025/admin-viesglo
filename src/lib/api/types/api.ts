@@ -611,7 +611,7 @@ export interface paths {
     };
     /**
      * Obtener usuarios con paginación y filtros
-     * @description Obtiene una lista paginada de usuarios con filtros opcionales. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos. Permite filtrar por estado activo, por rol específico (roleId) o por posición de rol del sistema (systemRolePosition: 1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT).
+     * @description Obtiene una lista paginada de usuarios con filtros opcionales. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos. Permite filtrar por estado activo, por rol específico (roleId) o por posiciones de roles del sistema (systemRolePositions: [1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT]).
      */
     get: operations["UsersController_getUsersPaginated_v1"];
     put?: never;
@@ -7657,11 +7657,11 @@ export interface components {
         | "system"
         | "base";
       /**
-       * @description Acción que se puede realizar sobre el recurso
+       * @description Acción que se puede realizar sobre el recurso. El wildcard (*) otorga acceso total al recurso.
        * @example read
        * @enum {string}
        */
-      action: "create" | "read" | "update" | "delete" | "assign" | "approve" | "export" | "reactivate";
+      action: "create" | "read" | "update" | "delete" | "assign" | "approve" | "export" | "reactivate" | "*";
     };
     CreateRoleRequestDto: {
       /**
@@ -10096,8 +10096,8 @@ export interface operations {
         isActive?: boolean;
         /** @description ID del rol para filtrar usuarios por rol específico */
         roleId?: string;
-        /** @description Posición del rol del sistema para filtrar usuarios (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT) */
-        systemRolePosition?: 1 | 2 | 3;
+        /** @description Posiciones de roles del sistema para filtrar usuarios (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT) */
+        systemRolePositions?: (1 | 2 | 3)[];
       };
       header?: never;
       path?: never;
