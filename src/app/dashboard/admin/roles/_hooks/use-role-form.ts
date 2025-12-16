@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
 import { RoleForm, roleSchema } from "../_schemas/roles.schemas";
-import { EnumAction, EnumResource, ResourceName, Roles, SimplifiedActionName } from "../../settings/_types/roles.types";
+import { EnumAction, EnumResource, ResourceName, Roles } from "../../settings/_types/roles.types";
 import { useCreateRole, useUpdateRole } from "./use-roles";
 
 interface UseRoleFormProps {
@@ -51,7 +51,7 @@ export function useRoleForm({ isUpdate = false, initialData, onSuccess }: UseRol
     permissions: Array.isArray(data.permissions)
       ? data.permissions.map((perm) => ({
           resource: perm.resource as ResourceName,
-          action: perm.action as SimplifiedActionName,
+          action: perm.action as EnumAction,
         }))
       : [],
   });
