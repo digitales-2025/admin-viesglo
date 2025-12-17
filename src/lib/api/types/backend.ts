@@ -90,7 +90,7 @@ const enhancedFetch = async (input: RequestInfo | URL, init?: RequestInit) => {
 /**
  * Client for connecting with the backend
  */
-const fetchClient = createFetchClient<paths>({
+export const fetchClient = createFetchClient<paths>({
   baseUrl: backendUrl(BACKEND_URL),
   fetch: enhancedFetch,
 });

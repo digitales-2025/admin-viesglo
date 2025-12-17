@@ -106,7 +106,7 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="relative w-full sm:w-80">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-4 h-4" />
             <Input
               placeholder="Buscar proyecto..."
               className="pl-10"
@@ -128,18 +128,20 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
           />
         </div>
 
-        <div className="border border-gray-200 rounded-lg p-4">
+        <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900">
           {/* Main Project Header */}
           <div className="mb-8">
             <div className="gap-4">
-              <h2 className="font-bold text-gray-900">{projectGroup?.name || "Proyectos del Grupo"}</h2>
+              <h2 className="font-bold text-gray-900 dark:text-gray-100">
+                {projectGroup?.name || "Proyectos del Grupo"}
+              </h2>
             </div>
             <div className="flex items-center gap-4 justify-center mb-2">
-              <span className="text-sm text-gray-600">Avance general del grupo</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">Avance general del grupo</span>
             </div>
 
             {/* Overall Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-8 flex items-center relative">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-8 flex items-center relative">
               <div
                 className={`bg-primary h-8 transition-all duration-300 ${
                   overallProgress === 100 ? "rounded-full" : "rounded-l-full"
@@ -149,10 +151,12 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
               <span
                 className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold transition-colors duration-300"
                 style={{
-                  color: overallProgress > 45 ? "white" : "#1f2937", // Blanco si está sobre la barra, gris oscuro si no
+                  color: overallProgress > 45 ? "white" : undefined,
                 }}
               >
-                {overallProgress}%
+                <span className={overallProgress > 45 ? "" : "text-gray-800 dark:text-gray-200"}>
+                  {overallProgress}%
+                </span>
               </span>
             </div>
           </div>
