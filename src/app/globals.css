@@ -227,6 +227,64 @@
     scrollbar-width: none; /* Firefox */
   }
 
+  /* Dynamic scrollbar styles - Sin tono negro */
+  .scrollbar-none::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-none::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-none::-webkit-scrollbar-thumb {
+    background: transparent !important;
+    border-radius: 3px;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .scrollbar-none::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  .scrollbar-none {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.3) !important;
+    border-radius: 3px;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.5) !important;
+  }
+  .scrollbar-thin::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--primary) / 0.3) transparent;
+  }
+
+  /* Eliminar cualquier transición que cause el tono negro */
+  .scrollbar-none,
+  .scrollbar-thin {
+    transition: none !important;
+  }
+  
+  .scrollbar-none::-webkit-scrollbar-thumb,
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    transition: none !important;
+    animation: none !important;
+  }
+
   .border-grid {
     @apply border-border/50 dark:border-border border-dashed;
   }

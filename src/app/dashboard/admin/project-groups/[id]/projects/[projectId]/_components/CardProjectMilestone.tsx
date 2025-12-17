@@ -1,4 +1,4 @@
-import { memo } from "react";
+import React from "react";
 import { CheckCircle, ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
 
 import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
@@ -86,8 +86,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
             >
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.milestones, action: EnumAction.write },
-                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                  { resource: EnumResource.milestones, action: EnumAction.update },
+                  { resource: EnumResource.milestones, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -96,7 +96,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                     projectId={projectId}
                     milestoneId={milestone.id}
                     currentAssignee={milestone.internalConsultant}
-                    filterBySystemRolePosition={3}
+                    filterBySystemRolePositions={[2, 3]}
                     filterByActive={true}
                     avatarSize="md"
                     align="center"
@@ -108,7 +108,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   projectId={projectId}
                   milestoneId={milestone.id}
                   currentAssignee={milestone.internalConsultant}
-                  filterBySystemRolePosition={3}
+                  filterBySystemRolePositions={[2, 3]}
                   filterByActive={true}
                   avatarSize="md"
                   align="center"
@@ -121,8 +121,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
               <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                 <PermissionProtected
                   permissions={[
-                    { resource: EnumResource.milestones, action: EnumAction.write },
-                    { resource: EnumResource.milestones, action: EnumAction.manage },
+                    { resource: EnumResource.milestones, action: EnumAction.update },
+                    { resource: EnumResource.milestones, action: EnumAction.delete },
                   ]}
                   requireAll={false}
                   hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -186,7 +186,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
                 {milestone.status === "OPERATIONALLY_COMPLETED" && (
                   <PermissionProtected
-                    permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                    permissions={[{ resource: EnumResource.milestones, action: EnumAction.delete }]}
                     requireAll={false}
                     hideOnUnauthorized={true}
                   >
@@ -208,8 +208,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
               {milestone.status === "PLANNING" && (
                 <PermissionProtected
                   permissions={[
-                    { resource: EnumResource.phases, action: EnumAction.write },
-                    { resource: EnumResource.phases, action: EnumAction.manage },
+                    { resource: EnumResource.phases, action: EnumAction.update },
+                    { resource: EnumResource.phases, action: EnumAction.delete },
                   ]}
                   requireAll={false}
                   hideOnUnauthorized={true}
@@ -233,8 +233,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.milestones, action: EnumAction.write },
-                  { resource: EnumResource.milestones, action: EnumAction.manage },
+                  { resource: EnumResource.milestones, action: EnumAction.update },
+                  { resource: EnumResource.milestones, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -248,8 +248,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                   <DropdownMenuContent>
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.milestones, action: EnumAction.write },
-                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                        { resource: EnumResource.milestones, action: EnumAction.update },
+                        { resource: EnumResource.milestones, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -270,8 +270,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
 
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.milestones, action: EnumAction.write },
-                        { resource: EnumResource.milestones, action: EnumAction.manage },
+                        { resource: EnumResource.milestones, action: EnumAction.update },
+                        { resource: EnumResource.milestones, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -291,7 +291,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                     </PermissionProtected>
 
                     <PermissionProtected
-                      permissions={[{ resource: EnumResource.milestones, action: EnumAction.manage }]}
+                      permissions={[{ resource: EnumResource.milestones, action: EnumAction.delete }]}
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >
@@ -325,25 +325,4 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
   );
 }
 
-const CardProjectMilestone = memo(CardProjectMilestoneBase, (prev, next) => {
-  // Evita re-render si no cambian campos relevantes
-  return (
-    prev.milestone.id === next.milestone.id &&
-    prev.milestone.status === next.milestone.status &&
-    prev.milestone.name === next.milestone.name &&
-    prev.milestone.progress === next.milestone.progress &&
-    prev.milestone.startDate === next.milestone.startDate &&
-    prev.milestone.endDate === next.milestone.endDate &&
-    prev.milestone.completedDeliverablesCount === next.milestone.completedDeliverablesCount &&
-    prev.milestone.phasesCount === next.milestone.phasesCount &&
-    prev.milestone.phases.length === next.milestone.phases.length &&
-    // Comparar internalConsultant para detectar cambios en la asignación
-    prev.milestone.internalConsultant?.userId === next.milestone.internalConsultant?.userId &&
-    prev.milestone.internalConsultant?.name === next.milestone.internalConsultant?.name &&
-    prev.milestone.internalConsultant?.lastName === next.milestone.internalConsultant?.lastName &&
-    prev.milestone.internalConsultant?.email === next.milestone.internalConsultant?.email &&
-    prev.milestone.internalConsultant?.role === next.milestone.internalConsultant?.role
-  );
-});
-
-export default CardProjectMilestone;
+export default CardProjectMilestoneBase;

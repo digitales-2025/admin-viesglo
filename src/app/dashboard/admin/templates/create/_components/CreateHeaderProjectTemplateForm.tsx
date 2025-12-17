@@ -8,6 +8,7 @@ import { Textarea } from "@/shared/components/ui/textarea";
 import { CreateProjectTemplate } from "../../_schemas/projectTemplates.schemas";
 import { TagResponseDto } from "../../_types/templates.types";
 import { TagEditorDialog } from "../../../tags/_components/editor/TagEditorDialog";
+import { TagSearchQueryResult } from "../../../tags/_hooks/use-tags";
 
 interface CreateHeaderProjectTemplateFormProps {
   form: UseFormReturn<CreateProjectTemplate>;
@@ -15,6 +16,14 @@ interface CreateHeaderProjectTemplateFormProps {
   setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>;
   selectedTagObjects: TagResponseDto[];
   setSelectedTagObjects: React.Dispatch<React.SetStateAction<TagResponseDto[]>>;
+  // Props para TagEditorDialog
+  allTags: TagResponseDto[];
+  tagQuery: TagSearchQueryResult;
+  handleTagSearchChange: (value: string) => void;
+  handleTagPreselectedIdsFilter: (preselectedIds: string[] | undefined) => void;
+  handleTagScrollEnd: () => void;
+  isTagLoading: boolean;
+  isTagError: boolean;
 }
 
 export default function CreateHeaderProjectTemplateForm({
@@ -23,6 +32,14 @@ export default function CreateHeaderProjectTemplateForm({
   setSelectedTags,
   selectedTagObjects,
   setSelectedTagObjects,
+  // Props para TagEditorDialog
+  allTags,
+  tagQuery,
+  handleTagSearchChange,
+  handleTagPreselectedIdsFilter,
+  handleTagScrollEnd,
+  isTagLoading,
+  isTagError,
 }: CreateHeaderProjectTemplateFormProps) {
   return (
     <div className="space-y-3 mb-6">
@@ -90,6 +107,14 @@ export default function CreateHeaderProjectTemplateForm({
             onTagsChange={setSelectedTags}
             selectedTagObjects={selectedTagObjects}
             onTagObjectsChange={setSelectedTagObjects}
+            // Props para evitar consulta duplicada
+            allTags={allTags}
+            query={tagQuery}
+            handleSearchChange={handleTagSearchChange}
+            handlePreselectedIdsFilter={handleTagPreselectedIdsFilter}
+            handleScrollEnd={handleTagScrollEnd}
+            isLoading={isTagLoading}
+            isError={isTagError}
           />
         </div>
 

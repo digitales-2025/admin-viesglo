@@ -206,8 +206,8 @@ export function TableDeliverablesPhase({
   // Función para verificar si el usuario tiene permisos de aprobación
   const hasApprovalPermissions = React.useMemo(() => {
     return hasAnyPermission([
-      { resource: EnumResource.projects, action: EnumAction.write },
-      { resource: EnumResource.projects, action: EnumAction.manage },
+      { resource: EnumResource.projects, action: EnumAction.update },
+      { resource: EnumResource.projects, action: EnumAction.delete },
     ]);
   }, [hasAnyPermission]);
 

@@ -96,8 +96,8 @@ export function getPhasesProjectColumns({
           <div className="w-64" onClick={(e) => e.stopPropagation()}>
             <PermissionProtected
               permissions={[
-                { resource: EnumResource.phases, action: EnumAction.write },
-                { resource: EnumResource.phases, action: EnumAction.manage },
+                { resource: EnumResource.phases, action: EnumAction.update },
+                { resource: EnumResource.phases, action: EnumAction.delete },
               ]}
               requireAll={false}
               hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -210,8 +210,8 @@ export function getPhasesProjectColumns({
           <div onClick={(e) => e.stopPropagation()}>
             <PermissionProtected
               permissions={[
-                { resource: EnumResource.phases, action: EnumAction.write },
-                { resource: EnumResource.phases, action: EnumAction.manage },
+                { resource: EnumResource.phases, action: EnumAction.update },
+                { resource: EnumResource.phases, action: EnumAction.delete },
               ]}
               requireAll={false}
               hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
@@ -225,8 +225,8 @@ export function getPhasesProjectColumns({
                 <DropdownMenuContent align="end">
                   <PermissionProtected
                     permissions={[
-                      { resource: EnumResource.phases, action: EnumAction.write },
-                      { resource: EnumResource.phases, action: EnumAction.manage },
+                      { resource: EnumResource.phases, action: EnumAction.update },
+                      { resource: EnumResource.phases, action: EnumAction.delete },
                     ]}
                     requireAll={false}
                     hideOnUnauthorized={true}
@@ -238,7 +238,7 @@ export function getPhasesProjectColumns({
                   </PermissionProtected>
 
                   <PermissionProtected
-                    permissions={[{ resource: EnumResource.phases, action: EnumAction.manage }]}
+                    permissions={[{ resource: EnumResource.phases, action: EnumAction.delete }]}
                     requireAll={false}
                     hideOnUnauthorized={true}
                   >

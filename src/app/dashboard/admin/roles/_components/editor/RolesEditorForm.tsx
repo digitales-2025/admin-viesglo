@@ -48,6 +48,44 @@ export default function RolesEditorForm({
   const selectedPermissions = form.watch("permissions")?.length || 0;
   const currentPermissions = form.getValues("permissions") || [];
 
+  // Limpiar permisos duplicados y normalizar wildcards antes de enviar
+  const cleanPermissions = (perms: { resource: EnumResource; action: EnumAction }[]) => {
+    const permissionMap = new Map<string, { resource: EnumResource; action: EnumAction }>();
+    const wildcardResources = new Set<EnumResource>();
+
+    // Primero identificar recursos con wildcard
+    perms.forEach((p) => {
+      if (p.action === EnumAction.wildcard) {
+        wildcardResources.add(p.resource);
+      }
+    });
+
+    // Filtrar: si tiene wildcard, solo guardar wildcard; si no, guardar permisos individuales
+    perms.forEach((p) => {
+      if (wildcardResources.has(p.resource)) {
+        // Solo agregar el wildcard
+        const key = `${p.resource}:${EnumAction.wildcard}`;
+        if (!permissionMap.has(key)) {
+          permissionMap.set(key, { resource: p.resource, action: EnumAction.wildcard });
+        }
+      } else {
+        const key = `${p.resource}:${p.action}`;
+        if (!permissionMap.has(key)) {
+          permissionMap.set(key, p);
+        }
+      }
+    });
+
+    return Array.from(permissionMap.values());
+  };
+
+  const handleSubmit = (data: RoleForm) => {
+    onSubmit({
+      ...data,
+      permissions: cleanPermissions(data.permissions),
+    });
+  };
+
   // Aplicar plantilla de rol
   const applyTemplate = (templateKey: string) => {
     if (selectedTemplate === templateKey) {
@@ -66,13 +104,12 @@ export default function RolesEditorForm({
     form.setValue("description", template.description);
 
     if (template.permissions === "all") {
-      const allPermissions = groupedPermissions.flatMap((group) =>
-        group.actions.map((action) => ({
-          resource: EnumResource[group.resource as keyof typeof EnumResource],
-          action: EnumAction[action.action as keyof typeof EnumAction],
-        }))
-      );
-      form.setValue("permissions", allPermissions);
+      // Usar wildcard para cada recurso en lugar de todos los permisos individuales
+      const wildcardPermissions = groupedPermissions.map((group) => ({
+        resource: EnumResource[group.resource as keyof typeof EnumResource],
+        action: EnumAction.wildcard,
+      }));
+      form.setValue("permissions", wildcardPermissions);
     } else if (template.permissions === "read-only") {
       const readPermissions = groupedPermissions.flatMap((group) =>
         group.actions
@@ -108,7 +145,7 @@ export default function RolesEditorForm({
   };
   return (
     <Form {...form}>
-      <form id="roles-form" onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 px-6">
+      <form id="roles-form" onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8 px-6">
         {/* Información básica mejorada */}
         <div className="space-y-4 border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-900">
           <div className="flex items-center gap-2">

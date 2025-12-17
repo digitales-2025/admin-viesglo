@@ -16,7 +16,7 @@ interface UserSearchProps {
   onAddItem: (userId: string, user: UserResponse) => void;
   filterByActive?: boolean | undefined; // true = solo activos, false = solo inactivos, undefined = todos
   filterByRoleId?: string | undefined; // ID específico del rol
-  filterBySystemRolePosition?: 1 | 2 | 3 | undefined; // Posición del rol del sistema
+  filterBySystemRolePositions?: (1 | 2 | 3)[] | undefined; // Posiciones de roles del sistema
 }
 
 export function UserSearch({
@@ -26,7 +26,7 @@ export function UserSearch({
   onDuplicate,
   filterByActive,
   filterByRoleId,
-  filterBySystemRolePosition,
+  filterBySystemRolePositions,
 }: UserSearchProps) {
   const isDuplicate = useRef(false);
   const {
@@ -37,7 +37,7 @@ export function UserSearch({
     search,
     handleIsActiveFilter,
     handleRoleIdFilter,
-    handleSystemRolePositionFilter,
+    handleSystemRolePositionsFilter,
   } = useSearchUsers();
 
   // Aplicar filtros cuando se pasen los props
@@ -54,10 +54,10 @@ export function UserSearch({
   }, [filterByRoleId, handleRoleIdFilter]);
 
   useEffect(() => {
-    if (filterBySystemRolePosition !== undefined) {
-      handleSystemRolePositionFilter(filterBySystemRolePosition);
+    if (filterBySystemRolePositions !== undefined) {
+      handleSystemRolePositionsFilter(filterBySystemRolePositions);
     }
-  }, [filterBySystemRolePosition, handleSystemRolePositionFilter]);
+  }, [filterBySystemRolePositions, handleSystemRolePositionsFilter]);
 
   const users: Option<UserResponse>[] = useMemo(() => {
     // Asegurar que allUsers sea un array

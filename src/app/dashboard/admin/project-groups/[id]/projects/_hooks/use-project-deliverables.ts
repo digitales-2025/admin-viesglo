@@ -5,6 +5,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
+import { invalidateAllProjectHierarchyQueries, invalidateDeliverableQueries } from "../_utils/query-invalidation";
 
 /**
  * Claves de cache para entregables
@@ -185,13 +186,7 @@ export const useAddDeliverable = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Entregable agregado correctamente");
       },
       onError: (error) => {
@@ -216,13 +211,7 @@ export const useUpdateDeliverable = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Entregable actualizado correctamente");
       },
       onError: (error) => {
@@ -247,13 +236,7 @@ export const useAssignDeliverable = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/assign",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Entregable asignado correctamente");
       },
       onError: (error) => {
@@ -278,13 +261,7 @@ export const useUpdateDeliverableProgress = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/progress",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Progreso del entregable actualizado correctamente");
       },
       onError: (error) => {
@@ -309,13 +286,7 @@ export const useCompleteDeliverable = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/complete",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Entregable completado correctamente");
       },
       onError: (error) => {
@@ -340,13 +311,7 @@ export const useSetPrecedent = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateDeliverableQueries(queryClient);
         toast.success("Precedente establecido correctamente");
       },
       onError: (error) => {
@@ -371,13 +336,7 @@ export const useRemovePrecedent = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/precedent",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+        invalidateDeliverableQueries(queryClient);
         toast.success("Precedente removido correctamente");
       },
       onError: (error: any) => {
@@ -394,13 +353,7 @@ export const useDeleteDeliverable = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}",
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+        invalidateAllProjectHierarchyQueries(queryClient);
         toast.success("Entregable eliminado correctamente");
       },
       onError: (error: any) => {
@@ -420,14 +373,7 @@ export const useToggleDeliverableApproval = () => {
     "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/{deliverableId}/toggle-approval",
     {
       onSuccess: (data) => {
-        // Invalidar todas las queries relacionadas con entregables
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables/paginated"],
-        });
+        invalidateAllProjectHierarchyQueries(queryClient);
 
         // Mostrar mensaje de éxito basado en el nuevo estado
         const isApproved = data.data?.isApproved;

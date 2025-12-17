@@ -6,6 +6,7 @@ import { backend } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 import { ProjectPaginatedFilterDto } from "../_types";
 import { ProjectDelayLevelEnum, ProjectStatusEnum, ProjectTypeEnum } from "../_types/project.enums";
+import { invalidateProjectQueries } from "../_utils/query-invalidation";
 
 // Tipo para los campos de ordenamiento permitidos
 export type ProjectSortField =
@@ -191,8 +192,7 @@ export const useCreateProject = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("post", "/v1/projects", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Proyecto creado correctamente");
     },
     onError: (error) => {
@@ -213,8 +213,7 @@ export const useUpdateProject = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("put", "/v1/projects/{id}", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Proyecto actualizado correctamente");
     },
     onError: (error) => {
@@ -235,8 +234,7 @@ export const useDeleteProject = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("patch", "/v1/projects/{id}/delete", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Proyecto eliminado correctamente");
     },
     onError: (error) => {
@@ -252,8 +250,7 @@ export const useReactivateProject = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("patch", "/v1/projects/{id}/reactivate", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Proyecto reactivado correctamente");
     },
     onError: (error) => {
@@ -305,8 +302,7 @@ export const useUpdateProjectStatus = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("patch", "/v1/projects/{id}/status", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Estado del proyecto actualizado correctamente");
     },
     onError: (error) => {
@@ -339,9 +335,7 @@ export const useUpdateProjectFields = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("patch", "/v1/projects/{projectId}/fields", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectQueries(queryClient);
       toast.success("Campos del proyecto actualizados correctamente");
     },
     onError: (error) => {

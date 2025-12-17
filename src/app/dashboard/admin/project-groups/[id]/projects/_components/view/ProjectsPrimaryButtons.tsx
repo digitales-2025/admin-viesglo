@@ -17,8 +17,8 @@ export default function ProjectsPrimaryButtons() {
     <div>
       <PermissionProtected
         permissions={[
-          { resource: EnumResource.projects, action: EnumAction.write },
-          { resource: EnumResource.projects, action: EnumAction.manage },
+          { resource: EnumResource.projects, action: EnumAction.update },
+          { resource: EnumResource.projects, action: EnumAction.delete },
         ]}
         requireAll={false} // OR: necesita AL MENOS UNO de estos permisos
         hideOnUnauthorized={true} // Ocultar botón si no tiene permisos

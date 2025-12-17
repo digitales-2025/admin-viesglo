@@ -67,8 +67,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
             <div className="flex items-center justify-between mb-3 gap-4">
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.projects, action: EnumAction.write },
-                  { resource: EnumResource.projects, action: EnumAction.manage },
+                  { resource: EnumResource.projects, action: EnumAction.update },
+                  { resource: EnumResource.projects, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -78,20 +78,22 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                     e.stopPropagation();
                     open("projects", "edit-fields", project);
                   }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   title="Editar información de empresa"
                 >
                   <Info className="w-4 h-4 shrink-0" />
                 </button>
               </PermissionProtected>
 
-              <h3 className="font-bold text-gray-900 flex-1 truncate capitalize text-center">{project.name}</h3>
+              <h3 className="font-bold text-gray-900 dark:text-gray-100 flex-1 truncate capitalize text-center">
+                {project.name}
+              </h3>
 
               <PermissionProtected
                 permissions={[
                   { resource: EnumResource.projects, action: EnumAction.read },
-                  { resource: EnumResource.projects, action: EnumAction.write },
-                  { resource: EnumResource.projects, action: EnumAction.manage },
+                  { resource: EnumResource.projects, action: EnumAction.update },
+                  { resource: EnumResource.projects, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true}
@@ -101,7 +103,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                     e.stopPropagation();
                     open("projects", "progress", project);
                   }}
-                  className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  className="p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   title="Ver dashboard de progreso"
                 >
                   <Eye className="w-4 h-4 shrink-0" />
@@ -119,7 +121,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               {project.clientId && (
                 <div className="flex flex-row items-center gap-2">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Cliente:</span>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      Cliente:
+                    </span>
                   </div>
                   <HoverCardClient
                     clientId={project.clientId}
@@ -135,7 +139,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                 {project.coordinatorId && (
                   <div className="flex flex-row items-center gap-2">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Coordinador:</span>
+                      <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                        Coordinador:
+                      </span>
                     </div>
                     <HoverCardResponsible
                       userId={project.coordinatorId}
@@ -150,7 +156,9 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Estado:</span>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      Estado:
+                    </span>
                     {(() => {
                       const statusConfig = projectStatusConfig[project.status as keyof typeof projectStatusConfig];
                       if (statusConfig) {
@@ -173,12 +181,16 @@ export default function ProjectCard({ project }: ProjectCardProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Hitos:</span>
-                  <span className="text-gray-600">{project.milestonesCount}</span>
+                  <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                    Hitos:
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-300">{project.milestonesCount}</span>
                 </div>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nivel de retraso:</span>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                      Nivel de retraso:
+                    </span>
                     {(() => {
                       const projectDelayConfig =
                         projectDelayLevelConfig[project.delayLevel as keyof typeof projectDelayLevelConfig];
@@ -204,7 +216,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex items-center justify-between text-sm text-gray-500">
+          <CardFooter className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
             <div className="flex items-center gap-1">
               <Calendar className="w-4 h-4 shrink-0" />
               <span className="text-xs">{project.startDate ? formatDate(project.startDate) : "Sin fecha"}</span>
@@ -229,8 +241,8 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
       <PermissionProtected
         permissions={[
-          { resource: EnumResource.projects, action: EnumAction.write },
-          { resource: EnumResource.projects, action: EnumAction.manage },
+          { resource: EnumResource.projects, action: EnumAction.update },
+          { resource: EnumResource.projects, action: EnumAction.delete },
         ]}
         requireAll={false}
         hideOnUnauthorized={true}

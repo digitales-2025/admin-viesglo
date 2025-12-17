@@ -30,7 +30,7 @@ interface MilestoneAssigneeSelectorProps {
   // Props de filtrado flexibles (igual que UserSearch)
   filterByActive?: boolean | undefined; // true = solo activos, false = solo inactivos, undefined = todos
   filterByRoleId?: string | undefined; // ID específico del rol
-  filterBySystemRolePosition?: 1 | 2 | 3 | undefined; // Posición del rol del sistema
+  filterBySystemRolePositions?: (1 | 2 | 3)[] | undefined; // Posiciones de roles del sistema (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT)
   // Props adicionales para personalización
   placeholder?: string;
   searchPlaceholder?: string;
@@ -118,7 +118,7 @@ export function MilestoneAssigneeSelector({
   // Props de filtrado
   filterByActive = true, // Por defecto solo usuarios activos
   filterByRoleId,
-  filterBySystemRolePosition,
+  filterBySystemRolePositions,
   // Props de personalización
   searchPlaceholder = "Buscar por nombre o email...",
   emptyMessage,
@@ -144,7 +144,7 @@ export function MilestoneAssigneeSelector({
     search,
     handleIsActiveFilter,
     handleRoleIdFilter,
-    handleSystemRolePositionFilter,
+    handleSystemRolePositionsFilter,
   } = useSearchUsers();
 
   const { mutate: assignMilestone, isPending } = useAssignMilestone();
@@ -176,10 +176,10 @@ export function MilestoneAssigneeSelector({
   }, [filterByRoleId, handleRoleIdFilter]);
 
   useMemo(() => {
-    if (filterBySystemRolePosition !== undefined) {
-      handleSystemRolePositionFilter(filterBySystemRolePosition);
+    if (filterBySystemRolePositions !== undefined) {
+      handleSystemRolePositionsFilter(filterBySystemRolePositions);
     }
-  }, [filterBySystemRolePosition, handleSystemRolePositionFilter]);
+  }, [filterBySystemRolePositions, handleSystemRolePositionsFilter]);
 
   // Callback con debounce para búsqueda
   const debouncedSearch = useDebouncedCallback((term: string) => {

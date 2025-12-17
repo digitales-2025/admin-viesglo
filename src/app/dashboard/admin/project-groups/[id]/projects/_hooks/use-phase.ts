@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { backend } from "@/lib/api/types/backend";
+import { invalidateProjectMilestoneAndPhaseQueries } from "../_utils/query-invalidation";
 
 /**
  * Hook para agregar una fase a un hito
@@ -10,18 +11,7 @@ export const useAddPhaseToMilestone = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("post", "/v1/project-phases/{projectId}/milestones/{milestoneId}/phases", {
     onSuccess: () => {
-      // Invalidar queries de milestones del proyecto
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      // Invalidar queries de proyectos individuales
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
-      // Invalidar queries de proyectos paginados
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      // Invalidar infinite queries de proyectos
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-      // Invalidar queries de deliverables por fase
-      queryClient.invalidateQueries({
-        queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-      });
+      invalidateProjectMilestoneAndPhaseQueries(queryClient);
       toast.success("Fase agregada correctamente");
     },
     onError: (error) => {
@@ -45,18 +35,7 @@ export const useUpdatePhase = () => {
     "/v1/project-phases/{projectId}/milestones/{milestoneId}/phases/{phaseId}",
     {
       onSuccess: () => {
-        // Invalidar queries de milestones del proyecto
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-        // Invalidar queries de proyectos individuales
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
-        // Invalidar queries de proyectos paginados
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar infinite queries de proyectos
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar queries de deliverables por fase
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
+        invalidateProjectMilestoneAndPhaseQueries(queryClient);
         toast.success("Fase actualizada correctamente");
       },
       onError: (error) => {
@@ -81,18 +60,7 @@ export const useRemovePhase = () => {
     "/v1/project-phases/{projectId}/milestones/{milestoneId}/phases/{phaseId}",
     {
       onSuccess: () => {
-        // Invalidar queries de milestones del proyecto
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-        // Invalidar queries de proyectos individuales
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
-        // Invalidar queries de proyectos paginados
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar infinite queries de proyectos
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar queries de deliverables por fase
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
+        invalidateProjectMilestoneAndPhaseQueries(queryClient);
         toast.success("Fase removida correctamente");
       },
       onError: (error) => {
@@ -117,18 +85,7 @@ export const useAssignPhase = () => {
     "/v1/project-phases/{projectId}/milestones/{milestoneId}/phases/{phaseId}/assign",
     {
       onSuccess: () => {
-        // Invalidar queries de milestones del proyecto
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-        // Invalidar queries de proyectos individuales
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
-        // Invalidar queries de proyectos paginados
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar infinite queries de proyectos
-        queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/paginated"] });
-        // Invalidar queries de deliverables por fase
-        queryClient.invalidateQueries({
-          queryKey: ["get", "/v1/project-deliverables/projects/{projectId}/phases/{phaseId}/deliverables"],
-        });
+        invalidateProjectMilestoneAndPhaseQueries(queryClient);
         toast.success("Fase asignada correctamente");
       },
       onError: (error) => {
