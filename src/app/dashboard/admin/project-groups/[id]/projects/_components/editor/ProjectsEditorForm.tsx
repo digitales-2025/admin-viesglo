@@ -243,7 +243,7 @@ export default function ProjectsEditorForm({ form, onSubmit, isUpdate, isPending
                         }}
                         onDuplicate={() => false}
                         filterByActive={true}
-                        filterBySystemRolePosition={3}
+                        filterBySystemRolePositions={[2, 3]}
                         disabled={isPending}
                       />
                     </FormControl>

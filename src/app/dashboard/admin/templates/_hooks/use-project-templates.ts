@@ -1,8 +1,8 @@
-import { useCallback, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { backend } from "@/lib/api/types/backend";
+import { backend, fetchClient } from "@/lib/api/types/backend";
 import { usePagination } from "@/shared/hooks/use-pagination";
 
 /**
@@ -30,43 +30,41 @@ export const useSearchProjectTemplates = () => {
   const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
   const { size } = usePagination();
 
-  console.log("🟣 [useSearchProjectTemplates] Query params:", { search, isActive, size });
-
-  const query = backend.useInfiniteQuery(
-    "get",
-    "/v1/project-templates/paginated",
-    {
-      params: {
-        query: {
-          search,
-          page: 1, // Este valor será reemplazado automáticamente por pageParam
-          pageSize: size,
-          isActive,
+  const query = useInfiniteQuery({
+    queryKey: ["get", "/v1/project-templates/paginated", { search, isActive, size }],
+    queryFn: async ({ pageParam = 1 }) => {
+      const response = await fetchClient.GET("/v1/project-templates/paginated", {
+        params: {
+          query: {
+            search,
+            page: pageParam,
+            pageSize: size,
+            isActive,
+          },
         },
-      },
+      });
+      if (response.error) throw response.error;
+      return response.data;
     },
-    {
-      getNextPageParam: (lastPage) => {
-        // Si hay más páginas disponibles, devolver el siguiente número de página
-        if (lastPage.meta.page < lastPage.meta.totalPages) {
-          return lastPage.meta.page + 1;
-        }
-        return undefined; // No hay más páginas
-      },
-      getPreviousPageParam: (firstPage) => {
-        // Si no estamos en la primera página, devolver la página anterior
-        if (firstPage.meta.page > 1) {
-          return firstPage.meta.page - 1;
-        }
-        return undefined; // No hay páginas anteriores
-      },
-      initialPageParam: 1,
-      pageParamName: "page", // Esto le dice a openapi-react-query que use "page" como parámetro de paginación
-    }
-  );
+    getNextPageParam: (lastPage) => {
+      if (!lastPage?.meta) return undefined;
+      const { page, totalPages } = lastPage.meta;
+      if (typeof page !== "number" || typeof totalPages !== "number") return undefined;
+      return page < totalPages ? page + 1 : undefined;
+    },
+    getPreviousPageParam: (firstPage) => {
+      if (!firstPage?.meta) return undefined;
+      const { page } = firstPage.meta;
+      if (typeof page !== "number") return undefined;
+      return page > 1 ? page - 1 : undefined;
+    },
+    initialPageParam: 1,
+  });
 
-  // Obtener todas las plantillas de todas las páginas de forma plana
-  const allTemplates = query.data?.pages.flatMap((page) => page.data) || [];
+  // Protección completa con useMemo
+  const allTemplates = useMemo(() => {
+    return query.data?.pages?.flatMap((page) => page?.data || []) || [];
+  }, [query.data?.pages]);
 
   const handleScrollEnd = useCallback(() => {
     if (query.hasNextPage) {
@@ -81,7 +79,6 @@ export const useSearchProjectTemplates = () => {
   }, []);
 
   const handleIsActiveFilter = useCallback((isActive: boolean | undefined) => {
-    console.log("🟣 [useSearchProjectTemplates] handleIsActiveFilter llamado con:", isActive);
     setIsActive(isActive);
   }, []);
 
@@ -92,22 +89,19 @@ export const useSearchProjectTemplates = () => {
 
   return {
     query,
-    allTemplates, // Todas las plantillas acumuladas
+    allTemplates,
     fetchNextPage: query.fetchNextPage,
     hasNextPage: query.hasNextPage,
     isFetchingNextPage: query.isFetchingNextPage,
     isLoading: query.isLoading,
     isError: query.isError,
-    // Funciones de filtrado
     handleSearchChange,
     handleIsActiveFilter,
     clearFilters,
-    // Estados de filtros
     search,
     setSearch,
     isActive,
     setIsActive,
-    // Scroll infinito
     handleScrollEnd,
   };
 };

@@ -12,6 +12,10 @@ export type MilestoneTemplateResponseDto = components["schemas"]["MilestoneTempl
 export type PaginatedProjectTemplateResponseDto = components["schemas"]["PaginatedProjectTemplateResponseDto"];
 export type ProjectTemplateDetailedResponseDto = components["schemas"]["ProjectTemplateDetailedResponseDto"];
 
+// Tipos para variantes de plantillas de hito
+export type CreateMilestoneTemplateVariantRequestDto =
+  components["schemas"]["CreateMilestoneTemplateVariantRequestDto"];
+
 // Enum de prioridad de entregable (definido localmente)
 export enum DeliverablePriority {
   HIGH = "HIGH",

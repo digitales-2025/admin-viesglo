@@ -9,13 +9,13 @@ import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { Loading } from "@/shared/components/loading";
 import { AutoSaveStatus } from "../../_components/ui/AutoSaveStatus";
 import { useDraftRecovery } from "../../_hooks/use-draft-recovery";
-import { useActiveMilestoneTemplates } from "../../_hooks/use-milestone-templates";
+import { useSearchMilestoneTemplates } from "../../_hooks/use-milestone-templates";
 import { useNavigationWarning } from "../../_hooks/use-navigation-warning";
 import { useProjectTemplateForm } from "../../_hooks/use-project-template-form";
 import { useTemplateDetailedById } from "../../_hooks/use-project-templates";
 import { useTemplateDraftZustand } from "../../_hooks/use-template-draft-zustand";
 import { MilestoneTemplateResponseDto } from "../../_types/templates.types";
-import { useTagsByName } from "../../../tags/_hooks/use-tags";
+import { useSearchTags } from "../../../tags/_hooks/use-tags";
 import { TagResponseDto } from "../../../tags/_types/tags.types";
 import CreateProjectTemplateForm from "../../create/_components/CreateProjectTemplateForm";
 
@@ -36,14 +36,34 @@ export default function EditTemplatesPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedTagObjects, setSelectedTagObjects] = useState<TagResponseDto[]>([]);
-  const [selectedMilestones, setSelectedMilestones] = useState<string[]>([]);
   const [selectedMilestoneObjects, setSelectedMilestoneObjects] = useState<MilestoneTemplateResponseDto[]>([]);
 
-  // Obtener datos disponibles para recuperación
-  const { data: allMilestones = [] } = useActiveMilestoneTemplates();
-  const { data: allTags = [] } = useTagsByName("", 1000, true); // Obtener todos los tags
+  // Hook de búsqueda de milestones
+  const {
+    allMilestoneTemplates: allMilestones = [],
+    query: milestoneQuery,
+    handleSearchChange: handleMilestoneSearchChange,
+    handlePreselectedIdsFilter: handleMilestonePreselectedIdsFilter,
+    handleScrollEnd: handleMilestoneScrollEnd,
+    isLoading: isMilestoneLoading,
+    isError: isMilestoneError,
+    preselectedIds: selectedMilestones,
+    setPreselectedIds: setSelectedMilestones,
+  } = useSearchMilestoneTemplates();
+
+  // Hook de búsqueda de tags
+  const {
+    allTags = [],
+    query: tagQuery,
+    handleSearchChange: handleTagSearchChange,
+    handlePreselectedIdsFilter: handleTagPreselectedIdsFilter,
+    handleScrollEnd: handleTagScrollEnd,
+    isLoading: isTagLoading,
+    isError: isTagError,
+    preselectedIds: selectedTags,
+    setPreselectedIds: setSelectedTags,
+  } = useSearchTags();
 
   // Hook para recuperación de borradores
   const { recoverDraftData } = useDraftRecovery({
@@ -133,7 +153,7 @@ export default function EditTemplatesPage() {
   const handleSave = () => {
     // El useEffect en CreateProjectTemplateForm ya maneja la sincronización correctamente
     // Solo necesitamos asegurarnos de que los tags estén sincronizados
-    updateTags(selectedTags);
+    updateTags(selectedTags || []);
 
     // Enviar el formulario con manejo de errores
     form.handleSubmit(onSubmit, (errors) => {
@@ -208,14 +228,14 @@ export default function EditTemplatesPage() {
         form={form}
         handleSave={handleSave}
         isPending={isPending}
-        selectedMilestones={selectedMilestones}
-        setSelectedMilestones={setSelectedMilestones}
+        selectedMilestones={selectedMilestones || []}
+        setSelectedMilestones={setSelectedMilestones as React.Dispatch<React.SetStateAction<string[]>>}
         selectedMilestoneObjects={selectedMilestoneObjects}
         setSelectedMilestoneObjects={setSelectedMilestoneObjects}
         updateMilestones={updateMilestones}
         updateTags={updateTags}
-        selectedTags={selectedTags}
-        setSelectedTags={setSelectedTags}
+        selectedTags={selectedTags || []}
+        setSelectedTags={setSelectedTags as React.Dispatch<React.SetStateAction<string[]>>}
         selectedTagObjects={selectedTagObjects}
         setSelectedTagObjects={setSelectedTagObjects}
         draftData={draftData}
@@ -225,6 +245,22 @@ export default function EditTemplatesPage() {
         handleNavigationWithWarning={handleNavigationWithWarning}
         onNavigationWarningConfirm={handleNavigationWarningConfirm}
         onNavigationWarningCancel={handleNavigationWarningCancel}
+        // Props para TagEditorDialog
+        allTags={allTags}
+        tagQuery={tagQuery}
+        handleTagSearchChange={handleTagSearchChange}
+        handleTagPreselectedIdsFilter={handleTagPreselectedIdsFilter}
+        handleTagScrollEnd={handleTagScrollEnd}
+        isTagLoading={isTagLoading}
+        isTagError={isTagError}
+        // Props para MilestoneDialog
+        allMilestones={allMilestones}
+        milestoneQuery={milestoneQuery}
+        handleMilestoneSearchChange={handleMilestoneSearchChange}
+        handleMilestonePreselectedIdsFilter={handleMilestonePreselectedIdsFilter}
+        handleMilestoneScrollEnd={handleMilestoneScrollEnd}
+        isMilestoneLoading={isMilestoneLoading}
+        isMilestoneError={isMilestoneError}
       />
     </>
   );

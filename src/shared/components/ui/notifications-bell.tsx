@@ -19,13 +19,13 @@ type Notification = NotificationDto;
 const getTypeColor = (type: Notification["type"]) => {
   switch (type) {
     case "success":
-      return "bg-green-50 border-green-200";
+      return "bg-green-50 dark:bg-green-950/30";
     case "warning":
-      return "bg-yellow-50 border-yellow-200";
+      return "bg-yellow-50 dark:bg-yellow-950/30";
     case "error":
-      return "bg-red-50 border-red-200";
+      return "bg-red-50 dark:bg-red-950/30";
     default:
-      return "bg-blue-50 border-blue-200";
+      return "bg-blue-50 dark:bg-blue-950/30";
   }
 };
 
@@ -50,13 +50,13 @@ const getPriorityColor = (priority: Notification["priority"]) => {
   switch (priority) {
     case "high":
     case "urgent":
-      return "text-red-600";
+      return "text-red-600 dark:text-red-400";
     case "normal":
-      return "text-yellow-600";
+      return "text-yellow-600 dark:text-yellow-400";
     case "low":
-      return "text-green-600";
+      return "text-green-600 dark:text-green-400";
     default:
-      return "text-gray-600";
+      return "text-gray-600 dark:text-gray-400";
   }
 };
 
@@ -129,77 +129,75 @@ export default function NotificationsBell() {
           ) : notificationsToDisplay.length === 0 ? (
             <div className="p-4 text-center text-muted-foreground">No tienes notificaciones</div>
           ) : (
-            <div className="p-2">
-              {notificationsToDisplay.map((notification) => {
+            <div className="p-2 space-y-1">
+              {notificationsToDisplay.map((notification, index) => {
                 // Determinar si el elemento es interactivo
                 const isClickable = "isRead" in notification && (notification as Notification).isRead === false;
+                const isLast = index === notificationsToDisplay.length - 1;
 
                 return (
-                  <div // Contenedor no interactivo por ahora
-                    key={notification.id}
-                    className={`w-full text-left p-3 rounded-lg transition-colors group relative ${
-                      isClickable
-                        ? `cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getTypeColor(notification.type as Notification["type"])}`
-                        : "bg-muted/20"
-                    }`}
-                  >
-                    {/* Futuro: activar navegación al hacer clic en toda la notificación */}
-                    {/* onClick={() => router.push(`/ruta/${notification.id}`)} */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <div className="mt-0.5 text-muted-foreground">
-                          {getCategoryIcon(notification.category as Notification["category"])}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <h4
-                              className={`text-sm font-medium ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
-                            >
-                              {notification.title}
-                            </h4>
-                            {isClickable && <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0" />}
-                            <Badge
-                              variant="outline"
-                              className={`text-xs px-1.5 py-0.5 capitalize flex-shrink-0 ${getPriorityColor(notification.priority as Notification["priority"])}`}
-                            >
-                              {notification.priority}
-                            </Badge>
+                  <div key={notification.id}>
+                    <div
+                      className={`w-full text-left p-3 rounded-lg transition-colors group relative ${
+                        isClickable
+                          ? `cursor-pointer hover:bg-muted/50 focus:bg-muted/50 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 ${getTypeColor(notification.type as Notification["type"])}`
+                          : "bg-muted/20 dark:bg-muted/10"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-start gap-3 flex-1 min-w-0">
+                          <div className="mt-0.5 text-muted-foreground">
+                            {getCategoryIcon(notification.category as Notification["category"])}
                           </div>
-                          <p className={`text-xs mb-2 ${isClickable ? "text-foreground/80" : "text-muted-foreground"}`}>
-                            {notification.message}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            <p className="text-xs text-muted-foreground">{notification.timeAgo}</p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1 flex-wrap">
+                              <h4
+                                className={`text-sm font-medium ${isClickable ? "text-foreground" : "text-muted-foreground"}`}
+                              >
+                                {notification.title}
+                              </h4>
+                              {isClickable && (
+                                <div className="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full flex-shrink-0" />
+                              )}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs px-1.5 py-0.5 capitalize flex-shrink-0 ${getPriorityColor(notification.priority as Notification["priority"])}`}
+                              >
+                                {notification.priority}
+                              </Badge>
+                            </div>
+                            <p
+                              className={`text-xs mb-2 ${isClickable ? "text-foreground/80" : "text-muted-foreground"}`}
+                            >
+                              {notification.message}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Clock className="h-3 w-3 text-muted-foreground" />
+                              <p className="text-xs text-muted-foreground">{notification.timeAgo}</p>
+                            </div>
                           </div>
                         </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-green-100 dark:hover:bg-green-900/50 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 z-10"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isClickable) {
+                              handleMarkAsRead(notification.id);
+                            }
+                          }}
+                          title="Marcar como leída"
+                          disabled={!isClickable}
+                        >
+                          <Check className="h-3 w-3" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 hover:bg-green-100 text-green-600 hover:text-green-700 z-10"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (isClickable) {
-                            handleMarkAsRead(notification.id);
-                          }
-                        }}
-                        title="Marcar como leída"
-                        disabled={!isClickable}
-                      >
-                        <Check className="h-3 w-3" />
-                      </Button>
                     </div>
-                    {/* El separador debe estar fuera del elemento clickeable */}
+                    {!isLast && <Separator className="my-1" />}
                   </div>
                 );
               })}
-              {/* He movido el separador fuera del map para que no se anide incorrectamente */}
-              {notificationsToDisplay.map((notification, index) =>
-                index < notificationsToDisplay.length - 1 ? (
-                  <Separator key={`sep-${notification.id}`} className="my-1" />
-                ) : null
-              )}
             </div>
           )}
         </ScrollArea>

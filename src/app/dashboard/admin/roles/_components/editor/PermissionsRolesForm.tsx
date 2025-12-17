@@ -1,4 +1,4 @@
-import { ChevronDown, Circle } from "lucide-react";
+import { ChevronDown, Circle, Sparkles } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
 import { cn } from "@/lib/utils";
@@ -9,7 +9,6 @@ import { FormControl, FormField, FormItem, FormMessage } from "@/shared/componen
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 import { PermissionForm, RoleForm } from "../../_schemas/roles.schemas";
-import { handleGroupCheckboxChange, handlePermissionChange } from "../../_utils/roles-handler.utils";
 import { GroupedPermission, labelResource, resourceIcons, translateAction } from "../../_utils/roles.utils";
 import { EnumAction, EnumResource } from "../../../settings/_types/roles.types";
 
@@ -40,22 +39,103 @@ export default function PermissionsRolesForm({
     );
   });
 
-  const hasActivePermissionsBesidesRead = (
-    groupActions: { resource: EnumResource; action: EnumAction }[],
-    readPermission: { resource: EnumResource; action: EnumAction } | null
-  ) => {
-    if (!readPermission) return false;
-    const currentPermissions = form.getValues("permissions") || [];
-    return groupActions.some(
-      (action) =>
-        !(action.resource === readPermission.resource && action.action === readPermission.action) &&
-        currentPermissions.some((perm) => perm.resource === action.resource && perm.action === action.action)
+  // Verificar si tiene permiso wildcard para un recurso (resource:*)
+  const hasWildcardPermission = (resource: string): boolean => {
+    return currentPermissions.some((perm) => perm.resource === resource && perm.action === EnumAction.wildcard);
+  };
+
+  // Verificar si tiene todos los permisos individuales de un grupo
+  const hasAllIndividualPermissions = (groupActions: { action: string }[], resource: string): boolean => {
+    // Excluir wildcard de la verificación
+    const individualActions = groupActions.filter((a) => a.action !== EnumAction.wildcard);
+    if (individualActions.length === 0) return false;
+
+    return individualActions.every((action) =>
+      currentPermissions.some((perm) => perm.resource === resource && perm.action === action.action)
     );
+  };
+
+  // Contar permisos seleccionados (wildcard cuenta como todos)
+  const countSelectedPermissions = (groupActions: { action: string }[], resource: string): number => {
+    if (hasWildcardPermission(resource)) {
+      return groupActions.filter((a) => a.action !== EnumAction.wildcard).length;
+    }
+    return groupActions.filter(
+      (action) =>
+        action.action !== EnumAction.wildcard &&
+        currentPermissions.some((perm) => perm.resource === resource && perm.action === action.action)
+    ).length;
+  };
+
+  // Manejar cambio del checkbox grupal (wildcard)
+  const handleGroupWildcardChange = (checked: boolean, resource: EnumResource) => {
+    const current = form.getValues("permissions") || [];
+
+    if (checked) {
+      // Agregar wildcard y remover permisos individuales del recurso
+      const withoutResourcePerms = current.filter((p) => p.resource !== resource);
+      form.setValue("permissions", [...withoutResourcePerms, { resource, action: EnumAction.wildcard }]);
+    } else {
+      // Remover wildcard del recurso
+      const withoutWildcard = current.filter((p) => !(p.resource === resource && p.action === EnumAction.wildcard));
+      form.setValue("permissions", withoutWildcard);
+    }
+  };
+
+  // Manejar cambio de permiso individual
+  const handlePermissionChange = (
+    checked: boolean,
+    permission: { resource: EnumResource; action: EnumAction },
+    groupActions: { action: string }[]
+  ) => {
+    const current = form.getValues("permissions") || [];
+
+    // Si tiene wildcard, primero expandir a permisos individuales
+    if (hasWildcardPermission(permission.resource)) {
+      const withoutWildcard = current.filter(
+        (p) => !(p.resource === permission.resource && p.action === EnumAction.wildcard)
+      );
+      // Agregar todos los permisos individuales excepto el que se está deseleccionando
+      const individualPerms = groupActions
+        .filter((a) => a.action !== EnumAction.wildcard && a.action !== permission.action)
+        .map((a) => ({ resource: permission.resource, action: a.action as EnumAction }));
+      form.setValue("permissions", [...withoutWildcard, ...individualPerms]);
+      return;
+    }
+
+    if (checked) {
+      const newPerms = [...current, permission];
+      // Obtener acciones individuales (sin wildcard)
+      const allIndividualActions = groupActions.filter((a) => a.action !== EnumAction.wildcard).map((a) => a.action);
+
+      // Verificar si tiene TODAS las acciones individuales
+      const resourcePerms = newPerms.filter(
+        (p) => p.resource === permission.resource && p.action !== EnumAction.wildcard
+      );
+      const hasAll = allIndividualActions.every((action) => resourcePerms.some((p) => p.action === action));
+
+      if (hasAll) {
+        // Convertir a wildcard
+        const withoutResourcePerms = newPerms.filter((p) => p.resource !== permission.resource);
+        form.setValue("permissions", [
+          ...withoutResourcePerms,
+          { resource: permission.resource, action: EnumAction.wildcard },
+        ]);
+      } else {
+        form.setValue("permissions", newPerms);
+      }
+    } else {
+      form.setValue(
+        "permissions",
+        current.filter((p) => !(p.resource === permission.resource && p.action === permission.action))
+      );
+    }
   };
 
   const toggleGroup = (groupId: string) => {
     setOpenGroups((prev) => (prev.includes(groupId) ? prev.filter((g) => g !== groupId) : [...prev, groupId]));
   };
+
   return (
     <FormField
       control={form.control}
@@ -64,30 +144,12 @@ export default function PermissionsRolesForm({
         <FormItem>
           <div className="space-y-3">
             {filteredGroups.map((group) => {
-              // Construir acciones del grupo en formato { resource, action }
-              const groupActionsForHandlers = group.actions.map((a) => ({
-                resource: group.resource as EnumResource,
-                action: a.action as EnumAction,
-              }));
-
-              // Permiso de lectura del grupo en formato { resource, action }
-              const readPermission = group.actions.find(
-                (action) => action.action === EnumAction.read || action.action === "read"
-              );
-              const readPermissionObj = readPermission
-                ? { resource: group.resource as EnumResource, action: readPermission.action as EnumAction }
-                : null;
-
-              const isReadChecked = readPermissionObj
-                ? currentPermissions.some(
-                    (perm) => perm.resource === readPermissionObj.resource && perm.action === readPermissionObj.action
-                  )
-                : false;
-
-              const hasOtherActivePermissions = hasActivePermissionsBesidesRead(
-                groupActionsForHandlers,
-                readPermissionObj
-              );
+              const resource = group.resource as EnumResource;
+              const hasWildcard = hasWildcardPermission(resource);
+              const hasAllPerms = hasAllIndividualPermissions(group.actions, resource);
+              const isGroupChecked = hasWildcard || hasAllPerms;
+              const selectedCount = countSelectedPermissions(group.actions, resource);
+              const totalActions = group.actions.filter((a) => a.action !== EnumAction.wildcard).length;
 
               return (
                 <Collapsible
@@ -100,17 +162,15 @@ export default function PermissionsRolesForm({
                     <div
                       className={cn(
                         "flex items-center justify-between p-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors",
-                        isReadChecked &&
+                        isGroupChecked &&
                           "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30"
                       )}
                     >
                       <div className="flex items-center gap-3">
                         <Checkbox
                           id={`group-${group.resource}`}
-                          checked={isReadChecked}
-                          onCheckedChange={(checked) =>
-                            handleGroupCheckboxChange(!!checked, groupActionsForHandlers, form)
-                          }
+                          checked={isGroupChecked}
+                          onCheckedChange={(checked) => handleGroupWildcardChange(!!checked, resource)}
                           className={cn(
                             "data-[state=checked]:bg-emerald-500 data-[state=checked]:text-white data-[state=checked]:border-emerald-500",
                             "border-gray-300 dark:border-gray-600 transition-colors"
@@ -124,14 +184,14 @@ export default function PermissionsRolesForm({
                               <IconComponent
                                 className={cn(
                                   "w-4 h-4 shrink-0 transition-colors",
-                                  isReadChecked ? "text-emerald-600" : "text-gray-500"
+                                  isGroupChecked ? "text-emerald-600" : "text-gray-500"
                                 )}
                               />
                             ) : (
                               <Circle
                                 className={cn(
                                   "w-4 h-4 shrink-0 transition-colors",
-                                  isReadChecked ? "text-emerald-600" : "text-gray-500"
+                                  isGroupChecked ? "text-emerald-600" : "text-gray-500"
                                 )}
                               />
                             );
@@ -140,55 +200,59 @@ export default function PermissionsRolesForm({
                             htmlFor={`group-${group.resource}`}
                             className={cn(
                               "font-medium cursor-pointer transition-colors text-sm",
-                              isReadChecked && "text-emerald-700 dark:text-emerald-400"
+                              isGroupChecked && "text-emerald-700 dark:text-emerald-400"
                             )}
                           >
                             {labelResource[group.resource as keyof typeof labelResource] || group.resource}
                           </Label>
+                          {hasWildcard && (
+                            <Badge
+                              variant="outline"
+                              className="text-xs h-5 bg-purple-100 text-purple-700 border-purple-200"
+                            >
+                              <Sparkles className="w-3 h-3 mr-1" />
+                              Acceso total
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge
-                          variant={isReadChecked ? "default" : "outline"}
+                          variant={isGroupChecked ? "default" : "outline"}
                           className={cn(
                             "text-xs h-5",
-                            isReadChecked && "bg-emerald-100 text-emerald-800 border-emerald-200",
-                            hasOtherActivePermissions && "bg-emerald-200 text-emerald-900"
+                            isGroupChecked && "bg-emerald-100 text-emerald-800 border-emerald-200",
+                            hasWildcard && "bg-purple-100 text-purple-800 border-purple-200"
                           )}
                         >
-                          {
-                            groupActionsForHandlers.filter((p) =>
-                              currentPermissions.some(
-                                (perm) => perm.resource === p.resource && perm.action === p.action
-                              )
-                            ).length
-                          }
-                          /{group.actions.length}
+                          {hasWildcard ? `${totalActions}/${totalActions}` : `${selectedCount}/${totalActions}`}
                         </Badge>
                         <ChevronDown
                           className={cn(
                             "h-4 w-4 transition-transform",
                             openGroups.includes(group.resource) && "transform rotate-180",
-                            isReadChecked ? "text-emerald-600" : "text-gray-400"
+                            isGroupChecked ? "text-emerald-600" : "text-gray-400"
                           )}
                         />
                       </div>
                     </div>
                   </CollapsibleTrigger>
                   <CollapsibleContent>
-                    <Separator className={cn(isReadChecked && "bg-emerald-200 dark:bg-emerald-800")} />
-                    <div className={cn("p-3 space-y-2", isReadChecked && "bg-emerald-50/30 dark:bg-emerald-950/10")}>
+                    <Separator className={cn(isGroupChecked && "bg-emerald-200 dark:bg-emerald-800")} />
+                    <div className={cn("p-3 space-y-2", isGroupChecked && "bg-emerald-50/30 dark:bg-emerald-950/10")}>
                       {group.actions
-                        .filter((permission) => permission.action !== EnumAction.read)
+                        .filter((permission) => permission.action !== EnumAction.wildcard)
                         .map((permission) => {
                           const permissionObj = {
-                            resource: group.resource as EnumResource,
+                            resource: resource,
                             action: permission.action as EnumAction,
                           };
-                          const isChecked = currentPermissions.some(
-                            (perm) => perm.resource === permissionObj.resource && perm.action === permissionObj.action
-                          );
-                          const isDisabled = !isReadChecked;
+                          // Si tiene wildcard, todos los checkboxes individuales están marcados
+                          const isChecked =
+                            hasWildcard ||
+                            currentPermissions.some(
+                              (perm) => perm.resource === permissionObj.resource && perm.action === permissionObj.action
+                            );
 
                           return (
                             <FormItem
@@ -201,20 +265,19 @@ export default function PermissionsRolesForm({
                                   className={cn(
                                     "cursor-pointer data-[state=checked]:bg-emerald-500",
                                     "data-[state=checked]:text-white transition-colors data-[state=checked]:border-emerald-500",
-                                    "border-emerald-400",
-                                    isDisabled && "opacity-50 cursor-not-allowed"
+                                    "border-emerald-400"
                                   )}
                                   checked={isChecked}
-                                  disabled={isDisabled}
-                                  onCheckedChange={(checked) => handlePermissionChange(!!checked, permissionObj, form)}
+                                  onCheckedChange={(checked) =>
+                                    handlePermissionChange(!!checked, permissionObj, group.actions)
+                                  }
                                 />
                               </FormControl>
                               <label
                                 htmlFor={`${group.resource}-${permission.action}`}
                                 className={cn(
                                   "text-sm text-gray-600 dark:text-gray-400 leading-none cursor-pointer",
-                                  isChecked && "font-medium text-emerald-700 dark:text-emerald-400",
-                                  isDisabled && "opacity-50 cursor-not-allowed"
+                                  isChecked && "font-medium text-emerald-700 dark:text-emerald-400"
                                 )}
                               >
                                 {translateAction(permission.action)}

@@ -611,7 +611,7 @@ export interface paths {
     };
     /**
      * Obtener usuarios con paginación y filtros
-     * @description Obtiene una lista paginada de usuarios con filtros opcionales. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos. Permite filtrar por estado activo, por rol específico (roleId) o por posición de rol del sistema (systemRolePosition: 1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT).
+     * @description Obtiene una lista paginada de usuarios con filtros opcionales. Los administradores (rol MANAGEMENT) pueden ver todos los usuarios (activos e inactivos). El resto de roles solo verán los usuarios activos. Permite filtrar por estado activo, por rol específico (roleId) o por posiciones de roles del sistema (systemRolePositions: [1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT]).
      */
     get: operations["UsersController_getUsersPaginated_v1"];
     put?: never;
@@ -2157,6 +2157,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/v1/tags/paginated": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Buscar etiquetas con filtros y paginación */
+    get: operations["TagController_findPaginated_v1"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/v1/tags/search": {
     parameters: {
       query?: never;
@@ -2396,6 +2413,26 @@ export interface paths {
     head?: never;
     /** Cambiar posición de un elemento (fase o entregable) */
     patch: operations["MilestoneTemplatesController_changePosition_v1"];
+    trace?: never;
+  };
+  "/v1/milestone-templates/{id}/variant": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Crear una variante personalizada de una plantilla de hito
+     * @description Crea una copia completa de la plantilla original con un nuevo nombre, permitiendo modificaciones independientes
+     */
+    post: operations["MilestoneTemplatesController_createVariant_v1"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
     trace?: never;
   };
   "/v1/dashboards/clients/summary": {
@@ -7615,13 +7652,16 @@ export interface components {
         | "notifications"
         | "reports"
         | "dashboard"
-        | "system";
+        | "resources"
+        | "project-resources"
+        | "system"
+        | "base";
       /**
-       * @description Acción que se puede realizar sobre el recurso
+       * @description Acción que se puede realizar sobre el recurso. El wildcard (*) otorga acceso total al recurso.
        * @example read
        * @enum {string}
        */
-      action: "read" | "write" | "manage";
+      action: "create" | "read" | "update" | "delete" | "assign" | "approve" | "export" | "reactivate" | "*";
     };
     CreateRoleRequestDto: {
       /**
@@ -8208,6 +8248,12 @@ export interface components {
        */
       isActive: boolean;
     };
+    PaginatedTagResponseDto: {
+      /** @description Lista de etiquetas paginadas */
+      data: components["schemas"]["TagResponseDto"][];
+      /** @description Metadatos de paginación */
+      meta: components["schemas"]["PaginationMetadataDto"];
+    };
     DeliverablePrecedenceRequestDto: {
       /**
        * @description ID único del entregable del cual depende este entregable. Permite definir precedencias entre entregables dentro de la misma fase.
@@ -8431,6 +8477,13 @@ export interface components {
        * @example 2
        */
       newPosition: number;
+    };
+    CreateMilestoneTemplateVariantRequestDto: {
+      /**
+       * @description Nombre de la variante personalizada
+       * @example Diagnóstico ISO - Variante Proyecto A
+       */
+      variantName: string;
     };
     ClientsDashboardSummaryResponseDto: Record<string, never>;
     CreateResourceRequestDto: {
@@ -10037,12 +10090,14 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por estado activo/inactivo del usuario */
         isActive?: boolean;
         /** @description ID del rol para filtrar usuarios por rol específico */
         roleId?: string;
-        /** @description Posición del rol del sistema para filtrar usuarios (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT) */
-        systemRolePosition?: 1 | 2 | 3;
+        /** @description Posiciones de roles del sistema para filtrar usuarios (1=MANAGEMENT, 2=PLANNER, 3=CONSULTANT) */
+        systemRolePositions?: (1 | 2 | 3)[];
       };
       header?: never;
       path?: never;
@@ -11160,6 +11215,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por estado activo/inactivo del cliente */
         isActive?: boolean;
       };
@@ -11813,6 +11870,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por ID del cliente */
         clientId?: string;
         /** @description Filtrar por ID del grupo de proyectos */
@@ -12375,6 +12434,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por estado del entregable */
         status?: "REGISTERED" | "IN_PROCESS" | "FINISHED";
         /** @description Filtrar por prioridad del entregable */
@@ -14667,6 +14728,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por estado activo/inactivo de la plantilla */
         isActive?: boolean;
       };
@@ -15012,6 +15075,59 @@ export interface operations {
       };
       /** @description Etiqueta relacionada con proyectos/plantillas */
       409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
+  TagController_findPaginated_v1: {
+    parameters: {
+      query?: {
+        /** @description Número de página */
+        page?: number;
+        /** @description Número de elementos por página */
+        pageSize?: number;
+        /** @description Término de búsqueda */
+        search?: string;
+        /** @description Campo para ordenamiento */
+        sortField?: "id" | "name" | "color";
+        /** @description Orden de clasificación */
+        sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
+        /** @description Filtrar por color de la etiqueta */
+        color?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Etiquetas paginadas encontradas */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PaginatedTagResponseDto"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
         headers: {
           [name: string]: unknown;
         };
@@ -15393,6 +15509,10 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
+        /** @description Filtrar por estado activo/inactivo de la plantilla de hito */
+        isActive?: boolean;
       };
       header?: never;
       path?: never;
@@ -15885,6 +16005,77 @@ export interface operations {
       };
     };
   };
+  MilestoneTemplatesController_createVariant_v1: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateMilestoneTemplateVariantRequestDto"];
+      };
+    };
+    responses: {
+      /** @description Variante de plantilla creada exitosamente */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["MilestoneTemplateResponseDto"];
+        };
+      };
+      /** @description Datos de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Plantilla original no encontrada */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Ya existe una variante con ese nombre */
+      409: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+    };
+  };
   ClientsDashboardController_getSummary_v1: {
     parameters: {
       query?: never;
@@ -16012,6 +16203,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
       };
       header?: never;
       path?: never;
@@ -16526,6 +16719,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description Filtrar por estado del grupo */
         status?: string;
         /** @description Filtrar por período del grupo */
@@ -17058,6 +17253,8 @@ export interface operations {
         sortField?: "name" | "lastName" | "email" | "createdAt" | "updatedAt";
         /** @description Orden de clasificación (asc o desc) */
         sortOrder?: "asc" | "desc";
+        /** @description IDs de elementos a preseleccionar (aparecerán primero en la página) */
+        preselectedIds?: string[];
         /** @description ID del proyecto */
         projectId: string;
         /** @description ID del hito */
@@ -17935,28 +18132,36 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
-      /** @description No autorizado */
+      /** @description No autenticado */
       401: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
-      /** @description Sin permisos para acceder a reportes */
+      /** @description Sin permisos */
       403: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
       /** @description Error interno del servidor */
       500: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
       };
     };
   };
@@ -17991,6 +18196,42 @@ export interface operations {
         };
         content: {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
     };
@@ -18030,6 +18271,42 @@ export interface operations {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
         };
       };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
     };
   };
   ReportsController_generateClientSatisfactionReport_v1: {
@@ -18063,6 +18340,42 @@ export interface operations {
         };
         content: {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
     };
@@ -18100,6 +18413,42 @@ export interface operations {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
         };
       };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
     };
   };
   ReportsController_generateAuditTraceabilityReport_v1: {
@@ -18135,6 +18484,42 @@ export interface operations {
         };
         content: {
           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": string;
+        };
+      };
+      /** @description Parámetros de entrada inválidos */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description No autenticado */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Sin permisos */
+      403: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
+        };
+      };
+      /** @description Error interno del servidor */
+      500: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["BaseErrorResponse"];
         };
       };
     };

@@ -1,4 +1,4 @@
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { Check, Edit2, Palette, Plus, Search, Tags, Trash2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 
@@ -6,7 +6,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { type CreateTagForm } from "../../_schemas/tags-schemas";
 import { TagResponseDto } from "../../_types/tags.types";
 import { predefinedColors } from "../../_utils/tag.utils";
@@ -29,6 +28,11 @@ interface TagEditorFormProps {
   editingTag: TagResponseDto | null;
   setEditingTag: (tag: TagResponseDto | null) => void;
   form: UseFormReturn<CreateTagForm>;
+  // 🎯 NUEVO: Props para scroll infinito
+  query?: any;
+  handleScrollEnd: () => void;
+  isLoading: boolean;
+  isError: boolean;
 }
 
 export const TagEditorForm = memo(function TagEditorForm({
@@ -49,11 +53,22 @@ export const TagEditorForm = memo(function TagEditorForm({
   editingTag,
   setEditingTag,
   form,
+  // 🎯 NUEVO: Props para scroll infinito
+  query: _query,
+  handleScrollEnd,
+  isLoading,
+  isError,
 }: TagEditorFormProps) {
-  // Funciones optimizadas con useCallback
+  // Estado para controlar la visibilidad del scrollbar
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Funciones optimizadas con useCallback y manejo de foco
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchTerm(e.target.value);
+      const value = e.target.value;
+      setSearchTerm(value);
+      // Mantener el foco del input
+      e.target.focus();
     },
     [setSearchTerm]
   );
@@ -111,6 +126,15 @@ export const TagEditorForm = memo(function TagEditorForm({
     setShowColorPicker(false);
   }, [setEditingTag, form, setCustomColor, setShowColorPicker]);
 
+  // Handlers para el scrollbar dinámico
+  const handleMouseEnter = useCallback(() => {
+    setIsHovered(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovered(false);
+  }, []);
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-2">
       {/* Left Panel - Tag List & Search */}
@@ -118,13 +142,67 @@ export const TagEditorForm = memo(function TagEditorForm({
         {/* Search Header */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar etiquetas..." value={searchTerm} onChange={handleSearchChange} className="pl-10" />
+          <Input
+            placeholder="Buscar etiquetas..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="pl-10"
+            // Props para mantener foco y evitar re-renders
+            autoComplete="off"
+            spellCheck={false}
+            onBlur={(e) => {
+              // Prevenir pérdida de foco durante búsqueda
+              if (searchTerm.trim()) {
+                e.target.focus();
+              }
+            }}
+          />
+          {/* Indicador de búsqueda en progreso */}
+          {isLoading && searchTerm && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+            </div>
+          )}
         </div>
 
         {/* Tags List */}
-        <ScrollArea className="h-[500px] border-2 border-dashed border-muted-foreground/20 rounded-xl p-4 bg-gradient-to-br from-background to-muted/20">
+        <div
+          className={`h-[500px] border-2 border-dashed border-muted-foreground/20 rounded-xl bg-gradient-to-br from-background to-muted/20 overflow-y-auto transition-all duration-300 scrollbar-container ${
+            isHovered ? "scrollbar-thin scrollbar-thumb-primary/30 scrollbar-track-transparent" : "scrollbar-none"
+          }`}
+          style={{
+            paddingLeft: "16px",
+            paddingTop: "16px",
+            paddingBottom: "16px",
+            paddingRight: "16px",
+          }}
+          onScroll={(e) => {
+            // Detectar scroll al final para cargar más páginas
+            const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+            const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10; // 10px de margen
+            if (isAtBottom) {
+              handleScrollEnd();
+            }
+          }}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div className="space-y-2">
-            {filteredTags.length > 0 ? (
+            {/* Estados de carga y error */}
+            {isLoading && (
+              <div className="flex items-center justify-center p-4">
+                <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin mr-2" />
+                <span className="text-sm text-muted-foreground">Cargando etiquetas...</span>
+              </div>
+            )}
+
+            {isError && (
+              <div className="flex items-center justify-center p-4 text-destructive">
+                <span className="text-sm">Error al cargar las etiquetas</span>
+              </div>
+            )}
+
+            {!isLoading && !isError && filteredTags.length > 0 ? (
               filteredTags.map((tag) => (
                 <div
                   key={tag.id}
@@ -180,7 +258,7 @@ export const TagEditorForm = memo(function TagEditorForm({
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
       </div>
 
       {/* Right Panel - Create/Edit Form */}

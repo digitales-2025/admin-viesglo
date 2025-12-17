@@ -14,6 +14,7 @@ import {
 } from "@/shared/components/ui/dropdown-menu";
 import { DialogType } from "@/shared/stores/useDialogStore";
 import { MilestoneDialog } from "../../_components/dialogs/milestone-template/MilestoneDialog";
+import { MilestoneTemplateSearchQueryResult } from "../../_hooks/use-milestone-templates";
 import { CreateProjectTemplate } from "../../_schemas/projectTemplates.schemas";
 import {
   DeliverablePriority,
@@ -54,6 +55,14 @@ interface AssignTemplatesColumnsProps {
   setDeliverableToEdit: React.Dispatch<
     React.SetStateAction<(DeliverableTemplateResponseDto & { phaseId: string }) | null>
   >;
+  // Props para MilestoneDialog
+  allMilestones: MilestoneTemplateResponseDto[];
+  milestoneQuery: MilestoneTemplateSearchQueryResult;
+  handleMilestoneSearchChange: (value: string) => void;
+  handleMilestonePreselectedIdsFilter: (preselectedIds: string[] | undefined) => void;
+  handleMilestoneScrollEnd: () => void;
+  isMilestoneLoading: boolean;
+  isMilestoneError: boolean;
 }
 
 export default function AssignTemplatesColumns({
@@ -73,6 +82,14 @@ export default function AssignTemplatesColumns({
   open,
   setPhaseToEdit,
   setDeliverableToEdit,
+  // Props para MilestoneDialog
+  allMilestones,
+  milestoneQuery,
+  handleMilestoneSearchChange,
+  handleMilestonePreselectedIdsFilter,
+  handleMilestoneScrollEnd,
+  isMilestoneLoading,
+  isMilestoneError,
 }: AssignTemplatesColumnsProps) {
   // Eliminar duplicados temporalmente para evitar el error de React
   const uniquePhases = phases.filter((phase, index, self) => index === self.findIndex((p) => p.id === phase.id));
@@ -139,11 +156,19 @@ export default function AssignTemplatesColumns({
                 selectedMilestoneObjects={selectedMilestoneObjects}
                 onMilestoneObjectsChange={setSelectedMilestoneObjects}
                 milestones={milestones}
+                // Props opcionales para milestone search
+                allMilestones={allMilestones}
+                milestoneQuery={milestoneQuery}
+                handleMilestoneSearchChange={handleMilestoneSearchChange}
+                handleMilestonePreselectedIdsFilter={handleMilestonePreselectedIdsFilter}
+                handleMilestoneScrollEnd={handleMilestoneScrollEnd}
+                isMilestoneLoading={isMilestoneLoading}
+                isMilestoneError={isMilestoneError}
               />
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto">
-            <DragDropContext onDragEnd={(result) => handleMilestoneDragEnd(result, milestones, setMilestones)}>
+            <DragDropContext onDragEnd={(result) => handleMilestoneDragEnd(result, milestones, setMilestones, form)}>
               <Droppable droppableId="milestones">
                 {(provided) => (
                   <div {...provided.droppableProps} ref={provided.innerRef} className="space-y-2">

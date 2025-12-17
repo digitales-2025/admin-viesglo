@@ -46,19 +46,19 @@ const usePermissionCheck = () => {
 
     if (hasSpecificPermission) return true;
 
-    // Verificar si tiene permiso de "manage" que incluye todo
-    const hasManagePermission = user.role.permissions.some(
-      (permission) => permission.resource === resource && permission.action === "manage"
+    // Verificar si tiene permiso wildcard en la acción para este recurso (resource:*)
+    const hasActionWildcard = user.role.permissions.some(
+      (permission) => permission.resource === resource && permission.action === "*"
     );
 
-    if (hasManagePermission) return true;
+    if (hasActionWildcard) return true;
 
-    // Verificar si tiene permiso wildcard "*"
-    const hasWildcardPermission = user.role.permissions.some(
+    // Verificar si tiene permiso wildcard completo (*:*)
+    const hasFullWildcard = user.role.permissions.some(
       (permission) => permission.resource === "*" && permission.action === "*"
     );
 
-    return hasWildcardPermission;
+    return hasFullWildcard;
   };
 
   const hasRole = (roleName: string): boolean => {
@@ -419,14 +419,14 @@ export const SystemRolesProtected = ({ children, fallback }: { children: ReactNo
  * // Verificar si el usuario tiene permisos de aprobación
  * const { hasAnyPermission } = usePermissionCheckHook();
  * const canApprove = hasAnyPermission([
- *   { resource: EnumResource.projects, action: EnumAction.write },
- *   { resource: EnumResource.projects, action: EnumAction.manage },
+ *   { resource: EnumResource.projects, action: EnumAction.update },
+ *   { resource: EnumResource.projects, action: EnumAction.approve },
  * ]);
  *
  * @example
  * // Verificar un permiso específico
  * const { hasPermission } = usePermissionCheckHook();
- * const canEdit = hasPermission(EnumResource.users, EnumAction.write);
+ * const canEdit = hasPermission(EnumResource.users, EnumAction.update);
  *
  * @example
  * // Verificar roles
@@ -447,19 +447,19 @@ export const usePermissionCheckHook = () => {
 
     if (hasSpecificPermission) return true;
 
-    // Verificar si tiene permiso de "manage" que incluye todo
-    const hasManagePermission = user.role.permissions.some(
-      (permission) => permission.resource === resource && permission.action === "manage"
+    // Verificar si tiene permiso wildcard en la acción para este recurso (resource:*)
+    const hasActionWildcard = user.role.permissions.some(
+      (permission) => permission.resource === resource && permission.action === "*"
     );
 
-    if (hasManagePermission) return true;
+    if (hasActionWildcard) return true;
 
-    // Verificar si tiene permiso wildcard "*"
-    const hasWildcardPermission = user.role.permissions.some(
+    // Verificar si tiene permiso wildcard completo (*:*)
+    const hasFullWildcard = user.role.permissions.some(
       (permission) => permission.resource === "*" && permission.action === "*"
     );
 
-    return hasWildcardPermission;
+    return hasFullWildcard;
   };
 
   const hasAnyPermission = (permissions: Permission[]): boolean => {

@@ -6,15 +6,14 @@ export type RoleListItem = components["schemas"]["RoleListItemDto"];
 
 export type ResourceName = components["schemas"]["PermissionRequestDto"]["resource"];
 
-export type SimplifiedActionName = components["schemas"]["PermissionRequestDto"]["action"];
+export type ActionName = components["schemas"]["PermissionRequestDto"]["action"];
 
-// Recursos válidos
+// Recursos válidos (fuente de verdad del backend)
 export enum EnumResource {
   users = "users",
   projects = "projects",
   clients = "clients",
   milestones = "milestones",
-  resources = "resources",
   phases = "phases",
   deliverables = "deliverables",
   activities = "activities",
@@ -22,13 +21,21 @@ export enum EnumResource {
   notifications = "notifications",
   reports = "reports",
   dashboard = "dashboard",
+  resources = "resources",
+  projectResources = "project-resources",
   system = "system",
-  all = "*",
+  base = "base",
 }
 
-// Acciones válidas
+// Acciones válidas (fuente de verdad del backend)
 export enum EnumAction {
+  create = "create",
   read = "read",
-  write = "write",
-  manage = "manage",
+  update = "update",
+  delete = "delete",
+  assign = "assign",
+  approve = "approve",
+  export = "export",
+  reactivate = "reactivate",
+  wildcard = "*", // Solo para roles del sistema
 }

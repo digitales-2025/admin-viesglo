@@ -29,7 +29,7 @@ export const useSearchUsers = () => {
   const [search, setSearch] = useState<string | undefined>(undefined);
   const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
   const [roleId, setRoleId] = useState<string | undefined>(undefined);
-  const [systemRolePosition, setSystemRolePosition] = useState<1 | 2 | 3 | undefined>(undefined);
+  const [systemRolePositions, setSystemRolePositions] = useState<(1 | 2 | 3)[] | undefined>(undefined);
   const { size } = usePagination();
 
   const query = backend.useInfiniteQuery(
@@ -43,7 +43,7 @@ export const useSearchUsers = () => {
           pageSize: size,
           isActive,
           roleId,
-          systemRolePosition,
+          systemRolePositions,
         },
       },
     },
@@ -84,15 +84,15 @@ export const useSearchUsers = () => {
     setRoleId(roleId);
   }, []);
 
-  const handleSystemRolePositionFilter = useCallback((position: 1 | 2 | 3 | undefined) => {
-    setSystemRolePosition(position);
+  const handleSystemRolePositionsFilter = useCallback((positions: (1 | 2 | 3)[] | undefined) => {
+    setSystemRolePositions(positions);
   }, []);
 
   const clearFilters = useCallback(() => {
     setSearch(undefined);
     setIsActive(undefined);
     setRoleId(undefined);
-    setSystemRolePosition(undefined);
+    setSystemRolePositions(undefined);
   }, []);
 
   const handleScrollEnd = useCallback(() => {
@@ -113,7 +113,7 @@ export const useSearchUsers = () => {
     handleSearchChange,
     handleIsActiveFilter,
     handleRoleIdFilter,
-    handleSystemRolePositionFilter,
+    handleSystemRolePositionsFilter,
     clearFilters,
     // Estados de filtros
     search,
@@ -122,8 +122,8 @@ export const useSearchUsers = () => {
     setIsActive,
     roleId,
     setRoleId,
-    systemRolePosition,
-    setSystemRolePosition,
+    systemRolePositions,
+    setSystemRolePositions,
     // Scroll infinito
     handleScrollEnd,
   };

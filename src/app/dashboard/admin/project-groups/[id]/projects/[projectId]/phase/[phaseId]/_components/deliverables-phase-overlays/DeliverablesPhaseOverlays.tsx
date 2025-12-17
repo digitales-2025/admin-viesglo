@@ -12,20 +12,22 @@ export const MODULE_DELIVERABLES_PHASE = "deliverables-phase";
 interface DeliverablesPhaseOverlaysProps {
   projectId: string;
   phaseId: string;
+  milestoneId?: string;
   onDeliverableEndDateConfirm?: (deliverableId: string, endDate: Date) => void; // Callback para confirmar fecha de fin
 }
 
 export default function DeliverablesPhaseOverlays({
   projectId,
   phaseId,
+  milestoneId,
   onDeliverableEndDateConfirm,
 }: DeliverablesPhaseOverlaysProps) {
   const { isOpenForModule, data, close } = useDialogStore();
   const { mutate: deleteDeliverable, isPending: isDeleting } = useDeleteDeliverable();
   const { mutate: toggleApproval, isPending: isApproving } = useToggleDeliverableApproval();
 
-  // Obtener milestoneId del prop o de los datos del dialog store (siguiendo el patrón de PhasesProjectOverlays)
-  const currentMilestoneId = data?.milestoneId;
+  // Usar milestoneId del prop o de los datos del dialog store
+  const currentMilestoneId = milestoneId || data?.milestoneId;
 
   // Derivar IDs actuales desde el store (deliverable seleccionado)
   const currentDeliverableId = (data as any)?.id as string | undefined;

@@ -152,8 +152,8 @@ export function DeliverablesPhaseColumns({
             <div className="w-fit" onClick={(e) => e.stopPropagation()}>
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.deliverables, action: EnumAction.write },
-                  { resource: EnumResource.deliverables, action: EnumAction.manage },
+                  { resource: EnumResource.deliverables, action: EnumAction.update },
+                  { resource: EnumResource.deliverables, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={false} // Mostrar siempre, pero en readonly si no tiene permisos
@@ -323,8 +323,8 @@ export function DeliverablesPhaseColumns({
             <div onClick={(e) => e.stopPropagation()}>
               <PermissionProtected
                 permissions={[
-                  { resource: EnumResource.deliverables, action: EnumAction.write },
-                  { resource: EnumResource.deliverables, action: EnumAction.manage },
+                  { resource: EnumResource.deliverables, action: EnumAction.update },
+                  { resource: EnumResource.deliverables, action: EnumAction.delete },
                 ]}
                 requireAll={false}
                 hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
@@ -338,8 +338,8 @@ export function DeliverablesPhaseColumns({
                   <DropdownMenuContent align="end">
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.deliverables, action: EnumAction.write },
-                        { resource: EnumResource.deliverables, action: EnumAction.manage },
+                        { resource: EnumResource.deliverables, action: EnumAction.update },
+                        { resource: EnumResource.deliverables, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
@@ -355,23 +355,20 @@ export function DeliverablesPhaseColumns({
 
                     <PermissionProtected
                       permissions={[
-                        { resource: EnumResource.deliverables, action: EnumAction.write },
-                        { resource: EnumResource.deliverables, action: EnumAction.manage },
+                        { resource: EnumResource.deliverables, action: EnumAction.update },
+                        { resource: EnumResource.deliverables, action: EnumAction.delete },
                       ]}
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >
-                      <DropdownMenuItem
-                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}
-                        disabled={milestoneStatus !== "OFFICIALLY_COMPLETED"}
-                      >
+                      <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Agregar incidencias
                       </DropdownMenuItem>
                     </PermissionProtected>
 
                     <PermissionProtected
-                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.manage }]}
+                      permissions={[{ resource: EnumResource.deliverables, action: EnumAction.delete }]}
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >

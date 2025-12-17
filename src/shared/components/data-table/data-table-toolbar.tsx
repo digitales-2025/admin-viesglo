@@ -1,11 +1,11 @@
 import * as React from "react";
 import { useCallback, useState } from "react";
 import { Table } from "@tanstack/react-table";
-import { X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
 import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+import { InputGroup, InputGroupAddon, InputGroupInput } from "../ui/input-group";
 import { DataTableFacetedFilter } from "./data-table-faceted-filter";
 import { DataTableViewOptions } from "./data-table-view-options";
 import { FacetedFilter } from "./facetedFilters";
@@ -84,12 +84,16 @@ export function DataTableToolbar<TData, TValue>({
   return (
     <div className="flex flex-col sm:flex-row gap-2">
       <div className="flex flex-1 flex-col-reverse items-start gap-y-2 sm:flex-row sm:items-center sm:space-x-2">
-        <Input
-          placeholder={filterPlaceholder}
-          value={inputValue}
-          onChange={(event) => handleFilterChange(event.target.value)}
-          className="h-8 w-[150px] lg:w-[250px]"
-        />
+        <InputGroup className="h-8 w-[150px] lg:w-[250px]">
+          <InputGroupAddon align="inline-start">
+            <Search className="size-4" />
+          </InputGroupAddon>
+          <InputGroupInput
+            placeholder={filterPlaceholder}
+            value={inputValue}
+            onChange={(event) => handleFilterChange(event.target.value)}
+          />
+        </InputGroup>
         <div className="flex flex-wrap items-center gap-2">
           {facetedFilters.map((filter) => {
             const column = table.getColumn(filter.column);

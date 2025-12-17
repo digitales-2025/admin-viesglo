@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { backend } from "@/lib/api/types/backend";
+import { invalidateProjectAndMilestoneQueries } from "../../_utils/query-invalidation";
 
 /**
  * Hook para crear milestone
@@ -10,8 +11,7 @@ export const useCreateMilestone = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("post", "/v1/project-milestones/{projectId}/milestones", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectAndMilestoneQueries(queryClient);
       toast.success("Hito creado correctamente");
     },
     onError: (error) => {
@@ -32,8 +32,7 @@ export const useUpdateMilestone = () => {
   const queryClient = useQueryClient();
   const mutation = backend.useMutation("put", "/v1/project-milestones/{projectId}/milestones/{milestoneId}", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectAndMilestoneQueries(queryClient);
       toast.success("Hito actualizado correctamente");
     },
     onError: (error) => {
@@ -54,8 +53,7 @@ export const useDeleteMilestone = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("delete", "/v1/project-milestones/{projectId}/milestones/{milestoneId}", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectAndMilestoneQueries(queryClient);
       toast.success("Hito eliminado correctamente");
     },
     onError: (error) => {
@@ -71,8 +69,7 @@ export const useUpdateMilestoneStatus = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("patch", "/v1/project-milestones/{projectId}/milestones/{milestoneId}/status", {
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectAndMilestoneQueries(queryClient);
       toast.success("Estado del hito actualizado correctamente");
     },
     onError: (error) => {
@@ -88,8 +85,7 @@ export const useAssignMilestone = () => {
   const queryClient = useQueryClient();
   return backend.useMutation("patch", "/v1/project-milestones/{projectId}/milestones/{milestoneId}/assign", {
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{projectId}/milestones"] });
-      queryClient.invalidateQueries({ queryKey: ["get", "/v1/projects/{id}"] });
+      invalidateProjectAndMilestoneQueries(queryClient);
 
       // Determinar si se está asignando o desasignando basado en consultantId
       const isUnassigning =

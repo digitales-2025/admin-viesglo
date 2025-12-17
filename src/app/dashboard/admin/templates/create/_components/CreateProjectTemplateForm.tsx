@@ -7,6 +7,7 @@ import { useMediaQuery } from "@/shared/hooks/use-media-query";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 import { RecoveryDialog } from "../../_components/dialogs/RecoveryDialog";
 import TemplatesOverlays from "../../_components/templates-overlays/TemplatesOverlays";
+import { MilestoneTemplateSearchQueryResult } from "../../_hooks/use-milestone-templates";
 import { CreateProjectTemplate, DeliverableFormData, PhaseFormData } from "../../_schemas/projectTemplates.schemas";
 import { TemplateDraftData } from "../../_stores/template-draft.store";
 import {
@@ -17,6 +18,7 @@ import {
   TagResponseDto,
 } from "../../_types/templates.types";
 import { extractDataFromSelectedMilestones } from "../../_utils/create-template.utils";
+import { TagSearchQueryResult } from "../../../tags/_hooks/use-tags";
 import AssignTemplatesColumns from "./AssignTemplatesColumns";
 import CreateHeaderProjectTemplateForm from "./CreateHeaderProjectTemplateForm";
 
@@ -41,6 +43,22 @@ interface CreateProjectTemplateFormProps {
   handleNavigationWithWarning?: (url: string) => void; // Prop para manejar navegación con advertencia
   onNavigationWarningConfirm?: (targetUrl: string) => void; // Prop para confirmar navegación
   onNavigationWarningCancel?: () => void; // Prop para cancelar navegación
+  // Props para TagEditorDialog
+  allTags: TagResponseDto[];
+  tagQuery: TagSearchQueryResult;
+  handleTagSearchChange: (value: string) => void;
+  handleTagPreselectedIdsFilter: (preselectedIds: string[] | undefined) => void;
+  handleTagScrollEnd: () => void;
+  isTagLoading: boolean;
+  isTagError: boolean;
+  // Props para MilestoneDialog
+  allMilestones: MilestoneTemplateResponseDto[];
+  milestoneQuery: MilestoneTemplateSearchQueryResult;
+  handleMilestoneSearchChange: (value: string) => void;
+  handleMilestonePreselectedIdsFilter: (preselectedIds: string[] | undefined) => void;
+  handleMilestoneScrollEnd: () => void;
+  isMilestoneLoading: boolean;
+  isMilestoneError: boolean;
 }
 
 export default function CreateProjectTemplateForm({
@@ -64,6 +82,22 @@ export default function CreateProjectTemplateForm({
   handleNavigationWithWarning,
   onNavigationWarningConfirm,
   onNavigationWarningCancel,
+  // Props para TagEditorDialog
+  allTags,
+  tagQuery,
+  handleTagSearchChange,
+  handleTagPreselectedIdsFilter,
+  handleTagScrollEnd,
+  isTagLoading,
+  isTagError,
+  // Props para MilestoneDialog
+  allMilestones,
+  milestoneQuery,
+  handleMilestoneSearchChange,
+  handleMilestonePreselectedIdsFilter,
+  handleMilestoneScrollEnd,
+  isMilestoneLoading,
+  isMilestoneError,
 }: CreateProjectTemplateFormProps) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { open } = useDialogStore();
@@ -163,6 +197,7 @@ export default function CreateProjectTemplateForm({
     } else {
       setDeliverables(combinedDeliverables);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMilestoneObjects, milestones.length]);
 
   // ===== GESTIÓN DE SELECCIÓN AUTOMÁTICA =====
@@ -171,7 +206,8 @@ export default function CreateProjectTemplateForm({
     if (isFirstLoad && milestones.length > 0 && !selectedMilestone) {
       setSelectedMilestone(milestones[0].id);
     }
-  }, [milestones, isFirstLoad]); // Removido selectedMilestone de las dependencias
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [milestones, isFirstLoad]);
 
   // Solo seleccionar automáticamente la primera fase en la primera carga
   useEffect(() => {
@@ -181,7 +217,8 @@ export default function CreateProjectTemplateForm({
         setSelectedPhase(phasesInMilestone[0].id);
       }
     }
-  }, [selectedMilestone, phases, isFirstLoad]); // Removido selectedPhase de las dependencias
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMilestone, phases, isFirstLoad]);
 
   // Marcar que ya no es la primera carga después de la selección inicial
   useEffect(() => {
@@ -195,27 +232,37 @@ export default function CreateProjectTemplateForm({
     updateTags(selectedTags);
   }, [selectedTags, updateTags]);
 
-  // Sincronizar milestones seleccionados con el formulario (solo cuando se agregan nuevos)
+  // Sincronizar milestones seleccionados con el formulario (agregar y eliminar)
   useEffect(() => {
     // Obtener las configuraciones actuales del formulario
     const currentMilestones = form.getValues().milestones || [];
+    const selectedIds = selectedMilestoneObjects.map((m) => m.id);
 
-    // Solo agregar milestones que no existen en el formulario
+    // Filtrar los milestones que ya no están seleccionados
+    const filteredMilestones = currentMilestones.filter((ref) => selectedIds.includes(ref.milestoneTemplateId));
+
+    // Agregar milestones nuevos que no existen en el formulario
     const newMilestones = selectedMilestoneObjects.filter(
       (milestone) => !currentMilestones.some((ref) => ref.milestoneTemplateId === milestone.id)
     );
 
-    if (newMilestones.length > 0) {
-      const newMilestoneRefs = newMilestones.map((milestone) => ({
-        milestoneTemplateId: milestone.id,
-        isRequired: false,
-        customName: undefined,
-        customizations: undefined,
-      }));
+    const newMilestoneRefs = newMilestones.map((milestone) => ({
+      milestoneTemplateId: milestone.id,
+      isRequired: false,
+      customName: undefined,
+      customizations: undefined,
+    }));
 
-      const updatedMilestones = [...currentMilestones, ...newMilestoneRefs] as any;
-      updateMilestones(updatedMilestones);
+    const updatedMilestones = [...filteredMilestones, ...newMilestoneRefs];
+
+    // Solo actualizar si hay cambios
+    if (
+      JSON.stringify(currentMilestones.map((m) => m.milestoneTemplateId).sort()) !==
+      JSON.stringify(updatedMilestones.map((m) => m.milestoneTemplateId).sort())
+    ) {
+      updateMilestones(updatedMilestones as any);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMilestoneObjects.map((m) => m.id).join(","), updateMilestones, form]);
 
   // Reordenar milestones cuando cambia el orden visual (solo después de drag and drop)
@@ -271,6 +318,7 @@ export default function CreateProjectTemplateForm({
     });
 
     updateMilestones(reorderedMilestoneRefs as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [milestones.map((m) => m.id).join(","), updateMilestones, form]);
 
   // Nueva función que recibe la respuesta del backend con el ID real
@@ -465,6 +513,14 @@ export default function CreateProjectTemplateForm({
         setSelectedTags={setSelectedTags}
         selectedTagObjects={selectedTagObjects}
         setSelectedTagObjects={setSelectedTagObjects}
+        // Props para TagEditorDialog
+        allTags={allTags}
+        tagQuery={tagQuery}
+        handleTagSearchChange={handleTagSearchChange}
+        handleTagPreselectedIdsFilter={handleTagPreselectedIdsFilter}
+        handleTagScrollEnd={handleTagScrollEnd}
+        isTagLoading={isTagLoading}
+        isTagError={isTagError}
       />
 
       {/* Main Content - 3 Columns */}
@@ -485,6 +541,14 @@ export default function CreateProjectTemplateForm({
         open={open}
         setPhaseToEdit={setPhaseToEdit}
         setDeliverableToEdit={setDeliverableToEdit}
+        // Props para MilestoneDialog
+        allMilestones={allMilestones}
+        milestoneQuery={milestoneQuery}
+        handleMilestoneSearchChange={handleMilestoneSearchChange}
+        handleMilestonePreselectedIdsFilter={handleMilestonePreselectedIdsFilter}
+        handleMilestoneScrollEnd={handleMilestoneScrollEnd}
+        isMilestoneLoading={isMilestoneLoading}
+        isMilestoneError={isMilestoneError}
       />
       {/* Save Button */}
       <div className="flex justify-end mt-6 gap-2">

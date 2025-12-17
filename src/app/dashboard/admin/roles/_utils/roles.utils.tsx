@@ -3,15 +3,21 @@ import { Briefcase, CheckCircle, Lock, RefreshCw, Send, Settings, Shield, Unlock
 import { Permission } from "../_types/roles";
 import { EnumAction, EnumResource } from "../../settings/_types/roles.types";
 
-// Etiquetas de acciones
-export const labelPermission = {
+// Etiquetas de acciones (fuente de verdad del backend)
+export const labelPermission: Record<string, string> = {
+  [EnumAction.create]: "Crear",
   [EnumAction.read]: "Ver",
-  [EnumAction.write]: "Escribir",
-  [EnumAction.manage]: "Gestionar",
+  [EnumAction.update]: "Actualizar",
+  [EnumAction.delete]: "Eliminar",
+  [EnumAction.assign]: "Asignar",
+  [EnumAction.approve]: "Aprobar",
+  [EnumAction.export]: "Exportar",
+  [EnumAction.reactivate]: "Reactivar",
+  [EnumAction.wildcard]: "Acceso total",
 };
 
-// Etiquetas de recursos
-export const labelResource = {
+// Etiquetas de recursos (fuente de verdad del backend)
+export const labelResource: Record<string, string> = {
   [EnumResource.users]: "Usuarios",
   [EnumResource.projects]: "Proyectos",
   [EnumResource.clients]: "Clientes",
@@ -23,12 +29,14 @@ export const labelResource = {
   [EnumResource.notifications]: "Notificaciones",
   [EnumResource.reports]: "Reportes",
   [EnumResource.dashboard]: "Dashboard",
+  [EnumResource.resources]: "Recursos",
+  [EnumResource.projectResources]: "Recursos de proyecto",
   [EnumResource.system]: "Sistema",
-  [EnumResource.all]: "Todos los recursos",
+  [EnumResource.base]: "Base",
 };
 
 // Íconos por recurso
-export const resourceIcons = {
+export const resourceIcons: Record<string, typeof Briefcase> = {
   projects: Briefcase,
   clients: User,
   milestones: CheckCircle,
@@ -41,31 +49,34 @@ export const resourceIcons = {
   system: Lock,
   notifications: Shield,
   roles: Shield,
+  resources: Settings,
+  "project-resources": Settings,
+  base: Shield,
   "*": Unlock,
 };
 
-// Colores por acción
-export const actionColors = {
+// Colores por acción (fuente de verdad del backend)
+export const actionColors: Record<string, string> = {
+  create: "bg-green-100 text-green-700 border-green-200",
   read: "bg-blue-100 text-blue-700 border-blue-200",
-  write: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  manage: "bg-green-100 text-green-700 border-green-200",
-  admin: "bg-red-100 text-red-700 border-red-200",
+  update: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  delete: "bg-red-100 text-red-700 border-red-200",
+  assign: "bg-purple-100 text-purple-700 border-purple-200",
+  approve: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  export: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  reactivate: "bg-orange-100 text-orange-700 border-orange-200",
   "*": "bg-purple-100 text-purple-700 border-purple-200",
 };
 
 // Traducción de recursos
 export function translateResource(resource: string): string {
-  const map: Record<string, string> = labelResource;
-  return map[resource] || resource;
+  return labelResource[resource] || resource;
 }
 
 // Traducción de acciones
 export function translateAction(action: string): string {
   const map: Record<string, string> = {
-    read: "Ver",
-    write: "Escribir",
-    manage: "Gestionar",
-    admin: "Administrar",
+    ...labelPermission,
     "*": "Todas las acciones",
   };
   return map[action] || action;
@@ -97,7 +108,7 @@ export function groupedPermission(permissions: Permission | undefined): GroupedP
   });
 }
 
-// Plantillas de roles predefinidas
+// Plantillas de roles predefinidas (alineadas con backend)
 export const roleTemplates = {
   admin: {
     name: "Administrador",
@@ -107,7 +118,14 @@ export const roleTemplates = {
   manager: {
     name: "Gerente",
     description: "Gestión de proyectos y equipos",
-    permissions: ["projects:manage", "users:read", "reports:read", "dashboard:read"],
+    permissions: [
+      "projects:create",
+      "projects:read",
+      "projects:update",
+      "users:read",
+      "reports:read",
+      "dashboard:read",
+    ],
   },
   viewer: {
     name: "Visualizador",

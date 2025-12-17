@@ -26,6 +26,8 @@ export function RolesEditorSheet({ open, onOpenChange, currentRow }: Props) {
   const roleId = currentRow?.id;
   const { data: roleDetail, isLoading } = useRoleDetail(roleId || "", !!roleId);
 
+  console.log("roleDetail", JSON.stringify(roleDetail, null, 2));
+
   const { form, isUpdate, isPending, onSubmit } = useRoleForm({
     isUpdate: !!currentRow?.id,
     initialData: roleDetail,

@@ -12,8 +12,8 @@ export default function MilestonesProjectPrimaryButtons() {
   return (
     <PermissionProtected
       permissions={[
-        { resource: EnumResource.milestones, action: EnumAction.write },
-        { resource: EnumResource.milestones, action: EnumAction.manage },
+        { resource: EnumResource.milestones, action: EnumAction.update },
+        { resource: EnumResource.milestones, action: EnumAction.delete },
       ]}
       requireAll={false} // OR: necesita AL MENOS UNO de estos permisos
       hideOnUnauthorized={true} // Ocultar completamente si no tiene permisos
