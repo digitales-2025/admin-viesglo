@@ -1,4 +1,4 @@
-import { memo } from "react";
+import React from "react";
 import { CheckCircle, ChevronDown, ChevronUp, Edit, Ellipsis, PlusCircle, Trash } from "lucide-react";
 
 import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
@@ -325,25 +325,4 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
   );
 }
 
-const CardProjectMilestone = memo(CardProjectMilestoneBase, (prev, next) => {
-  // Evita re-render si no cambian campos relevantes
-  return (
-    prev.milestone.id === next.milestone.id &&
-    prev.milestone.status === next.milestone.status &&
-    prev.milestone.name === next.milestone.name &&
-    prev.milestone.progress === next.milestone.progress &&
-    prev.milestone.startDate === next.milestone.startDate &&
-    prev.milestone.endDate === next.milestone.endDate &&
-    prev.milestone.completedDeliverablesCount === next.milestone.completedDeliverablesCount &&
-    prev.milestone.phasesCount === next.milestone.phasesCount &&
-    prev.milestone.phases.length === next.milestone.phases.length &&
-    // Comparar internalConsultant para detectar cambios en la asignación
-    prev.milestone.internalConsultant?.userId === next.milestone.internalConsultant?.userId &&
-    prev.milestone.internalConsultant?.name === next.milestone.internalConsultant?.name &&
-    prev.milestone.internalConsultant?.lastName === next.milestone.internalConsultant?.lastName &&
-    prev.milestone.internalConsultant?.email === next.milestone.internalConsultant?.email &&
-    prev.milestone.internalConsultant?.role === next.milestone.internalConsultant?.role
-  );
-});
-
-export default CardProjectMilestone;
+export default CardProjectMilestoneBase;
