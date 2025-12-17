@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { Separator } from "@/shared/components/ui/separator";
+import { useProjectContext } from "../../_context/ProjectContext";
 import { useSetAdditionalDeliverableActualEndDate } from "../../../_hooks/use-additional-deliverable-actual-dates";
 import { useSetDeliverableActualEndDate } from "../../../_hooks/use-deliverable-actual-dates";
 import AdditionalDeliverablesPhaseOverlays from "./_components/additional-deliverables-phase-overlays/AdditionalDeliverablesPhaseOverlays";
@@ -18,6 +19,19 @@ export default function ViewPhaseDeliverablesPage() {
   const params = useParams();
   const projectId = params.projectId as string;
   const phaseId = params.phaseId as string;
+
+  // Obtener el proyecto del contexto para encontrar el milestoneId
+  const { projectData } = useProjectContext();
+
+  // Encontrar el milestoneId basado en el phaseId
+  const milestoneId = useMemo(() => {
+    if (!projectData?.milestones) return undefined;
+    for (const milestone of projectData.milestones) {
+      const phase = milestone.phases?.find((p) => p.id === phaseId);
+      if (phase) return milestone.id;
+    }
+    return undefined;
+  }, [projectData?.milestones, phaseId]);
 
   // Estado para manejar el milestoneStatus
   const [milestoneStatus, setMilestoneStatus] = useState<string | undefined>(undefined);
@@ -62,6 +76,7 @@ export default function ViewPhaseDeliverablesPage() {
       <DeliverablesPhaseOverlays
         projectId={projectId}
         phaseId={phaseId}
+        milestoneId={milestoneId}
         onDeliverableEndDateConfirm={handleDeliverableEndDateConfirm}
       />
 

@@ -75,7 +75,7 @@ export function useMqttPublish(mutationOptions: MqttPublishMutationOptions = {})
    * TanStack Query mutation for MQTT message publishing
    * Implements requirement 2.5: TanStack Query mutations for message publishing
    */
-  const mutation = useMutation<MqttActionResponse, Error, MqttPublishVariables, MutationContext>({
+  const mutation = useMutation<MqttActionResponse, Error, MqttPublishVariables, MutationContext | undefined>({
     mutationFn: async ({ topic, message, options = {} }: MqttPublishVariables) => {
       // Validate connection status before attempting to publish
       if (!isConnected) {

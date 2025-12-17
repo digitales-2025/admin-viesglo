@@ -361,10 +361,7 @@ export function DeliverablesPhaseColumns({
                       requireAll={false}
                       hideOnUnauthorized={true}
                     >
-                      <DropdownMenuItem
-                        onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}
-                        disabled={milestoneStatus !== "OFFICIALLY_COMPLETED"}
-                      >
+                      <DropdownMenuItem onClick={() => open(MODULE_DELIVERABLES_PHASE, "create-incident", deliverable)}>
                         <Plus className="w-4 h-4 mr-2" />
                         Agregar incidencias
                       </DropdownMenuItem>
