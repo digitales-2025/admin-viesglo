@@ -104,13 +104,13 @@ export default function BulletChart({
     const getStatusDescription = () => {
       switch (status) {
         case "on-time":
-          return `En tiempo - Diferencia: ${difference.toFixed(1)}%`;
+          return `En tiempo - Diferencia: ${difference.toFixed(2)}%`;
         case "ahead":
-          return `Adelantado - ${difference.toFixed(1)}% por encima del objetivo`;
+          return `Adelantado - ${difference.toFixed(2)}% por encima del objetivo`;
         case "acceptable-delay":
-          return `Retraso aceptable - ${difference.toFixed(1)}% por debajo del objetivo`;
+          return `Retraso aceptable - ${difference.toFixed(2)}% por debajo del objetivo`;
         case "critical-delay":
-          return `Retraso crítico - ${difference.toFixed(1)}% por debajo del objetivo`;
+          return `Retraso crítico - ${difference.toFixed(2)}% por debajo del objetivo`;
         default:
           return "";
       }
@@ -118,11 +118,11 @@ export default function BulletChart({
 
     const getDifferenceText = () => {
       if (difference <= tolerance) {
-        return `Diferencia: ${difference.toFixed(1)}%`;
+        return `Diferencia: ${difference.toFixed(2)}%`;
       } else if (isAhead) {
-        return `+${difference.toFixed(1)}% del objetivo`;
+        return `+${difference.toFixed(2)}% del objetivo`;
       } else if (isBehind) {
-        return `-${difference.toFixed(1)}% del objetivo`;
+        return `-${difference.toFixed(2)}% del objetivo`;
       }
       return "";
     };
@@ -131,21 +131,21 @@ export default function BulletChart({
       case "current":
         return {
           title: current || "Progreso Actual",
-          value: `${current}%`,
+          value: `${Number(current).toFixed(2)}%`,
           description: getStatusDescription(),
           difference: getDifferenceText(),
         };
       case "target":
         return {
           title: target || "Meta Objetivo",
-          value: `${target}%`,
+          value: `${Number(target).toFixed(2)}%`,
           description: getStatusDescription(),
           difference: getDifferenceText(),
         };
       case "remaining":
         return {
           title: "Pendiente",
-          value: `${max - current}%`,
+          value: `${Number(max - current).toFixed(2)}%`,
           description: getStatusDescription(),
           difference: getDifferenceText(),
         };
@@ -361,7 +361,7 @@ export default function BulletChart({
     <div className="w-full relative">
       {/* Bullet Chart Container */}
       <div
-        className="relative w-full h-6 bg-gray-100 rounded-full overflow-hidden shadow-inner border border-gray-200"
+        className="relative w-full h-6 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden shadow-inner border border-gray-200 dark:border-gray-700"
         onMouseMove={handleMouseMove}
       >
         {/* Current progress section */}
@@ -387,7 +387,7 @@ export default function BulletChart({
 
         {/* Remaining section */}
         <div
-          className={`absolute top-0 h-full transition-all duration-700 ease-out z-0 cursor-pointer group ${
+          className={`absolute top-0 h-full transition-all duration-700 ease-out z-0 cursor-pointer group dark:bg-gray-700 ${
             hoveredSection === "remaining" ? "shadow-lg" : ""
           }`}
           style={{
@@ -404,19 +404,18 @@ export default function BulletChart({
           onMouseLeave={handleMouseLeave}
         >
           {/* Subtle pattern */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 to-transparent opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-200 dark:via-gray-600 to-transparent opacity-10 dark:opacity-20 group-hover:opacity-20 dark:group-hover:opacity-30 transition-opacity duration-300" />
         </div>
 
         {/* Horizontal line from start to target */}
         {target && (
           <div
-            className={`absolute top-1/2 h-0.5 transition-all duration-700 ease-out cursor-pointer group ${
+            className={`absolute top-1/2 h-0.5 transition-all duration-700 ease-out cursor-pointer group bg-black ${
               hoveredSection === "target" ? "shadow-lg" : ""
             }`}
             style={{
               left: "0%",
               width: `${animatedTarget}%`,
-              backgroundColor: "#000000",
               transform: "translateY(-50%)",
               zIndex: 50,
               filter: hoveredSection === "target" ? "brightness(1.2)" : "brightness(1)",
@@ -428,20 +427,19 @@ export default function BulletChart({
             onMouseLeave={handleMouseLeave}
           >
             {/* Line glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white dark:via-gray-300 to-transparent opacity-0 dark:opacity-10 group-hover:opacity-30 dark:group-hover:opacity-40 transition-opacity duration-300" />
           </div>
         )}
 
         {/* Target indicator circle */}
         {target && (
           <div
-            className={`absolute top-1/2 w-3 h-3 rounded-full border-2 border-white shadow-lg transition-all duration-700 ease-out cursor-pointer group ${
+            className={`absolute top-1/2 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 shadow-lg transition-all duration-700 ease-out cursor-pointer group bg-black ${
               hoveredSection === "target" ? "scale-125 shadow-xl" : "scale-100"
             }`}
             style={{
               left: `calc(${animatedTarget}% - 6px)`,
               transform: "translateY(-50%)",
-              backgroundColor: "#000000",
               zIndex: 60,
               transition: isAnimating
                 ? `left ${animationDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
@@ -451,7 +449,7 @@ export default function BulletChart({
             onMouseLeave={handleMouseLeave}
           >
             {/* Inner glow */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-300 to-gray-100 opacity-0 group-hover:opacity-50 transition-opacity duration-300" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-gray-300 dark:from-gray-600 to-gray-100 dark:to-gray-400 opacity-0 group-hover:opacity-50 dark:group-hover:opacity-60 transition-opacity duration-300" />
           </div>
         )}
       </div>
@@ -461,38 +459,38 @@ export default function BulletChart({
         {/* Target label positioned at target position - solo mostrar si no es null */}
         {labelPositions.target !== null && (
           <div
-            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            className="absolute text-xs text-gray-700 dark:text-gray-300 font-medium transition-colors duration-200 hover:text-gray-900 dark:hover:text-gray-100"
             style={{
               left: `${labelPositions.target}%`,
               transform: "translateX(-50%)",
             }}
           >
-            {Math.round((animatedTarget / 100) * max) || 0}%
+            {Number((animatedTarget / 100) * max).toFixed(1)}%
           </div>
         )}
 
         {/* Current label positioned at current position - solo mostrar si no es null */}
         {labelPositions.current !== null && (
           <div
-            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            className="absolute text-xs text-gray-700 dark:text-gray-300 font-medium transition-colors duration-200 hover:text-gray-900 dark:hover:text-gray-100"
             style={{
               left: `${labelPositions.current}%`,
               transform: "translateX(-50%)",
             }}
           >
-            {Math.round((animatedCurrent / 100) * max) || 0}%
+            {Number((animatedCurrent / 100) * max).toFixed(1)}%
           </div>
         )}
 
         {/* Max label positioned at the end - solo mostrar si no hay superposición con otros labels */}
         {labelPositions.max !== null && (
           <div
-            className="absolute text-xs text-gray-700 font-medium transition-colors duration-200 hover:text-gray-900"
+            className="absolute text-xs text-gray-700 dark:text-gray-300 font-medium transition-colors duration-200 hover:text-gray-900 dark:hover:text-gray-100"
             style={{
               right: "0%",
             }}
           >
-            {max || 100}%
+            {Number(max || 100).toFixed(1)}%
           </div>
         )}
       </div>
@@ -507,33 +505,35 @@ export default function BulletChart({
             transform: "translateY(-100%)",
           }}
         >
-          <div className="bg-white border border-gray-200 rounded-lg shadow-xl p-3 min-w-[200px] animate-in fade-in-0 zoom-in-95 duration-200">
+          <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-3 min-w-[200px] animate-in fade-in-0 zoom-in-95 duration-200">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: primaryColor }} />
-              <h4 className="font-semibold text-sm text-gray-900">{tooltipContent.title}</h4>
+              <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100">{tooltipContent.title}</h4>
             </div>
             <div className="mt-2">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">{tooltipContent.value}</p>
-                  <p className="text-xs text-gray-500">{current || "Actual"}</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-gray-100">{tooltipContent.value}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{Number(current).toFixed(2) || "Actual"}</p>
                 </div>
                 {target && (
                   <div className="text-right">
-                    <p className="text-lg font-bold text-gray-700">{target}%</p>
-                    <p className="text-xs text-gray-500">{target || "Objetivo"}</p>
+                    <p className="text-lg font-bold text-gray-700 dark:text-gray-300">{Number(target).toFixed(2)}%</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {Number(target).toFixed(2) || "Objetivo"}
+                    </p>
                   </div>
                 )}
               </div>
-              <p className="text-xs text-gray-600 mb-2">{tooltipContent.description}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">{tooltipContent.description}</p>
               {tooltipContent.difference && (
-                <div className="pt-2 border-t border-gray-100">
-                  <p className="text-xs font-medium text-gray-700">{tooltipContent.difference}</p>
+                <div className="pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300">{tooltipContent.difference}</p>
                 </div>
               )}
             </div>
             {/* Arrow */}
-            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white" />
+            <div className="absolute top-full left-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white dark:border-t-gray-800" />
           </div>
         </div>
       )}
