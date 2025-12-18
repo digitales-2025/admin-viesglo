@@ -234,25 +234,7 @@ export function TableDeliverablesPhase({
 
   // Verificar si TODOS los entregables tienen fechas planificadas para mostrar la columna de aprobación
   const hasAllDeliverablesWithDates = React.useMemo(() => {
-    if (deliverables.length === 0) return false;
-
-    const allHaveDates = deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
-
-    // Debug: Log para identificar entregables sin fechas
-    if (!allHaveDates) {
-      const withoutDates = deliverables.filter((d) => !hasValidPlannedDates(d));
-      console.log(
-        "🔍 Entregables sin fechas válidas:",
-        withoutDates.map((d) => ({
-          id: d.id,
-          name: d.name,
-          startDate: d.startDate,
-          endDate: d.endDate,
-        }))
-      );
-    }
-
-    return allHaveDates;
+    return deliverables.length > 0 && deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
   }, [deliverables]);
 
   // Verificar si TODOS los entregables ya están aprobados
@@ -262,21 +244,8 @@ export function TableDeliverablesPhase({
 
   // Verificar si se debe mostrar la columna de aprobación (fechas + permisos + no todos aprobados)
   const shouldShowApprovalColumn = React.useMemo(() => {
-    const result = hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
-
-    // Debug: Log para identificar por qué no se muestra la columna
-    if (!result) {
-      console.log("🔍 shouldShowApprovalColumn:", {
-        hasAllDeliverablesWithDates,
-        hasApprovalPermissions,
-        areAllDeliverablesApproved,
-        totalDeliverables: deliverables.length,
-        result,
-      });
-    }
-
-    return result;
-  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved, deliverables.length]);
+    return hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
+  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved]);
 
   // Obtener las columnas del componente dedicado
   const columns = DeliverablesPhaseColumns({
