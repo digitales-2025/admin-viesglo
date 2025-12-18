@@ -2,6 +2,8 @@
 
 import { Plus } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import { useDialogStore } from "@/shared/stores/useDialogStore";
 
@@ -13,14 +15,20 @@ export default function ClientsPrimaryButtons() {
 
   return (
     <div>
-      <Button
-        className="space-x-1"
-        onClick={() => {
-          open(MODULE, "create");
-        }}
+      <PermissionProtected
+        permissions={[{ resource: EnumResource.clients, action: EnumAction.create }]}
+        requireAll={false}
+        hideOnUnauthorized={true}
       >
-        <span>Agregar Cliente</span> <Plus size={18} />
-      </Button>
+        <Button
+          className="space-x-1"
+          onClick={() => {
+            open(MODULE, "create");
+          }}
+        >
+          <span>Agregar Cliente</span> <Plus size={18} />
+        </Button>
+      </PermissionProtected>
     </div>
   );
 }
