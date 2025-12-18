@@ -2,20 +2,19 @@
 
 import { Fragment, useMemo } from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, MoreHorizontal } from "lucide-react";
 
 import { useBreadcrumbs, useMediaQuery } from "@/shared/hooks";
 import { cn } from "@/shared/lib/utils";
 import {
   Breadcrumb,
-  BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "./breadcrumb";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu";
 
 export function Breadcrumbs() {
   const items = useBreadcrumbs();
@@ -78,81 +77,99 @@ export function Breadcrumbs() {
     );
   }
 
-  // Si necesita truncar, mostrar solo el primero, "..." y el último
+  // Si necesita truncar, mostrar el primero, un dropdown con los del medio, y el último
   const firstItem = filteredItems[0];
   const lastItem = filteredItems[filteredItems.length - 1];
+  const middleItems = filteredItems.slice(1, -1);
 
   return (
-    <TooltipProvider>
-      <Breadcrumb>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <BreadcrumbList className="max-w-full cursor-help">
-              {/* Primer item */}
-              <BreadcrumbItem>
-                {firstItem.url ? (
-                  <BreadcrumbLink asChild>
-                    <Link
-                      href={firstItem.url}
-                      className={cn("text-muted-foreground hover:text-foreground", "truncate block max-w-[150px]")}
-                      title={firstItem.title}
-                    >
-                      {firstItem.title}
-                    </Link>
-                  </BreadcrumbLink>
-                ) : (
-                  <span className={cn("text-muted-foreground truncate block max-w-[150px]")} title={firstItem.title}>
-                    {firstItem.title}
-                  </span>
+    <Breadcrumb>
+      <BreadcrumbList className="max-w-full">
+        {/* Primer item */}
+        <BreadcrumbItem>
+          {firstItem.url ? (
+            <BreadcrumbLink asChild>
+              <Link
+                href={firstItem.url}
+                className={cn("text-muted-foreground hover:text-foreground", "truncate block max-w-[150px]")}
+                title={firstItem.title}
+              >
+                {firstItem.title}
+              </Link>
+            </BreadcrumbLink>
+          ) : (
+            <span className={cn("text-muted-foreground truncate block max-w-[150px]")} title={firstItem.title}>
+              {firstItem.title}
+            </span>
+          )}
+        </BreadcrumbItem>
+
+        <BreadcrumbSeparator className="shrink-0">
+          <ChevronRight className="h-4 w-4" />
+        </BreadcrumbSeparator>
+
+        {/* Dropdown con items del medio */}
+        <BreadcrumbItem>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "flex items-center justify-center rounded-md p-1",
+                  "text-muted-foreground hover:text-foreground hover:bg-accent",
+                  "transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
                 )}
-              </BreadcrumbItem>
-
-              <BreadcrumbSeparator className="shrink-0">
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-
-              {/* Ellipsis para items del medio */}
-              <BreadcrumbItem>
-                <BreadcrumbEllipsis />
-              </BreadcrumbItem>
-
-              <BreadcrumbSeparator className="shrink-0">
-                <ChevronRight className="h-4 w-4" />
-              </BreadcrumbSeparator>
-
-              {/* Último item */}
-              <BreadcrumbItem>
-                <BreadcrumbPage className="truncate block max-w-[150px]" title={lastItem.title}>
-                  {lastItem.title}
-                </BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </TooltipTrigger>
-          <TooltipContent side="bottom" className="max-w-md">
-            <div className="space-y-1">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">Ruta completa:</p>
-              <div className="flex flex-wrap items-center gap-1 text-sm">
-                {filteredItems.map((item, index) => (
-                  <Fragment key={`${item.title}-${index}`}>
-                    {index > 0 && <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />}
+                aria-label="Mostrar más items del breadcrumb"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="min-w-[200px] max-w-[300px]">
+              {middleItems.map((item, index) => {
+                const isDisabled = !item.url;
+                return (
+                  <DropdownMenuItem
+                    key={`${item.title}-${index}`}
+                    disabled={isDisabled}
+                    className={cn(isDisabled && "opacity-60 cursor-not-allowed")}
+                    asChild={!isDisabled}
+                  >
                     {item.url ? (
                       <Link
                         href={item.url}
-                        className="text-primary hover:underline"
+                        className="flex items-center gap-2 w-full cursor-pointer"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        {item.title}
+                        <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">{item.title}</span>
                       </Link>
                     ) : (
-                      <span className={index === filteredItems.length - 1 ? "font-medium" : ""}>{item.title}</span>
+                      <div
+                        className="flex items-center gap-2 w-full cursor-not-allowed"
+                        title="Esta ruta no está disponible"
+                      >
+                        <ChevronRight className="h-3 w-3 text-muted-foreground/50 shrink-0" />
+                        <span className="truncate text-muted-foreground/70">{item.title}</span>
+                      </div>
                     )}
-                  </Fragment>
-                ))}
-              </div>
-            </div>
-          </TooltipContent>
-        </Tooltip>
-      </Breadcrumb>
-    </TooltipProvider>
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </BreadcrumbItem>
+
+        <BreadcrumbSeparator className="shrink-0">
+          <ChevronRight className="h-4 w-4" />
+        </BreadcrumbSeparator>
+
+        {/* Último item */}
+        <BreadcrumbItem>
+          <BreadcrumbPage className="truncate block max-w-[150px]" title={lastItem.title}>
+            {lastItem.title}
+          </BreadcrumbPage>
+        </BreadcrumbItem>
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }
