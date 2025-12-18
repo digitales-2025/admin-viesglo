@@ -13,6 +13,7 @@ import { MilestoneTemplateResponseDto } from "../_types/templates.types";
 import { useSearchTags } from "../../tags/_hooks/use-tags";
 import { TagResponseDto } from "../../tags/_types/tags.types";
 import CreateProjectTemplateForm from "./_components/CreateProjectTemplateForm";
+import { TemplateCreateBreadcrumbOverride } from "./_components/TemplateCreateBreadcrumbOverride";
 
 export default function CreateTemplatesPage() {
   const [selectedTagObjects, setSelectedTagObjects] = useState<TagResponseDto[]>([]);
@@ -90,6 +91,7 @@ export default function CreateTemplatesPage() {
 
   return (
     <>
+      <TemplateCreateBreadcrumbOverride />
       <ShellHeader>
         <div className="flex flex-col md:flex-row md:justify-between md:items-center w-full gap-4">
           <ShellTitle title="Nueva plantilla" description="Crea una nueva plantilla de proyecto." />

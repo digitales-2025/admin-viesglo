@@ -14,6 +14,7 @@ import DeliverablesPhasePrimaryButtons from "./_components/DeliverablesPhasePrim
 import DeliverableDocumentsOverlays from "./_components/documents/DeliverableDocumentsOverlays";
 import { ListAdditionalDeliverablesPhase } from "./_components/ListAdditionalDeliverablesPhase";
 import { ListDeliverablesPhase } from "./_components/ListDeliverablesPhase";
+import { PhaseBreadcrumbOverride } from "./_components/PhaseBreadcrumbOverride";
 
 export default function ViewPhaseDeliverablesPage() {
   const params = useParams();
@@ -54,6 +55,7 @@ export default function ViewPhaseDeliverablesPage() {
 
   return (
     <>
+      <PhaseBreadcrumbOverride />
       <div className="px-6 pt-6">
         <ShellHeader>
           <ShellTitle

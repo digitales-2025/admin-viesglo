@@ -18,7 +18,6 @@ import {
   Target,
   TrendingDown,
   TrendingUp,
-  Zap,
 } from "lucide-react";
 
 import {
@@ -257,17 +256,6 @@ export const deliverablePriorityConfig = {
     icon: AlertTriangle,
     badge: "info",
     iconClass: "text-orange-600 dark:text-orange-300",
-  },
-  [DeliverablePriorityEnum.CRITICAL]: {
-    label: "Crítica",
-    description: "Prioridad crítica",
-    className: "bg-red-200 dark:bg-red-800/40",
-    textClass: "text-red-900 dark:text-red-200",
-    borderColor: "border-red-400 dark:border-red-700",
-    hoverClass: "hover:bg-red-300 dark:hover:bg-red-700/60",
-    icon: Zap,
-    badge: "danger",
-    iconClass: "text-red-600 dark:text-red-300",
   },
 };
 
