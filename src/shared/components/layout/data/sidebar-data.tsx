@@ -14,10 +14,14 @@ import {
   UsersRound,
 } from "lucide-react";
 
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import LogoSmall from "@/shared/components/icons/LogoSmall";
 import { type SidebarData } from "./types";
 
 export const sidebarData: SidebarData = {
+  business: {
+    name: "Viesglo",
+    logo: LogoSmall,
+  },
   navGroups: [
     {
       title: "Inicio",
@@ -40,19 +44,16 @@ export const sidebarData: SidebarData = {
               title: "Seguimiento",
               icon: Target,
               url: "/dashboard/admin/project-groups",
-              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+              permission: "projects:read",
             },
             {
               title: "Plantillas",
               icon: ScrollText,
               url: "/dashboard/admin/templates",
-              permissions: [{ resource: EnumResource.roles, action: EnumAction.read }],
+              permission: "roles:read",
             },
           ],
-          permissions: [
-            { resource: EnumResource.users, action: EnumAction.read },
-            { resource: EnumResource.roles, action: EnumAction.read },
-          ],
+          permission: "projects:read",
         },
         {
           title: "Recursos",
@@ -62,13 +63,10 @@ export const sidebarData: SidebarData = {
               title: "Gestión de Recursos",
               icon: ClipboardCheck,
               url: "/dashboard/admin/resources",
-              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+              permission: "users:read",
             },
           ],
-          permissions: [
-            { resource: EnumResource.users, action: EnumAction.read },
-            { resource: EnumResource.roles, action: EnumAction.read },
-          ],
+          permission: "users:read",
         },
 
         {
@@ -79,13 +77,10 @@ export const sidebarData: SidebarData = {
               title: "Gestión de Clientes",
               icon: Users2,
               url: "/dashboard/admin/clients",
-              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+              permission: "clients:read",
             },
           ],
-          permissions: [
-            { resource: EnumResource.users, action: EnumAction.read },
-            { resource: EnumResource.roles, action: EnumAction.read },
-          ],
+          permission: "clients:read",
         },
       ],
     },
@@ -112,19 +107,16 @@ export const sidebarData: SidebarData = {
               title: "Usuarios",
               icon: UsersRound,
               url: "/dashboard/admin/users",
-              permissions: [{ resource: EnumResource.users, action: EnumAction.read }],
+              permission: "users:read",
             },
             {
               title: "Roles y permisos",
               icon: KeyRound,
               url: "/dashboard/admin/roles",
-              permissions: [{ resource: EnumResource.roles, action: EnumAction.read }],
+              permission: "roles:read",
             },
           ],
-          permissions: [
-            { resource: EnumResource.users, action: EnumAction.read },
-            { resource: EnumResource.roles, action: EnumAction.read },
-          ],
+          permission: "users:read",
         },
         {
           title: "Configuración",

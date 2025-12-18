@@ -271,13 +271,20 @@ export const PermissionProtected = ({
   requireAll = false,
   fallback,
   hideOnUnauthorized = false,
+  forceAuthorized = false, // Nueva prop para forzar autorización (excepciones)
 }: {
   children: ReactNode;
   permissions: Permission[];
   requireAll?: boolean;
   fallback?: ReactNode;
   hideOnUnauthorized?: boolean;
+  forceAuthorized?: boolean; // Permite forzar autorización para excepciones
 }) => {
+  // Si forceAuthorized es true, renderizar directamente sin verificar permisos
+  if (forceAuthorized) {
+    return <>{children}</>;
+  }
+
   return (
     <ProtectedComponent
       requiredPermissions={permissions}

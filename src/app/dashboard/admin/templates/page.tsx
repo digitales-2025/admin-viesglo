@@ -1,11 +1,16 @@
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import ProjectTemplatesTable from "./_components/table/ProjectTemplatesTable";
 import ProjectTemplatesPrimaryButtons from "./_components/table/TemplatesPrimaryButtons";
 import ProjectTemplatesOverlays from "./_components/templates-overlays/ProjectTemplatesOverlays";
 
 export default function TemplatesPage() {
   return (
-    <>
+    <PermissionProtected
+      permissions={[{ resource: EnumResource.projects, action: EnumAction.read }]}
+      fallback={<div>No tienes permisos para ver plantillas.</div>}
+    >
       <ShellHeader>
         <ShellTitle
           title="Gestión de Plantillas"
@@ -15,6 +20,6 @@ export default function TemplatesPage() {
       </ShellHeader>
       <ProjectTemplatesTable />
       <ProjectTemplatesOverlays />
-    </>
+    </PermissionProtected>
   );
 }

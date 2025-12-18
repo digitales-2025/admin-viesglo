@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format } from "date-fns";
+import { endOfDay, format, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarIcon, ChevronLeft, ChevronRight, Flag, Globe } from "lucide-react";
 import { DateRange, DayContentProps } from "react-day-picker";
@@ -155,11 +155,63 @@ export function DatePickerWithRange({
     [currentDisplayMonth]
   );
 
+  // Función para comparar solo las fechas (sin horas)
+  const compareDatesOnly = React.useCallback((date1: Date, date2: Date): number => {
+    const d1 = new Date(date1);
+    d1.setHours(0, 0, 0, 0);
+    const d2 = new Date(date2);
+    d2.setHours(0, 0, 0, 0);
+    return d1.getTime() - d2.getTime();
+  }, []);
+
+  // Normalizar initialValue al cargar
+  const normalizeInitialValue = React.useCallback(
+    (value: DateRange | undefined): DateRange | undefined => {
+      if (!value) return undefined;
+
+      if (value.from && value.to) {
+        // Validar que endDate >= startDate
+        const comparison = compareDatesOnly(value.to, value.from);
+
+        if (comparison < 0) {
+          // Si la fecha final es menor, usar solo la fecha inicial como rango de un día
+          return {
+            from: startOfDay(value.from),
+            to: endOfDay(value.from),
+          };
+        }
+
+        // Si son el mismo día, crear rango del día completo
+        if (comparison === 0) {
+          return {
+            from: startOfDay(value.from),
+            to: endOfDay(value.from),
+          };
+        }
+
+        return {
+          from: startOfDay(value.from),
+          to: endOfDay(value.to),
+        };
+      } else if (value.from) {
+        // Si solo hay fecha inicial, crear rango del día completo automáticamente
+        return {
+          from: startOfDay(value.from),
+          to: endOfDay(value.from),
+        };
+      }
+
+      return value;
+    },
+    [compareDatesOnly]
+  );
+
   // Actualizar cuando initialValue cambie (importante para cuando se limpia el filtro)
   React.useEffect(() => {
-    setDate(initialValue);
-    setTempDate(initialValue);
-  }, [initialValue]);
+    const normalized = normalizeInitialValue(initialValue);
+    setDate(normalized);
+    setTempDate(normalized);
+  }, [initialValue, normalizeInitialValue]);
 
   // Actualizar tempDate cuando date cambia externamente
   React.useEffect(() => {
@@ -250,16 +302,105 @@ export function DatePickerWithRange({
   );
 
   const handleSelect = (selectedDate: DateRange | undefined) => {
-    setTempDate(selectedDate);
-    // Notificar el cambio para posibles previsualizaciones, pero no confirmar
-    onChange?.(selectedDate);
+    if (!selectedDate) {
+      setTempDate(undefined);
+      onChange?.(undefined);
+      return;
+    }
+
+    // Validación: asegurar que endDate >= startDate
+    if (selectedDate.from && selectedDate.to) {
+      // Comparar solo las fechas (sin horas)
+      const comparison = compareDatesOnly(selectedDate.to, selectedDate.from);
+
+      if (comparison < 0) {
+        // Si la fecha final es menor que la inicial, usar solo la fecha inicial como rango de un día
+        const correctedRange: DateRange = {
+          from: startOfDay(selectedDate.from),
+          to: endOfDay(selectedDate.from),
+        };
+        setTempDate(correctedRange);
+        onChange?.(correctedRange);
+        return;
+      }
+
+      // Si son el mismo día, crear rango del día completo automáticamente
+      if (comparison === 0) {
+        const singleDayRange: DateRange = {
+          from: startOfDay(selectedDate.from),
+          to: endOfDay(selectedDate.from),
+        };
+        setTempDate(singleDayRange);
+        onChange?.(singleDayRange);
+        return;
+      }
+
+      // Normalizar las fechas con startOfDay y endOfDay
+      const normalizedRange: DateRange = {
+        from: startOfDay(selectedDate.from),
+        to: endOfDay(selectedDate.to),
+      };
+      setTempDate(normalizedRange);
+      onChange?.(normalizedRange);
+    } else if (selectedDate.from) {
+      // Solo hay fecha inicial - crear rango del día completo automáticamente
+      const singleDayRange: DateRange = {
+        from: startOfDay(selectedDate.from),
+        to: endOfDay(selectedDate.from),
+      };
+      setTempDate(singleDayRange);
+      onChange?.(singleDayRange);
+    } else {
+      setTempDate(selectedDate);
+      onChange?.(selectedDate);
+    }
   };
 
   const handleConfirm = () => {
+    if (!tempDate) {
+      setDate(undefined);
+      onConfirm?.(undefined);
+      setOpen(false);
+      return;
+    }
+
+    // Normalizar fechas antes de confirmar
+    let normalizedRange: DateRange | undefined = undefined;
+
+    if (tempDate.from && tempDate.to) {
+      // Validar que endDate >= startDate
+      const comparison = compareDatesOnly(tempDate.to, tempDate.from);
+
+      if (comparison < 0) {
+        // Si la fecha final es menor, usar solo la fecha inicial como rango de un día
+        normalizedRange = {
+          from: startOfDay(tempDate.from),
+          to: endOfDay(tempDate.from),
+        };
+      } else if (comparison === 0) {
+        // Si son el mismo día, crear rango del día completo
+        normalizedRange = {
+          from: startOfDay(tempDate.from),
+          to: endOfDay(tempDate.from),
+        };
+      } else {
+        normalizedRange = {
+          from: startOfDay(tempDate.from),
+          to: endOfDay(tempDate.to),
+        };
+      }
+    } else if (tempDate.from) {
+      // Solo hay fecha inicial - crear rango del día completo automáticamente
+      normalizedRange = {
+        from: startOfDay(tempDate.from),
+        to: endOfDay(tempDate.from),
+      };
+    }
+
     // Guardar la selección temporal como definitiva
-    setDate(tempDate);
+    setDate(normalizedRange);
     // Notificar confirmación si existe la función
-    onConfirm?.(tempDate);
+    onConfirm?.(normalizedRange);
     // Cerrar el popover
     setOpen(false);
   };
@@ -302,7 +443,7 @@ export function DatePickerWithRange({
                   {format(date.from, "dd LLL, y", { locale: es })} - {format(date.to, "dd LLL, y", { locale: es })}
                 </span>
               ) : (
-                format(date.from, "LLL dd, y", { locale: es })
+                <span className="capitalize">{format(date.from, "dd LLL, y", { locale: es })}</span>
               )
             ) : (
               <span>{placeholder}</span>

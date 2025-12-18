@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 
+import { usePermissionCheckHook, type ActionName, type ResourceName } from "@/shared/components/protected-component";
 import { Badge } from "@/shared/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/components/ui/collapsible";
 import {
@@ -32,6 +33,61 @@ import { NavCollapsible, NavItem, NavLink, type NavGroup } from "./data/types";
 const NavBadge = ({ children }: { children: ReactNode }) => (
   <Badge className="rounded-full px-1 py-0 text-xs">{children}</Badge>
 );
+
+// Función helper para parsear permisos del formato "resource:action"
+const parsePermission = (permissionString: string): { resource: ResourceName; action: ActionName } | null => {
+  const [resource, action] = permissionString.split(":");
+  if (!resource || !action) return null;
+
+  // Validar que resource y action sean válidos
+  // ResourceName puede incluir valores que no están en EnumResource, así que hacemos un cast seguro
+  return {
+    resource: resource as ResourceName,
+    action: action as ActionName,
+  };
+};
+
+// Función helper para verificar permisos de navegación
+const hasNavPermission = (
+  item: NavItem,
+  hasPermission: (resource: ResourceName, action: ActionName) => boolean,
+  hasRole: (role: string) => boolean
+): boolean => {
+  // Si el item no tiene restricciones, mostrar siempre
+  if (!item.permission && !item.roles) {
+    return true;
+  }
+
+  // Verificar roles si están definidos
+  if (item.roles && item.roles.length > 0) {
+    const hasRequiredRole = item.roles.some((role: string) => hasRole(role));
+    if (!hasRequiredRole) {
+      return false;
+    }
+  }
+
+  // Verificar permisos si están definidos
+  if (item.permission) {
+    const parsed = parsePermission(item.permission);
+    if (!parsed) return false;
+
+    const { resource, action } = parsed;
+    // Si la acción es "*", verificar si tiene el wildcard del recurso
+    if (action === "*") {
+      if (!hasPermission(resource, "*" as ActionName)) {
+        return false;
+      }
+    } else {
+      // Verificar permiso específico o wildcard
+      if (!hasPermission(resource, action) && !hasPermission(resource, "*" as ActionName)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+};
+
 function checkIsActive(href: string, item: NavItem, mainNav = false) {
   if (href === item.url) return true;
 
@@ -146,23 +202,88 @@ const SidebarMenuCollapsedDropdown = ({ item, href }: { item: NavCollapsible; hr
   );
 };
 
-export function NavGroup({ title, items }: NavGroup) {
+export function NavGroup({ title, items, permission, roles }: NavGroup) {
   const { state } = useSidebar();
   const location = usePathname();
   const href = location.split("?")[0];
+  const { isAuthenticated, hasPermission, hasRole } = usePermissionCheckHook();
+
+  // Verificar permisos a nivel de grupo primero
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // Si el grupo tiene restricciones de permisos o roles, verificarlas
+  if (permission || roles) {
+    // Verificar roles si están definidos
+    if (roles && roles.length > 0) {
+      const hasRequiredRole = roles.some((role: string) => hasRole(role));
+      if (!hasRequiredRole) {
+        return null;
+      }
+    }
+
+    // Verificar permisos si están definidos
+    if (permission) {
+      const parsed = parsePermission(permission);
+      if (!parsed) return null;
+
+      const { resource, action } = parsed;
+      // Si la acción es "*", verificar si tiene el wildcard del recurso
+      if (action === "*") {
+        if (!hasPermission(resource, "*" as ActionName)) {
+          return null;
+        }
+      } else {
+        // Verificar permiso específico o wildcard
+        if (!hasPermission(resource, action) && !hasPermission(resource, "*" as ActionName)) {
+          return null;
+        }
+      }
+    }
+  }
+
+  // Filtrar items basado en permisos individuales y hideInSidebar
+  const filteredItems = items.filter((item) => {
+    // Ocultar items con hideInSidebar: true
+    if (item.hideInSidebar) {
+      return false;
+    }
+    return hasNavPermission(item, hasPermission, hasRole);
+  });
+
+  // Si no hay items visibles, no mostrar el grupo
+  if (filteredItems.length === 0) {
+    return null;
+  }
 
   return (
     <SidebarGroup>
       <SidebarGroupLabel>{title}</SidebarGroupLabel>
       <SidebarMenu>
-        {items.map((item) => {
+        {filteredItems.map((item) => {
           const key = `${item.title}-${item.url}`;
 
-          if (!item.items) return <SidebarMenuLink key={key} item={item} href={href} />;
+          if (!item.items) {
+            return <SidebarMenuLink key={key} item={item} href={href} />;
+          }
 
-          if (state === "collapsed") return <SidebarMenuCollapsedDropdown key={key} item={item} href={href} />;
+          // Filtrar sub-items también
+          const filteredSubItems = item.items?.filter((subItem) => hasNavPermission(subItem, hasPermission, hasRole));
 
-          return <SidebarMenuCollapsible key={key} item={item} href={href} />;
+          // Si no hay sub-items visibles, no mostrar el item padre
+          if (!filteredSubItems || filteredSubItems.length === 0) {
+            return null;
+          }
+
+          // Crear item con sub-items filtrados
+          const filteredItem = { ...item, items: filteredSubItems };
+
+          if (state === "collapsed") {
+            return <SidebarMenuCollapsedDropdown key={key} item={filteredItem} href={href} />;
+          }
+
+          return <SidebarMenuCollapsible key={key} item={filteredItem} href={href} />;
         })}
       </SidebarMenu>
     </SidebarGroup>

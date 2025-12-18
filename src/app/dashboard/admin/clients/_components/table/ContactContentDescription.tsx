@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Edit, Mail, MoreVertical, Phone, Plus, RotateCcw, Trash, UserPlus, Users } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { cn } from "@/lib/utils";
 import LogoWhatsapp from "@/shared/components/icons/LogoWhatsapp";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Button } from "@/shared/components/ui/button";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
@@ -65,22 +67,27 @@ export default function ContactContentDescription({ row }: ContactContentDescrip
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className="ml-1 border border-primary/20 hover:bg-primary/10"
-                    onClick={() => handleOpenDialog()}
-                    aria-label="Agregar contacto"
-                  >
-                    <Plus className="h-4 w-4 text-primary" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Agregar contacto</TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+              hideOnUnauthorized={true}
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="ml-1 border border-primary/20 hover:bg-primary/10"
+                      onClick={() => handleOpenDialog()}
+                      aria-label="Agregar contacto"
+                    >
+                      <Plus className="h-4 w-4 text-primary" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Agregar contacto</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </PermissionProtected>
             <UpdateContactDialog
               isDialogOpen={isDialogOpen}
               setIsDialogOpen={setIsDialogOpen}
@@ -118,34 +125,49 @@ export default function ContactContentDescription({ row }: ContactContentDescrip
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleOpenDialog(contact)}>
-                                Editar
-                                <DropdownMenuShortcut>
-                                  <Edit className="size-4 mr-2" />
-                                </DropdownMenuShortcut>
-                              </DropdownMenuItem>
+                              <PermissionProtected
+                                permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+                                hideOnUnauthorized={true}
+                              >
+                                <DropdownMenuItem onClick={() => handleOpenDialog(contact)}>
+                                  Editar
+                                  <DropdownMenuShortcut>
+                                    <Edit className="size-4 mr-2" />
+                                  </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                              </PermissionProtected>
                               {contact.isActive ? (
-                                <DropdownMenuItem
-                                  className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                  onClick={() => setContactToDelete(contact)}
-                                  disabled={toggleActiveContact.isPending}
+                                <PermissionProtected
+                                  permissions={[{ resource: EnumResource.clients, action: EnumAction.delete }]}
+                                  hideOnUnauthorized={true}
                                 >
-                                  Desactivar
-                                  <DropdownMenuShortcut>
-                                    <Trash className="size-4 mr-2 text-destructive" />
-                                  </DropdownMenuShortcut>
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                    onClick={() => setContactToDelete(contact)}
+                                    disabled={toggleActiveContact.isPending}
+                                  >
+                                    Desactivar
+                                    <DropdownMenuShortcut>
+                                      <Trash className="size-4 mr-2 text-destructive" />
+                                    </DropdownMenuShortcut>
+                                  </DropdownMenuItem>
+                                </PermissionProtected>
                               ) : (
-                                <DropdownMenuItem
-                                  className="cursor-pointer text-primary focus:bg-primary/10"
-                                  onClick={() => handleToggleStatus(contact)}
-                                  disabled={toggleActiveContact.isPending}
+                                <PermissionProtected
+                                  permissions={[{ resource: EnumResource.clients, action: EnumAction.reactivate }]}
+                                  hideOnUnauthorized={true}
                                 >
-                                  Reactivar
-                                  <DropdownMenuShortcut>
-                                    <RotateCcw className="size-4 mr-2 text-primary" />
-                                  </DropdownMenuShortcut>
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-primary focus:bg-primary/10"
+                                    onClick={() => handleToggleStatus(contact)}
+                                    disabled={toggleActiveContact.isPending}
+                                  >
+                                    Reactivar
+                                    <DropdownMenuShortcut>
+                                      <RotateCcw className="size-4 mr-2 text-primary" />
+                                    </DropdownMenuShortcut>
+                                  </DropdownMenuItem>
+                                </PermissionProtected>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -197,10 +219,15 @@ export default function ContactContentDescription({ row }: ContactContentDescrip
               </div>
               <h4 className="font-medium text-sm mb-2">No hay contactos</h4>
               <p className="text-xs text-muted-foreground mb-4">Agrega el primer contacto para este cliente</p>
-              <Button size="sm" onClick={() => handleOpenDialog()} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Agregar Contacto
-              </Button>
+              <PermissionProtected
+                permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+                hideOnUnauthorized={true}
+              >
+                <Button size="sm" onClick={() => handleOpenDialog()} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Agregar Contacto
+                </Button>
+              </PermissionProtected>
             </div>
           )}
         </ScrollArea>

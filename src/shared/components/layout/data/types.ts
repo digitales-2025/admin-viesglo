@@ -1,43 +1,43 @@
-import { LinkProps } from "next/link";
-
-import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { components } from "@/lib/api/types/api";
 
 export type User = components["schemas"]["UserResponseDto"];
 
-interface BaseNavItem {
+type Business = {
+  name: string;
+  logo: React.ElementType;
+};
+
+type BaseNavItem = {
   title: string;
   badge?: string;
   icon?: React.ElementType;
-  permissions?: Permission[];
-}
+  permission?: string;
+  roles?: string[];
+  hideInSidebar?: boolean; // Si es true, no se muestra en sidebar pero sí en kbar
+};
 
 type NavLink = BaseNavItem & {
-  url: LinkProps["href"];
+  url: string;
   items?: never;
-  permissions?: Permission[];
 };
 
 type NavCollapsible = BaseNavItem & {
-  items: (BaseNavItem & { url: LinkProps["href"] })[];
+  items: (BaseNavItem & { url: string })[];
   url?: never;
-  permissions?: Permission[];
-};
-
-type Permission = {
-  resource: EnumResource;
-  action: EnumAction;
 };
 
 type NavItem = NavCollapsible | NavLink;
 
-interface NavGroup {
+type NavGroup = {
   title: string;
   items: NavItem[];
-}
+  permission?: string;
+  roles?: string[];
+};
 
-interface SidebarData {
+type SidebarData = {
+  business: Business;
   navGroups: NavGroup[];
-}
+};
 
 export type { NavCollapsible, NavGroup, NavItem, NavLink, SidebarData };

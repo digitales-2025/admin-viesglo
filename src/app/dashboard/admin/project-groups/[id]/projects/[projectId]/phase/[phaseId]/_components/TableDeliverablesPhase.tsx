@@ -41,7 +41,28 @@ interface TableDeliverablesPhaseProps {
 
 // Función para verificar si un entregable tiene fechas planificadas válidas
 const hasValidPlannedDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
-  return !!(deliverable.startDate && deliverable.endDate);
+  // Verificar que ambas fechas existan y no sean strings vacíos
+  if (!deliverable.startDate || !deliverable.endDate) {
+    return false;
+  }
+
+  const startDateStr =
+    typeof deliverable.startDate === "string" ? deliverable.startDate.trim() : String(deliverable.startDate);
+  const endDateStr = typeof deliverable.endDate === "string" ? deliverable.endDate.trim() : String(deliverable.endDate);
+
+  if (startDateStr === "" || endDateStr === "") {
+    return false;
+  }
+
+  // Verificar que las fechas sean válidas (pueden ser strings de fecha ISO)
+  try {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    // Verificar que sean fechas válidas (no Invalid Date)
+    return !isNaN(start.getTime()) && !isNaN(end.getTime());
+  } catch {
+    return false;
+  }
 };
 
 export function TableDeliverablesPhase({

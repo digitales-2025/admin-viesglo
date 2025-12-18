@@ -1,6 +1,8 @@
 import { useRouter } from "next/navigation";
 import { Edit, MoreHorizontal, RotateCcw, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -56,39 +58,59 @@ export default function ProjectTemplatesTableActions({ projectTemplate }: Projec
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleView}>Ver</DropdownMenuItem>
+        <PermissionProtected
+          permissions={[{ resource: EnumResource.projects, action: EnumAction.read }]}
+          hideOnUnauthorized={true}
+        >
+          <DropdownMenuItem onClick={handleView}>Ver</DropdownMenuItem>
+        </PermissionProtected>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
-          Editar
-          <DropdownMenuShortcut>
-            <Edit className="size-4 mr-2" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
-        {projectTemplate.isActive ? (
-          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
-            Eliminar
+        <PermissionProtected
+          permissions={[{ resource: EnumResource.projects, action: EnumAction.update }]}
+          hideOnUnauthorized={true}
+        >
+          <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
+            Editar
             <DropdownMenuShortcut>
-              <Trash className="size-4 mr-2" />
+              <Edit className="size-4 mr-2" />
             </DropdownMenuShortcut>
           </DropdownMenuItem>
+        </PermissionProtected>
+        {projectTemplate.isActive ? (
+          <PermissionProtected
+            permissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+            hideOnUnauthorized={true}
+          >
+            <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+              Eliminar
+              <DropdownMenuShortcut>
+                <Trash className="size-4 mr-2" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </PermissionProtected>
         ) : (
-          <DropdownMenuItem className="cursor-pointer" onClick={handleReactivate} disabled={isReactivating}>
-            {isReactivating ? (
-              <>
-                Reactivando...
-                <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-primary opacity-0" />
-                </DropdownMenuShortcut>
-              </>
-            ) : (
-              <>
-                Reactivar
-                <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-primary" />
-                </DropdownMenuShortcut>
-              </>
-            )}
-          </DropdownMenuItem>
+          <PermissionProtected
+            permissions={[{ resource: EnumResource.projects, action: EnumAction.reactivate }]}
+            hideOnUnauthorized={true}
+          >
+            <DropdownMenuItem className="cursor-pointer" onClick={handleReactivate} disabled={isReactivating}>
+              {isReactivating ? (
+                <>
+                  Reactivando...
+                  <DropdownMenuShortcut>
+                    <RotateCcw className="size-4 mr-2 text-primary opacity-0" />
+                  </DropdownMenuShortcut>
+                </>
+              ) : (
+                <>
+                  Reactivar
+                  <DropdownMenuShortcut>
+                    <RotateCcw className="size-4 mr-2 text-primary" />
+                  </DropdownMenuShortcut>
+                </>
+              )}
+            </DropdownMenuItem>
+          </PermissionProtected>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
