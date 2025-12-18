@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Grid, Plus, Table } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,72 +78,82 @@ export default function PageProjectGroups() {
   };
 
   return (
-    <div className="space-y-6">
-      <ProjectGroupsOverlays
-        editorOpen={editorOpen}
-        onEditorOpenChange={setEditorOpen}
-        currentProjectGroup={currentProjectGroup}
-      />
+    <PermissionProtected
+      permissions={[{ resource: EnumResource.projects, action: EnumAction.read }]}
+      fallback={<div>No tienes permisos para ver grupos de proyectos.</div>}
+    >
+      <div className="space-y-6">
+        <ProjectGroupsOverlays
+          editorOpen={editorOpen}
+          onEditorOpenChange={setEditorOpen}
+          currentProjectGroup={currentProjectGroup}
+        />
 
-      {/* Dialog de confirmación para eliminar */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará permanentemente el grupo de proyectos{" "}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={cancelDelete}>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDelete}
-              disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {isDeleting ? "Eliminando..." : "Eliminar"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        {/* Dialog de confirmación para eliminar */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Esta acción no se puede deshacer. Se eliminará permanentemente el grupo de proyectos{" "}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={cancelDelete}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {isDeleting ? "Eliminando..." : "Eliminar"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
-      <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")}>
-        <div className="flex items-center justify-between">
-          <TabsList>
-            <TabsTrigger value="cards" className="flex items-center gap-2">
-              <Grid className="h-4 w-4" />
-              Vista de Cartas
-            </TabsTrigger>
-            <TabsTrigger value="table" className="flex items-center gap-2">
-              <Table className="h-4 w-4" />
-              Vista de Tabla
-            </TabsTrigger>
-          </TabsList>
-        </div>
-
-        <TabsContent value="cards" className="space-y-6">
-          <ProjectGroupsCards
-            onCreateNew={handleCreateNew}
-            onEdit={handleEdit}
-            onViewProjects={handleViewProjects}
-            onDelete={handleDelete}
-          />
-        </TabsContent>
-
-        <TabsContent value="table" className="space-y-6">
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as "cards" | "table")}>
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Grupos de Proyectos</h1>
-              <p className="text-muted-foreground">Gestiona y organiza tus proyectos por grupos</p>
-            </div>
-            <Button onClick={handleCreateNew}>
-              <Plus className="h-4 w-4" />
-              Nuevo Grupo de Proyectos
-            </Button>
+            <TabsList>
+              <TabsTrigger value="cards" className="flex items-center gap-2">
+                <Grid className="h-4 w-4" />
+                Vista de Cartas
+              </TabsTrigger>
+              <TabsTrigger value="table" className="flex items-center gap-2">
+                <Table className="h-4 w-4" />
+                Vista de Tabla
+              </TabsTrigger>
+            </TabsList>
           </div>
-          <ProjectGroupsTable onEdit={handleEdit} />
-        </TabsContent>
-      </Tabs>
-    </div>
+
+          <TabsContent value="cards" className="space-y-6">
+            <ProjectGroupsCards
+              onCreateNew={handleCreateNew}
+              onEdit={handleEdit}
+              onViewProjects={handleViewProjects}
+              onDelete={handleDelete}
+            />
+          </TabsContent>
+
+          <TabsContent value="table" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">Grupos de Proyectos</h1>
+                <p className="text-muted-foreground">Gestiona y organiza tus proyectos por grupos</p>
+              </div>
+              <PermissionProtected
+                permissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}
+                hideOnUnauthorized={true}
+              >
+                <Button onClick={handleCreateNew}>
+                  <Plus className="h-4 w-4" />
+                  Nuevo Grupo de Proyectos
+                </Button>
+              </PermissionProtected>
+            </div>
+            <ProjectGroupsTable onEdit={handleEdit} />
+          </TabsContent>
+        </Tabs>
+      </div>
+    </PermissionProtected>
   );
 }

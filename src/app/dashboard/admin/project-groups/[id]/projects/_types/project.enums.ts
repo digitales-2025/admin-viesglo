@@ -35,7 +35,6 @@ export enum DeliverablePriorityEnum {
   LOW = "LOW",
   MEDIUM = "MEDIUM",
   HIGH = "HIGH",
-  CRITICAL = "CRITICAL",
 }
 
 // Enums

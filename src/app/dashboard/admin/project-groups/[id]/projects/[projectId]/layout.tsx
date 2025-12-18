@@ -28,6 +28,7 @@ import {
   TreeView,
 } from "@/shared/components/ui/kibo-ui/tree";
 import { DeliverableDetailedResponseDto, MilestoneDetailedResponseDto, PhaseDetailedResponseDto } from "../_types";
+import { ProjectBreadcrumbOverride } from "./_components/ProjectBreadcrumbOverride";
 import { ProjectProvider, useProjectContext } from "./_context/ProjectContext";
 import { useOpenMilestoneStore } from "./_stores/useOpenMilestoneStore";
 
@@ -90,10 +91,7 @@ function ProjectHeader() {
             >
               {projectData.name}
             </h2>
-            <p
-              className="text-xs text-muted-foreground line-clamp-2 group-hover:text-foreground/80 transition-colors"
-              title={projectData.description}
-            >
+            <p className="text-xs text-muted-foreground whitespace-normal break-words group-hover:text-foreground/80 transition-colors">
               {projectData.description || "Proyecto sin descripción"}
             </p>
           </div>
@@ -141,6 +139,13 @@ function CurrentProjectTree() {
     );
   }
 
+  // Ordenar milestones por nombre
+  const sortedMilestones = [...(projectData?.milestones || [])].sort((a, b) => {
+    const nameA = a.name?.toLowerCase() || "";
+    const nameB = b.name?.toLowerCase() || "";
+    return nameA.localeCompare(nameB);
+  });
+
   return (
     <div className="h-full overflow-y-auto">
       <TreeProvider
@@ -153,7 +158,7 @@ function CurrentProjectTree() {
         key={currentProjectId}
       >
         <TreeView>
-          {projectData?.milestones?.map((milestone: MilestoneDetailedResponseDto) => (
+          {sortedMilestones.map((milestone: MilestoneDetailedResponseDto) => (
             <MilestoneNode key={milestone.id} milestone={milestone} />
           ))}
         </TreeView>
@@ -322,58 +327,74 @@ function DeliverableNode({ deliverable }: { deliverable: DeliverableDetailedResp
 function TrackingLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const params = useParams();
+  const pathname = usePathname();
   const groupId = params.id as string;
+  const projectId = params.projectId as string;
+
+  // Detectar si estamos en una página de fase
+  const isInPhasePage = pathname.includes("/phase/");
+
+  // URL y texto del botón de navegación
+  const backUrl = isInPhasePage
+    ? `/dashboard/admin/project-groups/${groupId}/projects/${projectId}`
+    : `/dashboard/admin/project-groups/${groupId}/projects`;
+  const backText = isInPhasePage ? "Volver a Proyecto" : "Volver a Proyectos";
 
   return (
-    <div className="flex h-full min-h-[calc(100vh-4rem)] relative">
-      <aside className={`${sidebarOpen ? "block" : "hidden"} w-80 shrink-0 border-r bg-background/95 backdrop-blur-sm`}>
-        <div className="h-full flex flex-col">
-          {/* Header con navegación */}
-          <div className="px-3 py-3 border-b bg-background/80 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <Link
-                href={`/dashboard/admin/project-groups/${groupId}/projects`}
-                className={cn(
-                  "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-                  buttonVariants({ variant: "ghost", size: "sm" })
-                )}
-              >
-                <ArrowLeft className="h-4 w-4 shrink-0" />
-                <span>Volver a Proyectos</span>
-              </Link>
+    <>
+      <ProjectBreadcrumbOverride />
+      <div className="flex h-full min-h-[calc(100vh-4rem)] relative">
+        <aside
+          className={`${sidebarOpen ? "block" : "hidden"} w-80 shrink-0 border-r bg-background/95 backdrop-blur-sm`}
+        >
+          <div className="h-full flex flex-col">
+            {/* Header con navegación */}
+            <div className="px-3 py-3 border-b bg-background/80 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <Link
+                  href={backUrl}
+                  className={cn(
+                    "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+                    buttonVariants({ variant: "ghost", size: "sm" })
+                  )}
+                >
+                  <ArrowLeft className="h-4 w-4 shrink-0" />
+                  <span>{backText}</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Información del proyecto */}
+            <ProjectHeader />
+
+            {/* Tree de milestones */}
+            <div className="flex-1 overflow-hidden">
+              <CurrentProjectTree />
             </div>
           </div>
+        </aside>
 
-          {/* Información del proyecto */}
-          <ProjectHeader />
-
-          {/* Tree de milestones */}
-          <div className="flex-1 overflow-hidden">
-            <CurrentProjectTree />
-          </div>
-        </div>
-      </aside>
-
-      <main className="flex-1 overflow-y-auto relative">
-        <div className="relative">
-          {/* Botón toggle integrado con el header */}
-          <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b">
-            <div className="flex items-center justify-between px-4 py-3">
-              <button
-                type="button"
-                aria-label={sidebarOpen ? "Ocultar sidebar" : "Mostrar sidebar"}
-                className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent transition-colors"
-                onClick={() => setSidebarOpen((prev) => !prev)}
-              >
-                {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
-              </button>
-              <div className="flex-1" />
+        <main className="flex-1 overflow-y-auto relative">
+          <div className="relative">
+            {/* Botón toggle integrado con el header */}
+            <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b">
+              <div className="flex items-center justify-between px-4 py-3">
+                <button
+                  type="button"
+                  aria-label={sidebarOpen ? "Ocultar sidebar" : "Mostrar sidebar"}
+                  className="inline-flex items-center justify-center rounded-md p-2 hover:bg-accent transition-colors"
+                  onClick={() => setSidebarOpen((prev) => !prev)}
+                >
+                  {sidebarOpen ? <PanelLeftClose className="h-4 w-4" /> : <PanelLeftOpen className="h-4 w-4" />}
+                </button>
+                <div className="flex-1" />
+              </div>
             </div>
+            <div>{children}</div>
           </div>
-          <div>{children}</div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
 

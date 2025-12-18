@@ -7,6 +7,7 @@ import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
 import { Loading } from "@/shared/components/loading";
 import { useTemplateDetailedById } from "../../_hooks";
 import { ProjectTemplateViewer } from "./_components/ProjectTemplateViewer";
+import { TemplateViewBreadcrumbOverride } from "./_components/TemplateViewBreadcrumbOverride";
 
 export default function ViewTemplatesPage() {
   const params = useParams();
@@ -45,6 +46,7 @@ export default function ViewTemplatesPage() {
 
   return (
     <>
+      <TemplateViewBreadcrumbOverride template={templateData} />
       <ShellHeader>
         <ShellTitle title="Ver plantilla" description={`Datos de la: ${templateData.name}`} />
       </ShellHeader>

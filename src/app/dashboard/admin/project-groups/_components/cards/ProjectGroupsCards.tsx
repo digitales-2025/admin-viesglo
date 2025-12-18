@@ -3,7 +3,9 @@
 import React from "react";
 import { MoreHorizontal, Plus } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { DataTableFacetedFilter } from "@/shared/components/data-table/data-table-faceted-filter";
+import { PermissionProtected, usePermissionCheckHook } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent } from "@/shared/components/ui/card";
 import {
@@ -60,6 +62,7 @@ interface ProjectGroupsCardsProps {
 export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDelete }: ProjectGroupsCardsProps) {
   const { query, allGroups } = useProjectGroupsInfinite();
   const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = query as any;
+  const { hasAnyPermission } = usePermissionCheckHook();
 
   // Estado local para el término de búsqueda (no dispara consultas al backend)
   const [localSearch, setLocalSearch] = React.useState<string>("");
@@ -173,11 +176,16 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
             </div>
           </div>
           <div className="flex flex-col items-end gap-4">
-            <Button onClick={onCreateNew} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span className="hidden lg:inline">Nuevo Grupo de Proyectos</span>
-              <span className="lg:hidden">Nuevo Grupo</span>
-            </Button>
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}
+              hideOnUnauthorized={true}
+            >
+              <Button onClick={onCreateNew} className="flex items-center gap-2">
+                <Plus className="h-4 w-4" />
+                <span className="hidden lg:inline">Nuevo Grupo de Proyectos</span>
+                <span className="lg:hidden">Nuevo Grupo</span>
+              </Button>
+            </PermissionProtected>
 
             {/* Filtros posicionados debajo del botón a la derecha */}
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -232,6 +240,14 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
               const circumference = 2 * Math.PI * 15.9155; // Radio del círculo
               const strokeDasharray = `${(progress / 100) * circumference} ${circumference}`;
 
+              // Verificar si tiene al menos uno de los permisos necesarios para mostrar el menú
+              const canShowMenu = hasAnyPermission([
+                { resource: EnumResource.projectResources, action: EnumAction.read },
+                { resource: EnumResource.projectResources, action: EnumAction.create },
+                { resource: EnumResource.projects, action: EnumAction.update },
+                { resource: EnumResource.projects, action: EnumAction.delete },
+              ]);
+
               return (
                 <Card
                   key={projectGroup.id}
@@ -251,51 +267,72 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
                           <p className="max-w-xs break-words">{projectGroup.name}</p>
                         </TooltipContent>
                       </Tooltip>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel className="font-bold">Acciones</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuGroup>
-                            {/* <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
+                      {canShowMenu && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel className="font-bold">Acciones</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuGroup>
+                              {/* <DropdownMenuItem onClick={() => onViewProjects?.(projectGroup)}>
                               Ver Proyectos
                             </DropdownMenuItem> */}
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onViewProjects?.(projectGroup);
-                              }}
-                            >
-                              Registrar Recursos
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onEdit?.(projectGroup);
-                              }}
-                            >
-                              Editar
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete?.(projectGroup);
-                              }}
-                            >
-                              Eliminar
-                            </DropdownMenuItem>
-                          </DropdownMenuGroup>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                              <PermissionProtected
+                                permissions={[
+                                  { resource: EnumResource.projectResources, action: EnumAction.read },
+                                  { resource: EnumResource.projectResources, action: EnumAction.create },
+                                ]}
+                                requireAll={false}
+                                hideOnUnauthorized={true}
+                              >
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onViewProjects?.(projectGroup);
+                                  }}
+                                >
+                                  Registrar Recursos
+                                </DropdownMenuItem>
+                              </PermissionProtected>
+                              <PermissionProtected
+                                permissions={[{ resource: EnumResource.projects, action: EnumAction.update }]}
+                                hideOnUnauthorized={true}
+                              >
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onEdit?.(projectGroup);
+                                  }}
+                                >
+                                  Editar
+                                </DropdownMenuItem>
+                              </PermissionProtected>
+                              <PermissionProtected
+                                permissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+                                hideOnUnauthorized={true}
+                              >
+                                <DropdownMenuItem
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete?.(projectGroup);
+                                  }}
+                                >
+                                  Eliminar
+                                </DropdownMenuItem>
+                              </PermissionProtected>
+                            </DropdownMenuGroup>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
 
                     {/* Círculo de progreso centrado */}
@@ -355,10 +392,15 @@ export function ProjectGroupsCards({ onCreateNew, onEdit, onViewProjects, onDele
             </div>
             <h3 className="text-lg font-semibold mb-2">No hay grupos de proyectos</h3>
             <p className="text-muted-foreground mb-4">Comienza creando tu primer grupo de proyectos</p>
-            <Button onClick={onCreateNew}>
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Grupo de Proyectos
-            </Button>
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.projects, action: EnumAction.create }]}
+              hideOnUnauthorized={true}
+            >
+              <Button onClick={onCreateNew}>
+                <Plus className="h-4 w-4 mr-2" />
+                Crear Grupo de Proyectos
+              </Button>
+            </PermissionProtected>
           </div>
         )}
       </div>

@@ -1,5 +1,7 @@
 import { Edit, MoreHorizontal, RotateCcw, Trash } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import {
   DropdownMenu,
@@ -26,46 +28,78 @@ export default function ClientsTableActions({ client }: ClientsTableActionsProps
   const handleReactivate = () => reactivateClient({ params: { path: { id: client.id } } });
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="bg-background" size="icon">
-          <MoreHorizontal className="size-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
-          Editar
-          <DropdownMenuShortcut>
-            <Edit className="size-4 mr-2" />
-          </DropdownMenuShortcut>
-        </DropdownMenuItem>
-        {client.isActive ? (
-          <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
-            Eliminar
-            <DropdownMenuShortcut>
-              <Trash className="size-4 mr-2" />
-            </DropdownMenuShortcut>
-          </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem className="cursor-pointer" onClick={handleReactivate} disabled={isReactivating}>
-            {isReactivating ? (
-              <>
-                Reactivando...
+    <PermissionProtected
+      permissions={[
+        { resource: EnumResource.clients, action: EnumAction.update },
+        { resource: EnumResource.clients, action: EnumAction.delete },
+        { resource: EnumResource.clients, action: EnumAction.reactivate },
+      ]}
+      requireAll={false}
+      hideOnUnauthorized={true}
+    >
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="bg-background" size="icon">
+            <MoreHorizontal className="size-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <PermissionProtected
+            permissions={[
+              { resource: EnumResource.clients, action: EnumAction.update },
+              { resource: EnumResource.clients, action: EnumAction.delete },
+            ]}
+            requireAll={false}
+            hideOnUnauthorized={true}
+          >
+            <DropdownMenuItem className="cursor-pointer" onClick={handleEdit}>
+              Editar
+              <DropdownMenuShortcut>
+                <Edit className="size-4 mr-2" />
+              </DropdownMenuShortcut>
+            </DropdownMenuItem>
+          </PermissionProtected>
+
+          {client.isActive ? (
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.clients, action: EnumAction.delete }]}
+              requireAll={false}
+              hideOnUnauthorized={true}
+            >
+              <DropdownMenuItem className="cursor-pointer" onClick={handleDelete}>
+                Eliminar
                 <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-primary opacity-0" />
+                  <Trash className="size-4 mr-2" />
                 </DropdownMenuShortcut>
-              </>
-            ) : (
-              <>
-                Reactivar
-                <DropdownMenuShortcut>
-                  <RotateCcw className="size-4 mr-2 text-primary" />
-                </DropdownMenuShortcut>
-              </>
-            )}
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+              </DropdownMenuItem>
+            </PermissionProtected>
+          ) : (
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.clients, action: EnumAction.reactivate }]}
+              requireAll={false}
+              hideOnUnauthorized={true}
+            >
+              <DropdownMenuItem className="cursor-pointer" onClick={handleReactivate} disabled={isReactivating}>
+                {isReactivating ? (
+                  <>
+                    Reactivando...
+                    <DropdownMenuShortcut>
+                      <RotateCcw className="size-4 mr-2 text-primary opacity-0" />
+                    </DropdownMenuShortcut>
+                  </>
+                ) : (
+                  <>
+                    Reactivar
+                    <DropdownMenuShortcut>
+                      <RotateCcw className="size-4 mr-2 text-primary" />
+                    </DropdownMenuShortcut>
+                  </>
+                )}
+              </DropdownMenuItem>
+            </PermissionProtected>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </PermissionProtected>
   );
 }

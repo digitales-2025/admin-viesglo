@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Edit, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
+import { PermissionProtected, usePermissionCheckHook } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import {
@@ -25,6 +27,16 @@ export function ProjectGroupsTableActions({ projectGroup, onEdit }: ProjectGroup
 
   const deleteMutation = useDeleteProjectGroup();
   const reactivateMutation = useReactivateProjectGroup();
+  const { hasAnyPermission } = usePermissionCheckHook();
+
+  // Verificar si tiene al menos uno de los permisos necesarios para mostrar el menú
+  const canShowMenu = hasAnyPermission([
+    { resource: EnumResource.projectResources, action: EnumAction.read },
+    { resource: EnumResource.projectResources, action: EnumAction.create },
+    { resource: EnumResource.projects, action: EnumAction.update },
+    { resource: EnumResource.projects, action: EnumAction.delete },
+    { resource: EnumResource.projects, action: EnumAction.reactivate },
+  ]);
 
   const handleEdit = () => {
     onEdit?.(projectGroup);
@@ -52,6 +64,11 @@ export function ProjectGroupsTableActions({ projectGroup, onEdit }: ProjectGroup
     }
   };
 
+  // Si no tiene permisos para ninguna acción, no mostrar el menú
+  if (!canShowMenu) {
+    return null;
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -62,20 +79,35 @@ export function ProjectGroupsTableActions({ projectGroup, onEdit }: ProjectGroup
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleEdit}>
-            <Edit className="mr-2 h-4 w-4" />
-            Editar
-          </DropdownMenuItem>
+          <PermissionProtected
+            permissions={[{ resource: EnumResource.projects, action: EnumAction.update }]}
+            hideOnUnauthorized={true}
+          >
+            <DropdownMenuItem onClick={handleEdit}>
+              <Edit className="mr-2 h-4 w-4" />
+              Editar
+            </DropdownMenuItem>
+          </PermissionProtected>
           {projectGroup.isActive ? (
-            <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Eliminar
-            </DropdownMenuItem>
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.projects, action: EnumAction.delete }]}
+              hideOnUnauthorized={true}
+            >
+              <DropdownMenuItem onClick={() => setShowDeleteDialog(true)} className="text-destructive">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Eliminar
+              </DropdownMenuItem>
+            </PermissionProtected>
           ) : (
-            <DropdownMenuItem onClick={() => setShowReactivateDialog(true)} className="text-green-600">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reactivar
-            </DropdownMenuItem>
+            <PermissionProtected
+              permissions={[{ resource: EnumResource.projects, action: EnumAction.reactivate }]}
+              hideOnUnauthorized={true}
+            >
+              <DropdownMenuItem onClick={() => setShowReactivateDialog(true)} className="text-green-600">
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Reactivar
+              </DropdownMenuItem>
+            </PermissionProtected>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
