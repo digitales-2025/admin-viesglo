@@ -9,6 +9,7 @@ import { AuthLoadingProvider } from "@/shared/context/auth-loading-provider";
 import { QueryProvider } from "@/shared/context/query-provider";
 import { ThemeProvider } from "@/shared/context/theme-provider";
 import { ToastProvider } from "@/shared/context/toast-provider";
+import { PostHogProvider } from "./posthog";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,16 +37,18 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <QueryProvider>
-            <MqttProviderWrapper enableDebugLogging={process.env.NODE_ENV === "development"}>
-              {children}
-              <AuthLoadingProvider />
-              <ToastProvider />
-              <GlobalNotificationsToasts />
-            </MqttProviderWrapper>
-          </QueryProvider>
-        </ThemeProvider>
+        <PostHogProvider>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <QueryProvider>
+              <MqttProviderWrapper enableDebugLogging={process.env.NODE_ENV === "development"}>
+                {children}
+                <AuthLoadingProvider />
+                <ToastProvider />
+                <GlobalNotificationsToasts />
+              </MqttProviderWrapper>
+            </QueryProvider>
+          </ThemeProvider>
+        </PostHogProvider>
       </body>
     </html>
   );
