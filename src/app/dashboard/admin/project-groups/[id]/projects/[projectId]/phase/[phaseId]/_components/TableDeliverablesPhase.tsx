@@ -41,7 +41,28 @@ interface TableDeliverablesPhaseProps {
 
 // Función para verificar si un entregable tiene fechas planificadas válidas
 const hasValidPlannedDates = (deliverable: DeliverableDetailedResponseDto): boolean => {
-  return !!(deliverable.startDate && deliverable.endDate);
+  // Verificar que ambas fechas existan y no sean strings vacíos
+  if (!deliverable.startDate || !deliverable.endDate) {
+    return false;
+  }
+
+  const startDateStr =
+    typeof deliverable.startDate === "string" ? deliverable.startDate.trim() : String(deliverable.startDate);
+  const endDateStr = typeof deliverable.endDate === "string" ? deliverable.endDate.trim() : String(deliverable.endDate);
+
+  if (startDateStr === "" || endDateStr === "") {
+    return false;
+  }
+
+  // Verificar que las fechas sean válidas (pueden ser strings de fecha ISO)
+  try {
+    const start = new Date(startDateStr);
+    const end = new Date(endDateStr);
+    // Verificar que sean fechas válidas (no Invalid Date)
+    return !isNaN(start.getTime()) && !isNaN(end.getTime());
+  } catch {
+    return false;
+  }
 };
 
 export function TableDeliverablesPhase({
@@ -213,7 +234,25 @@ export function TableDeliverablesPhase({
 
   // Verificar si TODOS los entregables tienen fechas planificadas para mostrar la columna de aprobación
   const hasAllDeliverablesWithDates = React.useMemo(() => {
-    return deliverables.length > 0 && deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
+    if (deliverables.length === 0) return false;
+
+    const allHaveDates = deliverables.every((deliverable) => hasValidPlannedDates(deliverable));
+
+    // Debug: Log para identificar entregables sin fechas
+    if (!allHaveDates) {
+      const withoutDates = deliverables.filter((d) => !hasValidPlannedDates(d));
+      console.log(
+        "🔍 Entregables sin fechas válidas:",
+        withoutDates.map((d) => ({
+          id: d.id,
+          name: d.name,
+          startDate: d.startDate,
+          endDate: d.endDate,
+        }))
+      );
+    }
+
+    return allHaveDates;
   }, [deliverables]);
 
   // Verificar si TODOS los entregables ya están aprobados
@@ -223,8 +262,21 @@ export function TableDeliverablesPhase({
 
   // Verificar si se debe mostrar la columna de aprobación (fechas + permisos + no todos aprobados)
   const shouldShowApprovalColumn = React.useMemo(() => {
-    return hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
-  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved]);
+    const result = hasAllDeliverablesWithDates && hasApprovalPermissions && !areAllDeliverablesApproved;
+
+    // Debug: Log para identificar por qué no se muestra la columna
+    if (!result) {
+      console.log("🔍 shouldShowApprovalColumn:", {
+        hasAllDeliverablesWithDates,
+        hasApprovalPermissions,
+        areAllDeliverablesApproved,
+        totalDeliverables: deliverables.length,
+        result,
+      });
+    }
+
+    return result;
+  }, [hasAllDeliverablesWithDates, hasApprovalPermissions, areAllDeliverablesApproved, deliverables.length]);
 
   // Obtener las columnas del componente dedicado
   const columns = DeliverablesPhaseColumns({

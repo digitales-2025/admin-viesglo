@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { Building2, CheckCircle, Globe, Mail, MapPin, Shield, User, XCircle } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { cn } from "@/lib/utils";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Button } from "@/shared/components/ui/button";
@@ -181,17 +183,22 @@ export const ClientDescription = ({ row }: ClientDescriptionProps) => {
 
       {/* Botón para mostrar direcciones - Nueva ubicación */}
       {!showAddresses && (
-        <div className="flex justify-center">
-          <Button type="button" onClick={() => setShowAddresses(true)}>
-            <MapPin className="h-4 w-4" />
-            Ver Direcciones del Cliente
-            {row.addresses && row.addresses.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
-                {row.addresses.length}
-              </Badge>
-            )}
-          </Button>
-        </div>
+        <PermissionProtected
+          permissions={[{ resource: EnumResource.clients, action: EnumAction.read }]}
+          hideOnUnauthorized={true}
+        >
+          <div className="flex justify-center">
+            <Button type="button" onClick={() => setShowAddresses(true)}>
+              <MapPin className="h-4 w-4" />
+              Ver Direcciones del Cliente
+              {row.addresses && row.addresses.length > 0 && (
+                <Badge variant="secondary" className="ml-1">
+                  {row.addresses.length}
+                </Badge>
+              )}
+            </Button>
+          </div>
+        </PermissionProtected>
       )}
 
       {/* Panel de direcciones mejorado */}

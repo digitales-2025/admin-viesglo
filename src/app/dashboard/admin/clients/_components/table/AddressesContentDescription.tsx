@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Edit, ExternalLink, MapPin, MoreVertical, Navigation, Plus, RotateCcw, Trash, XCircle } from "lucide-react";
 
+import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import { cn } from "@/lib/utils";
 import LogoGoogleMaps from "@/shared/components/icons/LogoGoogleMaps";
+import { PermissionProtected } from "@/shared/components/protected-component";
 import { Button } from "@/shared/components/ui/button";
 import { ConfirmDialog } from "@/shared/components/ui/confirm-dialog";
 import {
@@ -61,16 +63,21 @@ export default function AddressesContentDescription({ row, setShowAddresses }: A
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            className="ml-1 border border-primary/20 hover:bg-primary/10 gap-1 px-3 py-1.5 text-sm"
-            onClick={() => handleOpenDialog()}
-            aria-label="Agregar dirección"
+          <PermissionProtected
+            permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+            hideOnUnauthorized={true}
           >
-            <Plus className="h-4 w-4 text-primary" />
-            Agregar
-          </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              className="ml-1 border border-primary/20 hover:bg-primary/10 gap-1 px-3 py-1.5 text-sm"
+              onClick={() => handleOpenDialog()}
+              aria-label="Agregar dirección"
+            >
+              <Plus className="h-4 w-4 text-primary" />
+              Agregar
+            </Button>
+          </PermissionProtected>
           <UpdateAddressDialog
             isDialogOpen={isDialogOpen}
             setIsDialogOpen={setIsDialogOpen}
@@ -120,34 +127,49 @@ export default function AddressesContentDescription({ row, setShowAddresses }: A
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleOpenDialog(address)}>
-                                Editar
-                                <DropdownMenuShortcut>
-                                  <Edit className="size-4 mr-2" />
-                                </DropdownMenuShortcut>
-                              </DropdownMenuItem>
+                              <PermissionProtected
+                                permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+                                hideOnUnauthorized={true}
+                              >
+                                <DropdownMenuItem onClick={() => handleOpenDialog(address)}>
+                                  Editar
+                                  <DropdownMenuShortcut>
+                                    <Edit className="size-4 mr-2" />
+                                  </DropdownMenuShortcut>
+                                </DropdownMenuItem>
+                              </PermissionProtected>
                               {address.isActive ? (
-                                <DropdownMenuItem
-                                  className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                  onClick={() => setAddressToDelete(address)}
-                                  disabled={toggleActiveAddress.isPending}
+                                <PermissionProtected
+                                  permissions={[{ resource: EnumResource.clients, action: EnumAction.delete }]}
+                                  hideOnUnauthorized={true}
                                 >
-                                  Desactivar
-                                  <DropdownMenuShortcut>
-                                    <Trash className="size-4 mr-2 text-destructive" />
-                                  </DropdownMenuShortcut>
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                    onClick={() => setAddressToDelete(address)}
+                                    disabled={toggleActiveAddress.isPending}
+                                  >
+                                    Desactivar
+                                    <DropdownMenuShortcut>
+                                      <Trash className="size-4 mr-2 text-destructive" />
+                                    </DropdownMenuShortcut>
+                                  </DropdownMenuItem>
+                                </PermissionProtected>
                               ) : (
-                                <DropdownMenuItem
-                                  className="cursor-pointer text-primary focus:bg-primary/10"
-                                  onClick={() => handleToggleStatus(address)}
-                                  disabled={toggleActiveAddress.isPending}
+                                <PermissionProtected
+                                  permissions={[{ resource: EnumResource.clients, action: EnumAction.reactivate }]}
+                                  hideOnUnauthorized={true}
                                 >
-                                  Reactivar
-                                  <DropdownMenuShortcut>
-                                    <RotateCcw className="size-4 mr-2 text-primary" />
-                                  </DropdownMenuShortcut>
-                                </DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    className="cursor-pointer text-primary focus:bg-primary/10"
+                                    onClick={() => handleToggleStatus(address)}
+                                    disabled={toggleActiveAddress.isPending}
+                                  >
+                                    Reactivar
+                                    <DropdownMenuShortcut>
+                                      <RotateCcw className="size-4 mr-2 text-primary" />
+                                    </DropdownMenuShortcut>
+                                  </DropdownMenuItem>
+                                </PermissionProtected>
                               )}
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -218,10 +240,15 @@ export default function AddressesContentDescription({ row, setShowAddresses }: A
                   Este cliente no tiene direcciones adicionales registradas en el sistema
                 </p>
               </div>
-              <Button size="sm" onClick={() => handleOpenDialog()} className="gap-2">
-                <Plus className="h-4 w-4" />
-                Agregar Dirección
-              </Button>
+              <PermissionProtected
+                permissions={[{ resource: EnumResource.clients, action: EnumAction.update }]}
+                hideOnUnauthorized={true}
+              >
+                <Button size="sm" onClick={() => handleOpenDialog()} className="gap-2">
+                  <Plus className="h-4 w-4" />
+                  Agregar Dirección
+                </Button>
+              </PermissionProtected>
             </div>
           )}
         </ScrollArea>
