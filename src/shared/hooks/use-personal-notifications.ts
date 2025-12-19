@@ -54,14 +54,7 @@ export function usePersonalNotifications(): UsePersonalNotificationsReturn {
     queryFn: async (): Promise<NotificationSnapshotResponseDto> => {
       if (!userId) throw new Error("User ID not available");
 
-      console.log(`🔔 usePersonalNotifications: Fetching snapshot for userId: ${userId}`);
-
       const response = await http.get<NotificationSnapshotResponseDto>(`/notifications/snapshot/${userId}`);
-
-      console.log("🔔 usePersonalNotifications: Snapshot received", {
-        personal: response.data.personal?.length || 0,
-        clientId: response.data.clientId,
-      });
 
       return response.data;
     },
@@ -91,16 +84,9 @@ export function usePersonalNotifications(): UsePersonalNotificationsReturn {
     const latestMessage = personalMqtt.messages[personalMqtt.messages.length - 1];
     if (!latestMessage) return;
 
-    console.log("🔔 usePersonalNotifications: Processing personal notification from MQTT", {
-      topic: latestMessage.topic,
-      timestamp: personalMqtt.lastUpdated,
-      payloadLength: latestMessage.payload?.length || 0,
-    });
-
     try {
       // IMPORTANTE: Ignorar mensajes vacíos que son de limpieza del backend
       if (!latestMessage.payload || latestMessage.payload === "" || latestMessage.payload === "{}") {
-        console.log("🔔 usePersonalNotifications: Ignoring empty message (cleanup)");
         return;
       }
 
@@ -149,11 +135,6 @@ export function usePersonalNotifications(): UsePersonalNotificationsReturn {
 
     const latestMessage = updatesMqtt.messages[updatesMqtt.messages.length - 1];
     if (!latestMessage) return;
-
-    console.log("🔔 usePersonalNotifications: Processing update from MQTT", {
-      topic: latestMessage.topic,
-      timestamp: updatesMqtt.lastUpdated,
-    });
 
     try {
       const update = JSON.parse(latestMessage.payload as string);
@@ -233,8 +214,7 @@ export function usePersonalNotifications(): UsePersonalNotificationsReturn {
 
       return { previousData };
     },
-    onSuccess: (data, notificationId) => {
-      console.log("🔔 usePersonalNotifications: Successfully marked as read:", notificationId);
+    onSuccess: (_data, _notificationId) => {
       queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
     },
     onError: (error, notificationId, context) => {
@@ -283,7 +263,6 @@ export function usePersonalNotifications(): UsePersonalNotificationsReturn {
       return { previousData };
     },
     onSuccess: (_data) => {
-      console.log("🔔 usePersonalNotifications: Successfully marked all personal as read");
       queryClient.invalidateQueries({ queryKey: ["notifications", userId] });
     },
     onError: (error, variables, context) => {

@@ -40,21 +40,11 @@ interface MqttQueryProviderProps {
  * @param children - Child components that can use useMqttTopic
  */
 export function MqttQueryProvider({ children }: MqttQueryProviderProps) {
-  const { isConnected, handleGlobalMessage, clearAllTopics, getActiveTopics } = useMqttQueryIntegration();
-
-  // Log connection status changes for debugging
-  useEffect(() => {
-    console.log("MQTT Query Provider - Connection status changed:", {
-      isConnected,
-      activeTopics: getActiveTopics().length,
-      timestamp: new Date().toISOString(),
-    });
-  }, [isConnected, getActiveTopics]);
+  const { handleGlobalMessage, clearAllTopics } = useMqttQueryIntegration();
 
   // Cleanup on unmount (e.g., user logout)
   useEffect(() => {
     return () => {
-      console.log("MQTT Query Provider - Cleaning up on unmount");
       clearAllTopics();
     };
   }, [clearAllTopics]);

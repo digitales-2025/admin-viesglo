@@ -11,6 +11,7 @@ import { Calendar } from "@/shared/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { useHolidaysByYear } from "@/shared/hooks/use-holidays";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { cn } from "@/shared/lib/utils";
 import type { HolidayResponseDto } from "@/shared/types/holidays.types";
 
@@ -66,6 +67,9 @@ export function DatePickerWithRange({
 
   // Estado para rastrear el mes/año que se está visualizando en el calendario
   const [currentDisplayMonth, setCurrentDisplayMonth] = React.useState<Date>(tempDate?.from || new Date());
+
+  // Hook para detectar si es móvil
+  const isMobile = useIsMobile();
 
   // Hook para obtener feriados del año que se está visualizando
   const currentDisplayYear = currentDisplayMonth.getFullYear();
@@ -430,27 +434,35 @@ export function DatePickerWithRange({
             size={size}
             variant={"outline"}
             className={cn(
-              "w-[300px] justify-start text-left font-normal",
+              "w-full sm:w-[300px] justify-start text-left font-normal min-w-0",
               !date && "text-muted-foreground",
               readOnly && "cursor-pointer opacity-100",
               classNameButton
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
             {date?.from ? (
               date.to ? (
-                <span className="capitalize">
-                  {format(date.from, "dd LLL, y", { locale: es })} - {format(date.to, "dd LLL, y", { locale: es })}
+                <span className="capitalize truncate">
+                  <span className="hidden sm:inline">
+                    {format(date.from, "dd LLL, y", { locale: es })} - {format(date.to, "dd LLL, y", { locale: es })}
+                  </span>
+                  <span className="sm:hidden">
+                    {format(date.from, "dd/MM/yy", { locale: es })} - {format(date.to, "dd/MM/yy", { locale: es })}
+                  </span>
                 </span>
               ) : (
-                <span className="capitalize">{format(date.from, "dd LLL, y", { locale: es })}</span>
+                <span className="capitalize truncate">
+                  <span className="hidden sm:inline">{format(date.from, "dd LLL, y", { locale: es })}</span>
+                  <span className="sm:hidden">{format(date.from, "dd/MM/yy", { locale: es })}</span>
+                </span>
               )
             ) : (
-              <span>{placeholder}</span>
+              <span className="truncate">{placeholder}</span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 max-w-[calc(100vw-2rem)] sm:max-w-none" align="start">
           <div className="space-y-4 p-3">
             <Calendar
               initialFocus
@@ -458,7 +470,7 @@ export function DatePickerWithRange({
               defaultMonth={currentDisplayMonth}
               selected={tempDate}
               onSelect={readOnly ? undefined : handleSelect}
-              numberOfMonths={2}
+              numberOfMonths={isMobile ? 1 : 2}
               locale={es}
               disabled={readOnly ? () => true : isDateDisabled}
               fromDate={fromDate}

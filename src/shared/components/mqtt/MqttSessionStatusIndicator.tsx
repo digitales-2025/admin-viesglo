@@ -36,16 +36,6 @@ export function MqttSessionStatusIndicator({
   const { isAuthenticated, isAuthError, tokenExpired, mqttStatus, isMqttReady, reconnectAfterTokenRefresh } =
     useMqttSession();
 
-  // Add detailed logging for debugging
-  console.log("🔍 MqttSessionStatusIndicator - Current state:", {
-    mqttStatus,
-    isAuthenticated,
-    tokenExpired,
-    isMqttReady,
-    isAuthError,
-    timestamp: new Date().toISOString(),
-  });
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "connected":

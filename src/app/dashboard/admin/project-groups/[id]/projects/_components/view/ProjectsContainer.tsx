@@ -2,13 +2,13 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { FolderOpen, Loader2, Search, SearchIcon } from "lucide-react";
 import { useDebouncedCallback } from "use-debounce";
 
-import { Loading } from "@/shared/components/loading";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { useSearchProjects } from "../../_hooks/use-project";
 import { useProjectGroupById } from "../../../../_hooks/use-project-groups";
 import ProjectCard from "./ProjectCard";
 import ProjectsFilters from "./ProjectsFilters";
+import { ProjectsSkeleton } from "./ProjectsSkeleton";
 
 interface ProjectsContainerProps {
   projectGroupId: string;
@@ -95,11 +95,12 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
     };
   }, [hasNextPage, isFetchingNextPage, handleScrollEnd]);
 
-  // Calcular progreso general del grupo
+  // Calcular progreso general del grupo - siempre mostrar un valor
   const overallProgress =
     allProjects.length > 0
       ? Math.round(allProjects.reduce((acc, project) => acc + (project.overallProgress || 0), 0) / allProjects.length)
       : 0;
+
   return (
     <div>
       <div>
@@ -140,16 +141,19 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
               <span className="text-sm text-gray-600 dark:text-gray-400">Avance general del grupo</span>
             </div>
 
-            {/* Overall Progress Bar */}
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-8 flex items-center relative">
+            {/* Overall Progress Bar - Siempre visible */}
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-8 flex items-center relative overflow-hidden">
               <div
-                className={`bg-primary h-8 transition-all duration-300 ${
+                className={`bg-primary h-full transition-all duration-300 ${
                   overallProgress === 100 ? "rounded-full" : "rounded-l-full"
                 }`}
-                style={{ width: `${overallProgress}%` }}
+                style={{
+                  width: `${Math.max(0, Math.min(100, overallProgress))}%`,
+                  minWidth: overallProgress > 0 ? "2px" : "0",
+                }}
               ></div>
               <span
-                className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold transition-colors duration-300"
+                className="absolute left-1/2 transform -translate-x-1/2 text-lg font-semibold transition-colors duration-300 z-10 pointer-events-none"
                 style={{
                   color: overallProgress > 45 ? "white" : undefined,
                 }}
@@ -161,7 +165,7 @@ export default function ProjectsContainer({ projectGroupId }: ProjectsContainerP
             </div>
           </div>
           {/* Loading State */}
-          {isLoading && <Loading text="Cargando proyectos..." variant="spinner" />}
+          {isLoading && <ProjectsSkeleton count={8} />}
           {/* Error State */}
           {isError && (
             <div className="flex flex-col items-center justify-center py-12">

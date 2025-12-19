@@ -69,19 +69,26 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
         onClick={() => toggleMilestone(milestone.id)}
       >
         <CardHeader className="p-0">
-          <CardTitle className="grid grid-cols-[auto_auto_auto_auto] w-full grid-rows-4 lg:grid-cols-[auto_1fr_auto_auto_auto] xl:grid-cols-[auto_1fr_auto_auto] items-center gap-x-4 gap-y-1 xl:grid-rows-1 md:grid-rows-2">
-            <div className="inline-flex justify-start items-start xl:order-1 ">
+          <CardTitle className="grid grid-cols-[auto_1fr_auto] lg:grid-cols-[auto_1fr_auto_auto] w-full items-center gap-2 sm:gap-x-4 gap-y-2">
+            {/* Chevron - Primera columna - SIEMPRE EN SU LUGAR */}
+            <div className="flex justify-start items-center shrink-0 col-start-1 row-start-1">
               {expanded ? (
                 <ChevronUp className="shrink-0 w-4 h-4 text-muted-foreground" />
               ) : (
                 <ChevronDown className="shrink-0 w-4 h-4 text-muted-foreground" />
               )}
             </div>
-            <div className="inline-flex gap-2 items-center lg:order-2 col-span-3 order-4 lg:col-span-1">
-              <span className="first-letter:capitalize font-medium">{milestone.name}</span>
+
+            {/* Nombre del milestone - Segunda columna - SIEMPRE EN SU LUGAR, NUNCA SE MUEVE */}
+            <div className="flex gap-2 items-center min-w-0 col-start-2 row-start-1 overflow-hidden">
+              <span className="first-letter:capitalize font-medium wrap-break-word truncate">
+                {milestone.name || "Sin nombre"}
+              </span>
             </div>
+
+            {/* Selector de asignado - Tercera columna */}
             <div
-              className="inline-flex items-center gap-2 xl:order-3 order-5 lg:order-3"
+              className="flex items-center justify-end sm:justify-start gap-2 shrink-0 col-start-3 row-start-1 lg:col-start-3"
               onClick={(e) => e.stopPropagation()}
             >
               <PermissionProtected
@@ -117,8 +124,9 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                 />
               </PermissionProtected>
             </div>
-            <div className="inline-flex justify-end items-center gap-2 xl:order-4 order-3 lg:order-4 ">
-              <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+            {/* Acciones y controles - Cuarta columna - En móvil va a segunda fila, en desktop a la derecha */}
+            <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2 col-span-full lg:col-start-4 lg:col-end-5 row-start-2 lg:row-start-1 w-full sm:w-auto">
+              <div className="flex items-center gap-2 w-full sm:w-auto" onClick={(e) => e.stopPropagation()}>
                 <PermissionProtected
                   permissions={[
                     { resource: EnumResource.milestones, action: EnumAction.update },
@@ -143,7 +151,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                             ? "Editar período"
                             : "Seleccionar período"
                       }
-                      className="w-full"
+                      className="w-full min-w-[200px] sm:min-w-[250px]"
                       // Limitadores de fechas del proyecto
                       fromDate={new Date(projectStartDate)}
                       toDate={new Date(projectEndDate)}
@@ -171,7 +179,7 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                           ? "Editar período"
                           : "Seleccionar período"
                     }
-                    className="w-full"
+                    className="w-full min-w-[200px] sm:min-w-[250px]"
                     confirmText="Guardar período"
                     clearText="Limpiar período"
                     cancelText="Cancelar"
@@ -216,6 +224,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                 >
                   <Button
                     variant="outline"
+                    size="sm"
+                    className="w-full sm:w-auto"
                     onClick={(e) => {
                       e.stopPropagation();
                       // Expandir el milestone antes de abrir el dialog
@@ -225,8 +235,8 @@ function CardProjectMilestoneBase({ milestone, projectId, projectStartDate, proj
                       open(MODULE_PHASES_PROJECT, "create");
                     }}
                   >
-                    <PlusCircle className="w-4 h-4 mr-1" />
-                    <span className="hidden sm:block">Agregar fase</span>
+                    <PlusCircle className="w-4 h-4 sm:mr-1" />
+                    <span className="hidden sm:inline">Agregar fase</span>
                   </Button>
                 </PermissionProtected>
               )}

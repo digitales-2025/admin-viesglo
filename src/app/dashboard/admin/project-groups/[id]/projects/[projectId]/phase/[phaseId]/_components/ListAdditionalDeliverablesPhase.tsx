@@ -7,11 +7,11 @@ import { FileText } from "lucide-react";
 import { EnumAction, EnumResource } from "@/app/dashboard/admin/settings/_types/roles.types";
 import AlertMessage from "@/shared/components/alerts/Alert";
 import { ShellHeader, ShellTitle } from "@/shared/components/layout/Shell";
-import { Loading } from "@/shared/components/loading";
 import { PermissionProtected } from "@/shared/components/protected-component";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import { usePhaseAdditionalDeliverablesPaginated } from "../../../../_hooks/use-additional-deliverables";
 import AdditionalDeliverablesPhasePrimaryButtons from "./AdditionalDeliverablesPhasePrimaryButtons";
+import { DeliverablesTableSkeleton } from "./DeliverablesTableSkeleton";
 import { TableAdditionalDeliverablesPhase } from "./TableAdditionalDeliverablesPhase";
 
 export function ListAdditionalDeliverablesPhase() {
@@ -33,7 +33,7 @@ export function ListAdditionalDeliverablesPhase() {
 
   const { isLoading, error, data } = query;
 
-  if (isLoading) return <Loading text="Cargando entregables adicionales..." variant="spinner" />;
+  if (isLoading) return <DeliverablesTableSkeleton />;
 
   if (error) {
     return (

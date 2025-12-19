@@ -69,20 +69,10 @@ function MqttProviderCore({
   // Global message handler for all MQTT messages
   const handleGlobalMessage = useCallback(
     (topic: string, message: MqttMessage) => {
-      if (enableDebugLogging) {
-        console.log("MQTT Provider - Global message received:", {
-          topic,
-          messageSize: typeof message.payload === "string" ? message.payload.length : message.payload.length,
-          qos: message.qos,
-          retain: message.retain,
-          timestamp: new Date().toISOString(),
-        });
-      }
-
       // Forward message to query integration handler
       queryHandleGlobalMessage(topic, message);
     },
-    [enableDebugLogging, queryHandleGlobalMessage]
+    [queryHandleGlobalMessage]
   );
 
   // Create error handler wrapper to match useMqtt's expected signature
@@ -110,13 +100,6 @@ function MqttProviderCore({
     if (!isInitializedRef.current) {
       isInitializedRef.current = true;
 
-      if (enableDebugLogging) {
-        console.log("MQTT Provider - Initializing MQTT provider", {
-          timestamp: new Date().toISOString(),
-          debugLogging: enableDebugLogging,
-        });
-      }
-
       // Set up global error handling for unhandled MQTT errors
       const handleGlobalMqttError = (error: Error, context: string) => {
         if (enableDebugLogging) {
@@ -137,10 +120,6 @@ function MqttProviderCore({
 
       // Call initialization callback
       onInitialized?.();
-
-      if (enableDebugLogging) {
-        console.log("MQTT Provider - Initialization complete");
-      }
     }
   }, [enableDebugLogging, onError, onInitialized]);
 
@@ -149,15 +128,6 @@ function MqttProviderCore({
    * Requirement 3.1: Monitor connection state during user session
    */
   useEffect(() => {
-    if (enableDebugLogging) {
-      console.log("MQTT Provider - Connection state changed:", {
-        status,
-        hasError: !!error,
-        hasClient: !!client,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
     // Handle critical errors that might require app-level intervention
     if (error && status === "error") {
       const criticalError = new Error(`MQTT Provider Critical Error: ${error}`);
@@ -186,12 +156,6 @@ function MqttProviderCore({
       if (!cleanupHandledRef.current) {
         cleanupHandledRef.current = true;
 
-        if (enableDebugLogging) {
-          console.log("MQTT Provider - Starting cleanup process", {
-            timestamp: new Date().toISOString(),
-          });
-        }
-
         // Clean up global error handler
         if (typeof window !== "undefined") {
           delete (window as any).__mqttGlobalErrorHandler;
@@ -200,10 +164,6 @@ function MqttProviderCore({
 
         // Call cleanup callback
         onCleanup?.();
-
-        if (enableDebugLogging) {
-          console.log("MQTT Provider - Cleanup complete");
-        }
       }
     };
   }, [enableDebugLogging, onCleanup]);
@@ -214,14 +174,6 @@ function MqttProviderCore({
    */
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (enableDebugLogging) {
-        console.log("MQTT Provider - Page visibility changed:", {
-          hidden: document.hidden,
-          visibilityState: document.visibilityState,
-          timestamp: new Date().toISOString(),
-        });
-      }
-
       // Note: We don't automatically disconnect on page hide as this could
       // interrupt real-time data flow. The session provider handles disconnection
       // based on authentication state, which is more appropriate.
@@ -242,10 +194,6 @@ function MqttProviderCore({
    */
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (enableDebugLogging) {
-        console.log("MQTT Provider - Page unloading, ensuring clean disconnection");
-      }
-
       // The session provider and connection store will handle the actual disconnection
       // This is just for logging and any last-minute cleanup
     };
@@ -392,7 +340,6 @@ export const MqttProviderDevUtils = {
     }
 
     if (typeof window !== "undefined" && (window as any).__mqttReconnectAfterTokenRefresh) {
-      console.log("MqttProviderDevUtils - Forcing reconnection");
       (window as any).__mqttReconnectAfterTokenRefresh();
     }
   },
@@ -406,7 +353,6 @@ export const MqttProviderDevUtils = {
       return;
     }
 
-    const state = MqttProviderDevUtils.getProviderState();
-    console.log("MQTT Provider State:", state);
+    MqttProviderDevUtils.getProviderState();
   },
 };

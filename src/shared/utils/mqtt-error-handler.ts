@@ -379,8 +379,6 @@ export class MqttErrorHandler {
       severity: "INFO",
     };
 
-    console.log("🔄 MQTT Reconnection Success:", logData);
-
     // Also log to any external monitoring systems if configured
     this.logToExternalSystems("reconnection_success", logData);
   }
@@ -402,7 +400,6 @@ export class MqttErrorHandler {
       severity: "INFO",
     };
 
-    console.log("✅ MQTT Connection Success:", logData);
     this.logToExternalSystems("connection_success", logData);
   }
 
@@ -418,7 +415,6 @@ export class MqttErrorHandler {
       severity: "INFO",
     };
 
-    console.log("🔌 MQTT Disconnection:", logData);
     this.logToExternalSystems("disconnection", logData);
   }
 
@@ -528,7 +524,7 @@ export class MqttErrorHandler {
   }
 
   private logError(errorInfo: MqttErrorInfo): void {
-    const logLevel = this.getLogLevel(errorInfo.severity);
+    this.getLogLevel(errorInfo.severity);
     const logData = {
       category: errorInfo.category,
       severity: errorInfo.severity,
@@ -538,18 +534,6 @@ export class MqttErrorHandler {
       shouldRetry: errorInfo.shouldRetry,
       retryDelay: errorInfo.retryDelay,
     };
-
-    // Log to console with appropriate level
-    switch (logLevel) {
-      case "error":
-        console.error(`❌ MQTT ${errorInfo.category} Error:`, logData);
-        break;
-      case "warn":
-        console.warn(`⚠️ MQTT ${errorInfo.category} Warning:`, logData);
-        break;
-      default:
-        console.log(`ℹ️ MQTT ${errorInfo.category} Info:`, logData);
-    }
 
     // Log to external systems if configured
     this.logToExternalSystems("error", logData);

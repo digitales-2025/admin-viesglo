@@ -61,12 +61,7 @@ export function MqttServerActionExample() {
 
         const result = await publishMqttMessage(topic, message, options);
         setLastResult(result);
-
-        if (result.success) {
-          console.log("Server Action publish successful");
-        }
       } catch (error) {
-        console.error("Server Action publish failed:", error);
         setLastResult({
           success: false,
           error: error instanceof Error ? error.message : "Unknown error",
@@ -105,10 +100,6 @@ export function MqttServerActionExample() {
         );
 
         setLastResult(result);
-
-        if (result.success) {
-          console.log("Server Action request published successfully");
-        }
       } catch (error) {
         console.error("Server Action request failed:", error);
         setLastResult({
@@ -142,10 +133,6 @@ export function MqttServerActionExample() {
         });
 
         setLastResult(result);
-
-        if (result.success) {
-          console.log("Server Action publish with properties successful");
-        }
       } catch (error) {
         console.error("Server Action publish with properties failed:", error);
         setLastResult({

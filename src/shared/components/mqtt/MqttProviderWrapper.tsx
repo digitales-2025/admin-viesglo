@@ -18,11 +18,7 @@ export function MqttProviderWrapper({ children, enableDebugLogging = false }: Mq
     console.error("MQTT Provider Error:", { error: error.message, context });
   };
 
-  const handleInitialized = () => {
-    if (process.env.NODE_ENV === "development") {
-      console.log("MQTT Provider initialized successfully");
-    }
-  };
+  const handleInitialized = () => {};
 
   return (
     <MqttProvider enableDebugLogging={enableDebugLogging} onError={handleError} onInitialized={handleInitialized}>
