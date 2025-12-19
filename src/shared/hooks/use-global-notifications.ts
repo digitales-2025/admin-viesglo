@@ -64,14 +64,7 @@ export function useGlobalNotifications(): UseGlobalNotificationsReturn {
     queryFn: async (): Promise<NotificationSnapshotResponseDto> => {
       if (!userId) throw new Error("User ID not available");
 
-      console.log(`🔔 useGlobalNotifications: Fetching snapshot for userId: ${userId}`);
-
       const response = await http.get<NotificationSnapshotResponseDto>(`/notifications/snapshot/${userId}`);
-
-      console.log("🔔 useGlobalNotifications: Snapshot received", {
-        global: response.data.global?.length || 0,
-        clientId: response.data.clientId,
-      });
 
       return response.data;
     },
@@ -99,28 +92,14 @@ export function useGlobalNotifications(): UseGlobalNotificationsReturn {
     const latestMessage = globalSystemMqtt.messages[globalSystemMqtt.messages.length - 1];
     if (!latestMessage) return;
 
-    console.log("🔔 useGlobalNotifications: Global system MQTT effect triggered", {
-      topic: latestMessage.topic,
-      messageCount: globalSystemMqtt.messages.length,
-      lastUpdated: globalSystemMqtt.lastUpdated,
-      callbacksCount: globalNotificationCallbacks.size,
-      payloadLength: latestMessage.payload?.length || 0,
-    });
-
     try {
       // IMPORTANTE: Ignorar mensajes vacíos que son de limpieza del backend
       if (!latestMessage.payload || latestMessage.payload === "" || latestMessage.payload === "{}") {
-        console.log("🔔 useGlobalNotifications: Ignoring empty message (cleanup)");
         return;
       }
 
       const newGlobalNotification: GlobalNotificationDto = JSON.parse(latestMessage.payload as string);
       if (newGlobalNotification && newGlobalNotification.id && newGlobalNotification.title) {
-        console.log("🔔 useGlobalNotifications: Executing callbacks for global system notification:", {
-          id: newGlobalNotification.id,
-          title: newGlobalNotification.title,
-          callbacksCount: globalNotificationCallbacks.size,
-        });
         globalNotificationCallbacks.forEach((callback) => callback(newGlobalNotification));
       }
     } catch (error) {
@@ -142,7 +121,6 @@ export function useGlobalNotifications(): UseGlobalNotificationsReturn {
     try {
       // IMPORTANTE: Ignorar mensajes vacíos que son de limpieza del backend
       if (!latestMessage.payload || latestMessage.payload === "" || latestMessage.payload === "{}") {
-        console.log("🔔 useGlobalNotifications: Ignoring empty message (cleanup)");
         return;
       }
 
@@ -166,27 +144,14 @@ export function useGlobalNotifications(): UseGlobalNotificationsReturn {
     if (lastProcessedMaintenanceRef.current === messageKey) return;
     lastProcessedMaintenanceRef.current = messageKey;
 
-    console.log("🔔 useGlobalNotifications: Processing global maintenance notification from MQTT", {
-      topic: latestMessage.topic,
-      timestamp: globalMaintenanceMqtt.lastUpdated,
-      callbacksCount: globalNotificationCallbacks.size,
-      payloadLength: latestMessage.payload?.length || 0,
-    });
-
     try {
       // IMPORTANTE: Ignorar mensajes vacíos que son de limpieza del backend
       if (!latestMessage.payload || latestMessage.payload === "" || latestMessage.payload === "{}") {
-        console.log("🔔 useGlobalNotifications: Ignoring empty message (cleanup)");
         return;
       }
 
       const newGlobalNotification: GlobalNotificationDto = JSON.parse(latestMessage.payload as string);
       if (newGlobalNotification && newGlobalNotification.id && newGlobalNotification.title) {
-        console.log("🔔 useGlobalNotifications: Executing callbacks for global maintenance notification:", {
-          id: newGlobalNotification.id,
-          title: newGlobalNotification.title,
-          callbacksCount: globalNotificationCallbacks.size,
-        });
         globalNotificationCallbacks.forEach((callback) => callback(newGlobalNotification));
       }
     } catch (error) {
@@ -222,7 +187,6 @@ export function useGlobalNotifications(): UseGlobalNotificationsReturn {
       return response.data;
     },
     onSuccess: (_data: { success: boolean }, _notificationId: string) => {
-      console.log("🔔 useGlobalNotifications: Successfully marked global as viewed:", _notificationId);
       // NO remover la notificación global del estado, solo marcarla como vista
       queryClient.setQueryData(["notifications", userId], (oldData: any) => {
         if (!oldData) return oldData;

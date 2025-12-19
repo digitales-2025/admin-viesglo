@@ -252,7 +252,11 @@ export function ProtectedComponent({
   // Renderizamos según el estado actual
   switch (authState) {
     case "LOADING":
-      return <LoadingOverlay isLoading={true} fullScreen={false} />;
+      return (
+        <LoadingOverlay isLoading={true} fullScreen={false} blur={true}>
+          {children}
+        </LoadingOverlay>
+      );
     case "AUTHORIZED":
       return <>{children}</>;
     case "UNAUTHORIZED":

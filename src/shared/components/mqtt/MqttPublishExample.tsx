@@ -46,28 +46,20 @@ export function MqttPublishExample({ topic: initialTopic = "test/publish" }: Mqt
 
   // Basic MQTT publish mutation
   const basicPublish = useMqttPublish({
-    onSuccess: (_data, variables) => {
-      console.log("Message published successfully:", variables);
-    },
-    onError: (error, variables) => {
-      console.error("Failed to publish message:", error, variables);
-    },
+    onSuccess: (_data, _variables) => {},
+    onError: (_error, _variables) => {},
   });
 
   // JSON publish mutation with automatic serialization
   const jsonPublish = useMqttPublishJson({
     invalidateTopics: ["sensors/data"], // Invalidate related topics
-    onSuccess: () => {
-      console.log("JSON message published successfully");
-    },
+    onSuccess: () => {},
   });
 
   // Request-response publish mutation
   const requestPublish = useMqttPublishRequest({
     invalidateTopics: [responseTopic], // Invalidate response topic
-    onSuccess: () => {
-      console.log("Request published successfully");
-    },
+    onSuccess: () => {},
   });
 
   // Handle basic message publish

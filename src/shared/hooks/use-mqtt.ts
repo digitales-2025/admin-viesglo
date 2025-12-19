@@ -245,15 +245,6 @@ function parseAndValidateMessage(
 export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
   const { autoConnect = true, subscriptions = [], onMessage, onConnect, onDisconnect, onError } = options;
 
-  console.log("🔧 useMqtt hook initialized with options:", {
-    autoConnect,
-    hasOnMessage: !!onMessage,
-    hasOnConnect: !!onConnect,
-    hasOnError: !!onError,
-    subscriptionsCount: subscriptions.length,
-    timestamp: new Date().toISOString(),
-  });
-
   // Store references
   const {
     status,
@@ -291,16 +282,8 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
   const fetchCredentials = useCallback(
     async (forceRefresh: boolean = false): Promise<MqttCredentials> => {
       try {
-        console.log(`🔑 Fetching MQTT credentials (forceRefresh: ${forceRefresh})`);
-
         const credentials = await MqttCredentialsService.getMqttCredentials(forceRefresh);
         credentialsRef.current = credentials;
-
-        console.log("🔑 MQTT credentials obtained successfully:", {
-          brokerUrl: credentials.brokerUrl,
-          username: credentials.username,
-          clientId: credentials.clientId,
-        });
 
         return credentials;
       } catch (error) {
@@ -356,28 +339,11 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         console.warn("MQTT v5.0 configuration issues detected:", validation.issues);
       }
 
-      console.log("Creating MQTT v5.0 client with WebSocket transport:", {
-        url: brokerUrl,
-        protocolVersion: connectionOptions.protocolVersion,
-        clientId: connectionOptions.clientId,
-        keepalive: connectionOptions.keepalive,
-        clean: connectionOptions.clean,
-        wsTransport: brokerUrl.startsWith("ws"),
-        v5Properties: !!connectionOptions.properties,
-      });
-
       const mqttClient = mqtt.connect(brokerUrl, connectionOptions);
 
       // Set up MQTT v5.0 event handlers with enhanced logging
       mqttClient.on("connect", (connack) => {
         if (isUnmountedRef.current) return;
-
-        console.log("🟢 MQTT CLIENT CONNECT EVENT FIRED!", {
-          connack,
-          clientId: credentialsRef.current?.clientId,
-          brokerUrl: credentialsRef.current?.brokerUrl,
-          timestamp: new Date().toISOString(),
-        });
 
         const errorHandler = getMqttErrorHandler();
 
@@ -389,23 +355,9 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
           sessionPresent: connack.sessionPresent,
         });
 
-        console.log("MQTT v5.0 Client connected successfully:", {
-          sessionPresent: connack.sessionPresent,
-          reasonCode: connack.reasonCode,
-          properties: connack.properties,
-          timestamp: new Date().toISOString(),
-        });
-
-        console.log('🔄 CALLING setStatus("connected")...');
         setStatus("connected");
-
-        console.log("🔄 CALLING resetReconnectAttempts()...");
         resetReconnectAttempts();
-
-        console.log("🔄 CALLING onConnect callback...");
         onConnect?.();
-
-        console.log("✅ Connect event handler completed");
 
         // Re-subscribe to previous subscriptions with v5.0 options
         subscriptionsRef.current.forEach((topic) => {
@@ -418,7 +370,7 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
                 subscriptionIdentifier: Math.floor(Math.random() * 1000),
               },
             },
-            (err, granted) => {
+            (err, _granted) => {
               if (err) {
                 // Use error handler for subscription errors
                 errorHandler.handleSubscriptionError(err, {
@@ -427,8 +379,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
                   operation: "subscribe",
                   clientConnected: mqttClient.connected,
                 });
-              } else {
-                console.log(`Re-subscribed to topic ${topic}:`, granted);
               }
             }
           );
@@ -447,19 +397,12 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
           wasClean: packet?.reasonCode === 0,
         });
 
-        console.log("MQTT v5.0 Client disconnected:", {
-          reasonCode: packet?.reasonCode,
-          properties: packet?.properties,
-          timestamp: new Date().toISOString(),
-        });
-
         setStatus("disconnected");
         onDisconnect?.();
 
         // Check if this was an unexpected disconnection and schedule reconnection
         // Don't reconnect if we're in the process of manually disconnecting
         if (status === "connected" || status === "reconnecting") {
-          console.log("Unexpected disconnection detected - scheduling reconnection");
           if (scheduleReconnectionRef.current) {
             scheduleReconnectionRef.current("Unexpected disconnection");
           }
@@ -484,15 +427,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
           const message = parseAndValidateMessage(topic, payload, packet);
 
           // Log successful message receipt for monitoring
-          console.log("MQTT message received:", {
-            topic,
-            payloadSize: payload.length,
-            qos: packet.qos,
-            retain: packet.retain,
-            hasProperties: !!packet.properties,
-            timestamp: new Date().toISOString(),
-          });
-
           onMessage?.(topic, message);
         } catch (error) {
           // Use comprehensive error handler for message processing errors (Requirement 6.4)
@@ -516,20 +450,10 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
 
       // Check if client is already connected (happens with fast connections)
       // This is a race condition fix - sometimes the connection completes before event handlers are registered
-      console.log("🕐 Setting up connection check after event handlers...");
 
       // Use setImmediate to check after current execution cycle
       const checkConnection = () => {
-        console.log("🔍 Checking connection status immediately:", {
-          clientConnected: mqttClient.connected,
-          isUnmounted: isUnmountedRef.current,
-          shouldTrigger: mqttClient.connected && !isUnmountedRef.current,
-          timestamp: new Date().toISOString(),
-        });
-
         if (mqttClient.connected && !isUnmountedRef.current) {
-          console.log("🔍 Client was already connected - triggering connect handler manually");
-
           // Manually trigger the connect logic
           const errorHandler = getMqttErrorHandler();
 
@@ -540,19 +464,9 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
             sessionPresent: false,
           });
 
-          console.log("🟢 MANUALLY TRIGGERING CONNECTION SUCCESS");
-          console.log('🔄 CALLING setStatus("connected")...');
           setStatus("connected");
-
-          console.log("🔄 CALLING resetReconnectAttempts()...");
           resetReconnectAttempts();
-
-          console.log("🔄 CALLING onConnect callback...");
           onConnect?.();
-
-          console.log("✅ Manual connect handler completed");
-        } else {
-          console.log("❌ Not triggering manual connect - conditions not met");
         }
       };
 
@@ -590,7 +504,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
       );
 
       if (!reconnectionDecision.shouldReconnect) {
-        console.log("Reconnection not attempted:", reconnectionDecision.reason);
         setStatus("error");
         return;
       }
@@ -605,16 +518,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
       );
 
       setNextReconnectDelay(delay);
-
-      console.log(
-        `Scheduling reconnection attempt ${reconnectAttempts + 1}/${RECONNECTION_CONFIG.maxReconnectAttempts} in ${delay}ms`,
-        {
-          attempt: reconnectAttempts + 1,
-          delay,
-          reason: reconnectionDecision.reason,
-          timestamp: new Date().toISOString(),
-        }
-      );
 
       // Store the time when disconnection occurred for downtime calculation
       const disconnectionTime = Date.now();
@@ -699,7 +602,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
 
       // Handle token expiration errors
       if (isTokenExpirationError(error)) {
-        console.log("Token expiration detected - marking token as expired");
         setTokenExpired(true);
         setStatus("error");
         onError?.(error);
@@ -708,7 +610,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
 
       // Handle network connectivity errors
       if (isNetworkConnectivityError(error)) {
-        console.log("Network connectivity error detected");
         setStatus("error");
         onError?.(error);
 
@@ -743,23 +644,17 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
   const connectInternal = useCallback(
     async (forceCredentialsRefresh: boolean = false): Promise<void> => {
       if (isUnmountedRef.current || status === "connected" || status === "connecting") {
-        console.log("🚫 Skipping connection: unmounted or already connecting/connected", {
-          isUnmounted: isUnmountedRef.current,
-          status,
-        });
         return;
       }
 
       // Don't attempt connection if network is offline
       if (!isNetworkOnline) {
-        console.log("🚫 Cannot connect - network is offline");
         setError("Network is offline");
         setStatus("error");
         return;
       }
 
       try {
-        console.log("🔌 Starting MQTT connection process");
         setStatus("connecting");
         setError(null);
 
@@ -769,15 +664,12 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         if (!forceCredentialsRefresh) {
           const cachedCredentials = MqttCredentialsService.getCachedCredentials();
           if (cachedCredentials) {
-            console.log("🔄 Using cached MQTT credentials for connection");
             credentials = cachedCredentials;
             credentialsRef.current = credentials;
           } else {
-            console.log("📡 No cached credentials, fetching fresh ones");
             credentials = await fetchCredentials(false);
           }
         } else {
-          console.log("🔄 Force refreshing MQTT credentials");
           credentials = await fetchCredentials(true);
         }
 
@@ -785,23 +677,13 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         const mqttClient = createClient(credentials);
         setClient(mqttClient);
 
-        console.log("🔌 MQTT client created, waiting for connection...");
-        console.log("📊 Current status before client creation:", status);
-
         // Additional debug info
-        const currentStoreState = useMqttConnectionStore.getState();
-        console.log("📊 Complete store state:", currentStoreState);
+        useMqttConnectionStore.getState();
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : "Connection failed";
-        console.error("❌ Failed to connect to MQTT broker:", {
-          error: errorMessage,
-          forceCredentialsRefresh,
-          timestamp: new Date().toISOString(),
-        });
 
         // Handle credential fetch errors (likely token expiration)
         if (isTokenExpirationError(errorMessage)) {
-          console.log("🔑 Token expiration detected during connection");
           setTokenExpired(true);
           MqttCredentialsService.clearCredentialsCache();
         }
@@ -850,10 +732,7 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
             resolve();
           });
         });
-        console.log("MQTT Client disconnected cleanly");
-      } catch (error) {
-        console.error("Error during MQTT disconnect:", error);
-      }
+      } catch {}
     }
 
     setClient(null);
@@ -869,8 +748,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
    */
   const reconnect = useCallback(
     async (forceCredentialsRefresh: boolean = true): Promise<void> => {
-      console.log("🔄 Manual reconnection started");
-
       // Clear any scheduled reconnections
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
@@ -889,10 +766,8 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
       try {
         await disconnect();
         await connect(forceCredentialsRefresh);
-        console.log("✅ Manual reconnection completed successfully");
-      } catch (error) {
-        console.error("❌ Manual reconnection failed:", error);
-        throw error;
+      } catch (err) {
+        throw err;
       }
     },
     [disconnect, connect, resetReconnectAttempts, setTokenExpired]
@@ -965,7 +840,7 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         };
 
         try {
-          client.subscribe(topic, subscribeOptions, (error, granted) => {
+          client.subscribe(topic, subscribeOptions, (error, _granted) => {
             if (error) {
               // Use comprehensive error handler for subscription failures
               const errorHandler = getMqttErrorHandler();
@@ -978,13 +853,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
               reject(error);
             } else {
               // Enhanced success logging
-              console.log(`Successfully subscribed to topic: ${topic}`, {
-                topic,
-                requestedQos: qos,
-                grantedQos: granted?.[0]?.qos,
-                granted,
-                timestamp: new Date().toISOString(),
-              });
               subscriptionsRef.current.add(topic);
               resolve();
             }
@@ -1070,7 +938,7 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
         };
 
         try {
-          client.unsubscribe(topic, unsubscribeOptions, (error, packet) => {
+          client.unsubscribe(topic, unsubscribeOptions, (error, _packet) => {
             if (error) {
               // Use comprehensive error handler for unsubscription failures
               const errorHandler = getMqttErrorHandler();
@@ -1083,11 +951,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
               reject(error);
             } else {
               // Enhanced success logging
-              console.log(`Successfully unsubscribed from topic: ${topic}`, {
-                topic,
-                packet,
-                timestamp: new Date().toISOString(),
-              });
               subscriptionsRef.current.delete(topic);
               resolve();
             }
@@ -1178,7 +1041,7 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
 
       return new Promise((resolve, reject) => {
         try {
-          client.publish(topic, message, publishOptions, (error, packet) => {
+          client.publish(topic, message, publishOptions, (error, _packet) => {
             if (error) {
               // Use comprehensive error handler for publish failures (Requirement 6.3)
               const errorHandler = getMqttErrorHandler();
@@ -1193,14 +1056,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
               reject(error);
             } else {
               // Enhanced success logging
-              console.log(`Successfully published to topic: ${topic}`, {
-                topic,
-                messageLength: typeof message === "string" ? message.length : message.length,
-                qos: publishOptions.qos,
-                retain: publishOptions.retain,
-                packet,
-                timestamp: new Date().toISOString(),
-              });
               resolve();
             }
           });
@@ -1264,7 +1119,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
 
         // If we were disconnected due to network issues, attempt reconnection
         if ((status === "error" || status === "disconnected") && !tokenExpired) {
-          console.log("Network connectivity restored - attempting reconnection");
           if (scheduleReconnectionRef.current) {
             scheduleReconnectionRef.current("Network connectivity restored");
           }
@@ -1279,8 +1133,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = null;
         }
-
-        console.log("Network connectivity lost - pausing reconnection attempts");
       }
     );
 
@@ -1298,7 +1150,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
    */
   useEffect(() => {
     return () => {
-      console.log("🚨 useMqtt cleanup triggered - component unmounting");
       isUnmountedRef.current = true;
 
       if (reconnectTimeoutRef.current) {
@@ -1314,7 +1165,6 @@ export function useMqtt(options: UseMqttOptions = {}): UseMqttReturn {
       // Get the current client from store instead of using stale closure
       const currentClient = useMqttConnectionStore.getState().client;
       if (currentClient) {
-        console.log("🔌 Force disconnecting client during cleanup");
         currentClient.end(true); // Force disconnect
       }
     };

@@ -68,12 +68,6 @@ export function useMqttQueryIntegration() {
 
       // Only update if there are active subscribers for this topic
       if (!currentData || currentData.subscribers === 0) {
-        console.log(`Skipping MQTT message for topic ${topic} - no active subscribers:`, {
-          topic,
-          hasCurrentData: !!currentData,
-          subscribers: currentData?.subscribers || 0,
-          timestamp: new Date().toISOString(),
-        });
         return;
       }
 
@@ -93,13 +87,6 @@ export function useMqttQueryIntegration() {
       // Update cache con actualización quirúrgica (sin invalidar)
       // Esto evita refetchs innecesarios y re-render global
       queryClient.setQueryData(queryKey, updatedData);
-
-      console.log(`Global MQTT message processed for topic ${topic}:`, {
-        topic,
-        messageCount: updatedData.messages.length,
-        subscribers: updatedData.subscribers,
-        timestamp: new Date().toISOString(),
-      });
     },
     [queryClient, normalizeMessagePayload]
   );

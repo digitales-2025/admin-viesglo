@@ -417,7 +417,7 @@ export default function BulletChart({
               left: "0%",
               width: `${animatedTarget}%`,
               transform: "translateY(-50%)",
-              zIndex: 50,
+              zIndex: 10,
               filter: hoveredSection === "target" ? "brightness(1.2)" : "brightness(1)",
               transition: isAnimating
                 ? `width ${animationDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
@@ -440,7 +440,7 @@ export default function BulletChart({
             style={{
               left: `calc(${animatedTarget}% - 6px)`,
               transform: "translateY(-50%)",
-              zIndex: 60,
+              zIndex: 20,
               transition: isAnimating
                 ? `left ${animationDuration}ms cubic-bezier(0.4, 0, 0.2, 1)`
                 : "all 700ms ease-out",
@@ -498,7 +498,7 @@ export default function BulletChart({
       {/* Tooltip Card */}
       {showTooltip && tooltipContent && (
         <div
-          className="fixed z-50 pointer-events-none"
+          className="fixed z-40 pointer-events-none"
           style={{
             left: mousePosition.x + 10,
             top: mousePosition.y - 10,

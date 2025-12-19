@@ -143,16 +143,7 @@ export function useMqttTopic<T = unknown>(topic: string, options: UseMqttTopicOp
           subscribers: subscribersCountRef.current,
         });
       }
-
-      console.log(`Successfully subscribed to MQTT topic: ${topic}`, {
-        topic,
-        qos,
-        subscribers: subscribersCountRef.current,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error(`Failed to subscribe to MQTT topic ${topic}:`, error);
-    }
+    } catch (_error) {}
   }, [isConnected, topic, qos, subscribe, queryClient]);
 
   /**
@@ -185,15 +176,7 @@ export function useMqttTopic<T = unknown>(topic: string, options: UseMqttTopicOp
           subscribers: subscribersCountRef.current,
         });
       }
-
-      console.log(`Successfully unsubscribed from MQTT topic: ${topic}`, {
-        topic,
-        subscribers: subscribersCountRef.current,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      console.error(`Failed to unsubscribe from MQTT topic ${topic}:`, error);
-    }
+    } catch (_error) {}
   }, [topic, unsubscribe, queryClient]);
 
   /**

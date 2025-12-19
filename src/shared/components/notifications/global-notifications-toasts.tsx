@@ -42,17 +42,8 @@ export function GlobalNotificationsToasts() {
   const showGlobalNotificationToast = useCallback(
     (notification: GlobalNotificationDto) => {
       if (!toast) {
-        console.warn("🔔 GlobalNotificationsToasts: Toast not available");
         return;
       }
-
-      console.log("🔔 GlobalNotificationsToasts: Showing toast for notification:", {
-        id: notification.id,
-        title: notification.title,
-        type: notification.type,
-        priority: notification.priority,
-        category: notification.category,
-      });
 
       const toastType = getToastType(notification.type);
       const icon = getCategoryIcon(notification.category);
@@ -74,26 +65,14 @@ export function GlobalNotificationsToasts() {
 
   // Suscribirse a nuevas notificaciones globales y mostrarlas como toasts
   useEffect(() => {
-    console.log("🔔 GlobalNotificationsToasts: Setting up callback for new global notifications");
-
     const unsubscribe = onNewGlobalNotification((notification) => {
-      console.log("🔔 GlobalNotificationsToasts: Received global notification callback:", {
-        id: notification.id,
-        title: notification.title,
-        processedCount: processedNotifications.current.size,
-      });
-
       if (!processedNotifications.current.has(notification.id)) {
-        console.log("🔔 GlobalNotificationsToasts: Processing new notification:", notification.id);
         showGlobalNotificationToast(notification);
         processedNotifications.current.add(notification.id);
-      } else {
-        console.log("🔔 GlobalNotificationsToasts: Skipping duplicate notification:", notification.id);
       }
     });
 
     return () => {
-      console.log("🔔 GlobalNotificationsToasts: Cleaning up subscription");
       unsubscribe();
     };
   }, [onNewGlobalNotification, showGlobalNotificationToast]);

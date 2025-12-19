@@ -72,7 +72,7 @@ export default function ProjectsFilters({
       <Button
         variant="outline"
         size="sm"
-        className="h-8 border-dashed"
+        className={cn("h-8 border-dashed shrink-0", projectSortField === "name" && "bg-primary/10 border-primary")}
         onClick={() => onSortChange("name", projectSortField === "name" && sortOrder === "asc" ? "desc" : "asc")}
       >
         A-Z {projectSortField === "name" ? (sortOrder === "asc" ? "↑" : "↓") : "↑"}
@@ -82,16 +82,16 @@ export default function ProjectsFilters({
       <Button
         variant="outline"
         size="sm"
-        className="h-8 border-dashed"
+        className={cn("h-8 border-dashed shrink-0", projectSortField === "endDate" && "bg-primary/10 border-primary")}
         onClick={() => onSortChange("endDate", projectSortField === "endDate" && sortOrder === "asc" ? "desc" : "asc")}
       >
         Fecha de finalización {projectSortField === "endDate" ? (sortOrder === "asc" ? "↑" : "↓") : "↑"}
       </Button>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {/* Filtro de Tipo de Proyecto */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 border-dashed">
+            <Button variant="outline" size="sm" className="h-8 border-dashed shrink-0">
               <PlusCircle className="mr-2 h-4 w-4" />
               Tipo de proyecto
               {selectedProjectTypes.length > 0 && (
@@ -169,7 +169,7 @@ export default function ProjectsFilters({
         {/* Filtro de Estado de Proyecto */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 border-dashed">
+            <Button variant="outline" size="sm" className="h-8 border-dashed shrink-0">
               <PlusCircle className="mr-2 h-4 w-4" />
               Estado
               {selectedProjectStatuses.length > 0 && (
@@ -247,7 +247,7 @@ export default function ProjectsFilters({
         {/* Filtro de Nivel de Retraso */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 border-dashed">
+            <Button variant="outline" size="sm" className="h-8 border-dashed shrink-0">
               <PlusCircle className="mr-2 h-4 w-4" />
               Nivel de retraso
               {selectedDelayLevels.length > 0 && (

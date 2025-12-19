@@ -36,40 +36,24 @@ interface MqttSessionProviderProps {
 export function MqttSessionProvider({ children }: MqttSessionProviderProps) {
   const { clearAllTopics } = useMqttQueryProvider();
 
-  const { isAuthenticated, isAuthError, tokenExpired, mqttStatus, reconnectAfterTokenRefresh } =
-    useMqttSessionLifecycle({
-      autoConnectOnAuth: true,
-      autoDisconnectOnLogout: true,
+  const { reconnectAfterTokenRefresh } = useMqttSessionLifecycle({
+    autoConnectOnAuth: true,
+    autoDisconnectOnLogout: true,
 
-      onAuthConnect: () => {
-        console.log("MQTT Session Provider - MQTT connected due to authentication");
-      },
+    onAuthConnect: () => {},
 
-      onAuthDisconnect: () => {
-        console.log("MQTT Session Provider - MQTT disconnected due to logout, clearing cache");
-        // Clear all MQTT topic data from TanStack Query cache on logout
-        // Requirement 3.3: Clean disconnection includes cache cleanup
-        clearAllTopics();
-      },
+    onAuthDisconnect: () => {
+      // Clear all MQTT topic data from TanStack Query cache on logout
+      // Requirement 3.3: Clean disconnection includes cache cleanup
+      clearAllTopics();
+    },
 
-      onTokenExpired: () => {
-        console.log("MQTT Session Provider - Token expired, clearing cache");
-        // Clear all MQTT topic data from TanStack Query cache on token expiration
-        // Requirement 3.5: Token expiration cleanup
-        clearAllTopics();
-      },
-    });
-
-  // Log session state changes for debugging
-  useEffect(() => {
-    console.log("MQTT Session Provider - Session state changed:", {
-      isAuthenticated,
-      isAuthError,
-      tokenExpired,
-      mqttStatus,
-      timestamp: new Date().toISOString(),
-    });
-  }, [isAuthenticated, isAuthError, tokenExpired, mqttStatus]);
+    onTokenExpired: () => {
+      // Clear all MQTT topic data from TanStack Query cache on token expiration
+      // Requirement 3.5: Token expiration cleanup
+      clearAllTopics();
+    },
+  });
 
   // Expose reconnection function globally for debugging/manual control
   useEffect(() => {

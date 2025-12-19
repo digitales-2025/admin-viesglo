@@ -10,9 +10,7 @@ function generateTypesBackend() {
     execSync(`pnpx openapi-typescript ${SWAGGER_URL} -o ${OUTPUT_PATH}`, {
       stdio: "inherit",
     });
-    console.log("✅ Tipos generados exitosamente");
-  } catch (error) {
-    console.error("❌ Error generando tipos:", error);
+  } catch {
     process.exit(1);
   }
 }
