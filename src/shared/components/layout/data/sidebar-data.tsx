@@ -50,7 +50,7 @@ export const sidebarData: SidebarData = {
               title: "Plantillas",
               icon: ScrollText,
               url: "/dashboard/admin/templates",
-              permission: "roles:read",
+              permission: "projects:read",
             },
           ],
           permission: "projects:read",
@@ -63,10 +63,10 @@ export const sidebarData: SidebarData = {
               title: "Gestión de Recursos",
               icon: ClipboardCheck,
               url: "/dashboard/admin/resources",
-              permission: "users:read",
+              permission: "resources:read",
             },
           ],
-          permission: "users:read",
+          permission: "resources:read",
         },
 
         {

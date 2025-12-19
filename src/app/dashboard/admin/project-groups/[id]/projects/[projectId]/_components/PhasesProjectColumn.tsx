@@ -52,11 +52,6 @@ function PeriodCell({
   const endDate = phase.endDate;
   const phaseId = phase.id;
 
-  // Console logs para debugging
-  console.log("🔍 Usuario actual ID:", currentUser?.id);
-  console.log("🔍 Usuario asignado al milestone:", milestoneAssignedUser?.userId);
-  console.log("🔍 ¿Coinciden?:", currentUser?.id === milestoneAssignedUser?.userId);
-
   // Verificar si el usuario actual es el asignado al milestone
   const isCurrentUserAssigned = Boolean(
     currentUser?.id && milestoneAssignedUser?.userId && currentUser.id === milestoneAssignedUser.userId

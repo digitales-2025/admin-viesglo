@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import {
   ArrowLeft,
+  Check,
+  Copy,
   FileCheck,
   Flag,
   Folder,
@@ -27,10 +29,84 @@ import {
   TreeProvider,
   TreeView,
 } from "@/shared/components/ui/kibo-ui/tree";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
 import { DeliverableDetailedResponseDto, MilestoneDetailedResponseDto, PhaseDetailedResponseDto } from "../_types";
 import { ProjectBreadcrumbOverride } from "./_components/ProjectBreadcrumbOverride";
 import { ProjectProvider, useProjectContext } from "./_context/ProjectContext";
 import { useOpenMilestoneStore } from "./_stores/useOpenMilestoneStore";
+
+function ProjectDescription({ description }: { description: string | null | undefined }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!description) return;
+
+    try {
+      await navigator.clipboard.writeText(description);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error("Error al copiar:", error);
+    }
+  };
+
+  const displayText = description || "Proyecto sin descripción";
+  const hasDescription = !!description;
+
+  if (!hasDescription) {
+    return (
+      <p className="text-xs text-muted-foreground whitespace-normal wrap-break-word group-hover:text-foreground/80 transition-colors">
+        {displayText}
+      </p>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <p className="text-xs text-muted-foreground whitespace-normal wrap-break-word group-hover:text-foreground/80 transition-colors line-clamp-2 cursor-help">
+          {displayText}
+        </p>
+      </TooltipTrigger>
+      <TooltipContent
+        side="bottom"
+        align="start"
+        className="max-w-md p-0 cursor-pointer border shadow-lg bg-popover"
+        onClick={handleCopy}
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <div className="p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm text-foreground whitespace-pre-wrap wrap-break-word leading-relaxed">
+                {description}
+              </p>
+            </div>
+            <div
+              className={`shrink-0 p-1.5 rounded-md transition-all duration-200 ${
+                copied
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+            >
+              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            </div>
+          </div>
+          <div className="flex items-center justify-between pt-2 border-t">
+            <p
+              className={`text-[11px] font-medium transition-colors ${
+                copied ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"
+              }`}
+            >
+              {copied ? "✓ Copiado al portapapeles" : "Click para copiar"}
+            </p>
+          </div>
+        </div>
+      </TooltipContent>
+    </Tooltip>
+  );
+}
 
 function ProjectHeader() {
   const { projectData, isLoading: isProjectLoading } = useProjectContext();
@@ -91,9 +167,7 @@ function ProjectHeader() {
             >
               {projectData.name}
             </h2>
-            <p className="text-xs text-muted-foreground whitespace-normal break-words group-hover:text-foreground/80 transition-colors">
-              {projectData.description || "Proyecto sin descripción"}
-            </p>
+            <ProjectDescription description={projectData.description} />
           </div>
         </div>
 

@@ -72,6 +72,7 @@ const hasNavPermission = (
     if (!parsed) return false;
 
     const { resource, action } = parsed;
+
     // Si la acción es "*", verificar si tiene el wildcard del recurso
     if (action === "*") {
       if (!hasPermission(resource, "*" as ActionName)) {
@@ -229,6 +230,7 @@ export function NavGroup({ title, items, permission, roles }: NavGroup) {
       if (!parsed) return null;
 
       const { resource, action } = parsed;
+
       // Si la acción es "*", verificar si tiene el wildcard del recurso
       if (action === "*") {
         if (!hasPermission(resource, "*" as ActionName)) {
