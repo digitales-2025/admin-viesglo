@@ -18,6 +18,11 @@ export const ListMilestonesProject = () => {
     return <NoInfoSection message="No hay hitos aún. Crea el primero para comenzar a gestionar el proyecto." />;
   }
 
+  // Ordenar milestones por order (campo del backend)
+  const sortedMilestones = [...(milestones || [])].sort((a, b) => {
+    return (a.order || 0) - (b.order || 0);
+  });
+
   return (
     <PermissionProtected
       permissions={[
@@ -35,7 +40,7 @@ export const ListMilestonesProject = () => {
             ))}
           </div>
         ) : (
-          milestones?.map((milestone: MilestoneDetailedResponseDto) => (
+          sortedMilestones.map((milestone: MilestoneDetailedResponseDto) => (
             <CardProjectMilestone
               key={milestone.id}
               milestone={milestone}

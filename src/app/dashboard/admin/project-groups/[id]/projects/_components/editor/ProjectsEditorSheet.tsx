@@ -65,6 +65,14 @@ export default function ProjectsEditorSheet({
           onOpenChange(v);
           if (!v) {
             form.reset();
+            // Forzar limpieza del estado después de que se cierre el sheet
+            // Esto asegura que cualquier overlay residual se limpie
+            setTimeout(() => {
+              // Forzar re-render del componente para limpiar cualquier estado residual
+              if (document.body.style.pointerEvents === "none") {
+                document.body.style.pointerEvents = "";
+              }
+            }, 350); // Esperar a que termine la animación de cierre (300ms + margen)
           }
         }
       }}
