@@ -43,13 +43,13 @@ const maxWidthClasses = {
 };
 
 const roundedClasses = {
-  none: "rounded-none",
-  sm: "rounded-sm",
-  md: "rounded-md",
-  lg: "rounded-lg",
-  xl: "rounded-xl",
-  "2xl": "rounded-2xl",
-  "3xl": "rounded-3xl",
+  none: "rounded-tl-none rounded-bl-none",
+  sm: "rounded-tl-sm rounded-bl-sm",
+  md: "rounded-tl-md rounded-bl-md",
+  lg: "rounded-tl-lg rounded-bl-lg",
+  xl: "rounded-tl-xl rounded-bl-xl",
+  "2xl": "rounded-tl-2xl rounded-bl-2xl",
+  "3xl": "rounded-tl-3xl rounded-bl-3xl",
 };
 
 export function GenericSheet({
