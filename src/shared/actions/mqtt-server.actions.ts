@@ -74,7 +74,7 @@ export async function publishMqttMessage(
     }
 
     // Make the request to the backend MQTT publish endpoint
-    const [data, err] = await http.post<{ success: boolean; messageId?: string }>("/api/mqtt/publish", publishRequest);
+    const [, err] = await http.post<{ success: boolean; messageId?: string }>("/api/mqtt/publish", publishRequest);
 
     if (err !== null) {
       // Use comprehensive error handler for server action publish failures
@@ -95,16 +95,6 @@ export async function publishMqttMessage(
         error: `Failed to publish message: ${err.message}`,
       };
     }
-
-    // Log successful publish (excluding sensitive payload data)
-    console.log("MQTT message published successfully:", {
-      topic,
-      qos: publishRequest.qos,
-      retain: publishRequest.retain,
-      payloadLength: payloadString.length,
-      messageId: data?.messageId,
-      timestamp: new Date().toISOString(),
-    });
 
     return {
       success: true,
@@ -184,16 +174,6 @@ export async function publishMqttRequest(
     // Use the main publish function with enhanced properties
     const result = await publishMqttMessage(topic, payload, publishOptions);
 
-    if (result.success) {
-      console.log("MQTT request message published successfully:", {
-        topic,
-        responseTopic,
-        correlationData:
-          typeof finalCorrelationData === "string" ? finalCorrelationData : finalCorrelationData.toString("base64"),
-        timestamp: new Date().toISOString(),
-      });
-    }
-
     return result;
   } catch (error) {
     // Use comprehensive error handler for request message publishing errors
@@ -255,14 +235,6 @@ export async function publishMqttMessageWithProperties(
 
     // Use the main publish function with enhanced properties
     const result = await publishMqttMessage(topic, payload, publishOptions);
-
-    if (result.success) {
-      console.log("MQTT message with user properties published successfully:", {
-        topic,
-        userPropertiesKeys: Object.keys(userProperties),
-        timestamp: new Date().toISOString(),
-      });
-    }
 
     return result;
   } catch (error) {

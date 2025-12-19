@@ -4,9 +4,9 @@ import React, { useEffect } from "react";
 import { useParams } from "next/navigation";
 
 import AlertMessage from "@/shared/components/alerts/Alert";
-import { Loading } from "@/shared/components/loading";
 import { MetaPaginated } from "@/types/query-filters/meta-paginated.types";
 import { usePhaseDeliverablesPaginated } from "../../../../_hooks/use-project-deliverables";
+import { DeliverablesTableSkeleton } from "./DeliverablesTableSkeleton";
 import { TableDeliverablesPhase } from "./TableDeliverablesPhase";
 
 interface ListDeliverablesPhaseProps {
@@ -40,7 +40,7 @@ export function ListDeliverablesPhase({ milestoneStatus, setMilestoneStatus }: L
     }
   }, [data?.milestoneStatus, setMilestoneStatus]);
 
-  if (isLoading) return <Loading text="Cargando entregables..." variant="spinner" />;
+  if (isLoading) return <DeliverablesTableSkeleton />;
 
   if (error) {
     return (

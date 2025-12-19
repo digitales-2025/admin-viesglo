@@ -91,33 +91,11 @@ export function useMqttPublish(mutationOptions: MqttPublishMutationOptions = {})
         await publish(topic, processedMessage, options);
 
         // Log successful publish for monitoring
-        console.log("MQTT message published successfully via mutation:", {
-          topic,
-          messageType: typeof message,
-          messageSize:
-            typeof processedMessage === "string"
-              ? processedMessage.length
-              : Buffer.isBuffer(processedMessage)
-                ? processedMessage.length
-                : 0,
-          qos: options.qos || 1,
-          retain: options.retain || false,
-          timestamp: new Date().toISOString(),
-        });
 
         return { success: true };
       } catch (error) {
         // Enhanced error handling for publish failures (requirement 4.2)
         const errorMessage = error instanceof Error ? error.message : "Unknown publish error";
-
-        console.error("MQTT publish mutation failed:", {
-          topic,
-          error: errorMessage,
-          messageType: typeof message,
-          connectionStatus,
-          isConnected,
-          timestamp: new Date().toISOString(),
-        });
 
         throw new Error(`Failed to publish to topic "${topic}": ${errorMessage}`);
       }

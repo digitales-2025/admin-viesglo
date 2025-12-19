@@ -11,7 +11,6 @@ import {
   Flag,
   Folder,
   GitBranch,
-  Loader2,
   PanelLeftClose,
   PanelLeftOpen,
   Users,
@@ -29,7 +28,10 @@ import {
   TreeProvider,
   TreeView,
 } from "@/shared/components/ui/kibo-ui/tree";
+import { Sheet, SheetContent } from "@/shared/components/ui/sheet";
+import { Skeleton } from "@/shared/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/components/ui/tooltip";
+import { useIsMobile } from "@/shared/hooks/use-mobile";
 import { DeliverableDetailedResponseDto, MilestoneDetailedResponseDto, PhaseDetailedResponseDto } from "../_types";
 import { ProjectBreadcrumbOverride } from "./_components/ProjectBreadcrumbOverride";
 import { ProjectProvider, useProjectContext } from "./_context/ProjectContext";
@@ -122,9 +124,42 @@ function ProjectHeader() {
 
   if (isProjectLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-2">
-        <Loader2 className="h-4 w-4 animate-spin" />
-        <span>Cargando proyecto...</span>
+      <div className="px-4 py-4 border-b bg-muted/30">
+        <div className="space-y-4">
+          {/* Skeleton del header del proyecto */}
+          <div className="flex items-center gap-3 pb-4">
+            <Skeleton className="h-10 w-10 rounded-lg shrink-0" />
+            <div className="flex-1 min-w-0 space-y-2">
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-4 w-full" />
+            </div>
+          </div>
+
+          {/* Skeleton de las estadísticas */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between py-2 px-3 bg-card/50 rounded-md border border-border/50">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <Skeleton className="h-4 w-6" />
+            </div>
+            <div className="flex items-center justify-between py-2 px-3 bg-card/50 rounded-md border border-border/50">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-4 w-16" />
+              </div>
+              <Skeleton className="h-4 w-6" />
+            </div>
+            <div className="flex items-center justify-between py-2 px-3 bg-card/50 rounded-md border border-border/50">
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-4 w-4 rounded" />
+                <Skeleton className="h-4 w-20" />
+              </div>
+              <Skeleton className="h-4 w-6" />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -207,17 +242,67 @@ function CurrentProjectTree() {
 
   if (isProjectLoading || !currentProjectId) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground px-3 py-2">
-        <Loader2 className="h-4 w-4 animate-spin" /> Cargando estructura...
+      <div className="h-full overflow-y-auto px-3 py-2 space-y-2">
+        {/* Skeleton de milestones */}
+        {Array.from({ length: 3 }).map((_, index) => (
+          <div key={index} className="space-y-1">
+            {/* Skeleton del milestone */}
+            <div className="flex items-center gap-2 py-1.5 px-2">
+              <Skeleton className="h-4 w-4 rounded shrink-0" />
+              <Skeleton className="h-4 w-4 rounded shrink-0" />
+              <Skeleton className="h-4 w-32 flex-1" />
+            </div>
+            {/* Skeleton de fases (solo para algunos milestones) */}
+            {index < 2 && (
+              <div className="ml-6 space-y-1">
+                {Array.from({ length: 2 }).map((_, phaseIndex) => (
+                  <div key={phaseIndex} className="flex items-center gap-2 py-1 px-2">
+                    <Skeleton className="h-4 w-4 rounded shrink-0" />
+                    <Skeleton className="h-4 w-4 rounded shrink-0" />
+                    <Skeleton className="h-4 w-28 flex-1" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     );
   }
 
-  // Ordenar milestones por nombre
+  // Ordenar milestones por el número extraído del nombre (el campo order del backend está incorrecto)
   const sortedMilestones = [...(projectData?.milestones || [])].sort((a, b) => {
-    const nameA = a.name?.toLowerCase() || "";
-    const nameB = b.name?.toLowerCase() || "";
-    return nameA.localeCompare(nameB);
+    // Función para extraer el número del nombre del hito
+    const getOrderNumber = (milestone: MilestoneDetailedResponseDto): number => {
+      const name = milestone.name || "";
+
+      // Extraer el primer número del nombre (ejemplo: "Hito 1", "Hito 02", "Hito 3 HÍBRIDAS" -> 1, 2, 3)
+      const numberMatch = name.match(/\d+/);
+      if (numberMatch) {
+        const extractedNum = parseInt(numberMatch[0], 10);
+        if (!isNaN(extractedNum)) {
+          return extractedNum;
+        }
+      }
+
+      // Si no se puede extraer del nombre, usar el campo order del backend como fallback
+      if (milestone.order !== undefined && milestone.order !== null) {
+        const numOrder = typeof milestone.order === "number" ? milestone.order : Number(milestone.order);
+        if (!isNaN(numOrder) && numOrder > 0) {
+          return numOrder;
+        }
+      }
+
+      // Si no se puede determinar, poner al final
+      return Number.MAX_SAFE_INTEGER;
+    };
+
+    const orderA = getOrderNumber(a);
+    const orderB = getOrderNumber(b);
+
+    // Ordenar numéricamente
+    return orderA - orderB;
   });
 
   return (
@@ -398,12 +483,46 @@ function DeliverableNode({ deliverable }: { deliverable: DeliverableDetailedResp
   );
 }
 
+// Componente del contenido del sidebar (reutilizable)
+function SidebarContent({ backUrl, backText }: { backUrl: string; backText: string }) {
+  return (
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-auto h-full">
+      {/* Header con navegación */}
+      <div className="px-3 py-3 border-b bg-background/80 backdrop-blur-sm shrink-0">
+        <div className="flex items-center justify-between">
+          <Link
+            href={backUrl}
+            className={cn(
+              "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
+              buttonVariants({ variant: "ghost", size: "sm" })
+            )}
+          >
+            <ArrowLeft className="h-4 w-4 shrink-0" />
+            <span>{backText}</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Información del proyecto */}
+      <div className="shrink-0">
+        <ProjectHeader />
+      </div>
+
+      {/* Tree de milestones */}
+      <div className="flex-1 min-h-0 overflow-auto">
+        <CurrentProjectTree />
+      </div>
+    </div>
+  );
+}
+
 function TrackingLayoutContent({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const params = useParams();
   const pathname = usePathname();
   const groupId = params.id as string;
   const projectId = params.projectId as string;
+  const isMobile = useIsMobile();
 
   // Detectar si estamos en una página de fase
   const isInPhasePage = pathname.includes("/phase/");
@@ -418,35 +537,20 @@ function TrackingLayoutContent({ children }: { children: React.ReactNode }) {
     <>
       <ProjectBreadcrumbOverride />
       <div className="flex h-full min-h-[calc(100vh-4rem)] relative">
-        <aside
-          className={`${sidebarOpen ? "block" : "hidden"} w-80 shrink-0 border-r bg-background/95 backdrop-blur-sm`}
-        >
-          <div className="h-full flex flex-col">
-            {/* Header con navegación */}
-            <div className="px-3 py-3 border-b bg-background/80 backdrop-blur-sm">
-              <div className="flex items-center justify-between">
-                <Link
-                  href={backUrl}
-                  className={cn(
-                    "flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary",
-                    buttonVariants({ variant: "ghost", size: "sm" })
-                  )}
-                >
-                  <ArrowLeft className="h-4 w-4 shrink-0" />
-                  <span>{backText}</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Información del proyecto */}
-            <ProjectHeader />
-
-            {/* Tree de milestones */}
-            <div className="flex-1 overflow-hidden">
-              <CurrentProjectTree />
-            </div>
-          </div>
-        </aside>
+        {/* Sidebar - Desktop: fijo, Mobile: Sheet */}
+        {isMobile ? (
+          <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            <SheetContent side="left" className="w-80 p-0 flex flex-col h-full">
+              <SidebarContent backUrl={backUrl} backText={backText} />
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <aside
+            className={`${sidebarOpen ? "block" : "hidden"} w-80 shrink-0 border-r bg-background/95 backdrop-blur-sm flex flex-col h-full`}
+          >
+            <SidebarContent backUrl={backUrl} backText={backText} />
+          </aside>
+        )}
 
         <main className="flex-1 overflow-y-auto relative">
           <div className="relative">

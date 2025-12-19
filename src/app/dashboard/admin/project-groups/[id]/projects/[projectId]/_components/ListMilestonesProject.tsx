@@ -18,9 +18,38 @@ export const ListMilestonesProject = () => {
     return <NoInfoSection message="No hay hitos aún. Crea el primero para comenzar a gestionar el proyecto." />;
   }
 
-  // Ordenar milestones por order (campo del backend)
+  // Ordenar milestones por el número extraído del nombre (el campo order del backend está incorrecto)
   const sortedMilestones = [...(milestones || [])].sort((a, b) => {
-    return (a.order || 0) - (b.order || 0);
+    // Función para extraer el número del nombre del hito
+    const getOrderNumber = (milestone: MilestoneDetailedResponseDto): number => {
+      const name = milestone.name || "";
+
+      // Extraer el primer número del nombre (ejemplo: "Hito 1", "Hito 02", "Hito 3 HÍBRIDAS" -> 1, 2, 3)
+      const numberMatch = name.match(/\d+/);
+      if (numberMatch) {
+        const extractedNum = parseInt(numberMatch[0], 10);
+        if (!isNaN(extractedNum)) {
+          return extractedNum;
+        }
+      }
+
+      // Si no se puede extraer del nombre, usar el campo order del backend como fallback
+      if (milestone.order !== undefined && milestone.order !== null) {
+        const numOrder = typeof milestone.order === "number" ? milestone.order : Number(milestone.order);
+        if (!isNaN(numOrder) && numOrder > 0) {
+          return numOrder;
+        }
+      }
+
+      // Si no se puede determinar, poner al final
+      return Number.MAX_SAFE_INTEGER;
+    };
+
+    const orderA = getOrderNumber(a);
+    const orderB = getOrderNumber(b);
+
+    // Ordenar numéricamente
+    return orderA - orderB;
   });
 
   return (
