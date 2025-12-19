@@ -39,9 +39,12 @@ export default function ProjectCard({ project }: ProjectCardProps) {
   };
 
   // Función para manejar la edición del proyecto
-  const handleEditProject = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    open(MODULE, "edit", project);
+  const handleEditProject = () => {
+    // Usar setTimeout para asegurar que el ContextMenu se cierre completamente
+    // antes de abrir el sheet, evitando conflictos de overlay
+    setTimeout(() => {
+      open(MODULE, "edit", project);
+    }, 0);
   };
 
   // Función para formatear la fecha
@@ -248,7 +251,7 @@ export default function ProjectCard({ project }: ProjectCardProps) {
         hideOnUnauthorized={true}
       >
         <ContextMenuContent className="w-48">
-          <ContextMenuItem onClick={handleEditProject}>
+          <ContextMenuItem onSelect={handleEditProject}>
             <Edit className="h-4 w-4 mr-2" />
             Editar Proyecto
           </ContextMenuItem>
