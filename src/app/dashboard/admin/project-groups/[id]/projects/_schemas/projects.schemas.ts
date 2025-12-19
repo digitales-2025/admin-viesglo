@@ -8,7 +8,7 @@ export const projectsSchema = z.object({
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .max(100, "El nombre no puede exceder 100 caracteres"),
-  description: z.string().max(500, "La descripción no puede exceder 500 caracteres").optional(),
+  description: z.string().optional(),
   projectType: z.nativeEnum(ProjectTypeEnum),
   status: z.nativeEnum(ProjectStatusEnum).optional(),
 

@@ -72,6 +72,15 @@ const hasNavPermission = (
     if (!parsed) return false;
 
     const { resource, action } = parsed;
+
+    // Debug: verificar permisos para plantillas
+    if (item.permission === "projects:read" && item.title === "Plantillas") {
+      console.log("🔍 Verificando permiso para Plantillas:", item.permission);
+      console.log("🔍 Resource:", resource, "Action:", action);
+      console.log("🔍 Tiene permiso específico?", hasPermission(resource, action));
+      console.log("🔍 Tiene wildcard?", hasPermission(resource, "*" as ActionName));
+    }
+
     // Si la acción es "*", verificar si tiene el wildcard del recurso
     if (action === "*") {
       if (!hasPermission(resource, "*" as ActionName)) {
@@ -229,6 +238,15 @@ export function NavGroup({ title, items, permission, roles }: NavGroup) {
       if (!parsed) return null;
 
       const { resource, action } = parsed;
+
+      // Debug: verificar permisos para plantillas
+      if (permission === "projects:read") {
+        console.log("🔍 Verificando permiso para grupo:", permission);
+        console.log("🔍 Resource:", resource, "Action:", action);
+        console.log("🔍 Tiene permiso específico?", hasPermission(resource, action));
+        console.log("🔍 Tiene wildcard?", hasPermission(resource, "*" as ActionName));
+      }
+
       // Si la acción es "*", verificar si tiene el wildcard del recurso
       if (action === "*") {
         if (!hasPermission(resource, "*" as ActionName)) {

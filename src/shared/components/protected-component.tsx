@@ -36,6 +36,8 @@ interface ProtectedComponentProps {
 const usePermissionCheck = () => {
   const { data: user, isLoading, error } = useMyProfile();
 
+  console.log("user", JSON.stringify(user?.role?.permissions, null, 2));
+
   const hasPermission = (resource: ResourceName, action: ActionName): boolean => {
     if (!user?.role?.permissions) return false;
 
