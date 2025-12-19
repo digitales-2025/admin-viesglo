@@ -70,9 +70,14 @@ export function useProjectForm({ isUpdate = false, initialData, onSuccess, proje
   const getSubmitData = (data: ProjectsForm) => {
     if (isUpdate && initialData) {
       // En actualización: NO enviar clientId, projectGroupId, projectTemplateId, status, selectedMilestones
-      const { clientId, projectGroupId, projectTemplateId, status, selectedMilestones, ...updateData } = data;
-
-      console.log(clientId, projectGroupId, projectTemplateId, status, selectedMilestones);
+      const {
+        clientId: _clientId,
+        projectGroupId: _projectGroupId,
+        projectTemplateId: _projectTemplateId,
+        status: _status,
+        selectedMilestones: _selectedMilestones,
+        ...updateData
+      } = data;
 
       return updateData;
     }

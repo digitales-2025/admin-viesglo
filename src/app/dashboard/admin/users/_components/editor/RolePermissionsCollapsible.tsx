@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { ChevronDown, ChevronRight, Lock, Settings, Shield } from "lucide-react";
 
 import { Loading } from "@/shared/components/loading";
@@ -22,16 +21,6 @@ export default function RolePermissionsCollapsible({
   selectedRole,
   isLoading = false,
 }: Props) {
-  // Console log de permisos
-  useEffect(() => {
-    if (selectedRole?.permissions) {
-      console.log(
-        "🔐 [RolePermissionsCollapsible] Permisos del rol:",
-        JSON.stringify(selectedRole.permissions, null, 2)
-      );
-    }
-  }, [selectedRole?.permissions]);
-
   if (!selectedRole) return null;
 
   return (

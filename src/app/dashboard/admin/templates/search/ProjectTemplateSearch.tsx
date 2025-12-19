@@ -32,7 +32,6 @@ export function ProjectTemplateSearch({
   // Solo aplicar una vez al inicio si el valor es diferente
   useEffect(() => {
     if (filterByActive !== undefined && filterByActive !== isActive) {
-      console.log("🔵 [ProjectTemplateSearch] Aplicando filtro isActive:", filterByActive);
       handleIsActiveFilter(filterByActive);
     }
   }, [filterByActive, handleIsActiveFilter, isActive]);
